@@ -1,12 +1,7 @@
 #ifndef PAYLOAD_H
 #define PAYLOAD_H
 
-#include "symbols.hpp"
-
-typedef char byte;
-typedef unsigned char ubyte;
-
-class process;
+#include "variable.hpp"
 
 //never return the real payload ptr
 
@@ -78,7 +73,7 @@ public:
 
 	//int& getValue(unsigned int offset, symbol::Type type);
 
-	int getValue(size_t offset, symbol::Type type) const;
+	int getValue(size_t offset, variable::Type type) const;
 	
 	// Set the value stored in 'chunk' at offset 'offset' to 'value'. The number of read bytes depends on 'type'.
 	
@@ -94,7 +89,7 @@ public:
 		*tPtr = value;
 	}
 
-	void setValue(size_t offset, int value, symbol::Type type);
+	void setValue(size_t offset, int value, variable::Type type);
 
 	//void initValues(unsigned int offset, int bytesNbr, byte value);
 

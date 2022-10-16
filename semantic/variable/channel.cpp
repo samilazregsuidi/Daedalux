@@ -1,71 +1,43 @@
 #include "channel.hpp"
 
-#include "scope.hpp"
 #include "payload.hpp"
 
-channel::channel(scope* sc, size_t _offset, const chanSymNode* chanSym, unsigned int index)
-	: variable(sc, _offset, chanSym, index)
+#include "chanSymNode.hpp"
+#include "cidSymNode.hpp"
+
+channel::channel(variable* parent, const chanSymNode* chanSym, unsigned int index)
+	: primitiveVariable(chanSym, parent, index)
 {
 	if(chanSym->getBound() > 1)
 		name += "["+std::to_string(index)+"]";
 
-	if(chanSym->getCapacity() > 0) {
+	if(chanSym->getCapacity() > 0)
 		sizeOf += 1;
 
-		for(int i = 0; i < chanSym->getCapacity(); ++i){
-			unsigned int fieldIndex = 0;
-			for(auto typeSym: chanSym->getTypeList()){
-				for(unsigned int j = 0; j < typeSym->getBound(); ++j){
-					auto msgField = new channelField(sc, this, sizeOf, typeSym, fieldIndex++, i, j);
-					addField(msgField);
-					sizeOf += msgField->getSizeOf();
-				}
-			}
-		}
-
-	} else {
-		_offset = 0;
-		//rendez channel have their own local scope to exchange variables 
-		localScope = new scope(name);
-
+	for(int i = 0; i < chanSym->getCapacity(); ++i){
 		unsigned int fieldIndex = 0;
 		for(auto typeSym: chanSym->getTypeList()){
 			for(unsigned int j = 0; j < typeSym->getBound(); ++j){
-				auto field = new channelField(localScope, this, sizeOf, typeSym, fieldIndex++, 0, j);
-				addPrivateField(field);
-				localScope->_addVariable(field);
+				auto msgField = new channelField(this, typeSym, fieldIndex++, i, j);
+				_addVariable(msgField);
 			}
 		}
-		
-		localScope->init();
-	}		
+	}
 }
 
+channel::channel(const channel* other) 
+	: primitiveVariable(other)
+{}
+
 variable* channel::deepCopy(void) const{
-	channel* copy = new channel(*this);
-	if(copy->isRendezVous()){
-		copy->localScope = new scope(name);
-		copy->clearVariables();
-		for(auto field : getSubFields()) {
-			copy->addPrivateField(field);
-			copy->localScope->_addVariable(field);
-		}
-		localScope->init();
-	}
-	return copy;
+	return new channel(this);
 }
 
 channel::~channel() {
-	if(isRendezVous()) {
-		delete localScope;
-	}
 }
 
 void channel::reset(void) {
-	if(isRendezVous())
-		localScope->getPayload()->reset();
-	else
-		sc->getPayload()->reset();
+	getPayload()->reset();
 }
 
 //int return type for executability check?
@@ -107,11 +79,12 @@ void channel::receive(const std::list<variable*>& rargs) {
 	
 }
 
-variable* channel::getField(unsigned int index) const {
+//to moove to variable class?
+primitiveVariable* channel::getField(unsigned int index) const {
 	assert(0 < index && index < varList.size());
 	auto it = varList.begin();
 	std::advance(it, index);
-	return *it;
+	return dynamic_cast<primitiveVariable*>(*it);
 }
 
 bool channel::isRendezVous(void) const {
@@ -129,25 +102,22 @@ bool channel::isEmpty(void) const {
 byte channel::len(void) const {
 	if(isRendezVous())
 		return 0;
-	return sc->getPayload()->getValue<byte>(offset);
+	return getPayload()->getValue<byte>(offset);
 }
 
 void channel::len(byte newLen) {
 	if(!isRendezVous()) {
 		assert(newLen < getCapacity());
-		sc->getPayload()->setValue<byte>(offset, newLen);
+		getPayload()->setValue<byte>(offset, newLen);
 	}
 }
 
 byte channel::getCapacity(void) const {
-	return dynamic_cast<const chanSymNode*>(symType)->getCapacity();
+	return dynamic_cast<const chanSymNode*>(varSym)->getCapacity();
 }
 
-size_t channel::_getSizeOf(void) const {
-	return isRendezVous()? 0 : 1 + sizeOf;
-}
-
-int channel::operator = (const variable& rvalue) {
+int channel::operator = (const primitiveVariable& rvalue) {
+	rvalue;
 	assert(false);
 }
 
@@ -167,11 +137,13 @@ int channel::operator -- (int) {
 	assert(false);
 }
 
-bool channel::operator == (const variable& other) const {
+bool channel::operator == (const primitiveVariable& other) const {
+	other;
 	assert(false);
 }
 
-bool channel::operator != (const variable& other) const {
+bool channel::operator != (const primitiveVariable& other) const {
+	other;
 	assert(false);
 }
 
@@ -185,8 +157,8 @@ void channel::printTexada(void) const {
 
 /**************************************************************************************************/
 
-channelField::channelField(scope* sc, variable* parent, size_t offset, const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
-	: variable(sc, parent, offset, sym, index)
+channelField::channelField(variable* parent, const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
+	: primitiveVariable(sym, parent, index)
 {
 	name = ".("+sym->getTypeName()+")m" + std::to_string(messageIndex) + ".f" + std::to_string(fieldNumber) + name;
 }
@@ -198,8 +170,8 @@ variable* channelField::deepCopy(void) const{
 
 /**************************************************************************************************/
 
-CIDVar::CIDVar(scope* sc, size_t offset, const cidSymNode* sym, unsigned int bound) 
-	: variable(sc, offset, sym, bound)
+CIDVar::CIDVar(variable* parent, const cidSymNode* sym, unsigned int bound) 
+	: primitiveVariable(sym, parent, bound)
 	, ref(nullptr)
 {}
 
@@ -214,13 +186,13 @@ channel* CIDVar::getRefChannel(void) const {
 	
 void CIDVar::setRefChannel(channel* newRef) {
 	ref = newRef;
-	sc->getPayload()->setValue<channel*>(offset, newRef);
+	getPayload()->setValue<channel*>(offset, newRef);
 }
 
-void CIDVar::assign(scope* sc) {
+void CIDVar::assign(const variable* sc) {
 	variable::assign(sc);
 	if(ref) {
-		ref = dynamic_cast<channel*>(sc->getVariable(ref->getName()));
+		ref = dynamic_cast<channel*>(sc->getVariable(ref->getLocalName()));
 		assert(ref);
 	}
 }

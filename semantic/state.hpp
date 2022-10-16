@@ -30,18 +30,22 @@
 #include <string>
 #include <functional>
 
+#include "variable.hpp"
+
 typedef char byte;
 typedef unsigned char ubyte;
 
 class transition;
 
 // State
-class state {
+class state : public variable {
 public:
 
-	state(void);
+	state(variable::Type type, state* parent = nullptr, const std::string& name = "");
 
-	//state(const state& s) = default;
+	state(const state& s);
+
+	state(const state* other);
 
 	virtual state* deepCopy(void) const = 0;
 
@@ -107,8 +111,6 @@ public:
 
 	virtual bool isAccepting(void) const = 0;
 
-	virtual std::string getName(void) const;
-
 	/*
 	* If the pid of the last process is 'pid' then:
 	*  - the stateMask of the process is removed
@@ -130,19 +132,9 @@ public:
 	
 	//virtual byte compare(const state& s2) const = 0;
 
-	virtual void print(void) const = 0;
-
-	virtual void printGraphViz(unsigned long i) const = 0;
-
-	virtual void printTexada(void) const = 0;
-
-	virtual void printHexadecimal(void) const = 0;
-
-	virtual unsigned long hash(void) const = 0;
+	virtual void printGraphViz(unsigned long i) const {}
 
 public:
-	//std::list<state*> subStates;
-	std::string name;
 	double prob;
 	const transition* trans;
 };

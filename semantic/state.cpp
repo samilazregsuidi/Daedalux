@@ -13,17 +13,29 @@
  *
  * Does not set the payloadHash.
  */
-state::state(void)
-	: prob(0.0)
+
+state::state(variable::Type type, state* parent, const std::string& name)
+	: variable(type, parent, name)
+	, prob(0.0)
 	, trans(nullptr)
 {
 }
 
-state::~state() {}
-
-std::string state::getName(void) const {
-	return name;
+state::state(const state& other)
+	: variable(other)
+	, prob(other.prob)
+	, trans(other.trans)
+{
 }
+
+state::state(const state* other)
+	: variable(other)
+	, prob(other->prob)
+	, trans(other->trans)
+{
+}
+
+state::~state() {}
 
 bool state::hasDeadlock(void) const {
 	return executables().size() == 0;

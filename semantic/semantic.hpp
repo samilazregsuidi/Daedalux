@@ -4,6 +4,8 @@
 #include "process.hpp"
 #include "transition.hpp"
 #include "variable.hpp"
+#include "utypeVariable.hpp"
+#include "boolVariable.hpp"
+#include "mtypeVariable.hpp"
 #include "channel.hpp"
-#include "scope.hpp"
 

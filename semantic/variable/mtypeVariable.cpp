@@ -1,0 +1,120 @@
+#include "mtypeVariable.hpp"
+
+#include "varExpr.hpp"
+
+mtypeVar::mtypeVar(variable* parent, const mtypeSymNode* sym, unsigned int index)
+	: primitiveVariable(sym, parent, index)
+{}
+
+void mtypeVar::init(void) {
+
+	auto initExpr = varSym->getInitExpr();
+
+	if(initExpr) {
+		
+		//its a cmtype value...
+		assert(initExpr->getType() == astNode::E_EXPR_VAR);
+
+		auto sym = dynamic_cast<exprVar*>(initExpr)->getFinalSymbol();
+		assert(sym && sym->getType() == symbol::T_CMTYPE);
+
+		setValue(dynamic_cast<const cmtypeSymNode*>(sym)->getIntValue());
+	}
+}
+
+int mtypeVar::operator ++ (void) {
+	assert(false);
+}
+
+int mtypeVar::operator -- (void) {
+	assert(false);
+}
+
+int mtypeVar::operator ++ (int) {
+	assert(false);
+}
+
+int mtypeVar::operator -- (int) {
+	assert(false);
+}
+
+variable* mtypeVar::deepCopy(void) const {
+	mtypeVar* copy = new mtypeVar(*this);
+	//warning shared payload! 
+	return copy;
+}
+
+void mtypeVar::print(void) const {
+	auto value = getValue();
+	if(value) {
+		auto def = dynamic_cast<const mtypeSymNode*>(varSym)->getMTypeDef();
+		auto mtypestr = def->getCmtypeSymNodeName(value);
+		printf("0x%-4lx:   %-23s = %s\n", offset, getLocalName().c_str(), mtypestr.c_str());
+	} else {
+		printf("0x%-4lx:   %-23s = nil\n", offset, getLocalName().c_str());
+	}
+}
+
+void mtypeVar::printTexada(void) const {
+	if(varSym->isPredefined())
+		return;
+	auto value = getValue();
+	if(value) {
+		auto def = dynamic_cast<const mtypeSymNode*>(varSym)->getMTypeDef();
+		auto mtypestr = def->getCmtypeSymNodeName(value);
+		printf("%s = %s\n", getLocalName().c_str(), mtypestr.c_str());
+	} else {
+		printf("%s = nil\n", getLocalName().c_str());
+	}
+}
+
+/******************************************************************************************************/
+
+cmtypeVar::cmtypeVar(variable* parent, const cmtypeSymNode* sym) 
+	: primitiveVariable(sym, parent)
+{}
+
+void cmtypeVar::setValue(int value) {
+	value;
+	assert(false);
+}
+	
+int cmtypeVar::getValue(void) const {
+	return dynamic_cast<const cmtypeSymNode*>(varSym)->getIntValue();
+}
+
+variable* cmtypeVar::deepCopy(void) const {
+	cmtypeVar* copy = new cmtypeVar(*this);
+	//warning shared payload! 
+	return copy;
+}
+
+int cmtypeVar::operator = (const primitiveVariable& rvalue) {
+	rvalue;
+	assert(false);
+}
+
+int cmtypeVar::operator ++ (void) {
+	assert(false);
+}
+
+int cmtypeVar::operator -- (void) {
+	assert(false);
+}
+
+int cmtypeVar::operator ++ (int) {
+	assert(false);
+}
+
+int cmtypeVar::operator -- (int) {
+	assert(false);
+}
+
+void cmtypeVar::print(void) const {
+	//assert(false);
+}
+
+void cmtypeVar::printTexada(void) const {
+}
+
+/******************************************************************************************************/

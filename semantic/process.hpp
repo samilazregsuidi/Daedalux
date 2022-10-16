@@ -8,8 +8,6 @@
 
 #include "state.hpp"
 
-#include "scope.hpp"
-
 typedef char byte;
 
 class progState;
@@ -37,7 +35,7 @@ class exprRArgList;
 
 // A state mask gives for every process the pid, a pointer to its symtab node
 // and its offset in the payload
-class process : public scope, public state {
+class process : public state {
 public:
 	friend class state;
 
@@ -45,9 +43,9 @@ public:
 
 	process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args);
 
-	process* deepCopy(void) const override;
+	process(const process* other);
 
-	symbol::Type getType(void) const;
+	process* deepCopy(void) const override;
 
 	void init(void) override;
 
@@ -62,6 +60,8 @@ public:
 	void setFsmNodePointer(const fsmNode* pointer);
 
 	void setProgState(progState* newS);
+
+	progState* getProgState(void) const;
 
 	bool nullstate(void) const override;
 
@@ -106,19 +106,10 @@ public:
 
 	//byte compare(const state& s2) const override;
 
-	void printGraphViz(unsigned long i) const override;
-
-	void printTexada(void) const override;
-
-	void printHexadecimal(void) const override;
-
-	unsigned long hash(void) const override;
-
 private:
 	const seqSymNode* symType;
 	unsigned int index;
 
-	progState* s;
 	const fsmNode* const start;
 
 	mutable bool _else;

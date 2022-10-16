@@ -559,11 +559,13 @@ public:
 	}
 
 	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		
+		visitor = visitor;
+		return 0;
 	}
 
 	int acceptVisitor(ASTVisitorInt* visitor) override {
-		
+		visitor = visitor;
+		return 0;
 	}
 };
 

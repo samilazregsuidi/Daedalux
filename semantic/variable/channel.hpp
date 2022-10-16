@@ -4,17 +4,19 @@
 #include <string>
 #include <list>
 
-#include "variable.hpp"
+#include "primitiveVariable.hpp"
 
-class channel : public variable {
+class channel : public primitiveVariable {
 public:
-	channel(scope* sc, size_t offset, const chanSymNode* sym, unsigned int bound =  0);
+	channel(variable* parent, const chanSymNode* sym, unsigned int bound =  0);
 
-	~channel() override;
+	channel(const channel* other);
 
 	variable* deepCopy(void) const override;
 
-	int operator = (const variable& rvalue) override;
+	~channel() override;
+
+	int operator = (const primitiveVariable& rvalue) override;
 
 	int operator ++ (void) override;
 
@@ -24,9 +26,9 @@ public:
 
 	int operator -- (int) override;
 
-	bool operator == (const variable& other) const override;
+	bool operator == (const primitiveVariable& other) const override;
 
-	bool operator != (const variable& other) const override;
+	bool operator != (const primitiveVariable& other) const override;
 
 	void send(const std::list<const variable*>& args);
 
@@ -40,13 +42,11 @@ public:
 
 	bool isFull(void) const;
 
-	variable* getField(unsigned int index) const;
+	primitiveVariable* getField(unsigned int index) const;
 	
 	byte len(void) const;
 
 	byte getCapacity(void) const;
-
-	size_t _getSizeOf(void) const override;
 
 	void print(void) const override;
 
@@ -54,24 +54,19 @@ public:
 
 private:
 	void len(byte newLen);
-
-private:
-	scope* localScope;
 };
 
-class channelField : public variable {
+class channelField : public primitiveVariable {
 public:
-	channelField(scope* sc, variable* parent, size_t offset, const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex = 0, unsigned int index =  0);
+	channelField(variable* parent, const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex = 0, unsigned int index =  0);
 
 	variable* deepCopy(void) const override;
 };
-/*
-class message : public std::list<int> {
-};
-*/
-class CIDVar : public variable {
+
+
+class CIDVar : public primitiveVariable {
 public:
-	CIDVar(scope* sc, size_t offset, const cidSymNode* sym, unsigned int bound =  0);
+	CIDVar(variable* parent, const cidSymNode* sym, unsigned int bound =  0);
 
 	variable* deepCopy(void) const override;
 
@@ -79,7 +74,7 @@ public:
 	
 	void setRefChannel(channel* newRef);
 
-	void assign(scope* sc) override;
+	void assign(const variable* sc) override;
 
 private:
 	channel* ref;

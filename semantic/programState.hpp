@@ -35,9 +35,15 @@ public:
 
 	progState(const fsm* stateMachine); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
+	progState(state* parent, const fsm* stateMachine); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+
+	progState(const progState* other);
+
 	//state(const state& s) = default;
 
 	progState* deepCopy(void) const override;
+
+	void assign(const variable* sc) override;
 	/**
 	 * Frees the memory used by a given state. It does NOT free any symbol tables, FSM or mtypes list.
 	 * However, it DOES free:
@@ -71,10 +77,6 @@ public:
 	*/
 	process* addNever(const neverSymNode* neverSym);
 
-	size_t _getSizeOf(void) const;
-
-	size_t getSizeOf(void) const;
-
 	bool nullstate(void) const override;
 
 	bool endstate(void) const override;
@@ -101,6 +103,8 @@ public:
 	state* applyNever(const transition* trans);
 	
 	process* getProc(int pid) const; // Returns the stateMask with pid 'pid'.
+
+	std::list<process*> getProcs(void) const;
 
 	process* getNeverClaim(void) const;
 
@@ -164,45 +168,23 @@ public:
 
 	void printGraphViz(unsigned long i) const override;
 
-	void printTexada(void) const override;
-
-	void printHexadecimal(void) const override;
-
-	unsigned long hash(void) const override;
-
 	//const ADD& getFeatures(void) const;
-
-private:
-	void setPayload(payload* payLoad);
-
-	void assign(scope* sc);
 
 public:
 	const symTable* const globalSymTab;
 	const fsm* const stateMachine;
 
-	//ADD features;
-	//ordere by name?
-	std::list<process*> procs;
-	process* never; 	// If f is an LTL formula to be checked, never is the stateMask conversion of ~f.
-								//	Furthermore, never->node returns the current node in this FSM. Note that pid and offset have no importance here.
-								//	Also, never->next is supposed to be NULL.
-
 	unsigned int pidCounter;
 	int nbProcesses; 			// Number of running processes.
 	int nbNeverClaim;			// Number of neverClaim
 	int lastStepPid; 			// pid of the process that fired transition that got us into this state. (NOT part of the actual state of the system, just a helper)
-	
-	scope* global;
 
 	mutable const channel* handShakeChan;
 	mutable const process* handShakeProc;
 	mutable const process* exclusiveProc;
 	mutable bool timeout;
 
-	double prob;
-
-	const transition* trans;
+	process* never;
 };
 
 #endif

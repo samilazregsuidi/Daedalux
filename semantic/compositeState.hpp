@@ -36,6 +36,8 @@ public:
 
 	compState(void); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
+	compState(const compState* other);
+
 	//state(const state& s) = default;
 
 	compState* deepCopy(void) const;
@@ -74,7 +76,9 @@ public:
 	
 	//state* applyNever(const transition* trans);
 
-	state* getState(const std::string& name) const; // Returns the stateMask with pid 'pid'.
+	state* getSubState(const std::string& name) const; // Returns the stateMask with pid 'pid'.
+
+	std::list<state*> getSubStates(void) const;
 
 	/*
 	* Gets the symbol table of a channel by giving its offset in the memory chunk.
@@ -88,10 +92,6 @@ public:
 	* Does not change the payloadHash.
 	*/
 	void addState(state* s);
-
-	size_t _getSizeOf(void) const;
-
-	size_t getSizeOf(void) const;
 
 	/*
 	* If the pid of the last process is 'pid' then:
@@ -117,21 +117,11 @@ public:
 
 	void printHexadecimal(void) const override;
 
-	unsigned long hash(void) const override;
-
 	bool nullstate(void) const override;
 
 	bool endstate(void) const override;
 
 	bool isAccepting(void) const override;
-
-public:
-
-	std::map<std::string, state*> subStates;
-
-	double prob;
-
-	const transition* trans;
 };
 
 #endif

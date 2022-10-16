@@ -81,10 +81,15 @@ add_executable(deadalux
 	./semantic/state.cpp
 	./semantic/programState.cpp
 	./semantic/compositeState.cpp
-	./semantic/scope.cpp
 	./semantic/process.cpp
-	./semantic/variable.cpp
-	./semantic/channel.cpp
+	
+	./semantic/variable/variable.cpp
+	./semantic/variable/primitiveVariable.cpp
+	./semantic/variable/utypeVariable.cpp
+	./semantic/variable/boolVariable.cpp
+	./semantic/variable/mtypeVariable.cpp
+	./semantic/variable/channel.cpp
+	
 	./semantic/payload.cpp
 	./semantic/transition.cpp
 	./semantic/programTransition.cpp
@@ -112,6 +117,7 @@ target_include_directories(deadalux
     ./ast/visitor
     
     ./semantic
+    ./semantic/variable
     
     ./parser
 

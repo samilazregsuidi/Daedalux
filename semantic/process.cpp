@@ -19,18 +19,21 @@
 //#include "cuddObj.hh"
 
 process::process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: scope(std::to_string(pid) + sym->getName().c_str(), s->global)
+	: state(variable::V_PROC, s, sym->getName())
 	, symType(sym)
 	, index(index)
-	, s(s)
 	, start(start)
 	, _else(false)
 	, pid(pid)
 {
+
+	//seq sym node need boud attr. if arrays
+	assert(index == 0);
+
 	addRawBytes(sizeof(const fsmNode*));
 
-	for (auto s : sym->getSymTable()->getSymbols<const varSymNode*>())
-		addVariables(s);
+	for (auto procSym : sym->getSymTable()->getSymbols<const varSymNode*>())
+		addVariables(procSym);
 }
 
 process::process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args)
@@ -45,40 +48,37 @@ process::process(progState* s, const seqSymNode* sym, const fsmNode* start, byte
 	}
 }
 
-//code duplication with scope class
+process::process(const process* other)
+	: state(other)
+	, symType(other->symType)
+	, index(other->index)
+	, start(other->start)
+	, _else(other->_else)
+	, pid(other->pid)
+{
+}
+
 process* process::deepCopy(void) const {
-	process* copy = new process(*this);
-	copy->payLoad = nullptr;
-
-	copy->subScopes.clear();
-	for(auto subsc : subScopes)
-		copy->addSubScope(subsc->deepCopy());
-
-	copy->varMap.clear();
-	copy->varList.clear();
-
-	for(auto var : varList)
-		copy->_addVariable(var->deepCopy());
-
-	for(auto var : varList)
-		var->assign(copy);
-
-	return copy;
+	return new process(this);
 }
 
 void process::init(void) {
 	
-	scope::init();
+	variable::init();
 	setFsmNodePointer(start);
-	scope::getVariable("_pid")->setValue(pid);
+	variable::getTVariable<primitiveVariable*>("_pid")->setValue(pid);
 }
 
 void process::setProgState(progState* newS) {
-	s = newS;
+	setParent(newS);
+}
+
+progState* process::getProgState(void) const {
+	return dynamic_cast<progState*>(getParent());
 }
 
 byte process::getPid(void) const {
-	return scope::getVariable("_pid")->getValue();
+	return variable::getTVariable<primitiveVariable*>("_pid")->getValue();
 }
 
 const fsmNode* process::getFsmNodePointer(void) const {
@@ -123,7 +123,23 @@ std::string process::getVarName(const expr* varExpr) const {
 
 variable* process::getVariable(const expr* varExpr) const {
 	auto varName = getVarName(varExpr);
-	return scope::getVariable(varName);
+	const variable* scope = this;
+	
+	size_t pos = 0;
+
+	std::string token;
+
+	while ((pos = varName.find(".")) != std::string::npos) {
+    	token = varName.substr(0, pos);
+
+		scope = scope->getVariable(token);
+
+		std::cout << token << std::endl;
+
+    	varName.erase(0, pos + std::string(".").length());		
+	}
+
+	return scope->getVariable(varName);
 }
 
 std::list<variable*> process::getVariables(const exprArgList* args) const {
@@ -132,7 +148,7 @@ std::list<variable*> process::getVariables(const exprArgList* args) const {
 		auto exp = args->getExprArg()->getExpr();
 		variable* ptr;
 		if(exp->getType() == astNode:: E_EXPR_CONST)
-			ptr = new constVar(eval(exp, EVAL_EXPRESSION), exp->getExprType(), exp->getLineNb());
+			ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
 		else
 			ptr = getVariable(exp)->deepCopy();
 		res.push_back(ptr);
@@ -147,7 +163,7 @@ std::list<const variable*> process::getConstVariables(const exprArgList* args) c
 		auto exp = args->getExprArg()->getExpr();
 		const variable* ptr;
 		if(exp->getType() == astNode:: E_EXPR_CONST)
-			ptr = new constVar(eval(exp, EVAL_EXPRESSION), exp->getExprType(), exp->getLineNb());
+			ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
 		else
 			ptr = getVariable(exp);
 		res.push_back(ptr);
@@ -165,7 +181,7 @@ std::list<variable*> process::getVariables(const exprRArgList* rargs) const {
 		{
 		case astNode::E_RARG_CONST:
 		case astNode::E_RARG_EVAL:
-			ptr = new constVar(eval(exp, EVAL_EXPRESSION), exp->getExprType(), exp->getLineNb());
+			ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
 			break;
 		case astNode::E_RARG_VAR:
 			ptr = getVariable(exp);
@@ -189,7 +205,7 @@ std::list<const variable*> process::getConstVariables(const exprRArgList* rargs)
 		{
 		case astNode::E_RARG_CONST:
 		case astNode::E_RARG_EVAL:
-			ptr = new constVar(eval(exp, EVAL_EXPRESSION), exp->getExprType(), exp->getLineNb());
+			ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
 			break;
 		case astNode::E_RARG_VAR:
 			ptr = getVariable(exp)->deepCopy();
@@ -205,7 +221,7 @@ std::list<const variable*> process::getConstVariables(const exprRArgList* rargs)
 }
 
 channel* process::getChannel(const expr* varExpr) const {
-	return scope::getChannel(getVarName(varExpr));
+	return variable::getChannel(getVarName(varExpr));
 }
 
 bool process::isAccepting(void) const {
@@ -225,7 +241,7 @@ bool process::endstate(void) const {
 }
 
 std::string process::getName(void) const {
-	return scope::getName();
+	return variable::getLocalName();
 }
 
 /**
@@ -248,6 +264,8 @@ std::list<transition*> process::executables(void) const {
 		if(eval(edge, EVAL_EXECUTABILITY) > 0) {
 
 			//auto conjunct = s->getFeatures() * edge->getFeatures();
+
+			progState* s = getProgState();
 
 			if(edge->getExpression()->getType() == astNode::E_STMNT_CHAN_SND) {
 				
@@ -299,6 +317,8 @@ int process::eval(const astNode* node, byte flag) const {
 	assert(node);
 	if(!node)	
 		return 0;
+
+	progState* s = getProgState();
 
 	//MODE : HANDSHAKE REQUEST TO MEET
 	if(flag == EVAL_EXECUTABILITY && s->hasHandShakeRequest() && node->getType() != astNode::E_STMNT_CHAN_RCV)
@@ -535,7 +555,7 @@ int process::eval(const astNode* node, byte flag) const {
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
 			auto var = getVariable(varRef);
-			auto value = var->getValue();
+			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
 			return value;
 		}
 		case(astNode::E_VARREF_NAME):
@@ -543,7 +563,7 @@ int process::eval(const astNode* node, byte flag) const {
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
 			auto var = getVariable(varRefName);
-			auto value = var->getValue();
+			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
 			return value;
 		}
 		
@@ -587,6 +607,8 @@ state* process::apply(const transition* trans) {
 	auto expression = edge->getExpression();
 
 	//_assertViolation = 0;
+
+	progState* s = getProgState();
 
 	byte leaveUntouched = 0; // Set to 1 in case of a rendez-vous channel send.
 Apply:
@@ -657,7 +679,7 @@ Apply:
 		case(astNode::E_STMNT_ASGN):
 		{
 			auto assign = dynamic_cast<const stmntAsgn*>(expression);
-			variable* lvalue = getVariable(assign->getVarRef());
+			auto* lvalue = dynamic_cast<primitiveVariable*>(getVariable(assign->getVarRef()));
 			expr* rvalue = assign->getAssign();
 			auto value = eval(rvalue, EVAL_EXPRESSION);
 			lvalue->setValue(value);
@@ -666,14 +688,14 @@ Apply:
 		case(astNode::E_STMNT_INCR):
 		{
 			auto incr = dynamic_cast<const stmntIncr*>(expression);
-			auto& var = *getVariable(incr->getVarRef());
+			auto& var = *(dynamic_cast<primitiveVariable*>(getVariable(incr->getVarRef())));
 			++var;
 			break;
 		}
 		case(astNode::E_STMNT_DECR):
 		{
 			auto incr = dynamic_cast<const stmntDecr*>(expression);
-			auto& var = *getVariable(incr->getVarRef());
+			auto& var = *(dynamic_cast<primitiveVariable*>(getVariable(incr->getVarRef())));
 			--var;
 			break;
 		}
@@ -819,25 +841,6 @@ void process::print(void) const {
 		else 		printf("0x%-4lx:   %s pid  %-13u @ end\n", getOffset(), symType->getName().c_str(), getPid());
 	}
 
-	scope::print();
+	variable::print();
 
-}
-
-/*byte process::compare(const state& s2) const {
-
-}*/
-
-void process::printGraphViz(unsigned long i) const {
-}
-
-void process::printTexada(void) const {
-	scope::printTexada();
-}
-
-unsigned long process::hash(void) const {
-	return scope::hash();
-}
-
-void process::printHexadecimal(void) const {
-	scope::printHexadecimal();
 }

@@ -52,9 +52,9 @@ int copyFile(const std::string& source, const std::string& target) {
 	return 0;
 }
 
-#define PRINT_STATE printTexada
+#define PRINT_STATE print
 
-#define B 10
+#define B 100
 
 void launchExecution(const fsm* automata) {
 	state* current = new progState(automata);
@@ -76,7 +76,7 @@ void launchExecution(const fsm* automata) {
 	printf("--\n");
 }
 
-#define K 100
+#define K 3
 
 void findLasso(const fsm* automata, size_t k_steps) {
 	
@@ -148,7 +148,7 @@ void createStateSpace(const fsm* automata) {
 
 }
 
-#define NB_LASSO 1000
+#define NB_LASSO 1
 
 int main(int argc, char *argv[]) {
 
@@ -190,12 +190,12 @@ int main(int argc, char *argv[]) {
 	output << stmnt::string(program);
 	output.close();
 
-	//ASTtoFSM converter;
-	//fsm* automata = converter.astToFsm(globalSymTab, program);
-	//std::ofstream graph;
-	//graph.open("fsm_graphvis");
-	//automata->printGraphVis(graph);
-	//graph.close();
+	ASTtoFSM converter;
+	fsm* automata = converter.astToFsm(globalSymTab, program);
+	std::ofstream graph;
+	graph.open("fsm_graphvis");
+	automata->printGraphVis(graph);
+	graph.close();
 
 	/*for(unsigned int i = 1; i <= index; i++) {
 		auto copy = program->deepCopy();
@@ -207,8 +207,10 @@ int main(int argc, char *argv[]) {
 		delete copy;
 	}*/
 
-	//for(int i = 0; i < NB_LASSO; ++i)
-	//	findLasso(automata, K);
+	/*for(int i = 0; i < NB_LASSO; ++i)
+		findLasso(automata, K);*/
+
+	launchExecution(automata);
 
 	//std::ofstream symtable;
 	//symtable.open("sym_table_graphviz");

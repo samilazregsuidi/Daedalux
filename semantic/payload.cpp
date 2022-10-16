@@ -1,5 +1,7 @@
 #include "payload.hpp"
 
+#include <cstdlib>
+#include <cassert>
 #include <string.h>
 #include <string_view>
 
@@ -102,20 +104,20 @@ payload* payload::copy(void) const {
 	return values;
 }*/
 
-int payload::getValue(size_t offset, symbol::Type type) const {
+int payload::getValue(size_t offset, variable::Type type) const {
 	switch(type){
-		case symbol::T_BIT:
-		case symbol::T_BYTE:
-		case symbol::T_PID:
-		case symbol::T_CID:
-		case symbol::T_MTYPE:
-		case symbol::T_CMTYPE:
+		case variable::V_BIT:
+		case variable::V_BYTE:
+		case variable::V_PID:
+		case variable::V_CID:
+		case variable::V_MTYPE:
+		case variable::V_CMTYPE:
 			return getValue<byte>(offset);
-		case symbol::T_BOOL:
+		case variable::V_BOOL:
 			return getValue<bool>(offset);
-		case symbol::T_SHORT:
+		case variable::V_SHORT:
 			return getValue<short>(offset);
-		case symbol::T_INT:
+		case variable::V_INT:
 			return getValue<int>(offset);
 		default:
 			assert(false);
@@ -125,23 +127,23 @@ int payload::getValue(size_t offset, symbol::Type type) const {
 	return -1;
 }
 
-void payload::setValue(size_t offset, int value, symbol::Type type) {
+void payload::setValue(size_t offset, int value, variable::Type type) {
 	switch(type){
-		case symbol::T_BIT:
-		case symbol::T_BYTE:
-		case symbol::T_PID:
-		case symbol::T_CID:
-		case symbol::T_MTYPE:
-		//case symbol::T_CMTYPE:
+		case variable::V_BIT:
+		case variable::V_BYTE:
+		case variable::V_PID:
+		case variable::V_CID:
+		case variable::V_MTYPE:
+		//case variable::V_CMTYPE:
 			setValue<byte>(offset, value);
 			return;
-		case symbol::T_BOOL:
+		case variable::V_BOOL:
 			setValue<bool>(offset, value);
 			return;
-		case symbol::T_SHORT:
+		case variable::V_SHORT:
 			setValue<short>(offset, value);
 			return;
-		case symbol::T_INT:
+		case variable::V_INT:
 			setValue<int>(offset, value);
 			return;
 		default:

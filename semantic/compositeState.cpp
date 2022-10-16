@@ -14,32 +14,19 @@
  * Does not set the payloadHash.
  */
 compState::compState() 
-	: prob(1.0)
-	, trans(nullptr)
+	: state(variable::V_COMP_STATE)
 {}
 
-unsigned long compState::hash(void) const {
-	unsigned long* compHashPtr = new unsigned long[subStates.size()];
-	int i = 0;
-	for(auto elem : subStates)
-		compHashPtr[i++] = elem.second->hash();
-	
-	unsigned long res = std::hash<std::string_view>{}(std::string_view(reinterpret_cast<byte*>(compHashPtr), subStates.size() * sizeof(unsigned long)));
-	delete[] compHashPtr;
-	return res;
+compState::compState(const compState* other)
+	: state(other)
+{
 }
 
 compState* compState::deepCopy(void) const {
-	compState* copy = new compState(*this);
-	copy->subStates.clear();
-	for(auto elem : subStates)
-		copy->subStates[elem.first] = elem.second->deepCopy();
-	return copy;
+	return new compState(this);
 }
 
 compState::~compState() {
-	for(auto elem : subStates)
-		delete elem.second;
 }
 
 /*
@@ -70,20 +57,19 @@ compState::~compState() {
 }*/
 
 void compState::print(void) const {
-	for(auto elem : subStates)
-		elem.second->print();
+	variable::print();
 	printf("prob : %lf\n", prob);
 }
 
 void compState::printTexada(void) const {
-	for(auto elem : subStates)
-		elem.second->printTexada();
+	variable::printTexada();
 	printf("..\n");
 }
 
 void compState::printGraphViz(unsigned long i) const {
-	for(auto elem : subStates)
-		elem.second->printGraphViz(i);
+	auto subStates = getTVariables<state*>();
+	for(auto s : subStates)
+		s->printGraphViz(i);
 }
 
 /**
@@ -97,7 +83,7 @@ std::list<transition*> compState::executables(void) const {
 	std::list<transition*> execs;
 
 	std::vector<std::vector<transition*>> stateTransList;
-	for(auto [name, s] : subStates) {
+	for(auto s : getSubStates()) {
 		auto Ts = s->executables();
 		stateTransList.push_back(std::vector<transition*>{ std::begin(Ts), std::end(Ts) });
 	}
@@ -127,7 +113,7 @@ state* compState::apply(const transition* trans) {
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 
 	for(auto trans : compTrans->Ts) {
-		auto s = getState(trans->src->getName());
+		auto s = getSubState(trans->src->getLocalName());
 		assert(s);
 		s->apply(trans);
 	}
@@ -140,29 +126,32 @@ state* compState::apply(const transition* trans) {
 }
 
 bool compState::nullstate(void) const {
-	for(auto elem : subStates)
-		if(!elem.second->nullstate())
+	for(auto elem : getSubStates())
+		if(!elem->nullstate())
 			return false;
 	return true;
 }
 
 bool compState::endstate(void) const {
-	for(auto elem : subStates)
-		if(!elem.second->endstate())
+	for(auto elem : getSubStates())
+		if(!elem->endstate())
 			return false;
 	return true;
 }
 
 bool compState::isAccepting(void) const {
-	for(auto elem : subStates)
-		if(elem.second->isAccepting())
+	for(auto elem : getSubStates())
+		if(elem->isAccepting())
 			return true;
 	return false;
 }
 
-state* compState::getState(const std::string& name) const {
-	auto it = subStates.find(name);
-	return it == subStates.end()? nullptr : it->second;
+state* compState::getSubState(const std::string& name) const {
+	return getTVariable<state*>(name);
+}
+
+std::list<state*> compState::getSubStates(void) const {
+	return getTVariables<state*>();
 }
 
 void compState::printHexadecimal(void) const {

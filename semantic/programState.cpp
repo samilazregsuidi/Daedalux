@@ -24,32 +24,34 @@
  * Does not set the payloadHash.
  */
 
-progState::progState(const fsm* stateMachine) 
-	: globalSymTab(stateMachine->getGlobalSymTab())
+progState::progState(const fsm* stateMachine)
+	: progState(nullptr, stateMachine)
+{
+}
+
+progState::progState(state* parent, const fsm* stateMachine) 
+	: state(variable::V_STATE, parent)
+	, globalSymTab(stateMachine->getGlobalSymTab())
 	, stateMachine (stateMachine)
-	, never(nullptr)
 	, pidCounter(0)
 	, nbProcesses(0)
 	, lastStepPid(0)
-	, global(nullptr)
 	, handShakeChan(nullptr)
 	, handShakeProc(nullptr)
 	, exclusiveProc(nullptr)
 	, timeout(false)
-	, prob(1.0)
-	, trans(nullptr)
+	, never(nullptr)
 {
 
-	global = new scope("global");
-	global->addRawBytes(SIZE_EXCLUSIVITY_VAR);
-	global->addRawBytes(SIZE_HANDSHAKE_VAR);
+	addRawBytes(SIZE_EXCLUSIVITY_VAR);
+	addRawBytes(SIZE_HANDSHAKE_VAR);
 
 	for (const auto neverSym : globalSymTab->getSymbols<const neverSymNode*>()) {
 		addNever(neverSym);
 	}
 
 	for (auto sym : globalSymTab->getSymbols<const varSymNode*>()) {
-		global->addVariables(sym);
+		addVariables(sym);
 	}
 
 	/**
@@ -67,88 +69,47 @@ progState::progState(const fsm* stateMachine)
 		}
 	}
 
-	global->init();
+	init();
 
 	// No process is executing something atomic
-	global->getPayload()->setValue(OFFSET_EXCLUSIVITY_VAR, NO_PROCESS);
+	getPayload()->setValue(OFFSET_EXCLUSIVITY_VAR, NO_PROCESS);
 	// No rendezvous has been requested.
-	global->getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
+	getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 
 	/*for(auto e : symPtr){
 		std::cout << "symbol " << std::string(*e.first) << " at : "<<e.second<<"\n";
 	}*/
 }
 
-unsigned long progState::hash(void) const {
-	return global->hash();
-}
+progState::progState(const progState* other)
+	: state(other)
+	, globalSymTab(other->globalSymTab)
+	, stateMachine(other->stateMachine)
+{}
 
-void progState::setPayload(payload* payLoad) {
-	global->setPayload(payLoad);
-}
-
-/*
- * STATE DUPLICATION
- * * * * * * * * * * * * * * * * * * * * * * * */
-
-/**
- * Duplicates a state.
- *
- * This function does NOT duplicate the boolean formula of the state.  This is because it is only
- * used in apply() and there the copy of the boolean formula is of no use.
- */
-/*
-state::state(const state& s) 
-	: nbProcesses(s.nbProcesses)
-	, payLoad(new payload(*s.payLoad))
-{
-	this->lastStepPid = s.lastStepPid;
-	//this->features = nullptr; // see function description
-	this->never = s.never->deepCopy();
-	
-	for(const auto& var : s.varList)
-		addVar(var->deepCopy());
-
-	// Copying processes information
-	for(const auto& proc : s.procs) {
-		procs.push_back(proc->deepCopy());
-	}
-}
-*/
 
 progState* progState::deepCopy(void) const {
-	progState* copy = new progState(*this);
-	auto newScope = global->deepCopy();
-	newScope->setPayload(global->getPayload()->copy());
-	copy->assign(newScope);
+	progState* copy = new progState(this);
+	//auto newScope = deepCopy();
+	//newScope->setPayload(getPayload()->copy());
+	//copy->assign(newScope);
 	return copy;
 }
 
-void progState::assign(scope* sc) {
-	procs.clear();
-	global = sc;
-
-	for(auto proc : sc->getProcesses()) {
-		proc->setProgState(this);
-		procs.push_back(proc);
-	}
-
-	if(never) {
-		never = dynamic_cast<process*>(global->getSubScope(never->getName()));
-		assert(never);
-		never->setProgState(this);
-	}
+void progState::assign(const variable* sc) {
+	
+	variable::assign(sc);
 
 	if(handShakeChan) {
-		handShakeChan = global->getChannel(handShakeChan->getName());
+		handShakeChan = getChannel(handShakeChan->getLocalName());
 		assert(handShakeChan);
 	}
 	if(handShakeProc) {
-		handShakeProc = global->getProcess(handShakeProc->getName());
+		handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
 		assert(handShakeProc);
 	}
 	if(exclusiveProc) {
-		exclusiveProc = global->getProcess(exclusiveProc->getName());
+		exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
 		assert(exclusiveProc);
 	}
 }
@@ -171,7 +132,6 @@ void progState::assign(scope* sc) {
  */
 
 progState::~progState() {
-	delete global;
 }
 
 /*
@@ -218,12 +178,8 @@ byte progState::compare(const state& s2) const {
 }*/
 
 void progState::print(void) const {
-	global->print();
+	variable::print();
 	printf("prob : %lf\n", prob);
-}
-
-void progState::printTexada(void) const {
-	global->printTexada();
 }
 
 void progState::printGraphViz(unsigned long i) const {
@@ -232,7 +188,7 @@ void progState::printGraphViz(unsigned long i) const {
 	stateFile.open("trace/" + std::to_string(i) + ".dot");
 	
 	std::list<const fsmNode*> locs;
-	for(auto p : procs)
+	for(auto p : getProcs())
 		locs.push_back(p->getFsmNodePointer());
 	
 	std::list<const fsmEdge*> edges;
@@ -250,14 +206,22 @@ void progState::printGraphViz(unsigned long i) const {
 	stateFile.close();
 }
 
+std::list<process*> progState::getProcs(void) const {
+	return getTVariables<process*>();
+}
 /**
  * Returns the stateMask of a given pid.
  */
 process* progState::getProc(int pid) const {
+	auto procs = getProcs();
 	for(auto proc : procs)
 		if(proc->getPid() == pid)
 			return proc;
 	return nullptr;
+}
+
+process* progState::getNeverClaim(void) const {
+	return never;
 }
 
 /**
@@ -268,13 +232,15 @@ process* progState::getProc(int pid) const {
  */
 process* progState::addProctype(const procSymNode* procType, int i){
 	
-	if(nbProcesses > MAX_PROCESS) {
+	if(nbProcesses >= MAX_PROCESS) {
 		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
 		assert(false);
 	}
 
-	process* newProc = new process(this, procType, stateMachine->getFsmWithName(procType->getName()), pidCounter++, i);
-	procs.push_back(newProc);
+	auto sm = stateMachine->getFsmWithName(procType->getName());
+	assert(sm);
+
+	process* newProc = new process(this, procType, sm, pidCounter++, i);
 
 	nbProcesses++;
 	return newProc;
@@ -282,8 +248,15 @@ process* progState::addProctype(const procSymNode* procType, int i){
 
 process* progState::addProctype(const procSymNode* procType, const std::list<const variable*>& args){
 	
-	process* newProc = new process(this, procType, stateMachine->getFsmWithName(procType->getName()), pidCounter++, args);
-	procs.push_back(newProc);
+	if(nbProcesses >= MAX_PROCESS) {
+		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
+		assert(false);
+	}
+
+	auto sm = stateMachine->getFsmWithName(procType->getName());
+	assert(sm);
+
+	process* newProc = new process(this, procType, sm, pidCounter++, args);
 
 	nbProcesses++;
 	return newProc;
@@ -301,14 +274,6 @@ process* progState::addNever(const neverSymNode* neverSym) {
 	nbNeverClaim++;
 
 	return never;
-}
-
-size_t progState::_getSizeOf(void) const {
-	return 0;
-}
-
-size_t progState::getSizeOf(void) const {
-	return global->getSizeOf();
 }
 
 /*******************************************************************************************************/
@@ -331,7 +296,7 @@ void progState::resetExclusivity(void) const {
 
 void progState::setExclusivity(const process* proc) const {
 	exclusiveProc = proc;
-	global->getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
+	getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
 }
 
 void progState::setExclusivity(byte pid) const {
@@ -348,7 +313,7 @@ bool progState::requestHandShake(const std::pair<const channel*, const process*>
 void progState::setHandShake(const std::pair<const channel*, const process*>& handShake) const {
 	handShakeChan = handShake.first;
 	handShakeProc = handShake.second;
-	global->getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
+	getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
 }
 
 /*void progState::setHandShake(unsigned int cid) const {
@@ -377,7 +342,7 @@ bool progState::hasHandShakeRequest(void) const {
 
 void progState::resetHandShake(void) const {
 	handShakeChan = nullptr;
-	global->getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
+	getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 }
 
 bool progState::getTimeoutStatus(void) const {
@@ -397,14 +362,14 @@ std::list<transition*> progState::executables(void) const {
 	const process* exclusivity = getExclusiveProc();
 	auto handShake = getHandShakeRequest();
 
-	for(auto proc : procs) {
+	for(auto proc : getProcs()) {
 		if (hasHandShakeRequest() || !hasExclusivity() || getExclusiveProcId() == proc->getPid()) {
 			auto Ts = proc->executables();
 
 			//assert(std::fabs([=](){ double resProb = 0.0; for(auto t : Ts) resProb += t->prob; return resProb; }() - (Ts.size() ? 1.0 : 0.0)) < std::numeric_limits<double>::epsilon());
 
 			for(auto t : Ts)
-				t->prob /= procs.size();
+				t->prob /= getProcs().size();
 			
 			
 			
@@ -466,30 +431,29 @@ state* progState::apply(const transition* trans) {
 }*/
 
 bool progState::nullstate(void) const {
-	for(auto p : procs)
+	for(auto p : getProcs())
 		if(!p->nullstate())
 			return false;
 	return true;
 }
 
 bool progState::endstate(void) const {
-	for(auto p : procs)
+	for(auto p : getProcs())
 		if(!p->endstate())
 			return false;
 	return true;
 }
 
 bool progState::isAccepting(void) const {
-	return never->isAccepting();
-}
-
-bool progState::isAtomic(void) const {
-	for(auto p : procs)
-		if(p->isAtomic())
-			return true;
+	auto never = getNeverClaim();
+	if(never)
+		return never->isAccepting();
 	return false;
 }
 
-void progState::printHexadecimal(void) const {
-	global->printHexadecimal();
+bool progState::isAtomic(void) const {
+	for(auto p : getProcs())
+		if(p->isAtomic())
+			return true;
+	return false;
 }
