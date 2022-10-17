@@ -54,7 +54,7 @@ int copyFile(const std::string& source, const std::string& target) {
 
 #define PRINT_STATE print
 
-#define B 100
+#define B 1000
 
 void launchExecution(const fsm* automata) {
 	state* current = new progState(automata);
@@ -190,12 +190,12 @@ int main(int argc, char *argv[]) {
 	output << stmnt::string(program);
 	output.close();
 
-	ASTtoFSM converter;
+	/*ASTtoFSM converter;
 	fsm* automata = converter.astToFsm(globalSymTab, program);
 	std::ofstream graph;
 	graph.open("fsm_graphvis");
 	automata->printGraphVis(graph);
-	graph.close();
+	graph.close();*/
 
 	/*for(unsigned int i = 1; i <= index; i++) {
 		auto copy = program->deepCopy();
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
 	/*for(int i = 0; i < NB_LASSO; ++i)
 		findLasso(automata, K);*/
 
-	launchExecution(automata);
+	//launchExecution(automata);
 
 	//std::ofstream symtable;
 	//symtable.open("sym_table_graphviz");

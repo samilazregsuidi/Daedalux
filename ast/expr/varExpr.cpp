@@ -26,11 +26,12 @@ exprVarRefName::exprVarRefName(const std::string& symName, expr *index, int line
 	addChild("index", index);
 }
 
-exprVarRefName::exprVarRefName(const std::string& symName, varSymNode *sym, int lineNb)
+exprVarRefName::exprVarRefName(const std::string& symName, symbol *sym, int lineNb)
 	: expr(astNode::E_VARREF_NAME, lineNb)
 	, symName(symName)
 	, sym(sym)
 {
+	assert(sym);
 	assert(getExprType() == symbol::T_NA);
 	setExprType(sym->getType());
 }
@@ -52,7 +53,7 @@ std::string exprVarRefName::getTypeDescr(void) const {
 	return "Variable or field name (E_VARREF_NAME)";
 }
 
-varSymNode* exprVarRefName::exprVarRefName::getSymbol(void) const {
+symbol* exprVarRefName::exprVarRefName::getSymbol(void) const {
 	return sym;
 }
 
@@ -60,16 +61,14 @@ expr* exprVarRefName::getIndex(void) const {
 	return dynamic_cast<expr*>(getChild("index"));
 }
 
-varSymNode* exprVarRefName::resolve(symTable *global, symTable *subField) {
+symbol* exprVarRefName::resolve(symTable *global, symTable *subField) {
 
 	if (subField) {
 		sym = dynamic_cast<varSymNode*>(subField->lookup(symName));
 		assert(sym);
 	} else if (global) {
 		do {
-			auto ret = global->lookup(symName);
-			sym = dynamic_cast<varSymNode*>(global->lookup(symName));
-			if(ret) assert(sym);
+			sym = global->lookupGlobal(symName);
 			global = global->prevSymTab();
 		} while(!sym && global);
 	} 
@@ -93,7 +92,7 @@ expr* exprVarRefName::deepCopy(void) const {
 
 /**********************************************************************************/
 
-exprVarRef::exprVarRef(int lineNb, exprVarRefName *symRef, exprVarRef *subfieldsVar = nullptr)
+exprVarRef::exprVarRef(int lineNb, exprVarRefName *symRef, exprVarRef *subfieldsVar)
 	: expr(astNode::E_VARREF, lineNb)
 {
 	assert(symRef);
@@ -126,11 +125,11 @@ const exprVarRefName *exprVarRef::getField() const {
 	return dynamic_cast<exprVarRefName*>(getChild("field"));;
 }
 
-varSymNode* exprVarRef::getFinalSymbol(void) const {
+symbol* exprVarRef::getFinalSymbol(void) const {
 	return getSubField()? getSubField()->getFinalSymbol() : getField()->getSymbol();
 }
 
-varSymNode* exprVarRef::getFirstSymbol(void) const {
+symbol* exprVarRef::getFirstSymbol(void) const {
 	return getField()->getSymbol();
 }
 
@@ -152,7 +151,7 @@ std::string exprVarRef::getTypeDescr(void) const {
 	return "Variable reference (E_VARREF)";
 }
 
-varSymNode* exprVarRef::resolve(symTable *global, symTable* subField) const {
+symbol* exprVarRef::resolve(symTable *global, symTable* subField) const {
 
 	auto varRefName = getVarRefName();
 	auto sym = varRefName->resolve(global, subField);
@@ -160,9 +159,15 @@ varSymNode* exprVarRef::resolve(symTable *global, symTable* subField) const {
 	//assert(sym);
 	// Resolve subfields, but with the symbol table of the type
 	if (sym && getSubField()) {
-		auto uSymbol = dynamic_cast<utypeSymNode*>(sym);
-		assert(uSymbol->getUType());
-		getSubField()->resolve(global, uSymbol->getUType());
+		
+		//proc and utype are conceptually linked to refactor!
+		utypeSymNode* utypePtr = dynamic_cast<utypeSymNode*>(sym);
+		procSymNode* procPtr = dynamic_cast<procSymNode*>(sym);
+		
+		auto fields = utypePtr? utypePtr->getUType() : procPtr ? procPtr->getSymTable() : nullptr;
+		assert(fields);
+
+		getSubField()->resolve(global, fields);
 	}
 
 	return sym;
@@ -280,11 +285,11 @@ bool exprVar::castToExprType(symbol::Type type) const {
 	return getVarRef()->castToExprType(type);
 }
 
-varSymNode* exprVar::getFinalSymbol(void) const {
+symbol* exprVar::getFinalSymbol(void) const {
 	return getVarRef()->getFinalSymbol();
 }
 
-varSymNode* exprVar::getFirstSymbol(void) const {
+symbol* exprVar::getFirstSymbol(void) const {
 	return getVarRef()->getFirstSymbol();
 }
 

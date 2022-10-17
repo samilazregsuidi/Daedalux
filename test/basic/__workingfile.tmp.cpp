@@ -4,13 +4,17 @@
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
 # 1 "__workingfile.tmp"
-active proctype foo() {
+mtype = {right, left, up, down}
 
- byte n;
-Start:
- n++;
+typedef struct {
+ int a;
+ bool b;
+ mtype t
 }
 
-active proctype test() {
- foo@Start;
+active proctype test (){
+ struct s;
+ mtype t = right;
+ t = up;
+ s.t = t;
 }

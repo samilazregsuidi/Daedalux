@@ -64,6 +64,8 @@ variable::Type variable::getVarType(symbol::Type type) {
 			return V_INT;
 		case symbol::T_UTYPE:
 			return V_UTYPE;
+		case symbol::T_CMTYPE:
+			return V_CMTYPE; 
 		default:
 			assert(false);
 			return V_NA;

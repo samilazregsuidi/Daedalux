@@ -114,10 +114,8 @@ std::set<symbol*> symTable::getSymbols(const symbol* left) const {
 }
 
 symbol* symTable::lookupGlobal(const std::string& name) const {
-	if(this->name == "global")
-		return lookup(name);
-	else
-		return prev? prev->lookupGlobal(name): nullptr;
+	auto sym = lookup(name);
+	return sym? sym : (prev? prev->lookupGlobal(name): nullptr);
 }
 
 void symTable::insert(symbol* sym) {

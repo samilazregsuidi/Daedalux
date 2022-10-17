@@ -49,6 +49,8 @@ std::list<varSymNode*> typeLst;
 std::list<std::string> params;
 std::list<variantQuantifier*> variants;
 
+std::map<std::string, stmntLabel*> labelsMap;
+
 int mtypeId = 1;
 bool inInline = false;
 
@@ -471,7 +473,7 @@ Special : varref RCV rargs						{ $$ = new stmntChanRecv($1, $3, nbrLines); }
 		| GOTO NAME								{ $$ = new stmntGoto($2, nbrLines); free($2); }
 		| NAME ':' stmnt						{ if($3->getType() == astNode::E_STMNT_LABEL && static_cast<stmntLabel*>($3)->getLabelled()->getType() == astNode::E_STMNT_LABEL) 
 													std::cout << "Only two labels per state are supported."; 
-												  $$ = new stmntLabel($1, $3, nbrLines); free($1); }
+												  $$ = new stmntLabel($1, $3, nbrLines); assert(labelsMap.find($1) == labelsMap.end()); labelsMap[$1] = dynamic_cast<stmntLabel*>($$); free($1); }
 
 Stmnt	: varref ASGN full_expr					{ $$ = new stmntAsgn($1, $3, nbrLines); }
 		| varref INCR							{ $$ = new stmntIncr($1, nbrLines); }
@@ -583,10 +585,10 @@ expr    : '(' expr ')'							{ $$ = new exprPar		($2, nbrLines); }
 		| TIMEOUT								{ $$ = new exprTimeout(nbrLines); }
 		| NONPROGRESS							{ std::cout << "The 'np_' variable is not supported."; } /* Global variable (p. 447), true in a state if not labelled progress. */
 		| PC_VAL '(' expr ')'					{ std::cout << "The 'pc_value()' construct is not supported."; } /* Predefined function (p. 448). */
-		| PNAME '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
-		| PNAME '[' expr ']' ':' pfld			{ std::cout << "Construct not supported."; /* Unclear */ }
-		| PNAME '@' NAME						{ std::cout << "Construct not supported."; /* Unclear */ }
-		| PNAME ':' pfld						{ std::cout << "Construct not supported."; /* Unclear */ }
+		| NAME '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
+		| NAME '[' expr ']' ':' pfld			{ std::cout << "Construct not supported."; /* Unclear */ }
+		| NAME '@' NAME							{ $$ = new exprRemoteRef( new exprVarRef (nbrLines, new exprVarRefName($1, (*globalSymTab)->lookup($1), nbrLines)), labelsMap[$3], nbrLines); }
+		//| NAME ':' pfld							{ std::cout << "Construct not supported."; /* Unclear */}
 		| ltl_expr								{ $$ = $1; }
 		| bltl_expr								{ $$ = $1; }
 		;

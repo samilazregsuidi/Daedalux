@@ -86,6 +86,7 @@ public:
 		E_EXPR_OR,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
 		E_EXPR_IMPLIES, // child[0] = E_EXPR_*, child[1] = E_EXPR_*
 		E_EXPR_UNTIL,	// child[0] = E_EXPR_*, child[1] = E_EXPR_*
+		E_EXPR_RREF,	// child[0] = E_VARREF, child[1] = E_STMNT_LABEL
 
 		E_EXPR_ALWAYS,	// child[0] = E_EXPR_*
 		E_EXPR_EVENTUALLY, // child[0] = E_EXPR_*

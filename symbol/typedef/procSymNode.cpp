@@ -3,18 +3,6 @@
 #include "constExpr.hpp"
 #include "stmnt.hpp"
 
-/*unsigned int seqSymNode::processVariables(symTabNode *global, const mTypeList *mTypes, unsigned int iOffset, bool isGlobal) {
-	//memSize = block->processVariables(global, mTypes, 0, 0);
-	return !next ? iOffset : next->processVariables(global, mTypes, iOffset, isGlobal);
-}
-
-unsigned int procSymNode::processVariables(symTabNode *global, const mTypeList *mTypes, unsigned int iOffset, bool isGlobal) {
-	if (active && active->getType() == astNode::E_EXPR_COUNT)
-		active->resolveVariables(global, mTypes);
-	//memSize = block->processVariables(global, mTypes, 0, 0);
-	return !next ? iOffset : next->processVariables(global, mTypes, iOffset, isGlobal);
-}*/
-
 seqSymNode::seqSymNode(Type type, const std::string& name, int lineNb, stmnt* block)
 		: symbol(type, name, lineNb)
 	{
@@ -130,11 +118,11 @@ neverSymNode::neverSymNode(int lineNb, stmnt* block)
 {}
 
 std::string neverSymNode::getTypeName(void) const {
-	return "init";
+	return "never";
 }
 
 std::string neverSymNode::getBasicTypeName(void) const {
-	return "init";
+	return "never";
 }
 
 int neverSymNode::getTypeSize(void) const {

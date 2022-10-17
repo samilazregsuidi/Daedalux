@@ -5,7 +5,7 @@
 
 #include "expr.hpp"
 
-class varSymNode;
+class symbol;
 class variantSymNode;
 
 //E_VARREF_NAME,		// child[0] = E_EXPR_* (index into the array, or NULL), sVal = the variable/field name
@@ -21,15 +21,15 @@ public:
 
 	exprVarRefName(const std::string& symName, expr *index, int lineNb);
 
-	exprVarRefName(const std::string& symName, varSymNode *sym, int lineNb);
+	exprVarRefName(const std::string& symName, symbol* sym, int lineNb);
 
 	void setIndex(expr* index);
 
 	expr* getIndex(void) const;
 
-	varSymNode* resolve(symTable *global, symTable* subField = nullptr);
+	symbol* resolve(symTable *global, symTable* subField = nullptr);
 
-	varSymNode* getSymbol(void) const;
+	symbol* getSymbol(void) const;
 
 	std::string getName(void) const;
 
@@ -41,7 +41,7 @@ public:
 
 protected:
 	std::string symName;
-	varSymNode* sym;
+	symbol* sym;
 };
 
 //E_VARREF,			// child[0] = E_VARREF_NAME, child[1] = E_VARREF (subfield, or NULL)
@@ -49,7 +49,7 @@ protected:
 class exprVarRef : public expr
 {
 public:
-	exprVarRef(int lineNb, exprVarRefName *varRefName, exprVarRef *subfieldsVar);
+	exprVarRef(int lineNb, exprVarRefName *varRefName, exprVarRef *subfieldsVar = nullptr);
 
 	void setVarRefName(exprVarRefName* varRefName);
 
@@ -57,7 +57,7 @@ public:
 
 	void setSubField(exprVarRef* subField);
 
-	varSymNode* resolve(symTable *global, symTable* subField = nullptr) const;
+	symbol* resolve(symTable *global, symTable* subField = nullptr) const;
 
 	bool hasSubField(void) const;
 
@@ -65,9 +65,9 @@ public:
 
 	const exprVarRefName *getField(void) const;
 
-	varSymNode* getFinalSymbol(void) const;
+	symbol* getFinalSymbol(void) const;
 
-	varSymNode* getFirstSymbol(void) const;
+	symbol* getFirstSymbol(void) const;
 
 	operator std::string() const override;
 
@@ -103,9 +103,9 @@ public:
 
 	bool castToExprType(symbol::Type type) const override;
 
-	varSymNode* getFinalSymbol(void) const;
+	symbol* getFinalSymbol(void) const;
 
-	varSymNode* getFirstSymbol(void) const;
+	symbol* getFirstSymbol(void) const;
 
 	expr* deepCopy(void) const override;
 

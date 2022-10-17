@@ -713,4 +713,54 @@ public:
 	}
 };
 
+#include "flowStmnt.hpp"
+
+//E_EXPR_RREF,		// child[0] = E_VARREF, child[1] = E_STMNT_LABEL
+class exprRemoteRef : public expr {
+public:
+	exprRemoteRef(exprVarRef* proc, stmntLabel* label, int lineNb)
+		: expr(astNode::E_EXPR_RREF, lineNb)
+	{
+		assert(proc);
+		assert(label);
+		
+		addChild("proc", proc);
+		addChild("label", label);
+	}
+
+	exprVarRef* getProcRef(void) const {
+		return dynamic_cast<exprVarRef*>(getChild("proc"));
+	}
+
+	stmntLabel* getLabel(void) const {
+		return dynamic_cast<stmntLabel*>(getChild("label"));
+	}
+
+	symbol::Type getExprType(void) const override {
+		return symbol::T_BOOL;
+	}
+
+	operator std::string() const override {
+		return std::string(*getProcRef()) + "@" + std::string(*getLabel());
+	}
+
+	std::string getTypeDescr(void) const override {
+		return "Remote labelled ref (E_EXPR_RREF)";
+	}
+
+	expr* deepCopy(void) const override {
+		exprRemoteRef* copy = new exprRemoteRef(*this);
+		copy->copyChildren(*this);
+		return copy;
+	}
+
+	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
+		return 0;
+	}
+
+	int acceptVisitor(ASTVisitorInt* visitor) override {
+		return 0;
+	}
+};
+
 #endif

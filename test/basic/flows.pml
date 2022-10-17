@@ -29,6 +29,8 @@ active proctype I(){
 			-> break
 		od;
 	fi;
+	
+	assert((s.b && s.c && s.d) || (s.a && !s.c && !s.d) || (s.a || s.b));
 }
 
 active proctype J(){
@@ -41,4 +43,6 @@ active proctype J(){
 	:: 	(s.a || s.b) 
 		-> break
 	od;
+	
+	assert((s.b && s.c && s.d) || (s.a && !s.c && !s.d) || (s.a || s.b));
 }

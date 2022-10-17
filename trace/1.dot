@@ -1,29 +1,16 @@
 digraph finite_state_machine {
 	rankdir=LR
 	size="8,5"
-	94164273418720 [label = 25, shape = doublecircle, fixedsize = true]; 
-	s94164273418720 [shape = point];
-	e94164273412416 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white,  label = end];
-	 94164273410224 [label = 27, shape = circle, color = red, fixedsize = true ];
-	 94164273410304 [label = 28, shape = circle, fixedsize = true ];
-	 94164273410512 [label = 29, shape = circle, fixedsize = true ];
-	 94164273410784 [label = 31, shape = circle, fixedsize = true ];
-	 94164273411056 [label = 32, shape = circle, fixedsize = true ];
-	 94164273411328 [label = 34, shape = circle, fixedsize = true ];
-	 94164273411600 [label = 36, shape = circle, fixedsize = true ];
-	 94164273411872 [label = 37, shape = circle, fixedsize = true ];
-	 94164273412144 [label = 38, shape = circle, fixedsize = true ];
-	 94164273412416 [label = 39, shape = circle, fixedsize = true ];
-	s94164273418720 -> 94164273418720;
-	94164273418720 -> 94164273410224 [color = red, label = "obj.id = 1; "];
-	94164273410224 -> 94164273410304 [ label = "obj.position.x = -1; "];
-	94164273410304 -> 94164273410512 [ label = "obj.position.y = 0; "];
-	94164273410512 -> 94164273410784 [ label = "obj.position.z = 1; "];
-	94164273410784 -> 94164273411056 [ label = "obj.orientation.i = obj.position.z; "];
-	94164273411056 -> 94164273411328 [ label = "obj.orientation.w = -obj.orientation.i; "];
-	94164273411328 -> 94164273411600 [ label = "obj.scale.y = obj.position.x * -obj.orientation.i; "];
-	94164273411600 -> 94164273411872 [ label = "assert(obj.position.x == -1 && obj.position.y == 0 && obj.position.z == 1); "];
-	94164273411872 -> 94164273412144 [ label = "assert(obj.orientation.i == 1 && obj.orientation.w == -1); "];
-	94164273412144 -> 94164273412416 [ label = "assert(obj.scale.y == 1); "];
-	94164273412416 -> e94164273412416 [ label = "assert((obj.position.x * obj.position.y * obj.position.z * obj.orientation.i * obj.orientation.w * obj.orientation.a * obj.orientation.j * obj.scale.z) == 0); "];
+	93824993274480 [label = 3, shape = doublecircle, color = red, fixedsize = true]; 
+	s93824993274480 [shape = point];
+	93824993266720 [label = 10, shape = doublecircle, fixedsize = true]; 
+	s93824993266720 [shape = point];
+	e93824993274480 [shape = doublecircle, fixedsize = true, style = filled, color = red,  label = end];
+	e93824993266720 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white,  label = end];
+	 93824993274480 [label = 3, shape = circle, color = red, fixedsize = true ];
+	s93824993274480 -> 93824993274480;
+	s93824993266720 -> 93824993266720;
+	93824993274480 -> e93824993274480 [ label = "break; "];
+	93824993274480 -> 93824993274480 [ label = "n++; "];
+	93824993266720 -> e93824993266720 [color = red, label = "assert(foo.n >= foo.i); "];
 }

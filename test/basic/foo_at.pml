@@ -3,9 +3,9 @@ typedef features {
 	bool B2
 }
 
-byte n, i;
-
 active proctype foo() {
+
+	byte n, i;
 
 	features f;
 	f.B1 = true;
@@ -24,4 +24,17 @@ Start:
 	
 Final:
 	assert(i == n + 3);
+}
+
+active proctype test() {
+	do
+	:: foo@Start;
+		do
+		:: foo.i == foo.n -> break;
+		:: foo@Final -> assert(false);
+		
+	:: foo@final -> assert(false);
+	 
+	:: true;
+	od;
 }

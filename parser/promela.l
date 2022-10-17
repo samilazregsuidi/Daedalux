@@ -37,7 +37,7 @@ id        ({letter}|_)({letter}|{digit}|_)*
 number    {digit}+
 real	  {number}[.]{number}
 blank     [ \t]+
-symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}] 
+symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}@] 
 
 %%
 
@@ -197,8 +197,8 @@ symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}]
 						  	     return UNAME; 
 
 						      case symbol::T_PROC:
-						  	     DBUG(PNAME);
-						  	     return PNAME;
+						  	     DBUG(NAME);
+						  	     return NAME;
                               
 							  case symbol::T_INLINE:
 							     DBUG(INAME);

@@ -96,8 +96,8 @@ add_executable(deadalux
 	./semantic/rendezVousTransition.cpp
 	./semantic/compositeTransition.cpp
 
-${CMAKE_SOURCE_DIR}/parser/${Parser}
-${CMAKE_SOURCE_DIR}/parser/${Lexer}
+	./parser/${Parser}
+	./parser/${Lexer}
     
 	)
 

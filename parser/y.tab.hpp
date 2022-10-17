@@ -267,7 +267,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 64 "/home/slazreg/Work/Research/Mutation/Deadalux/parser/promela.y"
+#line 66 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
  
 	int       				iVal;
 	char*    				sVal;
@@ -292,7 +292,7 @@ union YYSTYPE
 	
 	enum symbol::Type   iType;
 
-#line 296 "/home/slazreg/Work/Research/Mutation/Deadalux/parser/y.tab.hpp"
+#line 296 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
