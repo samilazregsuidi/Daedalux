@@ -32,8 +32,9 @@ active proctype test() {
 		do
 		:: foo.i == foo.n -> break;
 		:: foo@Final -> assert(false);
+		od;
 		
-	:: foo@final -> assert(false);
+	:: foo@Final -> assert(false);
 	 
 	:: true;
 	od;

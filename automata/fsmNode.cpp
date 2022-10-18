@@ -12,9 +12,6 @@
 #include "symbols.hpp"
 #include "ast.hpp"
 
-fsmNode::~fsmNode(void){
-}
-
 /**
  * Creates a transition and adds it to the node list of the fsm.
  */
@@ -34,35 +31,51 @@ fsmEdge* fsmNode::copyfsmEdge(const fsmEdge* trans) {
 	return createfsmEdge(trans->getLineNb(), trans->getExpression());
 }
 
-fsmNode::fsmNode(int flags, int lineNb, fsm* parent) {
-	this->parent = parent;
-	this->flags = flags;
-	this->lineNb = lineNb;
+fsmNode::fsmNode(int flags, int lineNb, fsm* parent) 
+	: parent(parent)
+	, flags(flags)
+	, lineNb(lineNb)
+{
+	std::cout << "create Node " << lineNb << std::endl;
+}
+
+fsmNode::~fsmNode(void){
 }
 
 void fsmNode::addTransition(fsmEdge* trans) {
 	//assert(std::find(this->trans.begin(), this->trans.end(), trans) == this->trans.end());
 	this->trans.push_back(trans);
+
+	std::cout << "Node "<< lineNb <<" add transition to "<< (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << std::endl;
+	assert(trans->getSourceNode() == this);
 }
 
 void fsmNode::removeTransition(fsmEdge* trans) {
 	assert(std::find(this->trans.begin(), this->trans.end(), trans) != this->trans.end());
 	this->trans.remove(trans);
+
+	std::cout << "Node "<< lineNb <<" rm transition to "<< (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << std::endl;
+	assert(trans->getSourceNode() == this);
 }
 
 void fsmNode::detachTransitions(void) {
 	trans.clear();
 }
 
-
 void fsmNode::addInputTransition(fsmEdge* trans_in) {
 	assert(std::find(this->trans_in.begin(), this->trans_in.end(), trans_in) == this->trans_in.end());
 	this->trans_in.push_back(trans_in);
+
+	std::cout << "Node "<< lineNb <<" add input transition from "<< trans_in->getSourceNode()->getLineNb() << std::endl;
+	assert(trans_in->getTargetNode() == this);
 }
 
 void fsmNode::removeInputTransition(fsmEdge* trans_in) {
 	assert(std::find(this->trans_in.begin(), this->trans_in.end(), trans_in) != this->trans_in.end());
 	this->trans_in.remove(trans_in);
+
+	std::cout << "Node "<< lineNb <<" rm input transition from "<< trans_in->getSourceNode()->getLineNb() << std::endl;
+	assert(trans_in->getTargetNode() == this);
 }
 
 std::list<fsmEdge *> fsmNode::getEdges(void) const {

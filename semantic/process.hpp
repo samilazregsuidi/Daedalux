@@ -59,6 +59,8 @@ public:
 
 	void setFsmNodePointer(const fsmNode* pointer);
 
+	bool isAtLabel(int nbLine) const;
+
 	void setProgState(progState* newS);
 
 	progState* getProgState(void) const;

@@ -151,7 +151,7 @@ void ASTtoFSM::visit(const stmntDo* node)  {
     }
 
     _connect(flowLooseEnds, start);
-    looseEnds.merge(flowLooseBreaks);
+    looseEnds.merge(looseBreaks);
 
 
     auto next = node->getNext();
@@ -163,7 +163,7 @@ void ASTtoFSM::visit(const stmntDo* node)  {
 void ASTtoFSM::visit(const stmntBreak* node)  {
     
 
-        current = res->createFsmNode(flags, node->getLineNb());
+        current = (res->createFsmNode(flags, node->getLineNb()));
 
         if(!init) init = current;
         

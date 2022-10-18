@@ -98,6 +98,8 @@ add_executable(deadalux
 
 	./parser/${Parser}
 	./parser/${Lexer}
+	
+	./logic/ltl-ltl2ba.c
     
 	)
 
@@ -122,6 +124,8 @@ target_include_directories(deadalux
     ./parser
 
     ./libs/cudd/cplusplus
+    
+    ./logic
 
     ${CMAKE_CURRENT_BINARY_DIR}
 	)

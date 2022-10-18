@@ -1,10 +1,17 @@
-active proctype foo() {
-
+active proctype foo(){
 	byte n;
-Start:
+	n = 0;
+Start: 
 	n++;
 }
 
-active proctype test() {
-	foo@Start;
+active proctype test(){
+	do
+	:: foo@Start -> break;
+	:: timeout -> 
+		assert(false);
+		break;
+	od;
+	
+	assert(foo.n == 1);
 }

@@ -587,7 +587,7 @@ expr    : '(' expr ')'							{ $$ = new exprPar		($2, nbrLines); }
 		| PC_VAL '(' expr ')'					{ std::cout << "The 'pc_value()' construct is not supported."; } /* Predefined function (p. 448). */
 		| NAME '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
 		| NAME '[' expr ']' ':' pfld			{ std::cout << "Construct not supported."; /* Unclear */ }
-		| NAME '@' NAME							{ $$ = new exprRemoteRef( new exprVarRef (nbrLines, new exprVarRefName($1, (*globalSymTab)->lookup($1), nbrLines)), labelsMap[$3], nbrLines); }
+		| NAME '@' NAME							{ $$ = new exprRemoteRef( new exprVarRef (nbrLines, new exprVarRefName($1, (*globalSymTab)->lookup($1), nbrLines)), $3, labelsMap[$3]->getLineNb(), nbrLines); assert(labelsMap.find($3) != labelsMap.end()); }
 		//| NAME ':' pfld							{ std::cout << "Construct not supported."; /* Unclear */}
 		| ltl_expr								{ $$ = $1; }
 		| bltl_expr								{ $$ = $1; }

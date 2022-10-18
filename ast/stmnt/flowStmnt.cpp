@@ -257,7 +257,7 @@ stmnt* stmntLabel::getLabelled() const {
 
 stmntLabel::operator std::string() const {
     assert(getLabelled());
-    return label + ": \n" + std::string(*getLabelled());
+    return "\n" + _tab(-1) + label + ": \n" + _tab() + std::string(*getLabelled());
 }
 
 std::string stmntLabel::getTypeDescr(void) const {

@@ -718,22 +718,26 @@ public:
 //E_EXPR_RREF,		// child[0] = E_VARREF, child[1] = E_STMNT_LABEL
 class exprRemoteRef : public expr {
 public:
-	exprRemoteRef(exprVarRef* proc, stmntLabel* label, int lineNb)
+	exprRemoteRef(exprVarRef* proc, const std::string& label, int labelLine, int lineNb)
 		: expr(astNode::E_EXPR_RREF, lineNb)
+		, label(label)
+		, labelLine(labelLine)
 	{
 		assert(proc);
-		assert(label);
 		
 		addChild("proc", proc);
-		addChild("label", label);
 	}
 
 	exprVarRef* getProcRef(void) const {
 		return dynamic_cast<exprVarRef*>(getChild("proc"));
 	}
 
-	stmntLabel* getLabel(void) const {
-		return dynamic_cast<stmntLabel*>(getChild("label"));
+	std::string getLabel(void) const {
+		return label;
+	}
+
+	int getLabelLine(void) const {
+		return labelLine;
 	}
 
 	symbol::Type getExprType(void) const override {
@@ -741,7 +745,7 @@ public:
 	}
 
 	operator std::string() const override {
-		return std::string(*getProcRef()) + "@" + std::string(*getLabel());
+		return std::string(*getProcRef()) + "@" + label;
 	}
 
 	std::string getTypeDescr(void) const override {
@@ -761,6 +765,10 @@ public:
 	int acceptVisitor(ASTVisitorInt* visitor) override {
 		return 0;
 	}
+
+private:
+	std::string label;
+	int labelLine;
 };
 
 #endif

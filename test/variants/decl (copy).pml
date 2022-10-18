@@ -1,20 +1,24 @@
+variant p1;
+variant p2;
+
 typedef features {
 	bool B1;
 	bool B2
 }
 
+features f;
+
 active proctype foo() {
 
-	byte n, i;
-
-	features f;
-	f.B1 = true;
-	f.B2 = true;
+	byte i;
 
 	do 
 	:: break;
 	:: n++;
 	od;
+	
+	p1.B1 = true;
+	p2.B2 = true;
 	
 Start:
 	i = n;
@@ -28,13 +32,14 @@ Final:
 
 active proctype test() {
 	do
-	:: foo@Start;
+	:: p1.foo@Start && p2.foo@Start;
+		
 		do
 		:: foo.i == foo.n -> break;
-		:: foo@Final -> assert(false);
+		:: p1.foo@Final || p2.foo@Final -> assert(false);
 		od;
 		
-	:: foo@Final -> assert(false);
+	:: foo@Final || p2.foo@Final -> assert(false);
 	 
 	:: true;
 	od;

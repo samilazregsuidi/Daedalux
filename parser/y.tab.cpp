@@ -3350,7 +3350,7 @@ yyreduce:
 
   case 176: /* expr: NAME '@' NAME  */
 #line 590 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
-                                                                                { (yyval.pExprVal) = new exprRemoteRef( new exprVarRef (nbrLines, new exprVarRefName((yyvsp[-2].sVal), (*globalSymTab)->lookup((yyvsp[-2].sVal)), nbrLines)), labelsMap[(yyvsp[0].sVal)], nbrLines); }
+                                                                                { (yyval.pExprVal) = new exprRemoteRef( new exprVarRef (nbrLines, new exprVarRefName((yyvsp[-2].sVal), (*globalSymTab)->lookup((yyvsp[-2].sVal)), nbrLines)), (yyvsp[0].sVal), labelsMap[(yyvsp[0].sVal)]->getLineNb(), nbrLines); assert(labelsMap.find((yyvsp[0].sVal)) != labelsMap.end()); }
 #line 3355 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 

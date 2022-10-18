@@ -89,6 +89,10 @@ void process::setFsmNodePointer(const fsmNode* pointer) {
 	getPayload()->setValue<const fsmNode*>(getOffset(), pointer);
 }
 
+bool process::isAtLabel(int nbLine) const {
+	return getFsmNodePointer()? getFsmNodePointer()->getLineNb() == nbLine : false;
+}
+
 std::string process::getVarName(const expr* varExpr) const {
 	assert(varExpr->getType() == astNode::E_RARG_VAR || varExpr->getType() == astNode::E_EXPR_VAR
 	|| varExpr->getType() == astNode::E_VARREF || varExpr->getType() == astNode::E_VARREF_NAME);
@@ -446,7 +450,13 @@ int process::eval(const astNode* node, byte flag) const {
 		}
 		case(astNode::E_STMNT_ELSE):
 			return (_else == 1);
-		
+
+		case(astNode::E_EXPR_RREF): 
+		{	
+			auto rref = dynamic_cast<const exprRemoteRef*>(node);
+			return dynamic_cast<process*>(getVariable(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+		}
+
 		case(astNode::E_EXPR_PLUS):
 			return eval(binaryExpr->getLeftExpr(), flag) + eval(binaryExpr->getRightExpr(), flag);
 
@@ -780,6 +790,7 @@ Apply:
 		case(astNode::E_EXPR_NFULL):
 		case(astNode::E_EXPR_EMPTY):
 		case(astNode::E_EXPR_NEMPTY):
+		case(astNode::E_EXPR_RREF):
 			break;
 
 		case(astNode::E_EXPR_RUN):
