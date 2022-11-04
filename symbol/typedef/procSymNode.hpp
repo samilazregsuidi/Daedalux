@@ -5,7 +5,9 @@
 
 #include "symbol.hpp"
 
-class seqSymNode : public symbol {
+#include "varSymNode.hpp"
+
+class seqSymNode : public symbol, public complexSymNode {
 protected:
 	seqSymNode(Type type, const std::string& name, int lineNb, stmnt* block);
 	
@@ -15,6 +17,8 @@ public:
 	operator std::string(void) const override;
 
 	symTable* getSymTable(void) const;
+
+	symTable* getSubSymTable(void) const override;
 
 protected:
 	stmnt* block;

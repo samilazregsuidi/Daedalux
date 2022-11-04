@@ -1,5 +1,5 @@
-variant p1;
-variant p2;
+system p1;
+system p2;
 
 typedef features {
 	bool B1;

@@ -85,7 +85,7 @@ bool inInline = false;
 	class tdefSymNode*		pTdefSymVal;
 	class mtypedefSymNode*	pTypedefSymVal;
 	
-	enum symbol::Type   iType;
+	enum symbol::Type   	iType;
 }
 
 //%token <iVal> CONST TYPE IF DO
@@ -148,7 +148,30 @@ bool inInline = false;
 
 %%
 
-start_parsing	: { *globalSymTab = new symTable("global"); symTable::addPredefinedSym(*globalSymTab); currentSymTab = *globalSymTab; } program { currentSymTab = *globalSymTab; } props
+start_parsing	: 	{ *globalSymTab = new symTable("global"); symTable::addPredefinedSym(*globalSymTab); currentSymTab = *globalSymTab; } 
+					program {
+								std::list<symTable*> sysTables;
+								auto sysSyms = (*globalSymTab)->getSymbols<sysSymNode*>();
+								
+								for(auto sym : sysSyms) {
+									(*globalSymTab)->remove(sym);
+								}
+
+								for(auto sym : sysSyms) {
+									auto sysTable = new symTable(**globalSymTab);
+									sysTable->insert(sym);
+									sysTable->setNameSpace(sym->getName());
+									sysTables.push_back(sysTable); 
+							  	}
+
+								(*globalSymTab)->clear();
+								for(auto sysTable : sysTables){
+									(*globalSymTab)->addNextSymTab(sysTable);
+								}
+
+								currentSymTab = *globalSymTab; 
+							} 
+					props
 				
 /** PROMELA Grammar Rules **/
 
@@ -585,10 +608,10 @@ expr    : '(' expr ')'							{ $$ = new exprPar		($2, nbrLines); }
 		| TIMEOUT								{ $$ = new exprTimeout(nbrLines); }
 		| NONPROGRESS							{ std::cout << "The 'np_' variable is not supported."; } /* Global variable (p. 447), true in a state if not labelled progress. */
 		| PC_VAL '(' expr ')'					{ std::cout << "The 'pc_value()' construct is not supported."; } /* Predefined function (p. 448). */
-		| NAME '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
-		| NAME '[' expr ']' ':' pfld			{ std::cout << "Construct not supported."; /* Unclear */ }
-		| NAME '@' NAME							{ $$ = new exprRemoteRef( new exprVarRef (nbrLines, new exprVarRefName($1, (*globalSymTab)->lookup($1), nbrLines)), $3, labelsMap[$3]->getLineNb(), nbrLines); assert(labelsMap.find($3) != labelsMap.end()); }
-		//| NAME ':' pfld							{ std::cout << "Construct not supported."; /* Unclear */}
+		| varref '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
+		| varref '[' expr ']' ':' varref		{ std::cout << "Construct not supported."; /* Unclear */ }
+		| varref '@' NAME						{ $$ = new exprRemoteRef($1 , $3, labelsMap[$3]->getLineNb(), nbrLines); assert(labelsMap.find($3) != labelsMap.end()); assert($1->getFinalSymbol()->getType() == symbol::T_PROC);}
+		| varref ':' varref						{ assert($1->getFinalSymbol()->getType() == symbol::T_PROC); $1->appendVarRef($3); $$ = $1; }
 		| ltl_expr								{ $$ = $1; }
 		| bltl_expr								{ $$ = $1; }
 		;

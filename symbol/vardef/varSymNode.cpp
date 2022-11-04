@@ -13,6 +13,7 @@
 #include "utypeSymNode.hpp"
 #include "unsgnSymNode.hpp"
 #include "mtypedefSymNode.hpp"
+#include "sysSymNode.hpp"
 
 #include <limits>
 
@@ -132,6 +133,10 @@ template<> varSymNode* varSymNode::createSymbol<symbol::T_CHAN>(int lineNb, cons
 	return new chanSymNode(lineNb, name, bound, init);
 }
 
+template<> varSymNode* varSymNode::createSymbol<symbol::T_SYS>(int lineNb, const std::string& name, unsigned int bound, expr* init) {
+	return new sysSymNode(lineNb, name, bound, init);
+}
+
 varSymNode *varSymNode::createSymbol(Type type, int lineNb, const std::string& name, unsigned int bound, expr* init) {
 
 	switch (type)
@@ -160,6 +165,8 @@ varSymNode *varSymNode::createSymbol(Type type, int lineNb, const std::string& n
 		return createSymbol<T_UTYPE>(lineNb, name, bound, init);
 	case T_CHAN:
 		return createSymbol<T_CHAN>(lineNb, name, bound, init);
+	case T_SYS:
+		return createSymbol<T_SYS>(lineNb, name, bound, init); 
 	default:
 		assert(false);
 	}

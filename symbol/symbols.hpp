@@ -17,5 +17,6 @@
 #include "procSymNode.hpp"
 #include "inlineSymNode.hpp"
 #include "mtypedefSymNode.hpp"
+#include "sysSymNode.hpp"
 #include "variantSymNode.hpp"
 #include "temporalSymNode.hpp"

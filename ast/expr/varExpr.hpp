@@ -55,15 +55,17 @@ public:
 
 	exprVarRefName* getVarRefName(void) const;
 
+	void appendVarRef(exprVarRef*);
+
 	void setSubField(exprVarRef* subField);
 
 	symbol* resolve(symTable *global, symTable* subField = nullptr) const;
 
 	bool hasSubField(void) const;
 
-	const exprVarRef *getSubField(void) const;
+	exprVarRef *getSubField(void) const;
 
-	const exprVarRefName *getField(void) const;
+	exprVarRefName *getField(void) const;
 
 	symbol* getFinalSymbol(void) const;
 
@@ -91,9 +93,9 @@ class exprVar : public expr
 public:
 	exprVar(exprVarRef *varRef, int lineNb);
 
-	const exprVarRef *getVarRef(void) const;
+	exprVarRef *getVarRef(void) const;
 
-	const exprVarRefName *getVarRefName(void) const;
+	exprVarRefName *getVarRefName(void) const;
 
 	operator std::string() const override;
 
@@ -119,9 +121,9 @@ class exprProjVar : public exprVar
 public:
 	exprProjVar(exprVarRef *varRef, exprVarRef* variant, int lineNb);
 
-	const exprVarRef *getProjVarRef(void) const;
+	exprVarRef *getProjVarRef(void) const;
 
-	const exprVarRefName *getProjVarRefName(void) const;
+	exprVarRefName *getProjVarRefName(void) const;
 
 	operator std::string() const override;
 

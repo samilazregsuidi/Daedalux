@@ -5,7 +5,14 @@
 
 class expr;
 
-class varSymNode : public symbol{
+class symTable;
+
+class complexSymNode {
+public:
+	virtual symTable* getSubSymTable(void) const = 0;
+};
+
+class varSymNode : public symbol {
 public:
 	static varSymNode *createSymbol(Type type, int lineNb, const std::string& name = std::string(), unsigned int bound = 1, expr* init = nullptr);
 	

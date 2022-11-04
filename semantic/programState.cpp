@@ -24,13 +24,13 @@
  * Does not set the payloadHash.
  */
 
-progState::progState(const fsm* stateMachine)
-	: progState(nullptr, stateMachine)
+progState::progState(const fsm* stateMachine, const std::string& name)
+	: progState(nullptr, stateMachine, name)
 {
 }
 
-progState::progState(state* parent, const fsm* stateMachine) 
-	: state(variable::V_STATE, parent)
+progState::progState(state* parent, const fsm* stateMachine, const std::string& name) 
+	: state(variable::V_STATE, parent, name)
 	, globalSymTab(stateMachine->getGlobalSymTab())
 	, stateMachine (stateMachine)
 	, pidCounter(0)

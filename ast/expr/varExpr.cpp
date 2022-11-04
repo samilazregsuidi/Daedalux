@@ -109,6 +109,14 @@ exprVarRefName* exprVarRef::getVarRefName(void) const {
 	return dynamic_cast<exprVarRefName*>(getChild("field"));
 }
 
+void exprVarRef::appendVarRef(exprVarRef* ref) {
+	
+	if(auto subField = getSubField()){
+		subField->appendVarRef(ref);
+	}
+	addChild("sub_field", ref);
+}
+
 void exprVarRef::setSubField(exprVarRef* subField) {
 	eraseChild("sub_field", subField);
 }
@@ -117,11 +125,11 @@ bool exprVarRef::hasSubField(void) const {
 	return getSubField() != nullptr;
 }
 
-const exprVarRef * exprVarRef::getSubField(void) const {
+exprVarRef * exprVarRef::getSubField(void) const {
 	return dynamic_cast<exprVarRef*>(getChild("sub_field"));
 }
 
-const exprVarRefName *exprVarRef::getField() const {
+exprVarRefName *exprVarRef::getField() const {
 	return dynamic_cast<exprVarRefName*>(getChild("field"));;
 }
 
@@ -161,10 +169,9 @@ symbol* exprVarRef::resolve(symTable *global, symTable* subField) const {
 	if (sym && getSubField()) {
 		
 		//proc and utype are conceptually linked to refactor!
-		utypeSymNode* utypePtr = dynamic_cast<utypeSymNode*>(sym);
-		procSymNode* procPtr = dynamic_cast<procSymNode*>(sym);
-		
-		auto fields = utypePtr? utypePtr->getUType() : procPtr ? procPtr->getSymTable() : nullptr;
+		auto cpxSym = dynamic_cast<complexSymNode*>(sym);
+
+		auto fields = cpxSym->getSubSymTable();
 		assert(fields);
 
 		getSubField()->resolve(global, fields);
@@ -260,12 +267,12 @@ exprVar::exprVar(astNode::Type type, exprVarRef *varRef, int lineNb)
 	addChild("var_ref", varRef);	
 }
 
-const exprVarRef *exprVar::getVarRef(void) const {
+exprVarRef *exprVar::getVarRef(void) const {
 	return dynamic_cast<exprVarRef*>(getChild("var_ref"));
 }
 
 //weird
-const exprVarRefName *exprVar::getVarRefName(void) const {
+exprVarRefName *exprVar::getVarRefName(void) const {
 	return getVarRef()->getVarRefName();
 }
 
@@ -316,11 +323,11 @@ std::string exprProjVar::getTypeDescr(void) const {
 	return "Projeted variable reference wrapper (E_EXPR_PROJ_VAR)";
 }
 
-const exprVarRef* exprProjVar::getProjVarRef(void) const {
+exprVarRef* exprProjVar::getProjVarRef(void) const {
 	return dynamic_cast<exprVarRef*>(getChild("variant"));
 }
 
-const exprVarRefName* exprProjVar::getProjVarRefName(void) const {
+exprVarRefName* exprProjVar::getProjVarRefName(void) const {
 	return getProjVarRef()->getVarRefName();
 }
 

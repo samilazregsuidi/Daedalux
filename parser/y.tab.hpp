@@ -290,7 +290,7 @@ union YYSTYPE
 	class tdefSymNode*		pTdefSymVal;
 	class mtypedefSymNode*	pTypedefSymVal;
 	
-	enum symbol::Type   iType;
+	enum symbol::Type   	iType;
 
 #line 296 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.hpp"
 

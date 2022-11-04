@@ -34,6 +34,10 @@ int utypeSymNode::getTypeSize(void) const {
 	return res;
 }
 
+symTable* utypeSymNode::getSubSymTable(void) const {
+	return getUType();
+}
+
 std::string utypeSymNode::getBasicTypeName(void) const {
 	return utype->getName();
 }

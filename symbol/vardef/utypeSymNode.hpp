@@ -6,13 +6,15 @@
 class tdefSymNode;
 
 //T_UTYPE
-class utypeSymNode : public varSymNode{
+class utypeSymNode : public varSymNode, public complexSymNode {
 public:
 	utypeSymNode(tdefSymNode* utype, int lineNb);
 
 	utypeSymNode(int lineNb, const std::string& name = std::string(), int bound = 1, expr* init = nullptr);
 
 	//unsigned int processVariables(symbol* global, const mTypeList* mTypes, unsigned int offset, bool isGlobal) override ;
+
+	symTable* getSubSymTable(void) const override;
 
 	tdefSymNode* getUType(void) const;
 

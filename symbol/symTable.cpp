@@ -12,13 +12,14 @@
 #include "intSymNode.hpp"
 #include "pidSymNode.hpp"
 #include "boolSymNode.hpp"
+#include "sysSymNode.hpp"
 
 #include "tdefSymNode.hpp"
 
 symTable::symTable(const std::string& name, symTable* prev)
+	: name(name)
+	, prev(prev)
 {
-	this->name = name;
-	this->prev = prev;
 }
 
 symTable* symTable::createSubTable(const std::string& name) {
@@ -30,14 +31,19 @@ symTable* symTable::createSubTable(const std::string& name) {
 
 symTable::~symTable() {
 	for(const auto& s : syms) {
-		delete s.second;
+		//delete s.second;
 	}
 	for(auto& n : nexts)
-		delete n;
+		//delete n;
+		;
 }
 
 std::string symTable::getNameSpace(void) const {
 	return name;
+}
+
+void symTable::setNameSpace(const std::string& name) {
+	this->name = name;
 }
 
 void symTable::setPrevSymTab(symTable* symTab) {
@@ -47,6 +53,11 @@ void symTable::setPrevSymTab(symTable* symTab) {
 
 symTable* symTable::prevSymTab(void) const {
 	return prev;
+}
+
+void symTable::addNextSymTab(symTable* symTab) {
+	symTab->prev = this;
+	nexts.push_back(symTab);
 }
 
 symTable* symTable::getSubSymTab(const std::string& name) const {
@@ -129,11 +140,27 @@ void symTable::remove(const std::string& name) {
 	syms.erase(name);
 }
 
+void symTable::remove(const symbol* sym) {
+	remove(sym->getName());
+}
+
+void symTable::clear(void) {
+	for(auto sym : syms)
+		sym.second->setSymTable(nullptr);
+
+	syms.clear();
+	nexts.clear();
+	prev = nullptr;
+	block = nullptr;
+}
+
 void symTable::setBlock(stmnt* block) {
+	assert(block);
 	this->block = block;
 }
 	
 stmnt* symTable::getBlock(void) const {
+	assert(block);
 	return block;
 }
 	

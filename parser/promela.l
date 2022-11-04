@@ -132,39 +132,24 @@ symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}@]
 <CODE>"wait"		{ DBUG(WAIT); return WAIT; }
 <CODE>"reset"		{ DBUG(RESET); return RESET; }
 
-<CODE>"bit"			{ yylval->iType = symbol::T_BIT;
-					  DBUG(TYPE); return TYPE; }
-<CODE>"bool"		{ DBUG(TYPE); yylval->iType = symbol::T_BOOL;
-					  return TYPE; }
-<CODE>"byte"		{ DBUG(TYPE); yylval->iType = symbol::T_BYTE;
-					  return TYPE; }
-<CODE>"pid"			{ DBUG(TYPE); yylval->iType = symbol::T_PID;
-					  return TYPE; }
-<CODE>"short"		{ DBUG(TYPE); yylval->iType = symbol::T_SHORT;
-					  return TYPE; }
-<CODE>"int"			{ DBUG(TYPE); yylval->iType = symbol::T_INT;
-					  return TYPE; }
+<CODE>"bit"			{ yylval->iType = symbol::T_BIT; DBUG(TYPE); return TYPE; }
+<CODE>"bool"		{ DBUG(TYPE); yylval->iType = symbol::T_BOOL; return TYPE; }
+<CODE>"byte"		{ DBUG(TYPE); yylval->iType = symbol::T_BYTE; return TYPE; }
+<CODE>"pid"			{ DBUG(TYPE); yylval->iType = symbol::T_PID; return TYPE; }
+<CODE>"short"		{ DBUG(TYPE); yylval->iType = symbol::T_SHORT; return TYPE; }
+<CODE>"int"			{ DBUG(TYPE); yylval->iType = symbol::T_INT; return TYPE; }
 <CODE>"unsigned"	{ fprintf(stderr, "The 'unsigned' type is not supported.\n");
 					  exit(1);			
 						/*	yylval->iVal = T_UNSGN; 
 							return TYPE; */ }
-<CODE>"chan"		{ DBUG(TYPE); yylval->iType = symbol::T_CID;
-					  return TYPE; }
-<CODE>"mtype"		{ DBUG(TYPE); yylval->iType = symbol::T_MTYPE;
-					  return TYPE; }
-<CODE>"clock"		{ DBUG(TYPE); yylval->iType = symbol::T_CLOCK;
-					  return TYPE; }
-
+<CODE>"chan"		{ DBUG(TYPE); yylval->iType = symbol::T_CID; return TYPE; }
+<CODE>"mtype"		{ DBUG(TYPE); yylval->iType = symbol::T_MTYPE; return TYPE; }
+<CODE>"clock"		{ DBUG(TYPE); yylval->iType = symbol::T_CLOCK; return TYPE; }
+<CODE>"system"      { DBUG(TYPE); yylval->iType = symbol::T_SYS; return TYPE; }
 <CODE>"inline"		{ return INLINE; }
-
-<CODE>"false"		{ DBUG(FALSE);  yylval->iVal = 0; 
-					  return FALSE; }
-
-<CODE>"true"		{ DBUG(TRUE); 	yylval->iVal = 1; 
-					  return TRUE; }
-
+<CODE>"false"		{ DBUG(FALSE);  yylval->iVal = 0; return FALSE; }
+<CODE>"true"		{ DBUG(TRUE); 	yylval->iVal = 1; return TRUE; }
 <CODE>"skip"		{ DBUG(SKIP); return SKIP; }
-
 <CODE>"\""          { BEGIN STRINGBLOCK; 													/* printf("BEGIN STRINGBLOCK AT L %d\n", nbrLines); */
 					  strBufferLen = 0; }
 <STRINGBLOCK>"\""	{ BEGIN CODE;															/* printf("BEGIN CODE AT L %d\n", nbrLines); */
@@ -217,10 +202,8 @@ symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}@]
 					  return NAME;
 					}
 					
-<CODE>{real}		{ yylval->rVal = atof(yytext);
-					  DBUG(REAL); return REAL;  }
-<CODE>{number}		{ DBUG(CONST); yylval->iVal = atoi(yytext);
-					  return CONST; }
+<CODE>{real}		{ yylval->rVal = atof(yytext); DBUG(REAL); return REAL;  }
+<CODE>{number}		{ DBUG(CONST); yylval->iVal = atoi(yytext); return CONST; }
 
 <CODE>"\n"       	{ nbrLines++; }
 <CODE>{blank}    	{ }
@@ -239,8 +222,7 @@ symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}@]
 <CPPBLOCK>{number}	{ nbrLines = atoi(yytext); }
 <CPPBLOCK>.			{ }
 
-.					{ fprintf(stderr, "Invalid char '%s' at line %d\n", yytext, nbrLines);
-					  exit(1); }
+.					{ fprintf(stderr, "Invalid char '%s' at line %d\n", yytext, nbrLines); exit(1); }
 
 %%
 

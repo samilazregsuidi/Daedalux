@@ -9,13 +9,17 @@ typedef features {
  bool B2
 }
 
+features f;
+
+system p1;
+system p2;
+
+byte n, i;
+
 active proctype foo() {
 
- byte n, i;
-
- features f;
- f.B1 = true;
- f.B2 = true;
+ p1.f.B1 = true;
+ p2.f.B2 = true;
 
  do
  :: break;
@@ -23,25 +27,20 @@ active proctype foo() {
  od;
 
 Start:
- i = n;
 
- if :: f.B1 -> i = i+2; :: else -> skip; fi;
- if :: f.B2 -> i = i+1; :: else -> skip; fi;
+ if
+ :: p1.f.B1 -> i = i + 1
+ :: else -> skip;
+ fi;
+
+ if
+ :: p2.f.B2 -> i = i + 2
+ :: else -> skip;
+ fi;
 
 Final:
- assert(i == n + 3);
-}
+ printf("i: %d", i);
 
-active proctype test() {
- do
- :: foo@Start;
-  do
-  :: foo.i == foo.n -> break;
-  :: foo@Final -> assert(false);
-  od;
+ assert(p1.i == 1 && p2.i == 3);
 
- :: foo@Final -> assert(false);
-
- :: true;
- od;
 }

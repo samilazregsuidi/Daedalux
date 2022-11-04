@@ -54,6 +54,7 @@ add_executable(deadalux
 	./symbol/vardef/varSymNode.cpp
 	./symbol/vardef/naSymNode.cpp
 	./symbol/vardef/pidSymNode.cpp
+	./symbol/vardef/sysSymNode.cpp
 	./symbol/vardef/variantSymNode.cpp
 	./symbol/logic/temporalSymNode.cpp
 

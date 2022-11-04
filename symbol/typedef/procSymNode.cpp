@@ -4,10 +4,10 @@
 #include "stmnt.hpp"
 
 seqSymNode::seqSymNode(Type type, const std::string& name, int lineNb, stmnt* block)
-		: symbol(type, name, lineNb)
-	{
-		this->block = block;
-	}
+	: symbol(type, name, lineNb)
+{
+	this->block = block;
+}
 	
 
 stmnt* seqSymNode::getBlock(void) const {
@@ -15,6 +15,10 @@ stmnt* seqSymNode::getBlock(void) const {
 }
 
 symTable* seqSymNode::getSymTable(void) const {
+	return block->getLocalSymTab();
+}
+
+symTable* seqSymNode::getSubSymTable(void) const {
 	return block->getLocalSymTab();
 }
 

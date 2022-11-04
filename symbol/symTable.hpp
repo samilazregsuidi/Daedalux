@@ -25,6 +25,8 @@ class fsmNode;
 class fsmTrans;
 
 class varSymNode;
+class sysSymNode;
+
 class symTabVisitor;
 class symTabConstVisitor;
 
@@ -39,6 +41,8 @@ public:
 	virtual ~symTable();
 
 	std::string getNameSpace(void) const;
+
+	void setNameSpace(const std::string& name);
 
 	void print(int tab = 0) const;
 
@@ -74,11 +78,17 @@ public:
 	
 	void remove(const std::string& name);
 
+	void remove(const symbol* sym);
+
+	void clear(void);
+
 	void setBlock(stmnt* block);
 
 	stmnt* getBlock(void) const;
 
 	void setPrevSymTab(symTable* symTab);
+
+	void addNextSymTab(symTable* symTab);
 	
 	symTable* prevSymTab(void) const;
 
@@ -105,7 +115,7 @@ protected:
 	std::string name;
 	std::string parentNameSpace;
 	stmnt* block;
-	symTable* prev;			// Points to previous node; the first node in a list has this pointer pointing to the last node!
+	symTable* prev;
 	std::list<symTable*> nexts;
 	std::unordered_map<std::string, symbol*> syms;
 };

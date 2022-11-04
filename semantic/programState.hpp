@@ -33,9 +33,9 @@ public:
 
 	friend class process;
 
-	progState(const fsm* stateMachine); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	progState(const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	progState(state* parent, const fsm* stateMachine); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	progState(state* parent, const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
 	progState(const progState* other);
 
