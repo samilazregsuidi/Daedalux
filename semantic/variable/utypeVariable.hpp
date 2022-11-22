@@ -7,7 +7,7 @@ class utypeSymNode;
 
 class utypeVar : public primitiveVariable {
 public:
-	utypeVar(variable* parent, const utypeSymNode* sym, unsigned int index =  0);
+	utypeVar(const utypeSymNode* sym, unsigned int index =  0);
 
 	utypeVar(const utypeVar* other);
 

@@ -14,7 +14,7 @@
 #include "tdefSymNode.hpp"
 #include "chanSymNode.hpp"
 #include "symTabVisitor.hpp"
-#include "procSymNode.hpp"
+#include "ptypeSymNode.hpp"
 #include "inlineSymNode.hpp"
 #include "mtypedefSymNode.hpp"
 #include "sysSymNode.hpp"

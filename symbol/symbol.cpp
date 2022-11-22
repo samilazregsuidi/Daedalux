@@ -21,7 +21,6 @@
 #include "cidSymNode.hpp"
 #include "tdefSymNode.hpp"
 #include "chanSymNode.hpp"
-#include "procSymNode.hpp"
 
 #include "symTable.hpp"
 
@@ -108,7 +107,16 @@ symTable* symbol::getSymTable(void) const {
 	return parent;
 }
 
+void symbol::detach(void) {
+	assert(parent);
+	parent = nullptr;
+}
+
 void symbol::setSymTable(symTable* parent) {
+	//assert(!this->parent);
+	if(this->parent)
+		assert(false);
+
 	this->parent = parent;
 }
 

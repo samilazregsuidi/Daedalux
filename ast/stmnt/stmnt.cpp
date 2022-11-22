@@ -5,7 +5,6 @@
 #include "varSymNode.hpp"
 #include "utypeSymNode.hpp"
 #include "tdefSymNode.hpp"
-#include "procSymNode.hpp"
 
 #include "astVisitor.hpp"
 

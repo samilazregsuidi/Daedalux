@@ -136,7 +136,7 @@ private:
 class procDecl : public stmntFct
 {
 public:
-	procDecl(procSymNode *procSym, int lineNb);
+	procDecl(ptypeSymNode *ptypeSym, int lineNb);
 
 	std::string getFctName(void) const override;
 
@@ -150,7 +150,7 @@ private:
 	std::string name;
 	std::list<varSymNode*> args;//?
 	exprConst* active;
-	procSymNode* procSym;
+	ptypeSymNode* procSym;
 };
 
 //E_INIT_DECL
@@ -169,6 +169,24 @@ public:
 
 private:
 	initSymNode* procSym;
+};
+
+//E_CLAIM_DECL
+class neverDecl : public stmntFct
+{
+public:
+	neverDecl(neverSymNode *procSym, int lineNb);
+
+	std::string getFctName(void) const override;
+
+	operator std::string() const;
+
+	std::string getTypeDescr(void) const;
+
+	stmnt* deepCopy(void) const;
+
+private:
+	neverSymNode* procSym;
 };
 
 #endif

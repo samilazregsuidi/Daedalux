@@ -6,9 +6,9 @@
 class primitiveVariable : public variable {
 public:
 
-	primitiveVariable(const varSymNode* const sym, variable* parent = nullptr, unsigned int index =  0);
+	primitiveVariable(const varSymNode* const sym, unsigned int index =  0);
 
-	primitiveVariable(Type varType, variable* parent = nullptr, unsigned int index =  0);
+	primitiveVariable(Type varType, unsigned int index =  0);
 
 	primitiveVariable(const primitiveVariable& other);
 	
@@ -83,7 +83,7 @@ class pidSymNode;
 
 class PIDVar : public primitiveVariable {
 public:
-	PIDVar(variable* parent, const pidSymNode* sym = nullptr, unsigned int bound =  0);
+	PIDVar(const pidSymNode* sym = nullptr, unsigned int bound =  0);
 
 	variable* deepCopy(void) const override;
 

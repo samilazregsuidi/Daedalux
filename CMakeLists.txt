@@ -37,7 +37,7 @@ add_executable(deadalux
     main.cpp
 	./symbol/symbol.cpp
 	./symbol/symTable.cpp
-	./symbol/typedef/procSymNode.cpp
+	./symbol/typedef/ptypeSymNode.cpp
 	./symbol/typedef/tdefSymNode.cpp
 	./symbol/typedef/mtypedefSymNode.cpp
 	./symbol/typedef/inlineSymNode.cpp
@@ -96,6 +96,7 @@ add_executable(deadalux
 	./semantic/programTransition.cpp
 	./semantic/rendezVousTransition.cpp
 	./semantic/compositeTransition.cpp
+	./semantic/initState.cpp
 
 	./parser/${Parser}
 	./parser/${Lexer}

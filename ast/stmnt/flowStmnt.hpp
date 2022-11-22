@@ -30,8 +30,6 @@ public:
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
 	void acceptVisitor(ASTVisitor* visitor) override;
-
-	
 };
 
 class stmntFlow : public stmnt
@@ -93,6 +91,23 @@ public:
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
 	void acceptVisitor(ASTVisitor* visitor) override;
+};
+
+class stmntAction : public stmnt 
+{
+public:
+	stmntAction(const std::string& label, int lineNb);
+
+	operator std::string() const override;
+
+	std::string getTypeDescr(void) const override;
+
+	std::string getLabel(void) const;
+
+	stmnt* deepCopy(void) const override;
+
+private:
+	std::string label;
 };
 
 //E_STMNT_GOTO,		// sVal = the label to go to

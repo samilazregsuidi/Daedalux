@@ -7,7 +7,7 @@ class mtypeSymNode;
 
 class mtypeVar : public primitiveVariable {
 public:
-	mtypeVar(variable* parent, const mtypeSymNode* sym, unsigned int index =  0);
+	mtypeVar(const mtypeSymNode* sym, unsigned int index =  0);
 
 	variable* deepCopy(void) const override;
 
@@ -32,7 +32,7 @@ class cmtypeSymNode;
 
 class cmtypeVar : public primitiveVariable {
 public:
-	cmtypeVar(variable* parent, const cmtypeSymNode* sym);
+	cmtypeVar(const cmtypeSymNode* sym);
 
 	~cmtypeVar() override {}
 

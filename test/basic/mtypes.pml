@@ -12,5 +12,5 @@ active proctype test (){
 	t = up;
 	s.t = t;
 	
-	assert(t == s.t && s.t == up)
+	assert(t == s.t && s.t == up);
 }

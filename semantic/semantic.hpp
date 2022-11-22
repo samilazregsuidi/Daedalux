@@ -1,5 +1,6 @@
 #include "state.hpp"
 #include "programState.hpp"
+#include "initState.hpp"
 #include "payload.hpp"
 #include "process.hpp"
 #include "transition.hpp"

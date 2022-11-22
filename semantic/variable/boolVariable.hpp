@@ -7,7 +7,7 @@ class boolSymNode;
 
 class boolVar : public primitiveVariable {
 public:
-	boolVar(variable* parent, const boolSymNode* sym, unsigned int index =  0);
+	boolVar(const boolSymNode* sym, unsigned int index =  0);
 
 	variable* deepCopy(void) const override;
 

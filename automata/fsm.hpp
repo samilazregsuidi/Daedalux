@@ -47,6 +47,8 @@ public:
 
 	const symTable* getGlobalSymTab(void) const;
 
+	const symTable* getSystemSymTab(void) const;
+
 	void addTransition(fsmEdge* edge);
 	
 	void deleteTransition(fsmEdge* edge);

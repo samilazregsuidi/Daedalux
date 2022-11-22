@@ -96,6 +96,8 @@ symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}@]
 <CODE>"eval"		{ DBUG(EVAL);return EVAL; }
 <CODE>"fi"			{ DBUG(FI);return FI; }
 <CODE>"dg"			{ DBUG(FI);return FI; }
+<CODE>"ac"			{ DBUG(AC); return AC; }
+<CODE>"ca"			{ DBUG(CA); return CA; }
 <CODE>"full"		{ DBUG(FULL);return FULL; }
 <CODE>"goto"		{ DBUG(GOTO);return GOTO; }
 <CODE>"hidden"		{ DBUG(HIDDEN);return HIDDEN; }
@@ -181,7 +183,7 @@ symbol    [*+/%^!&~\|?:,.()\-\[\]\{\}@]
 						   		 DBUG(UNAME);
 						  	     return UNAME; 
 
-						      case symbol::T_PROC:
+						      case symbol::T_PTYPE:
 						  	     DBUG(NAME);
 						  	     return NAME;
                               

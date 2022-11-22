@@ -30,7 +30,13 @@ fsm::~fsm(){
 }
 
 const symTable* fsm::getGlobalSymTab(void) const {
-	return globalSymTab;
+	assert(globalSymTab->getNameSpace() == "global" || globalSymTab->getNameSpace() == "system");
+	return globalSymTab->getNameSpace() == "global" ? globalSymTab : globalSymTab->getSubSymTab("global");
+}
+
+const symTable* fsm::getSystemSymTab(void) const {
+	assert(globalSymTab->getNameSpace() == "global" || globalSymTab->getNameSpace() == "system");
+	return globalSymTab->getNameSpace() == "system" ? globalSymTab : nullptr;
 }
 
 /**
@@ -160,10 +166,10 @@ void fsm::printGraphVis(std::ofstream& file) const {
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		if(t->getTargetNode()) {
-			file << "\t" <<  t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() <<" [label = \""<< exprStr << "\"];\n";
+			file << "\t" <<  t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() <<" [label = \"" << ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << exprStr << "\"];\n";
 		}
 		else
-			file << "\t" <<  t->getSourceNode()->getID() <<" -> e" << t->getSourceNode()->getID() <<" [label = \""<< exprStr << "\"];\n";
+			file << "\t" <<  t->getSourceNode()->getID() <<" -> e" << t->getSourceNode()->getID() <<" [label = \"" << ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << exprStr << "\"];\n";
 		
 	}
 
@@ -172,6 +178,8 @@ void fsm::printGraphVis(std::ofstream& file) const {
 }
 
 void fsm::printGraphVisWithLocations(std::ofstream& file, const std::list<const fsmNode*>& locs, const std::list<const fsmEdge*>& edges) const {
+	file.precision(3);
+
 	file << "digraph finite_state_machine {\n";
 	file << "\trankdir=LR\n";
 	file << "\tsize=\"8,5\"\n";
@@ -197,10 +205,10 @@ void fsm::printGraphVisWithLocations(std::ofstream& file, const std::list<const 
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		if(t->getTargetNode()) {
-			file << "\t" <<  t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() << " [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< exprStr << "\"];\n";
+			file << "\t" <<  t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() << " [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << exprStr << "\"];\n";
 		}
 		else
-			file << "\t" <<  t->getSourceNode()->getID() <<" -> e" << t->getSourceNode()->getID() <<" [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< exprStr << "\"];\n";
+			file << "\t" <<  t->getSourceNode()->getID() <<" -> e" << t->getSourceNode()->getID() <<" [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << exprStr << "\"];\n";
 		
 	}
 

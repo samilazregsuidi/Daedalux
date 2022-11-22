@@ -9,7 +9,7 @@
 #include "astVisitor.hpp"
 #include "utypeSymNode.hpp"
 #include "tdefSymNode.hpp"
-#include "procSymNode.hpp"
+#include "ptypeSymNode.hpp"
 #include "inlineSymNode.hpp"
 
 varDecl::varDecl(std::list<varSymNode *> declSymTab, int lineNb)
@@ -243,7 +243,7 @@ void stmntFct::acceptVisitor(ASTVisitor* visitor) {
 	visitor->visit(this);
 }
 
-procDecl::procDecl(procSymNode *procSym, int lineNb)
+procDecl::procDecl(ptypeSymNode *procSym, int lineNb)
 	: stmntFct(astNode::E_PROC_DECL, procSym->getBlock(), lineNb)
 	, name(procSym->getName())
 	, args(procSym->getArgs())
@@ -303,11 +303,38 @@ initDecl::operator std::string() const {
 }
 
 std::string initDecl::getTypeDescr(void) const {
-	return "Proctype declaration wrapper (E_PROC_DECL)";
+	return "Init process declaration wrapper (E_PROC_DECL)";
 }
 
 stmnt* initDecl::deepCopy(void) const {
 	initDecl* copy = new initDecl(*this);
+	copy->prev = copy;
+	copy->copyChildren(*this);
+	//if(copy->getNext())
+	//	return stmnt::merge(copy, getNext()->deepCopy());
+	return copy;
+}
+
+/************************************************************************************************************************************************/
+
+neverDecl::neverDecl(neverSymNode *procSym, int lineNb)
+	: stmntFct(astNode::E_CLAIM_DECL, procSym->getBlock(), lineNb)
+{}
+
+std::string neverDecl::getFctName(void) const {
+	return procSym->getName();
+}
+
+neverDecl::operator std::string() const {
+	return "\nnever " + stmntSeq::operator std::string();
+}
+
+std::string neverDecl::getTypeDescr(void) const {
+	return "Never claim declaration wrapper (E_CLAIM_DECL)";
+}
+
+stmnt* neverDecl::deepCopy(void) const {
+	neverDecl* copy = new neverDecl(*this);
 	copy->prev = copy;
 	copy->copyChildren(*this);
 	//if(copy->getNext())

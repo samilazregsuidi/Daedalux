@@ -201,6 +201,32 @@ void stmntBreak::acceptVisitor(ASTVisitor* visitor) {
 
 /*****************************************************************************************/
 
+stmntAction::stmntAction(const std::string& label, int lineNb)
+    : stmnt(astNode::E_STMNT_ACTION, lineNb)
+    , label(label)
+{
+}
+
+stmntAction::operator std::string() const {
+    return label + " :: "; 
+}
+
+std::string stmntAction::getLabel(void) const {
+    return label;
+} 
+
+std::string stmntAction::getTypeDescr(void) const {
+    return "Action (E_STMNT_ACTION)";
+}
+
+stmnt* stmntAction::deepCopy(void) const {
+    stmntAction* copy = new stmntAction(*this);
+    copy->prev = copy;
+    copy->copyChildren(*this);
+    return copy;
+}
+
+/*****************************************************************************************/
 
 stmntGoto::stmntGoto(const std::string& label, int lineNb)
     : stmnt(astNode::E_STMNT_GOTO, lineNb)

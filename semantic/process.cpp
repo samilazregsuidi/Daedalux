@@ -18,8 +18,8 @@
 
 //#include "cuddObj.hh"
 
-process::process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: state(variable::V_PROC, s, sym->getName())
+process::process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
+	: state(variable::V_PROC, sym->getName())
 	, symType(sym)
 	, index(index)
 	, start(start)
@@ -36,11 +36,11 @@ process::process(progState* s, const seqSymNode* sym, const fsmNode* start, byte
 		addVariables(procSym);
 }
 
-process::process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args)
-	: process(s, sym, start, pid, 0)
+process::process(const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args)
+	: process(sym, start, pid, 0)
 {
 	auto argIt = args.cbegin();
-	for(auto s : dynamic_cast<const procSymNode*>(sym)->getArgs()){
+	for(auto s : dynamic_cast<const ptypeSymNode*>(sym)->getArgs()){
 		auto vars = addVariables(s);
 		assert(vars.size() == 1);
 		auto var = vars.begin();
@@ -63,7 +63,8 @@ process* process::deepCopy(void) const {
 }
 
 void process::init(void) {
-	
+	assert(getProgState());
+
 	variable::init();
 	setFsmNodePointer(start);
 	variable::getTVariable<primitiveVariable*>("_pid")->setValue(pid);
@@ -347,6 +348,8 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_STMNT_DO):
 		case(astNode::E_STMNT_OPT):
 		case(astNode::E_STMNT_SEQ):
+
+		case(astNode::E_STMNT_ACTION):
 
 		case(astNode::E_STMNT_BREAK):
 		case(astNode::E_STMNT_GOTO):
@@ -682,6 +685,11 @@ Apply:
 			assert(false);
 			break;
 
+		case(astNode::E_STMNT_ACTION):
+		{
+			auto action = dynamic_cast<const stmntAction*>(expression);
+			getProgState()->actions.push_back(action->getLabel());
+		}
 		case(astNode::E_STMNT_BREAK):
 		case(astNode::E_STMNT_GOTO):
 			break;
@@ -739,7 +747,8 @@ Apply:
 		{
 			auto assertExpr = dynamic_cast<const stmntAssert*>(expression);
 			if(eval(assertExpr->getToAssert(), EVAL_EXPRESSION) == 0) {
-				assert(false);
+				printf("Assertion failed.\n");
+				//assert(false);
 				//if(!_assertViolation) _assertViolation = 1;
 			}
 			//assert(false);

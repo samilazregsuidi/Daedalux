@@ -5,7 +5,7 @@
 #include "argExpr.hpp"
 #include "varExpr.hpp"
 
-#include "procSymNode.hpp"
+#include "ptypeSymNode.hpp"
 
 #include "astVisitor.hpp"
 
@@ -49,14 +49,6 @@ void expr::acceptVisitor(ASTConstVisitor* visitor) const {
 
 void expr::acceptVisitor(ASTVisitor* visitor) {
 	visitor->visit(this);
-}
-
-int expr::acceptVisitor(ASTConstVisitorInt* visitor) const {
-	return visitor->visit(this);
-}
-
-int expr::acceptVisitor(ASTVisitorInt* visitor) {
-	return visitor->visit(this);
 }
 
 /****************************************************************
@@ -141,13 +133,13 @@ std::string exprRun::getProcName(void) const {
 	return procName;
 }
 
-procSymNode* exprRun::resolve(const symTable* symTab) {
-	procSym = dynamic_cast<procSymNode*>(symTab->lookup(procName));
+ptypeSymNode* exprRun::resolve(const symTable* symTab) {
+	procSym = dynamic_cast<ptypeSymNode*>(symTab->lookup(procName));
 	assert(procSym);
 	return procSym;
 }
 
-const procSymNode* exprRun::getProcType(void) const {
+const ptypeSymNode* exprRun::getProcType(void) const {
 	return procSym;
 }
 

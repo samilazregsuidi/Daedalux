@@ -38,6 +38,7 @@ public:
 		E_INLINE_DECL,
 		E_PROC_DECL,
 		E_INIT_DECL,
+		E_CLAIM_DECL,
 
 		E_LTL_DECL,
 		E_BLTL_DECL,
@@ -51,6 +52,7 @@ public:
 		E_STMNT_IF,		  // child[0] = E_STMNT_OPT (contains an fsm)
 		E_STMNT_DO,		  // child[0] = E_STMNT_OPT (contains an fsm)
 		E_STMNT_BREAK,	  // empty
+		E_STMNT_ACTION,   // child[0] = E_STMNT_*
 		E_STMNT_GOTO,	  // sVal = the label to go to
 		E_STMNT_LABEL,	  // child[0] = E_STMNT_*, sVal = the label of child[0]
 		E_STMNT_OPT,	  // child[0] = E_STMNT_OPT (next option; or NULL), fsm = fsm of this option

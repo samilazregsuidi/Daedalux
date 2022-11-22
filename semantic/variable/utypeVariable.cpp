@@ -4,8 +4,8 @@
 
 #include "symbols.hpp"
 
-utypeVar::utypeVar(variable* parent, const utypeSymNode* sym, unsigned int index)
-	: primitiveVariable(sym, parent, index)
+utypeVar::utypeVar(const utypeSymNode* sym, unsigned int index)
+	: primitiveVariable(sym, index)
 {
 	for(auto field : sym->getUType()->getFields()) {
 		addVariables(field);

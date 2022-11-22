@@ -26,10 +26,6 @@ public:
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
 	void acceptVisitor(ASTVisitor* visitor) override;
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override;
-
-	int acceptVisitor(ASTVisitorInt* visitor) override;
 	
 protected:
 	symbol::Type exprType;
@@ -63,7 +59,7 @@ public:
 };
 
 class symTable;
-class procSymNode;
+class ptypeSymNode;
 
 //E_EXPR_RUN,			// child[0] = E_ARGLIST, sVal = the procType name, and after processing: symTab = node in symbol table that represents the proctype
 class exprRun : public expr
@@ -73,9 +69,9 @@ public:
 
 	std::string getProcName(void) const;
 
-	const procSymNode* getProcType(void) const;
+	const ptypeSymNode* getProcType(void) const;
 
-	procSymNode* resolve(const symTable* symTab);
+	ptypeSymNode* resolve(const symTable* symTab);
 
 	void setArgList(exprArgList* argList);
 
@@ -91,7 +87,7 @@ public:
 
 private:
 	std::string procName;
-	procSymNode* procSym;
+	ptypeSymNode* procSym;
 };
 
 //E_EXPR_TIMEOUT,	// iVal = 0

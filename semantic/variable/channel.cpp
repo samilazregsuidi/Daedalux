@@ -5,8 +5,8 @@
 #include "chanSymNode.hpp"
 #include "cidSymNode.hpp"
 
-channel::channel(variable* parent, const chanSymNode* chanSym, unsigned int index)
-	: primitiveVariable(chanSym, parent, index)
+channel::channel(const chanSymNode* chanSym, unsigned int index)
+	: primitiveVariable(chanSym, index)
 {
 	if(chanSym->getBound() > 1)
 		name += "["+std::to_string(index)+"]";
@@ -18,7 +18,7 @@ channel::channel(variable* parent, const chanSymNode* chanSym, unsigned int inde
 		unsigned int fieldIndex = 0;
 		for(auto typeSym: chanSym->getTypeList()){
 			for(unsigned int j = 0; j < typeSym->getBound(); ++j){
-				auto msgField = new channelField(this, typeSym, fieldIndex++, i, j);
+				auto msgField = new channelField(typeSym, fieldIndex++, i, j);
 				_addVariable(msgField);
 			}
 		}
@@ -102,13 +102,13 @@ bool channel::isEmpty(void) const {
 byte channel::len(void) const {
 	if(isRendezVous())
 		return 0;
-	return getPayload()->getValue<byte>(offset);
+	return getPayload()->getValue<byte>(getOffset());
 }
 
 void channel::len(byte newLen) {
 	if(!isRendezVous()) {
 		assert(newLen < getCapacity());
-		getPayload()->setValue<byte>(offset, newLen);
+		getPayload()->setValue<byte>(getOffset(), newLen);
 	}
 }
 
@@ -157,8 +157,8 @@ void channel::printTexada(void) const {
 
 /**************************************************************************************************/
 
-channelField::channelField(variable* parent, const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
-	: primitiveVariable(sym, parent, index)
+channelField::channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
+	: primitiveVariable(sym, index)
 {
 	name = ".("+sym->getTypeName()+")m" + std::to_string(messageIndex) + ".f" + std::to_string(fieldNumber) + name;
 }
@@ -170,8 +170,8 @@ variable* channelField::deepCopy(void) const{
 
 /**************************************************************************************************/
 
-CIDVar::CIDVar(variable* parent, const cidSymNode* sym, unsigned int bound) 
-	: primitiveVariable(sym, parent, bound)
+CIDVar::CIDVar(const cidSymNode* sym, unsigned int bound) 
+	: primitiveVariable(sym, bound)
 	, ref(nullptr)
 {}
 
@@ -186,7 +186,7 @@ channel* CIDVar::getRefChannel(void) const {
 	
 void CIDVar::setRefChannel(channel* newRef) {
 	ref = newRef;
-	getPayload()->setValue<channel*>(offset, newRef);
+	getPayload()->setValue<channel*>(getOffset(), newRef);
 }
 
 void CIDVar::assign(const variable* sc) {

@@ -2,8 +2,8 @@
 
 #include "varExpr.hpp"
 
-mtypeVar::mtypeVar(variable* parent, const mtypeSymNode* sym, unsigned int index)
-	: primitiveVariable(sym, parent, index)
+mtypeVar::mtypeVar(const mtypeSymNode* sym, unsigned int index)
+	: primitiveVariable(sym, index)
 {}
 
 void mtypeVar::init(void) {
@@ -49,9 +49,9 @@ void mtypeVar::print(void) const {
 	if(value) {
 		auto def = dynamic_cast<const mtypeSymNode*>(varSym)->getMTypeDef();
 		auto mtypestr = def->getCmtypeSymNodeName(value);
-		printf("0x%-4lx:   %-23s = %s\n", offset, getLocalName().c_str(), mtypestr.c_str());
+		printf("0x%-4lx:   %-23s = %s\n", getOffset(), getFullName().c_str(), mtypestr.c_str());
 	} else {
-		printf("0x%-4lx:   %-23s = nil\n", offset, getLocalName().c_str());
+		printf("0x%-4lx:   %-23s = nil\n", getOffset(), getFullName().c_str());
 	}
 }
 
@@ -62,16 +62,16 @@ void mtypeVar::printTexada(void) const {
 	if(value) {
 		auto def = dynamic_cast<const mtypeSymNode*>(varSym)->getMTypeDef();
 		auto mtypestr = def->getCmtypeSymNodeName(value);
-		printf("%s = %s\n", getLocalName().c_str(), mtypestr.c_str());
+		printf("%s = %s\n", getFullName().c_str(), mtypestr.c_str());
 	} else {
-		printf("%s = nil\n", getLocalName().c_str());
+		printf("%s = nil\n", getFullName().c_str());
 	}
 }
 
 /******************************************************************************************************/
 
-cmtypeVar::cmtypeVar(variable* parent, const cmtypeSymNode* sym) 
-	: primitiveVariable(sym, parent)
+cmtypeVar::cmtypeVar(const cmtypeSymNode* sym) 
+	: primitiveVariable(sym)
 {}
 
 void cmtypeVar::setValue(int value) {

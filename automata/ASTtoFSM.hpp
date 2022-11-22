@@ -26,6 +26,7 @@ public:
 	void visit(const stmntIf* node) override;
 	void visit(const stmntDo* node) override;
 	void visit(const stmntBreak* node) override;
+	void visit(const stmntAction* node) override;
 	void visit(const stmntGoto* node) override;
 	void visit(const stmntLabel* node) override;
 	void visit(const stmntSeq* node) override;
@@ -49,6 +50,7 @@ public:
 	void visit(const inlineDecl* node) override;
 	void visit(const procDecl* node) override;
 	void visit(const initDecl* node) override;
+	void visit(const neverDecl* node) override;
 	void visit(const expr* node) override;
 	void visit(const exprCond* node) override;
 	void visit(const exprRArg* node) override;

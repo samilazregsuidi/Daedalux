@@ -23,7 +23,6 @@ class fsmNode;
 class fsmTrans;
 
 class symTable;
-class varSymNode;
 class symTabVisitor;
 class symTabConstVisitor;
 
@@ -53,8 +52,9 @@ public:
 		T_CHAN,		// Channel: capacity used; children denote message fields
 		T_CID,		// Channel reference; capacity and children are not used.
 		T_TDEF,		// Type definition: children denote fields of type
+		T_PTYPE,
 		T_INIT,
-		T_PROC,		// ProcType: fsm field used; bound denotes the number of initially active processes
+		//T_PROC,		// ProcType: fsm field used; bound denotes the number of initially active processes
 		T_INLINE,
 		T_UTYPE,	// Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type record
 		T_NEVER,	// Never claim
@@ -125,6 +125,8 @@ public:
 	symTable* getSymTable(void) const;
 
 	virtual void setSymTable(symTable* parent);
+
+	void detach(void);
 
 	void addToMask(unsigned int mask);
 

@@ -5,5 +5,5 @@ active proctype test(){
 	:: true -> skip;
 	od;
 	
-	assert(false);
+	assert(true);
 }

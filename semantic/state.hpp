@@ -41,7 +41,7 @@ class transition;
 class state : public variable {
 public:
 
-	state(variable::Type type, state* parent = nullptr, const std::string& name = "");
+	state(variable::Type type, const std::string& name = "");
 
 	state(const state& s);
 

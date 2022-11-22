@@ -367,8 +367,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 125
-#define YY_END_OF_BUFFER 126
+#define YY_NUM_RULES 127
+#define YY_END_OF_BUFFER 128
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -379,44 +379,44 @@ struct yy_trans_info
 static const flex_int16_t yy_accept[364] =
     {   0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,  126,  124,  125,  112,  111,   17,  102,  120,
-      107,  107,  107,  107,  107,  110,  107,    3,    8,   14,
-       12,   19,   29,  108,  108,   26,   27,   31,   32,  107,
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-      107,  116,  115,  116,  119,  118,  106,  105,  103,  106,
-      123,  121,  122,  112,   16,   15,   20,    5,    4,    2,
-      113,  117,    0,  110,    1,    6,    7,   28,   13,   11,
-       10,    9,   18,  108,  108,   30,  108,  108,  108,  108,
+        0,    0,  128,  126,  127,  114,  113,   17,  104,  122,
+      109,  109,  109,  109,  109,  112,  109,    3,    8,   14,
+       12,   19,   29,  110,  110,   26,   27,   31,   32,  109,
+      110,  110,  110,  110,  110,  110,  110,  110,  110,  110,
+      110,  110,  110,  110,  110,  110,  110,  110,  110,  110,
+      109,  118,  117,  118,  121,  120,  108,  107,  105,  108,
+      125,  123,  124,  114,   16,   15,   20,    5,    4,    2,
+      115,  119,    0,  112,    1,    6,    7,   28,   13,   11,
+       10,    9,   18,  110,  110,   30,   53,  110,  110,  110,
 
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-       52,   46,  108,  108,  108,  108,  108,  108,   51,  108,
-       57,  108,  108,   56,  108,  108,  108,  108,  108,  108,
-      108,  108,  108,   66,   67,  108,  108,  108,  108,  108,
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-      108,   81,   82,   21,  114,  104,  122,  109,  108,  108,
-      108,  108,  108,   87,  108,  108,  108,  108,  108,  108,
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-      108,  108,  108,  108,  108,  108,  108,  108,   92,   59,
-      108,   23,  108,  108,  108,  108,  108,   65,  108,   90,
+      110,  110,  110,  110,  110,  110,   54,  110,  110,  110,
+       52,   46,  110,  110,  110,  110,  110,  110,   51,  110,
+       59,  110,  110,   58,  110,  110,  110,  110,  110,  110,
+      110,  110,  110,   68,   69,  110,  110,  110,  110,  110,
+      110,  110,  110,  110,  110,  110,  110,  110,  110,  110,
+      110,   83,   84,   21,  116,  106,  124,  111,  110,  110,
+      110,  110,  110,   89,  110,  110,  110,  110,  110,  110,
+      110,  110,  110,  110,  110,  110,  110,  110,  110,  110,
+      110,  110,  110,  110,  110,  110,  110,  110,   94,   61,
+      110,   23,  110,  110,  110,  110,  110,   67,  110,   92,
 
-      108,  108,  108,   74,  108,  108,  108,  108,  108,  108,
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-      108,  108,   35,   24,   88,  108,   89,  108,  108,  108,
-      108,  108,   33,   94,  108,  108,   47,  108,  108,   50,
-      108,  108,   53,   54,  108,   58,  108,  108,  108,  108,
-      108,  108,  108,  108,  108,  108,  108,  108,  108,  108,
-       78,  101,   22,  108,   34,  108,  108,  100,  108,  108,
-      108,   85,   83,  108,  108,  108,  108,  108,   39,  108,
-      108,  108,  108,  108,   96,  108,   48,  108,  108,   99,
-      108,  108,   60,   95,  108,   62,   63,  108,  108,  108,
+      110,  110,  110,   76,  110,  110,  110,  110,  110,  110,
+      110,  110,  110,  110,  110,  110,  110,  110,  110,  110,
+      110,  110,   35,   24,   90,  110,   91,  110,  110,  110,
+      110,  110,   33,   96,  110,  110,   47,  110,  110,   50,
+      110,  110,   55,   56,  110,   60,  110,  110,  110,  110,
+      110,  110,  110,  110,  110,  110,  110,  110,  110,  110,
+       80,  103,   22,  110,   34,  110,  110,  102,  110,  110,
+      110,   87,   85,  110,  110,  110,  110,  110,   39,  110,
+      110,  110,  110,  110,   98,  110,   48,  110,  110,  101,
+      110,  110,   62,   97,  110,   64,   65,  110,  110,  110,
 
-      108,  108,  108,   86,   91,  108,  108,   77,  108,  108,
-      108,   84,  108,   36,   37,   38,   40,   41,   42,  108,
-      108,   75,  108,  108,   55,   98,   61,  108,  108,   69,
-       70,  108,  108,  108,   97,  108,  108,   80,  108,  108,
-       43,   44,   49,  108,   64,  108,  108,  108,  108,   76,
-       79,  108,  108,  108,   68,   71,   72,   73,   93,  108,
+      110,  110,  110,   88,   93,  110,  110,   79,  110,  110,
+      110,   86,  110,   36,   37,   38,   40,   41,   42,  110,
+      110,   77,  110,  110,   57,  100,   63,  110,  110,   71,
+       72,  110,  110,  110,   99,  110,  110,   82,  110,  110,
+       43,   44,   49,  110,   66,  110,  110,  110,  110,   78,
+       81,  110,  110,  110,   70,   73,   74,   75,   95,  110,
        25,   45,    0
     } ;
 
@@ -1254,260 +1254,270 @@ YY_RULE_SETUP
 case 53:
 YY_RULE_SETUP
 #line 99 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(FULL);return FULL; }
+{ DBUG(AC); return AC; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
 #line 100 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(GOTO);return GOTO; }
+{ DBUG(CA); return CA; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
 #line 101 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(HIDDEN);return HIDDEN; }
+{ DBUG(FULL);return FULL; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
 #line 102 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ yylval->iVal = nbrLines; DBUG(IF);return IF; }
+{ DBUG(GOTO);return GOTO; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
 #line 103 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ yylval->iVal = nbrLines; DBUG(IF); return IF; }
+{ DBUG(HIDDEN);return HIDDEN; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 105 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(HIDDEN);return INIT; }
+#line 104 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ yylval->iVal = nbrLines; DBUG(IF);return IF; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 106 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(LEN); return LEN; }
+#line 105 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ yylval->iVal = nbrLines; DBUG(IF); return IF; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
 #line 107 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(ISLOCAL); return ISLOCAL; }
+{ DBUG(HIDDEN);return INIT; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
 #line 108 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(NEMPTY); return NEMPTY; }
+{ DBUG(LEN); return LEN; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
 #line 109 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(CLAIM); return CLAIM; }
+{ DBUG(ISLOCAL); return ISLOCAL; }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
 #line 110 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(NFULL); return NFULL; }
+{ DBUG(NEMPTY); return NEMPTY; }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
 #line 111 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TRACE); return TRACE; }
+{ DBUG(CLAIM); return CLAIM; }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
 #line 112 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(NONPROGRESS); return NONPROGRESS; }
+{ DBUG(NFULL); return NFULL; }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
 #line 113 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(OD); return OD; }
+{ DBUG(TRACE); return TRACE; }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
 #line 114 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(OF); return OF; }
+{ DBUG(NONPROGRESS); return NONPROGRESS; }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
 #line 115 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(PC_VAL); return PC_VAL; }
+{ DBUG(OD); return OD; }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
 #line 116 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(PRINT); return PRINT; }
+{ DBUG(OF); return OF; }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
 #line 117 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(PRINTM); return PRINTM; }
+{ DBUG(PC_VAL); return PC_VAL; }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
 #line 118 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(PRIORITY); return PRIORITY; }
+{ DBUG(PRINT); return PRINT; }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
 #line 119 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(PROCTYPE); return PROCTYPE; }
+{ DBUG(PRINTM); return PRINTM; }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
 #line 120 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(PROVIDED); return PROVIDED; }
+{ DBUG(PRIORITY); return PRIORITY; }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
 #line 121 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(RUN); return RUN; }
+{ DBUG(PROCTYPE); return PROCTYPE; }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
 #line 122 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(D_STEP); return D_STEP; }
+{ DBUG(PROVIDED); return PROVIDED; }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
 #line 123 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TIMEOUT); return TIMEOUT; }
+{ DBUG(RUN); return RUN; }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
 #line 124 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TRACE); return TRACE; }
+{ DBUG(D_STEP); return D_STEP; }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
 #line 125 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(SHOW); return SHOW; }
+{ DBUG(TIMEOUT); return TIMEOUT; }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
 #line 126 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPEDEF); return TYPEDEF; }
+{ DBUG(TRACE); return TRACE; }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
 #line 127 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(UNLESS); return UNLESS; }
+{ DBUG(SHOW); return SHOW; }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
 #line 128 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(XU); return XU; }
+{ DBUG(TYPEDEF); return TYPEDEF; }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
 #line 129 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(XU); return XU; }
+{ DBUG(UNLESS); return UNLESS; }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
 #line 130 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(WHEN); return WHEN; }
+{ DBUG(XU); return XU; }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
 #line 131 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(WHILE); return WHILE; }
+{ DBUG(XU); return XU; }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
 #line 132 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(WAIT); return WAIT; }
+{ DBUG(WHEN); return WHEN; }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
 #line 133 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(RESET); return RESET; }
+{ DBUG(WHILE); return WHILE; }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 135 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ yylval->iType = symbol::T_BIT; DBUG(TYPE); return TYPE; }
+#line 134 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG(WAIT); return WAIT; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 136 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_BOOL; return TYPE; }
+#line 135 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG(RESET); return RESET; }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
 #line 137 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_BYTE; return TYPE; }
+{ yylval->iType = symbol::T_BIT; DBUG(TYPE); return TYPE; }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
 #line 138 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_PID; return TYPE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_BOOL; return TYPE; }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
 #line 139 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_SHORT; return TYPE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_BYTE; return TYPE; }
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
 #line 140 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_INT; return TYPE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_PID; return TYPE; }
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
 #line 141 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG(TYPE); yylval->iType = symbol::T_SHORT; return TYPE; }
+	YY_BREAK
+case 94:
+YY_RULE_SETUP
+#line 142 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG(TYPE); yylval->iType = symbol::T_INT; return TYPE; }
+	YY_BREAK
+case 95:
+YY_RULE_SETUP
+#line 143 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 { fprintf(stderr, "The 'unsigned' type is not supported.\n");
 					  exit(1);			
 						/*	yylval->iVal = T_UNSGN; 
 							return TYPE; */ }
 	YY_BREAK
-case 94:
-YY_RULE_SETUP
-#line 145 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_CID; return TYPE; }
-	YY_BREAK
-case 95:
-YY_RULE_SETUP
-#line 146 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_MTYPE; return TYPE; }
-	YY_BREAK
 case 96:
 YY_RULE_SETUP
 #line 147 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_CLOCK; return TYPE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_CID; return TYPE; }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
 #line 148 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TYPE); yylval->iType = symbol::T_SYS; return TYPE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_MTYPE; return TYPE; }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
 #line 149 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ return INLINE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_CLOCK; return TYPE; }
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
 #line 150 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(FALSE);  yylval->iVal = 0; return FALSE; }
+{ DBUG(TYPE); yylval->iType = symbol::T_SYS; return TYPE; }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
 #line 151 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(TRUE); 	yylval->iVal = 1; return TRUE; }
+{ return INLINE; }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
 #line 152 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(SKIP); return SKIP; }
+{ DBUG(FALSE);  yylval->iVal = 0; return FALSE; }
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
 #line 153 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ BEGIN STRINGBLOCK; 													/* printf("BEGIN STRINGBLOCK AT L %d\n", nbrLines); */
-					  strBufferLen = 0; }
+{ DBUG(TRUE); 	yylval->iVal = 1; return TRUE; }
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
+#line 154 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG(SKIP); return SKIP; }
+	YY_BREAK
+case 104:
+YY_RULE_SETUP
 #line 155 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ BEGIN STRINGBLOCK; 													/* printf("BEGIN STRINGBLOCK AT L %d\n", nbrLines); */
+					  strBufferLen = 0; }
+	YY_BREAK
+case 105:
+YY_RULE_SETUP
+#line 157 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 { BEGIN CODE;															/* printf("BEGIN CODE AT L %d\n", nbrLines); */
 					  strBuffer[strBufferLen] = '\0';
 					  yylval->sVal = (char*) calloc(strBufferLen + 1, sizeof(char));
@@ -1516,33 +1526,33 @@ YY_RULE_SETUP
 					  
 					  return STRING; }
 	YY_BREAK
-case 104:
+case 106:
 YY_RULE_SETUP
-#line 162 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+#line 164 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 { strBuffer[strBufferLen] = '"';
 					  strBufferLen++; }
 	YY_BREAK
-case 105:
-/* rule 105 can match eol */
+case 107:
+/* rule 107 can match eol */
 YY_RULE_SETUP
-#line 164 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+#line 166 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 { strBuffer[strBufferLen] = '\n';
 					  strBufferLen++; }
 	YY_BREAK
-case 106:
+case 108:
 YY_RULE_SETUP
-#line 166 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+#line 168 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 { strBuffer[strBufferLen] = yytext[0];
 					  strBufferLen++; }
 	YY_BREAK
-case 107:
-YY_RULE_SETUP
-#line 170 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG_CHAR(yytext[0]); return yytext[0]; } 
-	YY_BREAK
-case 108:
+case 109:
 YY_RULE_SETUP
 #line 172 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG_CHAR(yytext[0]); return yytext[0]; } 
+	YY_BREAK
+case 110:
+YY_RULE_SETUP
+#line 174 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 {
 					  yylval->sVal = (char*) calloc(strlen(yytext) + 1, sizeof(char));
 					  strcpy(yylval->sVal, yytext);
@@ -1555,7 +1565,7 @@ YY_RULE_SETUP
 						   		 DBUG(UNAME);
 						  	     return UNAME; 
 
-						      case symbol::T_PROC:
+						      case symbol::T_PTYPE:
 						  	     DBUG(NAME);
 						  	     return NAME;
                               
@@ -1576,96 +1586,96 @@ YY_RULE_SETUP
 					  return NAME;
 					}
 	YY_BREAK
-case 109:
-YY_RULE_SETUP
-#line 205 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ yylval->rVal = atof(yytext); DBUG(REAL); return REAL;  }
-	YY_BREAK
-case 110:
-YY_RULE_SETUP
-#line 206 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ DBUG(CONST); yylval->iVal = atoi(yytext); return CONST; }
-	YY_BREAK
 case 111:
-/* rule 111 can match eol */
 YY_RULE_SETUP
-#line 208 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ nbrLines++; }
+#line 207 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ yylval->rVal = atof(yytext); DBUG(REAL); return REAL;  }
 	YY_BREAK
 case 112:
 YY_RULE_SETUP
-#line 209 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ }
+#line 208 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ DBUG(CONST); yylval->iVal = atoi(yytext); return CONST; }
 	YY_BREAK
 case 113:
+/* rule 113 can match eol */
 YY_RULE_SETUP
-#line 211 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ BEGIN COMMENTBLOCK; 													/* printf("BEGIN COMMENTBLOCK AT L %d\n", nbrLines); */ }
+#line 210 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ nbrLines++; }
 	YY_BREAK
 case 114:
 YY_RULE_SETUP
-#line 212 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ BEGIN CODE;															/* printf("BEGIN CODE AT L %d\n", nbrLines); */ }
+#line 211 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ }
 	YY_BREAK
 case 115:
-/* rule 115 can match eol */
 YY_RULE_SETUP
 #line 213 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ nbrLines++; }
+{ BEGIN COMMENTBLOCK; 													/* printf("BEGIN COMMENTBLOCK AT L %d\n", nbrLines); */ }
 	YY_BREAK
 case 116:
 YY_RULE_SETUP
 #line 214 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ }
+{ BEGIN CODE;															/* printf("BEGIN CODE AT L %d\n", nbrLines); */ }
 	YY_BREAK
 case 117:
+/* rule 117 can match eol */
 YY_RULE_SETUP
-#line 216 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ BEGIN COMMENTLINE; 													/* printf("BEGIN COMMENTLINE AT L %d\n", nbrLines); */ }
+#line 215 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ nbrLines++; }
 	YY_BREAK
 case 118:
-/* rule 118 can match eol */
 YY_RULE_SETUP
-#line 217 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ nbrLines++; BEGIN CODE; 												/* printf("BEGIN CODE AT L %d\n", nbrLines); */ }
+#line 216 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ }
 	YY_BREAK
 case 119:
 YY_RULE_SETUP
 #line 218 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ }
+{ BEGIN COMMENTLINE; 													/* printf("BEGIN COMMENTLINE AT L %d\n", nbrLines); */ }
 	YY_BREAK
 case 120:
+/* rule 120 can match eol */
 YY_RULE_SETUP
-#line 220 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ BEGIN CPPBLOCK; }
+#line 219 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ nbrLines++; BEGIN CODE; 												/* printf("BEGIN CODE AT L %d\n", nbrLines); */ }
 	YY_BREAK
 case 121:
-/* rule 121 can match eol */
 YY_RULE_SETUP
-#line 221 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ BEGIN CODE; }
+#line 220 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ }
 	YY_BREAK
 case 122:
 YY_RULE_SETUP
 #line 222 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ nbrLines = atoi(yytext); }
+{ BEGIN CPPBLOCK; }
 	YY_BREAK
 case 123:
+/* rule 123 can match eol */
 YY_RULE_SETUP
 #line 223 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ }
+{ BEGIN CODE; }
 	YY_BREAK
 case 124:
 YY_RULE_SETUP
-#line 225 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
-{ fprintf(stderr, "Invalid char '%s' at line %d\n", yytext, nbrLines); exit(1); }
+#line 224 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ nbrLines = atoi(yytext); }
 	YY_BREAK
 case 125:
 YY_RULE_SETUP
+#line 225 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ }
+	YY_BREAK
+case 126:
+YY_RULE_SETUP
 #line 227 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+{ fprintf(stderr, "Invalid char '%s' at line %d\n", yytext, nbrLines); exit(1); }
+	YY_BREAK
+case 127:
+YY_RULE_SETUP
+#line 229 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 ECHO;
 	YY_BREAK
-#line 1669 "/home/slazreg/Work/Research/Mutation/deadalux/parser/lex.yy.cpp"
+#line 1679 "/home/slazreg/Work/Research/Mutation/deadalux/parser/lex.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(CODE):
 case YY_STATE_EOF(COMMENTBLOCK):
@@ -2675,7 +2685,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 227 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
+#line 229 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.l"
 
 
 void init_lex(){

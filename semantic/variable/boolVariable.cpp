@@ -2,8 +2,8 @@
 
 #include "boolSymNode.hpp"
 
-boolVar::boolVar(variable* parent, const boolSymNode* sym, unsigned int index)
-	: primitiveVariable(sym, parent, index)
+boolVar::boolVar(const boolSymNode* sym, unsigned int index)
+	: primitiveVariable(sym, index)
 {}
 
 variable* boolVar::deepCopy(void) const {
@@ -29,9 +29,9 @@ int boolVar::operator -- (int) {
 void boolVar::print(void) const {
 	
 	if(getValue() == 1)
-		printf("0x%-4lx:   %-23s = true\n", offset, getLocalName().c_str());
+		printf("0x%-4lx:   %-23s = true\n", getOffset(), getFullName().c_str());
 	else
-		printf("0x%-4lx:   %-23s = false\n", offset, getLocalName().c_str());
+		printf("0x%-4lx:   %-23s = false\n", getOffset(), getFullName().c_str());
 }
 
 void boolVar::printTexada(void) const {
@@ -39,7 +39,7 @@ void boolVar::printTexada(void) const {
 		return;
 
 	if(getValue() == 1)
-		printf("%s = true\n", getLocalName().c_str());
+		printf("%s = true\n", getFullName().c_str());
 	else
-		printf("%s = false\n", getLocalName().c_str());
+		printf("%s = false\n", getFullName().c_str());
 }

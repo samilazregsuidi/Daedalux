@@ -50,16 +50,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) + getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) + getRightExpr()->acceptVisitor(visitor);
-	}
-
-
 };
 
 //E_EXPR_MINUS,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -88,15 +78,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) - getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) - getRightExpr()->acceptVisitor(visitor);
-	}
-
 };
 
 //E_EXPR_TIMES,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -125,15 +106,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) * getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) * getRightExpr()->acceptVisitor(visitor);
-	}
-
 };
 
 //E_EXPR_DIV,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -161,14 +133,6 @@ public:
 		exprDiv* copy = new exprDiv(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) / getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) / getRightExpr()->acceptVisitor(visitor);
 	}
 };
 
@@ -198,14 +162,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) % getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) % getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_GT,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -233,14 +189,6 @@ public:
 		exprGT* copy = new exprGT(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) > getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) > getRightExpr()->acceptVisitor(visitor);
 	}
 };
 
@@ -270,14 +218,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) < getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) < getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_GE,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -305,14 +245,6 @@ public:
 		exprGE* copy = new exprGE(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) >= getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) >= getRightExpr()->acceptVisitor(visitor);
 	}
 };
 
@@ -342,14 +274,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) <= getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) <= getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_EQ,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -377,14 +301,6 @@ public:
 		exprEQ* copy = new exprEQ(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) == getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) == getRightExpr()->acceptVisitor(visitor);
 	}
 };
 
@@ -414,14 +330,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) != getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) != getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_AND,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -450,15 +358,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) && getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) && getRightExpr()->acceptVisitor(visitor);
-	}
-
 };
 
 //E_EXPR_OR,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -487,14 +386,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) || getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) || getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_BITWAND,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -522,14 +413,6 @@ public:
 		exprBitwAnd* copy = new exprBitwAnd(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) & getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) & getRightExpr()->acceptVisitor(visitor);
 	}
 };
 
@@ -597,14 +480,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) | getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) | getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_BITWXOR,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -633,14 +508,6 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) ^ getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) ^ getRightExpr()->acceptVisitor(visitor);
-	}
 };
 
 //E_EXPR_LSHIFT,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -666,14 +533,6 @@ public:
 		exprLShift* copy = new exprLShift(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) << getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) << getRightExpr()->acceptVisitor(visitor);
 	}
 };
 
@@ -702,14 +561,6 @@ public:
 		exprRShift* copy = new exprRShift(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return getLeftExpr()->acceptVisitor(visitor) >> getRightExpr()->acceptVisitor(visitor);
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return getLeftExpr()->acceptVisitor(visitor) >> getRightExpr()->acceptVisitor(visitor);
 	}
 };
 

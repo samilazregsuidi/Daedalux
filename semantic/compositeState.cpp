@@ -8,14 +8,22 @@
 
 #include "compositeState.hpp"
 #include "compositeTransition.hpp"
+
+#include "programState.hpp"
+
 /**
  * Adds the global variables in the memory chunk.
  *
  * Does not set the payloadHash.
  */
-compState::compState() 
-	: state(variable::V_COMP_STATE)
-{}
+compState::compState(const fsm* automata, const std::string& name) 
+	: state(variable::V_COMP_STATE, name)
+{
+	for(auto sys : automata->getSystemSymTab()->getSymbols()) {
+		assert(sys->getType() == symbol::T_SYS);
+		addState(new progState(automata, sys->getName()));
+	}
+}
 
 compState::compState(const compState* other)
 	: state(other)
@@ -27,6 +35,10 @@ compState* compState::deepCopy(void) const {
 }
 
 compState::~compState() {
+}
+
+void compState::addState(state* s) {
+	_addVariable(s);
 }
 
 /*

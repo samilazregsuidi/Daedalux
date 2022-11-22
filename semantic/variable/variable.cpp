@@ -76,9 +76,9 @@ variable::Type variable::getVarType(symbol::Type type) {
 
 unsigned int variable::vidCounter = 0;
 
-variable::variable(Type varType, variable* parent, const std::string& name)
+variable::variable(Type varType, const std::string& name)
 	: name(name)
-	, parent(parent)
+	, parent(nullptr)
 	, vid(++vidCounter)
 	, varType(varType)
 	, rawBytes(0)
@@ -87,11 +87,7 @@ variable::variable(Type varType, variable* parent, const std::string& name)
 	, payLoad(nullptr)
 	, isHidden(false)
 {
-	if(parent) {
-		offset = parent->getEndOffset();
-		payLoad = parent->getPayload();
-		parent->_addVariable(this);
-	}
+
 }
 
 variable::variable(const variable& other)
@@ -152,11 +148,18 @@ void variable::assign(const variable* sc) {
 void variable::init(void) {
 
 	if(!payLoad) {
+	
+		if(parent) {
+			parent->init();
+			return;
+		}
+
 		setPayload(new payload(getSizeOf()));
 	}
 
 	for(auto var : varList)
 		var->init();
+	
 }
 
 /*bool variable::operator == (const variable& other) const {
@@ -169,6 +172,8 @@ bool variable::operator != (const variable& other) const {
 
 void variable::setParent(variable* parent) {
 	this->parent = parent;
+	offset = parent->getEndOffset();
+	payLoad = parent->getPayload();
 }
 
 variable* variable::getParent(void) const {
@@ -176,7 +181,7 @@ variable* variable::getParent(void) const {
 }
 
 std::string variable::getFullName(void) const {
-	return parent? parent->getLocalName() + "." + getLocalName() : getLocalName();
+	return parent? parent->getFullName() + "." + getLocalName() : getLocalName();
 }
 
 std::string variable::getLocalName(void) const {
@@ -218,7 +223,7 @@ void variable::printTexada(void) const {
 }
 
 void variable::printHexadecimal(void) const {
-	payLoad->printHexadecimal(offset, getSizeOf());
+	payLoad->printHexadecimal(getOffset(), getSizeOf());
 }
 
 
@@ -235,11 +240,11 @@ payload* variable::getPayload(void) const {
 }
 
 unsigned long variable::hash(void) const {
-	return payLoad->hash(offset, getSizeOf());
+	return payLoad->hash(getOffset(), getSizeOf());
 }
 
 size_t variable::getOffset(void) const {
-	return offset;
+	return parent? offset + parent->getOffset() : offset;
 }
 
 size_t variable::getEndOffset(void) const {
@@ -266,7 +271,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_BOOL:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new boolVar(this, dynamic_cast<const boolSymNode*>(sym), i);
+			auto var = new boolVar(dynamic_cast<const boolSymNode*>(sym), i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
@@ -277,7 +283,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_INT:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new primitiveVariable(sym, this, i);
+			auto var = new primitiveVariable(sym, i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
@@ -287,7 +294,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_MTYPE:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new mtypeVar(this, dynamic_cast<const mtypeSymNode*>(sym), i);
+			auto var = new mtypeVar(dynamic_cast<const mtypeSymNode*>(sym), i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
@@ -297,7 +305,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 		assert(false);
 	case symbol::T_CMTYPE:
 	{
-		auto var = new cmtypeVar(this, dynamic_cast<const cmtypeSymNode*>(sym));
+		auto var = new cmtypeVar(dynamic_cast<const cmtypeSymNode*>(sym));
+		_addVariable(var);
 		res.push_back(var);
 		return res;
 	}
@@ -306,7 +315,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_UTYPE:	// Type of variable is a user type (basically, a case symbol::T_TDEF record is being used as the type): utype points to the type record
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new utypeVar(this, dynamic_cast<const utypeSymNode*>(sym), i);
+			auto var = new utypeVar(dynamic_cast<const utypeSymNode*>(sym), i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
@@ -315,7 +325,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_CHAN:		// Channel: capacity used; children denote message fields
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new channel(this, dynamic_cast<const chanSymNode*>(sym), i);
+			auto var = new channel(dynamic_cast<const chanSymNode*>(sym), i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
@@ -323,7 +334,8 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_CID:		// Channel reference; capacity and children are not used.
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new CIDVar(this, dynamic_cast<const cidSymNode*>(sym), i);
+			auto var = new CIDVar(dynamic_cast<const cidSymNode*>(sym), i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
@@ -331,14 +343,15 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	case symbol::T_PID:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new PIDVar(this, dynamic_cast<const pidSymNode*>(sym), i);
+			auto var = new PIDVar(dynamic_cast<const pidSymNode*>(sym), i);
+			_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
 	}
 	case symbol::T_TDEF:		// Type definition: children denote fields of type
 	case symbol::T_INIT:
-	case symbol::T_PROC:		// ProcType: fsm field used; bound denotes the number of initially active processes
+	case symbol::T_PTYPE:		// ProcType: fsm field used; bound denotes the number of initially active processes
 	case symbol::T_INLINE:
 	case symbol::T_NEVER:	// Never claim
 		assert(false);

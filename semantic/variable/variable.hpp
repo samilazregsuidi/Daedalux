@@ -57,7 +57,7 @@ public:
 		V_COMP_STATE
 	};
 
-	variable(Type type, variable* parent = nullptr, const std::string& name = std::string());
+	variable(Type type, const std::string& name = std::string());
 
 	variable(const variable& other);
 	

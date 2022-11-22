@@ -8,7 +8,7 @@
 
 class channel : public primitiveVariable {
 public:
-	channel(variable* parent, const chanSymNode* sym, unsigned int bound =  0);
+	channel(const chanSymNode* sym, unsigned int bound =  0);
 
 	channel(const channel* other);
 
@@ -58,7 +58,7 @@ private:
 
 class channelField : public primitiveVariable {
 public:
-	channelField(variable* parent, const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex = 0, unsigned int index =  0);
+	channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex = 0, unsigned int index =  0);
 
 	variable* deepCopy(void) const override;
 };
@@ -66,7 +66,7 @@ public:
 
 class CIDVar : public primitiveVariable {
 public:
-	CIDVar(variable* parent, const cidSymNode* sym, unsigned int bound =  0);
+	CIDVar(const cidSymNode* sym, unsigned int bound =  0);
 
 	variable* deepCopy(void) const override;
 

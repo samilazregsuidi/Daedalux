@@ -39,9 +39,9 @@ class process : public state {
 public:
 	friend class state;
 
-	process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index = 0);
+	process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index = 0);
 
-	process(progState* s, const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args);
+	process(const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args);
 
 	process(const process* other);
 

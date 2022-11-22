@@ -54,10 +54,10 @@ int copyFile(const std::string& source, const std::string& target) {
 
 #define PRINT_STATE print
 
-#define B 1000
+#define B 50
 
 void launchExecution(const fsm* automata) {
-	state* current = new progState(automata);
+	state* current = initState::createInitState(automata);
 	unsigned long i = 0;
 	//printf("**********************************\n");
 	current->PRINT_STATE();
@@ -84,7 +84,7 @@ void findLasso(const fsm* automata, size_t k_steps) {
 
 	std::set<unsigned long> hashSet;
 
-	state* current = new progState(automata);
+	state* current = initState::createInitState(automata);
 	transition* trans = nullptr;
 
 	while(true) {

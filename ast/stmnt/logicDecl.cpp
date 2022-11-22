@@ -10,7 +10,7 @@
 #include "astVisitor.hpp"
 #include "utypeSymNode.hpp"
 #include "tdefSymNode.hpp"
-#include "procSymNode.hpp"
+#include "ptypeSymNode.hpp"
 #include "inlineSymNode.hpp"
 
 ltlDecl::ltlDecl(ltlSymNode* sym, int lineNb)

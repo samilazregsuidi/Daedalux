@@ -1,35 +1,37 @@
-typedef features {
-	bool B1;
-	bool B2;
-}
-
-features f;
-system p1;
-system p2;
-byte n, i;
-active proctype foo(){
-	p1.f.B1 = true;
-	p2.f.B2 = true;
+int s = 0;
+active proctype mdp(){
 	do
-	:: break;
-	:: n++;
+	:: s == 0;
+		if
+		:: s0a0 :: 			if
+			:: s = 0;
+			:: s = 2;
+			fi;
+		:: s0a1 :: 			s = 2;
+		fi;
+	:: s == 2;
+		if
+		:: s2a0 :: 			if
+			:: s = 0;
+			:: s = 2;
+			fi;
+		:: s2a1 :: 			if
+			:: s = 2;
+			:: s = 0;
+			:: s = 1;
+			fi;
+		fi;
+	:: s == 1;
+		if
+		:: s1a0 :: 			if
+			:: s = 1;
+			:: s = 0;
+			:: s = 2;
+			fi;
+		:: s1a1 :: 			if
+			:: s = 1;
+			:: s = 2;
+			fi;
+		fi;
 	od;
-	
-Start: 
-	if
-	:: p1.f.B1;
-		i = i + 1;
-	:: else;
-		skip;
-	fi;
-	if
-	:: p2.f.B2;
-		i = i + 2;
-	:: else;
-		skip;
-	fi;
-	
-Final: 
-	printf("i: %d", i);
-	assert(p1.i == 1 && p2.i == 3);
 }

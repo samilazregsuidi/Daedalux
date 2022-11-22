@@ -4,8 +4,8 @@
 #include "symbols.hpp"
 #include "constExpr.hpp"
 
-primitiveVariable::primitiveVariable(const varSymNode* const varSym, variable* parent, unsigned int index)
-	: variable(variable::getVarType(varSym->getType()), parent
+primitiveVariable::primitiveVariable(const varSymNode* const varSym, unsigned int index)
+	: variable(variable::getVarType(varSym->getType())
 	, std::string(varSym? (varSym->getBound() > 1? varSym->getName() + "["+std::to_string(index)+"]" : varSym->getName()) : ""))
 	, varSym(varSym)
 	, index(index)
@@ -15,8 +15,8 @@ primitiveVariable::primitiveVariable(const varSymNode* const varSym, variable* p
 	sizeOf += varSym->getTypeSize();
 }
 
-primitiveVariable::primitiveVariable(Type varType, variable* parent, unsigned int index) 
-	: variable(varType, parent)
+primitiveVariable::primitiveVariable(Type varType, unsigned int index) 
+	: variable(varType)
 	, varSym(nullptr)
 	, index(index)
 {
@@ -99,18 +99,18 @@ bool primitiveVariable::operator != (const primitiveVariable& other) const {
 
 void primitiveVariable::setValue(int value) {
 	assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
-	getPayload()->setValue(offset, value, getType());
+	getPayload()->setValue(getOffset(), value, getType());
 }
 	
 int primitiveVariable::getValue(void) const {
-	auto value = getPayload()->getValue(offset, getType());
+	auto value = getPayload()->getValue(getOffset(), getType());
 	assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
 	return value;
 }
 
 void primitiveVariable::print(void) const {
-	auto value = getPayload()->getValue(offset, getType());
-	printf("0x%-4lx:   %-23s = %d\n", offset, getLocalName().c_str(), value);
+	auto value = getPayload()->getValue(getOffset(), getType());
+	printf("0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
 
 	variable::print();
 }
@@ -119,8 +119,8 @@ void primitiveVariable::printTexada(void) const {
 	if(varSym->isPredefined())
 		return;
 
-	auto value = getPayload()->getValue(offset, getType());
-	printf("%s = %d\n", getLocalName().c_str(), value);
+	auto value = getPayload()->getValue(getOffset(), getType());
+	printf("%s = %d\n", getFullName().c_str(), value);
 
 	variable::printTexada();
 }
@@ -175,8 +175,8 @@ variable* constVar::deepCopy(void) const {
 
 #include "process.hpp"
 
-PIDVar::PIDVar(variable* parent, const pidSymNode* sym, unsigned int bound) 
-	: primitiveVariable(sym, parent, bound)
+PIDVar::PIDVar(const pidSymNode* sym, unsigned int bound) 
+	: primitiveVariable(sym, bound)
 	, ref(nullptr)
 {}
 
@@ -191,7 +191,7 @@ process* PIDVar::getRefProcess(void) const {
 	
 void PIDVar::setRefProcess(process* newRef) {
 	ref = newRef;
-	getPayload()->setValue<byte>(offset, newRef->getPid());
+	getPayload()->setValue<byte>(getOffset(), newRef->getPid());
 }
 
 void PIDVar::assign(const variable* sc) {

@@ -34,7 +34,7 @@ typedef unsigned char ubyte;
 class compState : public state {
 public:
 
-	compState(void); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	compState(const fsm* automata, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
 	compState(const compState* other);
 

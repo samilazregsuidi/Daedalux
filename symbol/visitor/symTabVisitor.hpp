@@ -15,7 +15,7 @@ class chanSymNode;
 class cidSymNode;
 class pidSymNode;
 class tdefSymNode;
-class procSymNode;
+class ptypeSymNode;
 class utypeSymNode;
 class neverSymNode;
 class initSymNode;
@@ -38,7 +38,7 @@ public:
 	virtual void visitCid(const cidSymNode* sym) = 0;
 	virtual void visitPid(const pidSymNode* sym) = 0;
 	virtual void visitTdef(const tdefSymNode* sym) = 0;
-	virtual void visitProc(const procSymNode* sym) = 0;
+	virtual void visitProc(const ptypeSymNode* sym) = 0;
 	virtual void visitUtype(const utypeSymNode* sym) = 0;
 	virtual void visitNever(const neverSymNode* sym) = 0;
 	virtual void visitInit(const initSymNode* sym) = 0;
@@ -62,7 +62,7 @@ public:
 	virtual void visitCid(cidSymNode* sym) = 0;
 	virtual void visitPid(pidSymNode* sym) = 0;
 	virtual void visitTdef(tdefSymNode* sym) = 0;
-	virtual void visitProc(procSymNode* sym) = 0;
+	virtual void visitProc(ptypeSymNode* sym) = 0;
 	virtual void visitUtype(utypeSymNode* sym) = 0;
 	virtual void visitNever(neverSymNode* sym) = 0;
 	virtual void visitInit(initSymNode* sym) = 0;

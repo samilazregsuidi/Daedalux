@@ -4,43 +4,53 @@
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
 # 1 "__workingfile.tmp"
-typedef features {
- bool B1;
- bool B2
-}
+int s = 0;
 
-features f;
+active proctype mdp(){
 
-system p1;
-system p2;
-
-byte n, i;
-
-active proctype foo() {
-
- p1.f.B1 = true;
- p2.f.B2 = true;
 
  do
- :: break;
- :: n++;
+ :: s == 0 ->
+  if
+  :: s0a0 ::
+   if
+   :: [ 0.5 ] s = 0;
+   :: [ 0.5 ] s = 2;
+   fi;
+
+  :: s0a1 :: s = 2;
+  fi;
+
+ :: s == 2 ->
+  if
+  :: s2a0 ::
+   if
+   :: [ 0.4 ] s = 0;
+   :: [ 0.6 ] s = 2;
+   fi;
+
+  :: s2a1 ::
+   if
+   :: [ 0.4 ] s = 2;
+   :: [ 0.3 ] s = 0;
+   :: [ 0.3 ] s = 1;
+   fi;
+  fi;
+
+ :: s == 1 ->
+  if
+  :: s1a0 ::
+   if
+   :: [ 0.1 ] s = 1;
+   :: [ 0.7 ] s = 0;
+   :: [ 0.2 ] s = 2;
+   fi;
+
+  :: s1a1 ::
+   if
+   :: [ 0.95 ] s = 1;
+   :: [ 0.05 ] s = 2;
+   fi;
+  fi;
  od;
-
-Start:
-
- if
- :: p1.f.B1 -> i = i + 1
- :: else -> skip;
- fi;
-
- if
- :: p2.f.B2 -> i = i + 2
- :: else -> skip;
- fi;
-
-Final:
- printf("i: %d", i);
-
- assert(p1.i == 1 && p2.i == 3);
-
 }

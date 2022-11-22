@@ -88,8 +88,7 @@ bool inInline = false;
 	enum symbol::Type   	iType;
 }
 
-//%token <iVal> CONST TYPE IF DO
-%token <iVal> CONST IF DO
+%token <iVal> CONST IF DO AC
 %token <iType> TYPE 
 %token <sVal> NAME UNAME PNAME INAME VNAME BASE STRING
 %token <rVal> REAL
@@ -98,7 +97,7 @@ bool inInline = false;
 %token	RUN LEN ENABLED EVAL PC_VAL
 %token	TYPEDEF MTYPE INLINE LABEL OF
 %token	GOTO BREAK ELSE SEMI
-%token	FI OD SEP
+%token	FI OD CA SEP
 %token	ATOMIC NON_ATOMIC D_STEP UNLESS
 %token  TIMEOUT NONPROGRESS
 %token	ACTIVE PROCTYPE D_PROCTYPE
@@ -129,7 +128,7 @@ bool inInline = false;
 
 %type  <sVal> aname
 %type  <rVal> real_expr
-%type  <pStmntVal> step stmnt timed_stmnt Special Stmnt proc init utypedef mtypedef body sequence option ns
+%type  <pStmntVal> step stmnt timed_stmnt Special Stmnt proc init claim utypedef mtypedef body sequence option ns
 %type  <pStmntOptVal> options
 %type  <pExprVal> Expr expr full_expr Probe ltl_expr bltl_expr k_steps feat_expr
 %type  <pConstExprVal> inst
@@ -155,19 +154,16 @@ start_parsing	: 	{ *globalSymTab = new symTable("global"); symTable::addPredefin
 								
 								for(auto sym : sysSyms) {
 									(*globalSymTab)->remove(sym);
+									//dynamic_cast<sysSymNode*>(sym)->setDef(*globalSymTab);
 								}
+
+								auto sysTable = new symTable("system");
 
 								for(auto sym : sysSyms) {
-									auto sysTable = new symTable(**globalSymTab);
-									sysTable->insert(sym);
-									sysTable->setNameSpace(sym->getName());
-									sysTables.push_back(sysTable); 
+									sysTable->insert(sym); 
 							  	}
 
-								(*globalSymTab)->clear();
-								for(auto sysTable : sysTables){
-									(*globalSymTab)->addNextSymTab(sysTable);
-								}
+								sysTable->addNextSymTab(*globalSymTab);
 
 								currentSymTab = *globalSymTab; 
 							} 
@@ -185,6 +181,7 @@ units	: unit									{ /*DBUG("REDUCE: unit -> units\n")*/ }
 
 unit	: proc		/* proctype { }       */	{ /*DBUG("REDUCE: proc -> unit\n")*/ *program = stmnt::merge(*program, $1); }
 		| init		/* init { }           */	{ /*DBUG("REDUCE: init -> unit\n")*/ *program = stmnt::merge(*program, $1); }
+		| claim 	/* never { }		  */	{ /*DBUG("REDUCE: never -> unit\n")*/ *program = stmnt::merge(*program, $1); }
 		| events	/* event assertions   */  	{ assert(false); std::cout << "The 'events' construct is currently not supported."; }
 		| one_decl	/* variables, chans   */	{ 
 													/*DBUG("REDUCE: one_decl -> unit\n")*/
@@ -223,7 +220,7 @@ proc	: inst		/* optional instantiator */	/* returns an EXP_NODE describing the n
 		  body									{	
 		  											/*DBUG("REDUCE: inst proctype NAME ( decl ) prio ena body -> proc\n")*/
 													auto procNbLine = $11->getLineNb();
-		  											procSymNode* proc = new procSymNode($3, $1, declSyms, $11, procNbLine);
+		  											ptypeSymNode* proc = new ptypeSymNode($3, $1, declSyms, $11, procNbLine);
 		  											declSyms.clear();
 		  											$$ = new procDecl(proc, procNbLine);
 		  											(*globalSymTab)->insert(proc);
@@ -268,17 +265,30 @@ init	: INIT
 												}				
 		;
 
+claim   : CLAIM
+		{ nameSpace = "never"; }
+		body 									{
+													/*DBUG("REDUCE: CLAIM body -> claim\n")*/
+													neverSymNode* never = new neverSymNode(nbrLines, $3);
+													$$ = new neverDecl(never, nbrLines);
+													(*globalSymTab)->insert(never);
+													nameSpace = "global";
+												}
+
 events	: TRACE body							{ std::cout << "Event sequences (traces) are not supported."; }
 		;
 
 utypedef: TYPEDEF NAME '{' decl_lst '}'			{	
 													/*DBUG("REDUCE: TYPEDEF NAME '{' decl_lst '}' -> utype\n")*/
-													tdefSymNode* tdef = new tdefSymNode($2, *globalSymTab, declSyms, nbrLines);
-													$$ = new tdefDecl(tdef, nbrLines);
-													(*globalSymTab)->insert(tdef);
+
 													for(auto declSym : declSyms)
 														(*globalSymTab)->remove(declSym->getName());
+
+													tdefSymNode* tdef = new tdefSymNode($2, *globalSymTab, declSyms, nbrLines);
 													declSyms.clear();
+
+													$$ = new tdefDecl(tdef, nbrLines);
+													(*globalSymTab)->insert(tdef);
 													free($2);  
 												}
 		;
@@ -492,6 +502,7 @@ Special : varref RCV rargs						{ $$ = new stmntChanRecv($1, $3, nbrLines); }
 		| varref SND margs						{ $$ = new stmntChanSnd($1, $3, nbrLines); }
 		| IF options FI 						{ $$ = new stmntIf($2, $1); }
 		| DO options OD							{ $$ = new stmntDo($2, $1); }
+		| AC options CA							{ $$ = new stmntIf($2, $1); }
 		| BREAK									{ $$ = new stmntBreak(nbrLines); }
 		| GOTO NAME								{ $$ = new stmntGoto($2, nbrLines); free($2); }
 		| NAME ':' stmnt						{ if($3->getType() == astNode::E_STMNT_LABEL && static_cast<stmntLabel*>($3)->getLabelled()->getType() == astNode::E_STMNT_LABEL) 
@@ -525,6 +536,7 @@ Stmnt	: varref ASGN full_expr					{ $$ = new stmntAsgn($1, $3, nbrLines); }
 														assert(dynamic_cast<inlineSymNode*>(fctSym)->getParams().size() == $3->getSize());
 													free($1); 
 												}
+		| NAME SEP 								{ $$ = new stmntAction($1, nbrLines); } 
 		;
 
 options : option								{ $$ = new stmntOpt($1, nbrLines); }
@@ -610,8 +622,8 @@ expr    : '(' expr ')'							{ $$ = new exprPar		($2, nbrLines); }
 		| PC_VAL '(' expr ')'					{ std::cout << "The 'pc_value()' construct is not supported."; } /* Predefined function (p. 448). */
 		| varref '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
 		| varref '[' expr ']' ':' varref		{ std::cout << "Construct not supported."; /* Unclear */ }
-		| varref '@' NAME						{ $$ = new exprRemoteRef($1 , $3, labelsMap[$3]->getLineNb(), nbrLines); assert(labelsMap.find($3) != labelsMap.end()); assert($1->getFinalSymbol()->getType() == symbol::T_PROC);}
-		| varref ':' varref						{ assert($1->getFinalSymbol()->getType() == symbol::T_PROC); $1->appendVarRef($3); $$ = $1; }
+		| varref '@' NAME						{ $$ = new exprRemoteRef($1 , $3, labelsMap[$3]->getLineNb(), nbrLines); assert(labelsMap.find($3) != labelsMap.end()); assert($1->getFinalSymbol()->getType() == symbol::T_PTYPE);}
+		| varref ':' varref						{ assert($1->getFinalSymbol()->getType() == symbol::T_PTYPE); $1->appendVarRef($3); $$ = $1; }
 		| ltl_expr								{ $$ = $1; }
 		| bltl_expr								{ $$ = $1; }
 		;

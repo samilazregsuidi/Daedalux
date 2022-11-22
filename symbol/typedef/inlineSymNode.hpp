@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include "procSymNode.hpp"
+#include "ptypeSymNode.hpp"
 
 //T_INLINE
 class inlineSymNode : public seqSymNode {

@@ -14,9 +14,9 @@
  * Does not set the payloadHash.
  */
 
-state::state(variable::Type type, state* parent, const std::string& name)
-	: variable(type, parent, name)
-	, prob(0.0)
+state::state(variable::Type type, const std::string& name)
+	: variable(type, name)
+	, prob(1.0)
 	, trans(nullptr)
 {
 }

@@ -292,6 +292,10 @@ void ASTtoFSM::visit(const stmntDStep* node)  {
 
 /*************************************************************/
 
+void ASTtoFSM::visit(const stmntAction* node) {
+    node = node; assert(false);
+}
+
 void ASTtoFSM::visit(const stmntSeq* node) {
     node = node; assert(false);
 }
@@ -305,6 +309,10 @@ void ASTtoFSM::visit(const procDecl* decl) {
 }
 
 void ASTtoFSM::visit(const initDecl* node) {
+    node = node; assert(false);
+}
+
+void ASTtoFSM::visit(const neverDecl* node) {
     node = node; assert(false);
 }
 

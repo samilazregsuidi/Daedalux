@@ -35,8 +35,6 @@ public:
 
 	progState(const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	progState(state* parent, const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
-
 	progState(const progState* other);
 
 	//state(const state& s) = default;
@@ -61,14 +59,16 @@ public:
 	 */
 	virtual ~progState();
 
+	void init(void) override;
+
 	/*
 	* Creates a new process and returns its pid.
 	* Reserves some memory for the proctype variables in the memory chunk and initializes the value of these variables.
 	* Does not change the payloadHash.
 	*/
-	process* addProctype(const procSymNode* proctype, int i = 0);
+	process* addProctype(const ptypeSymNode* proctype, int i = 0);
 
-	process* addProctype(const procSymNode* proctype, const std::list<const variable*>& args);
+	process* addProctype(const ptypeSymNode* proctype, const std::list<const variable*>& args);
 
 	/*
 	* Defines the never claim of the execution.
@@ -185,6 +185,8 @@ public:
 	mutable bool timeout;
 
 	process* never;
+
+	std::list<std::string> actions;
 };
 
 #endif

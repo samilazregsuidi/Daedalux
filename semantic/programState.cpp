@@ -24,13 +24,8 @@
  * Does not set the payloadHash.
  */
 
-progState::progState(const fsm* stateMachine, const std::string& name)
-	: progState(nullptr, stateMachine, name)
-{
-}
-
-progState::progState(state* parent, const fsm* stateMachine, const std::string& name) 
-	: state(variable::V_STATE, parent, name)
+progState::progState(const fsm* stateMachine, const std::string& name) 
+	: state(variable::V_STATE, name)
 	, globalSymTab(stateMachine->getGlobalSymTab())
 	, stateMachine (stateMachine)
 	, pidCounter(0)
@@ -60,7 +55,7 @@ progState::progState(state* parent, const fsm* stateMachine, const std::string& 
 	 * Also, links the "never claim" FSM, if it exists, with the state.
 	 */
 	
-	for (const auto procSym : globalSymTab->getSymbols<const procSymNode*>()) {
+	for (const auto procSym : globalSymTab->getSymbols<const ptypeSymNode*>()) {
 		
 		assert(procSym->getActiveExpr());
 
@@ -69,12 +64,7 @@ progState::progState(state* parent, const fsm* stateMachine, const std::string& 
 		}
 	}
 
-	init();
-
-	// No process is executing something atomic
-	getPayload()->setValue(OFFSET_EXCLUSIVITY_VAR, NO_PROCESS);
-	// No rendezvous has been requested.
-	getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
+	
 
 	/*for(auto e : symPtr){
 		std::cout << "symbol " << std::string(*e.first) << " at : "<<e.second<<"\n";
@@ -94,6 +84,15 @@ progState* progState::deepCopy(void) const {
 	//newScope->setPayload(getPayload()->copy());
 	//copy->assign(newScope);
 	return copy;
+}
+
+void progState::init(void) {
+
+	state::init();
+	// No process is executing something atomic
+	getPayload()->setValue(OFFSET_EXCLUSIVITY_VAR, NO_PROCESS);
+	// No rendezvous has been requested.
+	getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 }
 
 void progState::assign(const variable* sc) {
@@ -180,6 +179,12 @@ byte progState::compare(const state& s2) const {
 void progState::print(void) const {
 	variable::print();
 	printf("prob : %lf\n", prob);
+	if(actions.size()){
+		printf("scheduler : ");
+		for(auto a : actions)
+			printf(" %s, ", a.c_str());
+	}
+	printf("\n\n");
 }
 
 void progState::printGraphViz(unsigned long i) const {
@@ -230,7 +235,7 @@ process* progState::getNeverClaim(void) const {
  *
  * Does not change the payloadHash.
  */
-process* progState::addProctype(const procSymNode* procType, int i){
+process* progState::addProctype(const ptypeSymNode* procType, int i){
 	
 	if(nbProcesses >= MAX_PROCESS) {
 		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
@@ -240,13 +245,14 @@ process* progState::addProctype(const procSymNode* procType, int i){
 	auto sm = stateMachine->getFsmWithName(procType->getName());
 	assert(sm);
 
-	process* newProc = new process(this, procType, sm, pidCounter++, i);
+	process* newProc = new process(procType, sm, pidCounter++, i);
+	_addVariable(newProc);
 
 	nbProcesses++;
 	return newProc;
 }
 
-process* progState::addProctype(const procSymNode* procType, const std::list<const variable*>& args){
+process* progState::addProctype(const ptypeSymNode* procType, const std::list<const variable*>& args){
 	
 	if(nbProcesses >= MAX_PROCESS) {
 		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
@@ -256,7 +262,8 @@ process* progState::addProctype(const procSymNode* procType, const std::list<con
 	auto sm = stateMachine->getFsmWithName(procType->getName());
 	assert(sm);
 
-	process* newProc = new process(this, procType, sm, pidCounter++, args);
+	process* newProc = new process(procType, sm, pidCounter++, args);
+	_addVariable(newProc);
 
 	nbProcesses++;
 	return newProc;
@@ -269,7 +276,8 @@ process* progState::addProctype(const procSymNode* procType, const std::list<con
  */
 process* progState::addNever(const neverSymNode* neverSym) {
 	
-	never = new process(this, neverSym, stateMachine->getFsmWithName(neverSym->getName()), -2);
+	never = new process(neverSym, stateMachine->getFsmWithName(neverSym->getName()), -2);
+	_addVariable(never);
 
 	nbNeverClaim++;
 

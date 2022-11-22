@@ -72,7 +72,11 @@ symTable* symTable::getSubSymTab(const std::string& name) const {
 }
 
 bool symTable::isGlobal(void) const {
-	return !prev;
+	return name == "global" && !prev;
+}
+
+bool symTable::isMultiSystems(void) const {
+	return name == "system" && syms.size() > 1;
 }
 
 void symTable::print(int tab) const {
@@ -137,6 +141,7 @@ void symTable::insert(symbol* sym) {
 
 void symTable::remove(const std::string& name) {
 	assert(syms.find(name) != syms.end());
+	syms.find(name)->second->detach();
 	syms.erase(name);
 }
 

@@ -98,6 +98,8 @@ public:
 
 	bool isGlobal(void) const;
 
+	bool isMultiSystems(void) const;
+
 	unsigned int getMemorySize(void) const;
 
 	operator std::string(void) const;
