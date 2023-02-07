@@ -7,9 +7,6 @@
 utypeVar::utypeVar(const utypeSymNode* sym, unsigned int index)
 	: primitiveVariable(sym, index)
 {
-	for(auto field : sym->getUType()->getFields()) {
-		addVariables(field);
-	}
 }
 
 utypeVar::utypeVar(const utypeVar* other) 

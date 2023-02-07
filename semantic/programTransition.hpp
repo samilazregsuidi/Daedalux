@@ -21,16 +21,15 @@ public:
 	
 	~progTransition() override;
 	
-	transition* deepCopy(void) const override;
-
 	process* getProc(void) const;
 
 	const fsmEdge* getEdge(void) const;
 
+	//void fire(state* s) const override;
+
 public:		//
 	process* proc;		//	- The mask of the process to which the transition belongs (from the state that was given to executables())
 	const fsmEdge* const edge;			//  - The transition that can be fired
-	//ADD features;
 };
 
 #endif

@@ -92,14 +92,14 @@ fsmEdge::operator std::string(void) const {
 	return expression? std::string(*expression) : "";
 }
 
-/*bool fsmEdge::hasFeatures(void) const {
+bool fsmEdge::hasFeatures(void) const {
 	return features.getNode() != nullptr;
-}*/
+}
 
-/*const ADD& fsmEdge::getFeatures(void) const {
+const ADD& fsmEdge::getFeatures(void) const {
 	return features;
-}*/
+}
 
-/*void fsmEdge::setFeatures(const ADD& features) {
+void fsmEdge::setFeatures(const ADD& features) {
 	this->features = features;
-}*/
+}

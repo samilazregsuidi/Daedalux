@@ -64,8 +64,8 @@ expr* exprVarRefName::getIndex(void) const {
 symbol* exprVarRefName::resolve(symTable *global, symTable *subField) {
 
 	if (subField) {
-		sym = dynamic_cast<varSymNode*>(subField->lookup(symName));
-		assert(sym);
+		sym = dynamic_cast<symbol*>(subField->lookup(symName));
+		//assert(sym);
 	} else if (global) {
 		do {
 			sym = global->lookupGlobal(symName);

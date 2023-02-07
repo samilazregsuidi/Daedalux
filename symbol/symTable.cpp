@@ -30,10 +30,10 @@ symTable* symTable::createSubTable(const std::string& name) {
 }
 
 symTable::~symTable() {
-	for(const auto& s : syms) {
+	//for(const auto& s : syms) {
 		//delete s.second;
-	}
-	for(auto& n : nexts)
+	//}
+	//for(auto& n : nexts)
 		//delete n;
 		;
 }

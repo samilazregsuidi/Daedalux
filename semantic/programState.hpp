@@ -66,16 +66,16 @@ public:
 	* Reserves some memory for the proctype variables in the memory chunk and initializes the value of these variables.
 	* Does not change the payloadHash.
 	*/
-	process* addProctype(const ptypeSymNode* proctype, int i = 0);
+	void addProcess(process* proc);
 
-	process* addProctype(const ptypeSymNode* proctype, const std::list<const variable*>& args);
+	//void addProcess(const ptypeSymNode* proctype, const std::list<const variable*>& args);
 
 	/*
 	* Defines the never claim of the execution.
 	* Set its initial FSM node in the payload.
 	* Does not change the payloadHash.
 	*/
-	process* addNever(const neverSymNode* neverSym);
+	//process* addNever(const neverSymNode* neverSym);
 
 	bool nullstate(void) const override;
 
@@ -106,7 +106,7 @@ public:
 
 	std::list<process*> getProcs(void) const;
 
-	process* getNeverClaim(void) const;
+	state* getNeverClaim(void) const override;
 
 	const process* getExclusiveProc(void) const;
 
@@ -183,8 +183,6 @@ public:
 	mutable const process* handShakeProc;
 	mutable const process* exclusiveProc;
 	mutable bool timeout;
-
-	process* never;
 
 	std::list<std::string> actions;
 };

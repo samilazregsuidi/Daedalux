@@ -18,8 +18,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * */
 
 fsm::fsm(const symTable* globalSymTab)
-	: globalSymTab(globalSymTab)
-{}
+	: globalSymTab(nullptr)
+	, sysSymTab(nullptr)
+{
+	assert(globalSymTab->getNameSpace() == "global" || globalSymTab->getNameSpace() == "system");
+	this->globalSymTab = globalSymTab->getNameSpace() == "global" ? globalSymTab : globalSymTab->getSubSymTab("global");
+	this->sysSymTab = globalSymTab->getNameSpace() == "system" ? globalSymTab : globalSymTab->prevSymTab();
+}
 
 /**
  * Destroys an FSM and all that's linked to it.
@@ -30,13 +35,11 @@ fsm::~fsm(){
 }
 
 const symTable* fsm::getGlobalSymTab(void) const {
-	assert(globalSymTab->getNameSpace() == "global" || globalSymTab->getNameSpace() == "system");
-	return globalSymTab->getNameSpace() == "global" ? globalSymTab : globalSymTab->getSubSymTab("global");
+	return globalSymTab;
 }
 
 const symTable* fsm::getSystemSymTab(void) const {
-	assert(globalSymTab->getNameSpace() == "global" || globalSymTab->getNameSpace() == "system");
-	return globalSymTab->getNameSpace() == "system" ? globalSymTab : nullptr;
+	return sysSymTab;
 }
 
 /**
@@ -136,9 +139,13 @@ void fsm::addTransition(fsmEdge* edge){
 	trans.push_back(edge);
 }
 
-/*const ADD& fsm::getFD(void) const {
+bool fsm::isFeatured(void) const {
+	return getFeatureDiagram().getNode() != nullptr;
+}
+
+const ADD& fsm::getFeatureDiagram(void) const {
 	return fd;
-}*/
+}
 
 void fsm::printGraphVis(std::ofstream& file) const {
 	file << "digraph finite_state_machine {\n";

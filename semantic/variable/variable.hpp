@@ -145,7 +145,7 @@ public:
 
 	void clearVariables(void);
 
-	std::list<variable*> addVariables(const varSymNode* sym);
+	//std::list<variable*> addVariables(const varSymNode* sym);
 
 	//std::list<variable*> createVariables(const varSymNode* sym);
 

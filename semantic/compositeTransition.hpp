@@ -6,6 +6,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <list>
+#include <vector>
 
 #include "transition.hpp"
 
@@ -14,14 +15,16 @@ class state;
 // ProcessTransitions are returned by the executables() function
 class compTransition : public transition {
 public:
-	compTransition(state* s, const std::list<const transition*>& ts);
+	compTransition(state* s, const std::list<transition*>& ts);
+
+	compTransition(state* s, const std::vector<transition*>& ts);
 	
 	~compTransition() override;
 	
-	transition* deepCopy(void) const override;
+	//void fire(state* s) const override;
 
 public:		//
-	std::list<const transition*> Ts;
+	std::list<transition*> Ts;
 };
 
 #endif

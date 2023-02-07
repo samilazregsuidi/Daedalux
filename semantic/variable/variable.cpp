@@ -259,7 +259,7 @@ void variable::addRawBytes(size_t size) {
 	sizeOf += size;
 }
 
-std::list<variable*> variable::addVariables(const varSymNode* sym) {
+/*std::list<variable*> variable::addVariables(const varSymNode* sym) {
 	assert(sym);
 
 	std::list<variable*> res;
@@ -359,7 +359,7 @@ std::list<variable*> variable::addVariables(const varSymNode* sym) {
 		assert(false);
 	}
 	return res;
-}
+}*/
 /*
 std::list<variable*> variable::createVariables(const varSymNode* sym) {
 	assert(sym);
@@ -460,7 +460,22 @@ variable* variable::getVariable(const std::string& name) const {
 	if(resIt != varMap.cend())
 		return resIt->second;
 	
-	return parent? parent->getVariable(name) : nullptr;
+	variable* var = nullptr;
+	if(parent)
+		var = parent->getVariable(name);
+	else {
+		bool found = false;
+		for (auto scope : varList) {
+			resIt = scope->varMap.find(name);
+			if(resIt != scope->varMap.cend()) {
+				assert(found == false);
+				found = true;
+				var = resIt->second;
+			}
+		}
+	}
+	
+	return var;
 }
 
 channel* variable::getChannel(const std::string& name) const {

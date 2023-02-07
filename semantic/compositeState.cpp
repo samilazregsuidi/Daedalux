@@ -5,24 +5,23 @@
 #include <cmath>
 #include <cassert>
 #include <vector>
+#include <iterator>
 
 #include "compositeState.hpp"
 #include "compositeTransition.hpp"
 
 #include "programState.hpp"
+#include "process.hpp"
 
 /**
  * Adds the global variables in the memory chunk.
  *
  * Does not set the payloadHash.
  */
-compState::compState(const fsm* automata, const std::string& name) 
+compState::compState(const std::string& name) 
 	: state(variable::V_COMP_STATE, name)
+	, never(nullptr)
 {
-	for(auto sys : automata->getSystemSymTab()->getSymbols()) {
-		assert(sys->getType() == symbol::T_SYS);
-		addState(new progState(automata, sys->getName()));
-	}
 }
 
 compState::compState(const compState* other)
@@ -38,7 +37,14 @@ compState::~compState() {
 }
 
 void compState::addState(state* s) {
+	assert(s);
 	_addVariable(s);
+}
+
+void compState::addNeverState(state* s) {
+	assert(never);
+	never = s;
+	addState(s);
 }
 
 /*
@@ -69,8 +75,12 @@ void compState::addState(state* s) {
 }*/
 
 void compState::print(void) const {
-	variable::print();
+	for(auto s : getSubStates()) {
+		s->print();
+		printf(" ----------------------------------------- \n");
+	}
 	printf("prob : %lf\n", prob);
+	printf(" ****************************************** \n\n");
 }
 
 void compState::printTexada(void) const {
@@ -84,6 +94,26 @@ void compState::printGraphViz(unsigned long i) const {
 		s->printGraphViz(i);
 }
 
+void CartesianRecurse(std::vector<std::vector<transition*>> &accum, std::vector<transition*> stack, std::vector<std::vector<transition*>> sequences, int index) {
+    std::vector<transition*> sequence = sequences[index];
+    for (auto t : sequence){       
+        stack.push_back(t);
+        if (index == 0)
+            accum.push_back(stack);
+        else
+            CartesianRecurse(accum, stack, sequences, index - 1);
+        stack.pop_back();
+    }
+}
+
+std::vector<std::vector<transition*>> CartesianProduct(std::vector<std::vector<transition*>> sequences) {
+    std::vector<std::vector<transition*>> accum;
+    std::vector<transition*> stack;
+    if (sequences.size() > 0)
+        CartesianRecurse(accum, stack, sequences, sequences.size() - 1);
+    return accum;
+}
+
 /**
  * Returns a list of all the executable transitions (for all the processes).
  * EFFECTS: None. (It CANNOT have any!)
@@ -93,19 +123,18 @@ void compState::printGraphViz(unsigned long i) const {
 std::list<transition*> compState::executables(void) const {
 
 	std::list<transition*> execs;
-
 	std::vector<std::vector<transition*>> stateTransList;
+
 	for(auto s : getSubStates()) {
 		auto Ts = s->executables();
 		stateTransList.push_back(std::vector<transition*>{ std::begin(Ts), std::end(Ts) });
 	}
 
-	for(size_t i = 0; i < stateTransList.size(); ++i) {
-		for(size_t j = 0; j < stateTransList[i].size(); ++j) {
-			stateTransList[i][j];
-		}
+	auto Tss = CartesianProduct(stateTransList);
+	for (auto Ts : Tss) {
+		execs.push_back(new compTransition(const_cast<compState*>(this), Ts));
 	}
-
+	
 	return execs;
 }
 
@@ -123,6 +152,7 @@ std::list<transition*> compState::executables(void) const {
 state* compState::apply(const transition* trans) {
 	
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
+	assert(compTrans);
 
 	for(auto trans : compTrans->Ts) {
 		auto s = getSubState(trans->src->getLocalName());
@@ -156,6 +186,10 @@ bool compState::isAccepting(void) const {
 		if(elem->isAccepting())
 			return true;
 	return false;
+}
+
+state* compState::getNeverClaim(void) const {
+	return never? never : (parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr);
 }
 
 state* compState::getSubState(const std::string& name) const {

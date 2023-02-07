@@ -111,6 +111,8 @@ public:
 
 	virtual bool isAccepting(void) const = 0;
 
+	virtual state* getNeverClaim(void) const = 0;
+
 	/*
 	* If the pid of the last process is 'pid' then:
 	*  - the stateMask of the process is removed

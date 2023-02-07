@@ -3,15 +3,22 @@
 
 #include "state.hpp"
 
-compTransition::compTransition(state* s, const std::list<const transition*>& Ts)
+compTransition::compTransition(state* s, const std::list<transition*>& Ts)
 	: transition(s)
 	, Ts(Ts)
+{}
+
+compTransition::compTransition(state* s, const std::vector<transition*>& Ts)
+	: transition(s)
+	, Ts(Ts.begin(), Ts.end())
 {}
 
 compTransition::~compTransition(){
 	
 }
-	
-transition* compTransition::deepCopy(void) const {
-	return nullptr;
-}
+
+/*void compTransition::fire(state* s) const {
+	for(auto trans : Ts) {
+		trans->fire();
+	}
+}*/

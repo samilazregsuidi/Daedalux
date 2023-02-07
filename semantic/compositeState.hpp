@@ -34,7 +34,7 @@ typedef unsigned char ubyte;
 class compState : public state {
 public:
 
-	compState(const fsm* automata, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	compState(const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
 	compState(const compState* other);
 
@@ -93,6 +93,8 @@ public:
 	*/
 	void addState(state* s);
 
+	void addNeverState(state* s);
+
 	/*
 	* If the pid of the last process is 'pid' then:
 	*  - the stateMask of the process is removed
@@ -122,6 +124,11 @@ public:
 	bool endstate(void) const override;
 
 	bool isAccepting(void) const override;
+
+	state* getNeverClaim(void) const override;
+
+private:
+	state* never;
 };
 
 #endif

@@ -27,12 +27,18 @@ public:
 	transition(state* src);
 
 	virtual ~transition();
+
+	std::list<transition*> getResponses(void) const;
 	
-	virtual transition* deepCopy(void) const;
+	//virtual transition* deepCopy(void) const;
+
+	//virtual void fire(state* s) const = 0;
 
 public:		//
 	state* src;
 	double prob;
+	std::list<transition*> responses;
+	std::list<unsigned int> lines;
 };
 
 #endif

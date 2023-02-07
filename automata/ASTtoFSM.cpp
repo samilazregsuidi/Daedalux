@@ -199,11 +199,11 @@ void ASTtoFSM::visit(const stmntGoto* node)  {
 void ASTtoFSM::visit(const stmntLabel* node)  {
     std::string label = node->getLabel();
     
-    if(label == "accept") 		
+    if(label.find("accept") != std::string::npos) 		
         flags |= fsmNode::N_ACCEPT;
-    if(label == "end") 			
+    if(label.find("end") != std::string::npos) 			
         flags |= fsmNode::N_END;
-    if(label == "progress") 
+    if(label.find("progress") != std::string::npos) 
         flags |= fsmNode::N_PROGRESS;
 
     labels.push_back(label);
@@ -223,8 +223,9 @@ void ASTtoFSM::visit(const stmntFct* decl)  {
     res->addInitNode(decl->getFctName(), init);
 
     for(auto looseGotoList : looseGotos){
-        auto labelledNode = labeledNodes[looseGotoList.first];
-        assert(labelledNode);
+        auto labelledNodeIt = labeledNodes.find(looseGotoList.first);
+        assert(labelledNodeIt != labeledNodes.end());
+        auto labelledNode = labelledNodeIt->second;
         for(auto looseGoto : looseGotoList.second)
             looseGoto->setTargetNode(labelledNode);
     }

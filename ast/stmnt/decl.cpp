@@ -319,6 +319,7 @@ stmnt* initDecl::deepCopy(void) const {
 
 neverDecl::neverDecl(neverSymNode *procSym, int lineNb)
 	: stmntFct(astNode::E_CLAIM_DECL, procSym->getBlock(), lineNb)
+	, procSym(procSym)
 {}
 
 std::string neverDecl::getFctName(void) const {

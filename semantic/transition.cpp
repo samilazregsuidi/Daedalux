@@ -18,9 +18,10 @@ transition::transition(state* s)
 }
 
 transition::~transition(){
-	
+	for(auto r : responses)
+		delete r;
 }
-	
-transition* transition::deepCopy(void) const {
-	return nullptr;
+
+std::list<transition*> transition::getResponses(void) const {
+	return responses;
 }

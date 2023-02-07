@@ -5,15 +5,14 @@ typedef features {
 
 features f;
 
-system p1;
-system p2;
+variant p1 = f.B1;
+variant p2 = f.B2;
+
+//(p1 x p2) x never
 
 byte n, i;
 
 active proctype foo() {
-
-	p1.f.B1 = true;
-	p2.f.B2 = true;
 	
 	do
 	:: break;
@@ -21,32 +20,36 @@ active proctype foo() {
 	od;
 	
 Start:
-	
+	skip;
 	if
-	:: p1.f.B1 -> i = i + 1
+	:: f.B1 -> i = i + 1;
 	:: else -> skip;
 	fi;
 	
 	if
-	:: p2.f.B2 -> i = i + 2
+	:: f.B2 -> i = i + 2;
 	:: else -> skip;
 	fi;
 	
 Final:
-	printf("i: %d", i);
-	
-	assert(p1.i == 1 && p2.i == 3);
-	
+	skip;
 }
 
-
-/* !([] p1_i_geq_p2_i) */
-/*never { 
+never { 
 T0_init:
+	skip;
 	if
-	:: (1) -> goto T0_init
-	:: (!p1_i_geq_p2_i) -> goto accept_all
+	:: (1) -> goto T0_init;
+	:: p1.foo@Start && p2.foo@Start && p1.n == p2.n -> goto T1;
 	fi;
+	
+T1:
+	skip;
+	if
+	:: (1) -> goto T1;
+	:: p1.foo@Final && p2.foo@Final && p1.i >= p2.i -> goto accept_all;
+	fi;
+	
 accept_all:
 	skip;
-}*/
+}

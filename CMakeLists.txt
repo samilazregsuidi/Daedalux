@@ -81,8 +81,11 @@ add_executable(deadalux
 	
 	./semantic/state.cpp
 	./semantic/programState.cpp
+	./semantic/featuredStateDecorator.cpp
 	./semantic/compositeState.cpp
+	./semantic/thread.cpp
 	./semantic/process.cpp
+	./semantic/never.cpp
 	
 	./semantic/variable/variable.cpp
 	./semantic/variable/primitiveVariable.cpp
@@ -94,12 +97,15 @@ add_executable(deadalux
 	./semantic/payload.cpp
 	./semantic/transition.cpp
 	./semantic/programTransition.cpp
-	./semantic/rendezVousTransition.cpp
 	./semantic/compositeTransition.cpp
+	./semantic/featuredProgramTransition.cpp
+	./semantic/neverTransition.cpp
 	./semantic/initState.cpp
 
 	./parser/${Parser}
 	./parser/${Lexer}
+	
+	./features/tvl.cpp
 	
 	./logic/ltl-ltl2ba.c
     
@@ -124,7 +130,14 @@ target_include_directories(deadalux
     ./semantic/variable
     
     ./parser
-
+    
+    ./features
+    
+    ./libs/cudd
+    ./libs/cudd/st
+    ./libs/cudd/mtr
+    ./libs/cudd/epd
+    ./libs/cudd/cudd
     ./libs/cudd/cplusplus
     
     ./logic

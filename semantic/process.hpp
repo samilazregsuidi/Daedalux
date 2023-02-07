@@ -6,7 +6,7 @@
 #include <tuple>
 #include <cassert>
 
-#include "state.hpp"
+#include "thread.hpp"
 
 typedef char byte;
 
@@ -35,13 +35,11 @@ class exprRArgList;
 
 // A state mask gives for every process the pid, a pointer to its symtab node
 // and its offset in the payload
-class process : public state {
+class process : public thread {
 public:
 	friend class state;
 
 	process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index = 0);
-
-	process(const seqSymNode* sym, const fsmNode* start, byte pid, const std::list<const variable*>& args);
 
 	process(const process* other);
 
@@ -51,23 +49,15 @@ public:
 
 	byte getPid(void) const;
 
+	void setPid(byte pid);
+
 	void print(void) const override;
 
 	std::list<transition*> transitions(void) const;
 
-	const fsmNode* getFsmNodePointer(void) const;
-
-	void setFsmNodePointer(const fsmNode* pointer);
-
-	bool isAtLabel(int nbLine) const;
-
 	void setProgState(progState* newS);
 
 	progState* getProgState(void) const;
-
-	bool nullstate(void) const override;
-
-	bool endstate(void) const override;
 
 	std::list<transition*> executables(void) const override;
 
@@ -76,46 +66,18 @@ public:
 	// Expression evaluation (flag)
 	#define EVAL_EXECUTABILITY 0
 	#define EVAL_EXPRESSION 1
-	
-	//trans or state, signature can be optimized!
-	int eval(const fsmEdge* edge, byte flag) const; // Return true <=> transition 'trans' is executable on process 'mask'.
 
-	int eval(const astNode* exp, byte flag) const;
+	int eval(const astNode* exp, byte flag) const override;
 
-	std::string getName(void) const;
+	int eval(const fsmEdge* edge, byte flag) const override;
 
 	bool isAccepting(void) const override;
 
-	bool isAtomic(void) const;
-	
-	std::string getVarName(const expr* varExpr) const;
-
-	variable* getVariable(const expr* varExpr) const;
-
-	std::list<variable*> getVariables(const exprArgList* args) const;
-
-	std::list<const variable*> getConstVariables(const exprArgList* args) const;
-
-	std::list<variable*> getVariables(const exprRArgList* rargs) const;
-
-	std::list<const variable*> getConstVariables(const exprRArgList* rargs) const;
-
-	channel* getChannel(const expr* varExpr) const;
-
-	template <typename T> T* getTVar(const expr* varExpr, const process* proc) const {
-		return dynamic_cast<T*>(getVariable(varExpr));
-	}
+	state* getNeverClaim(void) const override;
 
 	//byte compare(const state& s2) const override;
 
-private:
-	const seqSymNode* symType;
-	unsigned int index;
-
-	const fsmNode* const start;
-
-	mutable bool _else;
-
+protected:
 	byte pid;
 };
 

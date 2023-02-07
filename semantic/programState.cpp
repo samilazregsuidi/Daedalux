@@ -16,7 +16,8 @@
 #include "payload.hpp"
 
 #include "programTransition.hpp"
-#include "rendezVousTransition.hpp"
+
+#include "neverTransition.hpp"
 
 /**
  * Adds the global variables in the memory chunk.
@@ -35,40 +36,10 @@ progState::progState(const fsm* stateMachine, const std::string& name)
 	, handShakeProc(nullptr)
 	, exclusiveProc(nullptr)
 	, timeout(false)
-	, never(nullptr)
 {
 
 	addRawBytes(SIZE_EXCLUSIVITY_VAR);
 	addRawBytes(SIZE_HANDSHAKE_VAR);
-
-	for (const auto neverSym : globalSymTab->getSymbols<const neverSymNode*>()) {
-		addNever(neverSym);
-	}
-
-	for (auto sym : globalSymTab->getSymbols<const varSymNode*>()) {
-		addVariables(sym);
-	}
-
-	/**
-	 * Runs every process with the attribute "active".
-	 * Cardinalities are taken into account.
-	 * Also, links the "never claim" FSM, if it exists, with the state.
-	 */
-	
-	for (const auto procSym : globalSymTab->getSymbols<const ptypeSymNode*>()) {
-		
-		assert(procSym->getActiveExpr());
-
-		for(int i = 0; i < procSym->getActiveExpr()->getCstValue(); ++i){
-			addProctype(procSym, i);
-		}
-	}
-
-	
-
-	/*for(auto e : symPtr){
-		std::cout << "symbol " << std::string(*e.first) << " at : "<<e.second<<"\n";
-	}*/
 }
 
 progState::progState(const progState* other)
@@ -200,10 +171,9 @@ void progState::printGraphViz(unsigned long i) const {
 	if(auto progTrans = dynamic_cast<const progTransition*>(trans)) {
 		edges.push_back(progTrans->getEdge());
 		auto t = progTrans;
-		const RVTransition* rvTrans = dynamic_cast<const RVTransition*>(t);
-		while (rvTrans && (t = rvTrans->getResponse())){
-			edges.push_back(t->getEdge());
-			rvTrans = dynamic_cast<const RVTransition*>(t);
+
+		for(auto r : t->getResponses()){
+			edges.push_back(dynamic_cast<const progTransition*>(r)->getEdge());
 		}
 	}
 
@@ -225,8 +195,8 @@ process* progState::getProc(int pid) const {
 	return nullptr;
 }
 
-process* progState::getNeverClaim(void) const {
-	return never;
+state* progState::getNeverClaim(void) const {
+	return parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr;
 }
 
 /**
@@ -235,38 +205,17 @@ process* progState::getNeverClaim(void) const {
  *
  * Does not change the payloadHash.
  */
-process* progState::addProctype(const ptypeSymNode* procType, int i){
+void progState::addProcess(process* proc){
 	
 	if(nbProcesses >= MAX_PROCESS) {
 		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
 		assert(false);
 	}
-
-	auto sm = stateMachine->getFsmWithName(procType->getName());
-	assert(sm);
-
-	process* newProc = new process(procType, sm, pidCounter++, i);
-	_addVariable(newProc);
-
-	nbProcesses++;
-	return newProc;
-}
-
-process* progState::addProctype(const ptypeSymNode* procType, const std::list<const variable*>& args){
 	
-	if(nbProcesses >= MAX_PROCESS) {
-		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
-		assert(false);
-	}
-
-	auto sm = stateMachine->getFsmWithName(procType->getName());
-	assert(sm);
-
-	process* newProc = new process(procType, sm, pidCounter++, args);
-	_addVariable(newProc);
+	proc->setPid(pidCounter++);
+	_addVariable(proc);
 
 	nbProcesses++;
-	return newProc;
 }
 
 /**
@@ -274,6 +223,7 @@ process* progState::addProctype(const ptypeSymNode* procType, const std::list<co
  *
  * Does not change the payloadHash.
  */
+/*
 process* progState::addNever(const neverSymNode* neverSym) {
 	
 	never = new process(neverSym, stateMachine->getFsmWithName(neverSym->getName()), -2);
@@ -283,6 +233,7 @@ process* progState::addNever(const neverSymNode* neverSym) {
 
 	return never;
 }
+*/
 
 /*******************************************************************************************************/
 
@@ -418,7 +369,10 @@ std::list<transition*> progState::executables(void) const {
  * that evaluated to false.
  */
 state* progState::apply(const transition* trans) {
-	process* proc = dynamic_cast<const progTransition*>(trans)->getProc();
+	
+	const progTransition* progTrans = dynamic_cast<const progTransition*>(trans);
+	assert(progTrans);
+	process* proc = progTrans->getProc();
 	assert(proc);
 	//warning if "different" procs have the same pid i.e., dynamic proc creation
 	proc = getProc(proc->getPid());
@@ -453,9 +407,6 @@ bool progState::endstate(void) const {
 }
 
 bool progState::isAccepting(void) const {
-	auto never = getNeverClaim();
-	if(never)
-		return never->isAccepting();
 	return false;
 }
 

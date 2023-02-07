@@ -3,6 +3,7 @@ active proctype foo(){
 	n = 0;
 Start: 
 	n++;
+	goto Start;
 }
 
 active proctype test(){
@@ -13,5 +14,5 @@ active proctype test(){
 		break;
 	od;
 	
-	assert(foo.n == 1);
+	assert(foo.n > 0);
 }
