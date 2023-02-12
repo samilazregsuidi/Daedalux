@@ -26,6 +26,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_RARG_EVAL,	// child[0] = E_EXPR_*
@@ -43,6 +47,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_RARG_CONST,	// iVal = the constant
@@ -60,6 +68,10 @@ public:
 	int getCstValue(void) const;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_RARGLIST,			// child[0] = E_EXPR_* or E_RARG_VAR or E_RARG_EVAL or E_RARG_CONST,
@@ -88,6 +100,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_ARG,		// child[0] = E_EXPR_
@@ -105,6 +121,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_ARGLIST,			// child[0] = E_EXPR_* or E_RARG_VAR or E_RARG_EVAL or E_RARG_CONST,
@@ -132,6 +152,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #endif

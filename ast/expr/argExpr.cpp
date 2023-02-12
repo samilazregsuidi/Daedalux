@@ -5,6 +5,8 @@
 #include "varExpr.hpp"
 #include "constExpr.hpp"
 
+#include "astVisitor.hpp"
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -45,6 +47,14 @@ astNode* exprRArgVar::deepCopy(void) const {
 	return copy;
 }
 
+void exprRArgVar::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprRArgVar::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -81,6 +91,14 @@ astNode* exprRArgEval::deepCopy(void) const {
 	return copy;
 }
 
+void exprRArgEval::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprRArgEval::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -113,6 +131,14 @@ int exprRArgConst::getCstValue(void) const {
 astNode* exprRArgConst::deepCopy(void) const {
 	exprRArgConst* copy = new exprRArgConst(*this);
 	return copy;
+}
+
+void exprRArgConst::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprRArgConst::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /****************************************************************
@@ -170,6 +196,14 @@ astNode* exprRArgList::deepCopy(void) const {
 	return copy;
 }
 
+void exprRArgList::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprRArgList::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -205,6 +239,14 @@ astNode* exprArg::deepCopy(void) const {
 	exprArg* copy = new exprArg(*this);
 	copy->copyChildren(*this);
 	return copy;
+}
+
+void exprArg::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprArg::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /****************************************************************
@@ -260,4 +302,12 @@ astNode* exprArgList::deepCopy(void) const {
 	exprArgList* copy = new exprArgList(*this);
 	copy->copyChildren(*this);
 	return copy;
+}
+
+void exprArgList::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprArgList::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }

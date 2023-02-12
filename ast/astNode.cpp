@@ -161,13 +161,3 @@ void astNode::acceptVisitor(ASTVisitor* visitor) {
 	visitor = visitor;
 	assert(false);
 }
-
-int astNode::acceptVisitor(ASTConstVisitorInt* visitor) const {
-	visitor = visitor;
-	assert(false);
-}
-
-int astNode::acceptVisitor(ASTVisitorInt* visitor) {
-	visitor = visitor;
-	assert(false);
-}

@@ -43,13 +43,13 @@ symbol::Type expr::getExprType(expr* left, expr* right) {
 	return symbol::T_NA;
 }
 
-void expr::acceptVisitor(ASTConstVisitor* visitor) const {
+/*void expr::acceptVisitor(ASTConstVisitor* visitor) const {
 	visitor->visit(this);
 }
 
 void expr::acceptVisitor(ASTVisitor* visitor) {
 	visitor->visit(this);
-}
+}*/
 
 /****************************************************************
  * **************************************************************
@@ -109,6 +109,14 @@ expr* exprCond::deepCopy(void) const {
 	return copy;
 }
 
+void exprCond::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprCond::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -161,6 +169,14 @@ expr* exprRun::deepCopy(void) const {
 	return copy;
 }
 
+void exprRun::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprRun::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -187,6 +203,14 @@ expr* exprTimeout::deepCopy(void) const {
 	return copy;
 }
 
+void exprTimeout::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprTimeout::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -211,4 +235,12 @@ symbol::Type exprSkip::getExprType(void) const {
 expr* exprSkip::deepCopy(void) const {
 	exprSkip* copy = new exprSkip(*this);
 	return copy;
+}
+
+void exprSkip::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprSkip::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }

@@ -1,17 +1,28 @@
-#include "ASTtoFSM.hpp"
+#include "astToFsm.hpp"
 
 #include "symbols.hpp"
 #include "ast.hpp"
 #include "automata.hpp"
 
+#include "tvl.hpp"
+#include "expToADD.hpp"
+
 ASTtoFSM::ASTtoFSM() 
     : skip(false)
     , flags(0)
+    , fm(nullptr)
+    , isElse(false)
 {}
 
-fsm* ASTtoFSM::astToFsm(const symTable* symTab, const stmnt* program) {
+ASTtoFSM::~ASTtoFSM() {
+
+}
+
+fsm* ASTtoFSM::astToFsm(const symTable* symTab, const stmnt* program, const TVL* fm) {
     
-    res = new fsm(symTab);
+    res = new fsm(symTab, fm->getFeatureModelClauses());
+    
+    this->fm = fm;
     
     program->acceptVisitor(this);
     //assert(current.size() == 1);
@@ -33,17 +44,49 @@ void ASTtoFSM::_label(fsmNode* node){
 }
 
 void ASTtoFSM::_looseEnd(const stmnt* node) {
-    looseEnds.push_back(current->createfsmEdge(node->getLineNb(), node));
+    auto edge = current->createfsmEdge(node->getLineNb(), node);
+    looseEnds.push_back(edge);
+
+    if(!isElse){
+        edge->setFeatures(looseFeatures);
+        fm->printBool(looseFeatures);
+        looseFeatures = ADD();
+    } else {
+        assert(!looseFeatures);
+        edge->setFeatures(optFeatures.top());
+        fm->printBool(edge->getFeatures());
+    }
+    
 }
 
 void ASTtoFSM::_looseBreak(const stmnt* node) {
     looseBreaks.push_back(current->createfsmEdge(node->getLineNb(), node));
 }
 
-void ASTtoFSM::visit(const stmnt* node)  {
+void ASTtoFSM::_toFsm(const stmnt* node) {
 
-        current = (res->createFsmNode(flags, node->getLineNb()));
-        
+    current = (res->createFsmNode(flags, node->getLineNb()));
+
+    if(!init) init = current;
+
+    _label(current);
+    
+    _connect(looseEnds, current);
+
+    _looseEnd(node);
+
+
+    node = node->getNext();
+    if(node) {
+        node->acceptVisitor(this);
+    }
+}
+
+/*void ASTtoFSM::visit(const stmnt* node)  {
+
+
+    current = (res->createFsmNode(flags, node->getLineNb()));
+
         if(!init) init = current;
 
         _label(current);
@@ -56,6 +99,41 @@ void ASTtoFSM::visit(const stmnt* node)  {
     node = node->getNext();
     if(node) {
         node->acceptVisitor(this);
+    }
+}*/
+
+void ASTtoFSM::visit(const stmntExpr* node)  {
+
+    auto toADD = new expToADD(fm);
+
+    node->getChild()->acceptVisitor(toADD);
+    
+    if(toADD->isFeatureExpr()){
+        
+        looseFeatures = toADD->getFormula();
+        optFeatures.top() &= ~looseFeatures;
+
+    }
+
+    delete toADD;
+    
+
+    if(!looseFeatures) {
+        current = (res->createFsmNode(flags, node->getLineNb()));
+
+        if(!init) init = current;
+
+        _label(current);
+        
+        _connect(looseEnds, current);
+
+        _looseEnd(node);
+    }
+
+
+    auto next = node->getNext();
+    if(next) {
+        next->acceptVisitor(this);
     }
 }
 
@@ -80,6 +158,8 @@ void ASTtoFSM::visit(const stmntIf* node)  {
     if(!init) init = current;
 
     _connect(looseEnds, current);
+
+    optFeatures.push(fm->getMgr()->addOne());
 
     auto opt = node->getOpts();
     while(opt){
@@ -110,6 +190,8 @@ void ASTtoFSM::visit(const stmntIf* node)  {
     looseEnds.merge(flowLooseEnds);
     looseBreaks.merge(flowLooseBreaks);
 
+    optFeatures.pop();
+
     auto next = node->getNext();
     if(next) {
         next->acceptVisitor(this);
@@ -126,6 +208,8 @@ void ASTtoFSM::visit(const stmntDo* node)  {
     if(!init) init = current;
 
     _connect(looseEnds, start);
+
+    optFeatures.push(fm->getMgr()->addOne());
 
     auto opt = node->getOpts();
     while(opt){
@@ -153,6 +237,7 @@ void ASTtoFSM::visit(const stmntDo* node)  {
     _connect(flowLooseEnds, start);
     looseEnds.merge(flowLooseBreaks);
 
+    optFeatures.pop();
 
     auto next = node->getNext();
     if(next) {
@@ -163,15 +248,15 @@ void ASTtoFSM::visit(const stmntDo* node)  {
 void ASTtoFSM::visit(const stmntBreak* node)  {
     
 
-        current = res->createFsmNode(flags, node->getLineNb());
+    current = res->createFsmNode(flags, node->getLineNb());
 
-        if(!init) init = current;
-        
-        _label(current);
+    if(!init) init = current;
+    
+    _label(current);
 
-        _connect(looseEnds, current);
+    _connect(looseEnds, current);
 
-        _looseBreak(node);
+    _looseBreak(node);
 
 
     auto next = node->getNext();
@@ -291,240 +376,56 @@ void ASTtoFSM::visit(const stmntDStep* node)  {
         next->acceptVisitor(this);
 }
 
-/*************************************************************/
+void ASTtoFSM::visit(const stmntChanRecv* node) {
+    _toFsm(node);
+}
+
+void ASTtoFSM::visit(const stmntChanSnd* node) {
+    _toFsm(node);
+}
 
 void ASTtoFSM::visit(const stmntAction* node) {
-    node = node; assert(false);
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const stmntSeq* node) {
-    node = node; assert(false);
+void ASTtoFSM::visit(const stmntAsgn* node) {
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const inlineDecl* node) {
-    node = node; assert(false);
+void ASTtoFSM::visit(const stmntIncr* node) {
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const procDecl* decl) {
-    decl = decl; assert(false);
+void ASTtoFSM::visit(const stmntDecr* node) {
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const initDecl* node) {
-    node = node; assert(false);
+void ASTtoFSM::visit(const stmntPrint* node) {
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const neverDecl* node) {
-    node = node; assert(false);
+void ASTtoFSM::visit(const stmntPrintm* node) {
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const stmntChanRecv* node)  {
-    node = node; assert(false);
+void ASTtoFSM::visit(const stmntAssert* node) {
+    _toFsm(node);
 }
 
-void ASTtoFSM::visit(const stmntChanSnd* node)  {
-    node = node; assert(false);
-}
+void ASTtoFSM::visit(const stmntElse* node) {
+    
+    current = (res->createFsmNode(flags, node->getLineNb()));
 
-void ASTtoFSM::visit(const stmntAsgn* node)  {
-    node = node; assert(false);
-}
+    _label(current);
+    
+    _connect(looseEnds, current);
 
-void ASTtoFSM::visit(const stmntIncr* node)  {
-    node = node; assert(false);
-}
+    isElse = true;
+    _looseEnd(node);
+    isElse = false;
 
-void ASTtoFSM::visit(const stmntDecr* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntPrint* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntPrintm* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntAssert* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntExpr* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntElse* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntWait* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const stmntWhen* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const expr* node) {
-    node = node;//expr will be attached to edges
-}
-
-void ASTtoFSM::visit(const exprCond* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprRArg* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprRArgVar* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprRArgEval* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprRArgConst* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprArgList* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprRun* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprConst* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprTimeout* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprSkip* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprTrue* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprFalse* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprPlus* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprMinus* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprTimes* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprDiv* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprMod* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprGT* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprLT* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprGE* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprLE* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprEQ* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprNE* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprAnd* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprOr* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprBitwAnd* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprBitwOr* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprBitwXor* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprLShift* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprRShift* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprPar* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprCount* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprUMin* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprNeg* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprBitwNeg* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprLen* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprFull* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprNFull* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprEmpty* node)  {
-    node = node; assert(false);
-}
-
-void ASTtoFSM::visit(const exprNEmpty* node)  {
-    node = node; assert(false);
+    auto next = node->getNext();
+    if(next) {
+        next->acceptVisitor(this);
+    }
 }

@@ -27,6 +27,10 @@ public:
 
 	astNode* deepCopy(void) const override;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 protected:
 	exprConst(astNode::Type type, int constant, int lineNb);
 
@@ -53,6 +57,10 @@ public:
 
 	astNode* deepCopy(void) const override;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 };
 
 //E_EXPR_FALSE,		// iVal = 0
@@ -70,6 +78,10 @@ public:
 	std::vector<astNode*> getMutations(void) const override;
 
 	astNode* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 	
 };
 

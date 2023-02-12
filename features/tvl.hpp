@@ -7,6 +7,7 @@
 #include "cuddObj.hh"
 #include "cuddInt.h"
 
+class expr;
 class utypeSymNode;
 
 class TVL {
@@ -37,11 +38,17 @@ public:
     
     int createMapping(const std::string& name); // Returns the ID mapped to feature 'name'. Iff the mapping does not already exist, it is created.
     
+    bool hasFeature(const std::string& name) const;
+
     BDD getFeature(const std::string& name) const;
+
+    BDD getFeature(int id) const;
+
+    ADD getFormula(utypeSymNode* features) const;
+
+    ADD getFormula(const expr* e) const;
     
-    BDD fetFeature(int id) const;
-    
-    BDD getProduct(utypeSymNode* features) const;
+    std::vector<ADD> getProducts(utypeSymNode* features) const;
     
     void printInfo(void) const;
 

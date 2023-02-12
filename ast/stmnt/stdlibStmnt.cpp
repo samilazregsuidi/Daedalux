@@ -1,5 +1,7 @@
 #include "stdlibStmnt.hpp"
 
+#include "astVisitor.hpp"
+
 stmntPrint::stmntPrint(const std::string &toPrint, exprArgList *argList, int lineNb)
 		: stmnt(astNode::E_STMNT_PRINT, lineNb)
 		, toPrint(toPrint)
@@ -30,6 +32,14 @@ stmnt* stmntPrint::deepCopy(void) const {
     //if(copy->getNext())
     //	return stmnt::merge(copy, getNext()->deepCopy());
     return copy;
+}
+
+void stmntPrint::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void stmntPrint::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 /******************************************************************************************************/
@@ -72,6 +82,15 @@ stmnt* stmntPrintm::deepCopy(void) const {
     return copy;
 }
 
+void stmntPrintm::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void stmntPrintm::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
+
 /******************************************************************************************************/
 
 stmntAssert::stmntAssert(expr *toAssert, int lineNb)
@@ -105,4 +124,12 @@ stmnt* stmntAssert::deepCopy(void) const {
     //if(copy->getNext())
     //	return stmnt::merge(copy, getNext()->deepCopy());
     return copy;
+}
+
+void stmntAssert::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void stmntAssert::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }

@@ -10,6 +10,8 @@
 
 #include "constExpr.hpp"
 
+#include "astVisitor.hpp"
+
 exprVarRefName::exprVarRefName(const std::string& symName, int lineNb)
 	: expr(astNode::E_VARREF_NAME, lineNb)
 	, symName(symName)
@@ -88,6 +90,14 @@ expr* exprVarRefName::deepCopy(void) const {
 	exprVarRefName* copy = new exprVarRefName(*this);
 	copy->copyChildren(*this);
 	return copy;
+}
+
+void exprVarRefName::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprVarRefName::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /**********************************************************************************/
@@ -251,6 +261,14 @@ expr* exprVarRef::deepCopy(void) const {
 	return copy;
 }
 
+void exprVarRef::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprVarRef::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /**********************************************************************************************************/
 
 exprVar::exprVar(exprVarRef *varRef, int lineNb)
@@ -304,6 +322,14 @@ expr* exprVar::deepCopy(void) const {
 	exprVar* copy = new exprVar(*this);
 	copy->copyChildren(*this);
 	return copy;
+}
+
+void exprVar::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprVar::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /****************************************************************************************************/

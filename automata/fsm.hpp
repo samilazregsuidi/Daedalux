@@ -21,7 +21,7 @@ class fsm
 {
 
 public:
-	fsm(const symTable* globalSymTab);
+	fsm(const symTable* globalSymTab, const ADD& fd);
 
 	virtual ~fsm();
 	

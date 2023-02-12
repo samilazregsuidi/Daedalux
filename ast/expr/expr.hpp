@@ -22,10 +22,6 @@ public:
 	virtual bool castToExprType(symbol::Type type) const;
 
 	static symbol::Type getExprType(expr* left, expr* right);
-
-	void acceptVisitor(ASTConstVisitor* visitor) const override;
-
-	void acceptVisitor(ASTVisitor* visitor) override;
 	
 protected:
 	symbol::Type exprType;
@@ -56,6 +52,10 @@ public:
 	symbol::Type getExprType(void) const override;
 
 	expr* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 class symTable;
@@ -85,6 +85,10 @@ public:
 
 	expr* deepCopy(void) const override;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 private:
 	std::string procName;
 	ptypeSymNode* procSym;
@@ -103,6 +107,10 @@ public:
 	symbol::Type getExprType(void) const override;
 
 	expr* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_SKIP,		// iVal = 1
@@ -118,6 +126,10 @@ public:
 	symbol::Type getExprType(void) const override;
 
 	expr* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #endif

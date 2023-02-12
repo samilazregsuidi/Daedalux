@@ -24,6 +24,7 @@ add_custom_command(
 add_compile_options(
 	-Wall
 	-Wextra
+	-Wno-unused-parameter
 	-pedantic
 	-ggdb
 	-O0
@@ -74,7 +75,7 @@ add_executable(deadalux
 	./ast/expr/argExpr.cpp
 	./ast/expr/temporalExpr.cpp
 	
-	./automata/ASTtoFSM.cpp
+	./automata/astToFsm.cpp
 	./automata/fsm.cpp
 	./automata/fsmNode.cpp
 	./automata/fsmEdge.cpp
@@ -106,6 +107,7 @@ add_executable(deadalux
 	./parser/${Lexer}
 	
 	./features/tvl.cpp
+	./features/expToADD.cpp
 	
 	./logic/ltl-ltl2ba.c
     

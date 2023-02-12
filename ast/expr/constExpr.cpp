@@ -1,5 +1,7 @@
 #include "constExpr.hpp"
 
+#include "astVisitor.hpp"
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -92,6 +94,14 @@ std::vector<astNode*> exprConst::getMutations(void) const {
     return res;
 }
 
+void exprConst::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprConst::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -122,6 +132,14 @@ std::vector<astNode*> exprTrue::getMutations(void) const {
     return { new exprFalse(lineNb) };
 }
 
+void exprTrue::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprTrue::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -150,6 +168,14 @@ astNode* exprFalse::deepCopy(void) const {
 
 std::vector<astNode*> exprFalse::getMutations(void) const {
     return { new exprTrue(lineNb) };
+}
+
+void exprFalse::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprFalse::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /****************************************************************

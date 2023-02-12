@@ -13,13 +13,16 @@
 #include "symbols.hpp"
 #include "ast.hpp"
 
+#include "tvl.hpp"
+
 /*
  * FINITE STATE MACHINES (FSMs)
  * * * * * * * * * * * * * * * * * * * * * * * */
 
-fsm::fsm(const symTable* globalSymTab)
+fsm::fsm(const symTable* globalSymTab, const ADD& fd)
 	: globalSymTab(nullptr)
 	, sysSymTab(nullptr)
+	, fd(fd)
 {
 	assert(globalSymTab->getNameSpace() == "global" || globalSymTab->getNameSpace() == "system");
 	this->globalSymTab = globalSymTab->getNameSpace() == "global" ? globalSymTab : globalSymTab->getSubSymTab("global");
@@ -140,7 +143,7 @@ void fsm::addTransition(fsmEdge* edge){
 }
 
 bool fsm::isFeatured(void) const {
-	return getFeatureDiagram().getNode() != nullptr;
+	return fd;
 }
 
 const ADD& fsm::getFeatureDiagram(void) const {

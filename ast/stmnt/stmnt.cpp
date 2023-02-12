@@ -93,14 +93,6 @@ double stmnt::getProb(void) const {
 	return prob;
 }
 
-void stmnt::acceptVisitor(ASTConstVisitor* visitor) const {
-	visitor->visit(this);
-}
-
-void stmnt::acceptVisitor(ASTVisitor* visitor) {
-	visitor->visit(this);
-}
-
 /********************************************************************************/
 
 stmntSeq::stmntSeq(Type type, stmnt* block, int lineNb)
@@ -165,14 +157,6 @@ stmnt* stmntSeq::deepCopy(void) const {
 	//if(copy->getNext())
 	//	return stmnt::merge(copy, getNext()->deepCopy());
 	return copy;
-}
-
-void stmntSeq::acceptVisitor(ASTConstVisitor* visitor) const {
-	visitor->visit(this);
-}
-
-void stmntSeq::acceptVisitor(ASTVisitor* visitor) {
-	visitor->visit(this);
 }
 
 /***********************************************************************************************/
@@ -288,6 +272,14 @@ stmnt* stmntAsgn::deepCopy(void) const {
 	return copy;
 }
 
+void stmntAsgn::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntAsgn::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /*******************************************************************************************************/
 
 stmntIncr::stmntIncr(exprVarRef *varRef, int lineNb)
@@ -321,6 +313,14 @@ stmnt* stmntIncr::deepCopy(void) const {
 	//if(copy->getNext())
 	//	return stmnt::merge(copy, getNext()->deepCopy());
 	return copy;
+}
+
+void stmntIncr::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntIncr::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /************************************************************************************/
@@ -358,6 +358,14 @@ stmnt* stmntDecr::deepCopy(void) const {
 	return copy;
 }
 
+void stmntDecr::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntDecr::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /*****************************************************************************************/
 
 stmntExpr::stmntExpr(expr *child, int lineNb)
@@ -393,6 +401,14 @@ stmnt* stmntExpr::deepCopy(void) const {
 	return copy;
 }
 
+void stmntExpr::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntExpr::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /*****************************************************************************************************/
 
 stmntCall::stmntCall(const std::string& name, exprArgList* argList, int lineNb)
@@ -426,4 +442,12 @@ stmnt* stmntCall::deepCopy(void) const {
 	//if(copy->getNext())
 	//	return stmnt::merge(copy, getNext()->deepCopy());
 	return copy;
+}
+
+void stmntCall::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntCall::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }

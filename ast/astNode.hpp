@@ -10,8 +10,6 @@
 
 class ASTVisitor;
 class ASTConstVisitor;
-class ASTVisitorInt;
-class ASTConstVisitorInt;
 
 class fsm;
 class fsmNode;
@@ -321,10 +319,6 @@ public:
 	virtual void acceptVisitor(ASTConstVisitor* visitor) const;
 
 	virtual void acceptVisitor(ASTVisitor* visitor);
-
-	virtual int acceptVisitor(ASTConstVisitorInt* visitor) const;
-
-	virtual int acceptVisitor(ASTVisitorInt* visitor);
 
 	std::list<astNode*> getChildren(void) const;
 

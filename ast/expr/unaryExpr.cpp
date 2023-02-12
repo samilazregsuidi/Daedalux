@@ -1,5 +1,7 @@
 #include "unaryExpr.hpp"
 
+#include "astVisitor.hpp"
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -21,6 +23,86 @@ expr* exprUnary::getExpr(void) const {
 
 symbol::Type exprUnary::getExprType(void) const {
     return getExpr()->getExprType();
+}
+
+void exprPar::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprPar::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprCount::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprCount::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprUMin::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprUMin::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprNeg::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprNeg::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprBitwNeg::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprBitwNeg::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprLen::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprLen::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprFull::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprFull::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprNFull::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprNFull::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprEmpty::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprEmpty::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
+void exprNEmpty::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void exprNEmpty::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }
 
 /****************************************************************

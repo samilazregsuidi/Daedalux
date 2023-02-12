@@ -1,5 +1,7 @@
 #include "binaryExpr.hpp"
 
+#include "astVisitor.hpp"
+
 /****************************************************************
  * **************************************************************
  * *************************************************************/
@@ -46,6 +48,14 @@ unsigned int exprBinary::assignMutables(const Mask& mask, unsigned int id) {
  * **************************************************************
  * *************************************************************/
 
+void exprPlus::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprPlus::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprPlus::getMutations(void) const {
     
     return { 
@@ -55,6 +65,14 @@ std::vector<astNode*> exprPlus::getMutations(void) const {
         new exprMod(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
 
+}
+
+void exprMinus::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprMinus::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprMinus::getMutations(void) const {
@@ -67,6 +85,14 @@ std::vector<astNode*> exprMinus::getMutations(void) const {
         };
 }
 
+void exprTimes::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprTimes::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprTimes::getMutations(void) const {
     
     return { 
@@ -75,6 +101,14 @@ std::vector<astNode*> exprTimes::getMutations(void) const {
         new exprDiv(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb),
         new exprMod(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprDiv::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprDiv::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprDiv::getMutations(void) const {
@@ -87,6 +121,14 @@ std::vector<astNode*> exprDiv::getMutations(void) const {
         };
 }
 
+void exprMod::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprMod::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprMod::getMutations(void) const {
     
     return { 
@@ -95,6 +137,14 @@ std::vector<astNode*> exprMod::getMutations(void) const {
         new exprTimes(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb),
         new exprDiv(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprGT::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprGT::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprGT::getMutations(void) const {
@@ -109,6 +159,14 @@ std::vector<astNode*> exprGT::getMutations(void) const {
         };
 }
 
+void exprLT::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprLT::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprLT::getMutations(void) const {
     
     return { 
@@ -119,6 +177,14 @@ std::vector<astNode*> exprLT::getMutations(void) const {
         new exprEQ(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb),
         new exprNE(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprGE::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprGE::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprGE::getMutations(void) const {
@@ -133,6 +199,14 @@ std::vector<astNode*> exprGE::getMutations(void) const {
         };
 }
 
+void exprLE::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprLE::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprLE::getMutations(void) const {
     
     return { 
@@ -143,6 +217,14 @@ std::vector<astNode*> exprLE::getMutations(void) const {
         new exprEQ(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb),
         new exprNE(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprEQ::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprEQ::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprEQ::getMutations(void) const {
@@ -166,6 +248,14 @@ std::vector<astNode*> exprEQ::getMutations(void) const {
             //new exprEQ(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
             new exprNE(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprNE::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprNE::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprNE::getMutations(void) const {
@@ -193,6 +283,14 @@ std::vector<astNode*> exprNE::getMutations(void) const {
     
 }
 
+void exprAnd::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprAnd::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprAnd::getMutations(void) const {
     
     return { 
@@ -201,12 +299,28 @@ std::vector<astNode*> exprAnd::getMutations(void) const {
         };
 }
 
+void exprOr::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprOr::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprOr::getMutations(void) const {
     
     return { 
         new exprAnd(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         //new exprOr(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprBitwAnd::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprBitwAnd::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprBitwAnd::getMutations(void) const {
@@ -220,6 +334,14 @@ std::vector<astNode*> exprBitwAnd::getMutations(void) const {
         };
 }
 
+void exprBitwOr::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprBitwOr::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprBitwOr::getMutations(void) const {
     
     return { 
@@ -229,6 +351,14 @@ std::vector<astNode*> exprBitwOr::getMutations(void) const {
         new exprLShift(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb),
         new exprRShift(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprBitwXor::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprBitwXor::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprBitwXor::getMutations(void) const {
@@ -242,6 +372,14 @@ std::vector<astNode*> exprBitwXor::getMutations(void) const {
         };
 }
 
+void exprLShift::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprLShift::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}
+
 std::vector<astNode*> exprLShift::getMutations(void) const {
     
     return { 
@@ -251,6 +389,14 @@ std::vector<astNode*> exprLShift::getMutations(void) const {
         //new exprLShift(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb),
         new exprRShift(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
+}
+
+void exprRShift::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprRShift::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
 }
 
 std::vector<astNode*> exprRShift::getMutations(void) const {

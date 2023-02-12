@@ -40,6 +40,11 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 };
 
 //E_EXPR_COUNT,		// child[0] = E_EXPR_*
@@ -69,6 +74,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_UMIN,		// child[0] = E_EXPR_*
@@ -94,6 +103,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_NEG,			// child[0] = E_EXPR_*
@@ -123,6 +136,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_BITWNEG,		// child[0] = E_EXPR_*
@@ -148,6 +165,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_LEN,			// child[0] = E_VARREF
@@ -181,6 +202,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_FULL,		// child[0] = E_VARREF
@@ -214,6 +239,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_NFULL,		// child[0] = E_VARREF
@@ -247,6 +276,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_EMPTY,		// child[0] = E_VARREF
@@ -280,6 +313,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_NEMPTY,		// child[0] = E_VARREF
@@ -313,6 +350,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #endif

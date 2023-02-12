@@ -50,6 +50,11 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 };
 
 //E_EXPR_MINUS,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -78,6 +83,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_TIMES,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -106,6 +115,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_DIV,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -134,6 +147,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_MOD,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -162,6 +179,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_GT,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -190,6 +211,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_LT,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -218,6 +243,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_GE,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -246,6 +275,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_LE,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -274,6 +307,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_EQ,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -302,6 +339,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_NE,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -330,6 +371,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_AND,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -358,6 +403,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_OR,			// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -386,6 +435,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_BITWAND,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -414,6 +467,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_IMPLIES,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -441,15 +498,13 @@ public:
 		return copy;
 	}
 
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		visitor = visitor;
-		return 0;
+	/*void acceptVisitor(ASTConstVisitor* visitor) const {
+		visitor->visit(this);
 	}
 
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		visitor = visitor;
-		return 0;
-	}
+	void acceptVisitor(ASTVisitor* visitor) override {
+		visitor->visit(this);
+	}*/
 };
 
 
@@ -480,6 +535,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_BITWXOR,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -508,6 +567,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_LSHIFT,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -534,6 +597,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_EXPR_RSHIFT,		// child[0] = E_EXPR_*, child[1] = E_EXPR_*
@@ -562,6 +629,10 @@ public:
 		copy->copyChildren(*this);
 		return copy;
 	}
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #include "flowStmnt.hpp"
@@ -607,14 +678,6 @@ public:
 		exprRemoteRef* copy = new exprRemoteRef(*this);
 		copy->copyChildren(*this);
 		return copy;
-	}
-
-	int acceptVisitor(ASTConstVisitorInt* visitor) const override {
-		return 0;
-	}
-
-	int acceptVisitor(ASTVisitorInt* visitor) override {
-		return 0;
 	}
 
 private:

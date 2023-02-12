@@ -22,6 +22,10 @@ public:
 
 	stmnt* deepCopy(void) const;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 private:
 	std::string toPrint;
 };
@@ -44,6 +48,10 @@ public:
 
 	stmnt* deepCopy(void) const;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 private:
 	int constant;
 };
@@ -63,6 +71,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #endif

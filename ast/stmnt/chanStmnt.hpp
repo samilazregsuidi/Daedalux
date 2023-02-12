@@ -32,6 +32,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_STMNT_CHAN_SND,	// child[0] = E_VARREF, child[1] = E_EXPR_*
@@ -49,6 +53,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #endif

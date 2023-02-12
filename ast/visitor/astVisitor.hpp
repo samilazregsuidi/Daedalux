@@ -13,6 +13,7 @@ class stmntGoto;
 class stmntLabel;
 class stmntSeq;
 class stmntFct;
+class stmntCall;
 class stmntAtomic;
 class stmntDStep;
 class stmntAsgn;
@@ -39,7 +40,12 @@ class exprRArg;
 class exprRArgVar;
 class exprRArgEval;
 class exprRArgConst;
+class exprRArgList;
+class exprArg;
 class exprArgList;
+class exprVarRefName;
+class exprVarRef;
+class exprVar;
 class exprRun;
 class exprConst;
 class exprTimeout;
@@ -77,157 +83,172 @@ class exprNEmpty;
 
 class ASTConstVisitor {
 public:
-	virtual void visit(const stmnt* node) = 0;
-	virtual void visit(const stmntChanRecv* node) = 0;
-	virtual void visit(const stmntChanSnd* node) = 0;
-	virtual void visit(const stmntOpt* node) = 0;
-	virtual void visit(const stmntIf* node) = 0;
-	virtual void visit(const stmntDo* node) = 0;
-	virtual void visit(const stmntBreak* node) = 0;
-	virtual void visit(const stmntAction* node) = 0;
-	virtual void visit(const stmntGoto* node) = 0;
-	virtual void visit(const stmntLabel* node) = 0;
-	virtual void visit(const stmntSeq* node) = 0;
-	virtual void visit(const stmntFct* node) = 0;
-	virtual void visit(const stmntAtomic* node) = 0;
-	virtual void visit(const stmntDStep* node) = 0;
-	virtual void visit(const stmntAsgn* node) = 0;
-	virtual void visit(const stmntIncr* node) = 0;
-	virtual void visit(const stmntDecr* node) = 0;
-	virtual void visit(const stmntPrint* node) = 0;
-	virtual void visit(const stmntPrintm* node) = 0;
-	virtual void visit(const stmntAssert* node) = 0;
-	virtual void visit(const stmntExpr* node) = 0;
-	virtual void visit(const stmntElse* node) = 0;
-	virtual void visit(const stmntWait* node) = 0;
-	virtual void visit(const stmntWhen* node) = 0;
-	virtual void visit(const varDecl* node) = 0;
-	virtual void visit(const chanDecl* node) = 0;
-	virtual void visit(const tdefDecl* node) = 0;
-	virtual void visit(const mtypeDecl* node) = 0;
-	virtual void visit(const inlineDecl* node) = 0;
-	virtual void visit(const procDecl* node) = 0;
-	virtual void visit(const initDecl* node) = 0;
-	virtual void visit(const neverDecl* node) = 0;
-	virtual void visit(const expr* node) = 0;
-	virtual void visit(const exprCond* node) = 0;
-	virtual void visit(const exprRArg* node) = 0;
-	virtual void visit(const exprRArgVar* node) = 0;
-	virtual void visit(const exprRArgEval* node) = 0;
-	virtual void visit(const exprRArgConst* node) = 0;
-	virtual void visit(const exprArgList* node) = 0;
-	virtual void visit(const exprRun* node) = 0;
-	virtual void visit(const exprConst* node) = 0;
-	virtual void visit(const exprTimeout* node) = 0;
-	virtual void visit(const exprSkip* node) = 0;
-	virtual void visit(const exprTrue* node) = 0;
-	virtual void visit(const exprFalse* node) = 0;
-	virtual void visit(const exprPlus* node) = 0;
-	virtual void visit(const exprMinus* node) = 0;
-	virtual void visit(const exprTimes* node) = 0;
-	virtual void visit(const exprDiv* node) = 0;
-	virtual void visit(const exprMod* node) = 0;
-	virtual void visit(const exprGT* node) = 0;
-	virtual void visit(const exprLT* node) = 0;
-	virtual void visit(const exprGE* node) = 0;
-	virtual void visit(const exprLE* node) = 0;
-	virtual void visit(const exprEQ* node) = 0;
-	virtual void visit(const exprNE* node) = 0;
-	virtual void visit(const exprAnd* node) = 0;
-	virtual void visit(const exprOr* node) = 0;
-	virtual void visit(const exprBitwAnd* node) = 0;
-	virtual void visit(const exprBitwOr* node) = 0;
-	virtual void visit(const exprBitwXor* node) = 0;
-	virtual void visit(const exprLShift* node) = 0;
-	virtual void visit(const exprRShift* node) = 0;
-	virtual void visit(const exprPar* node) = 0;
-	virtual void visit(const exprCount* node) = 0;
-	virtual void visit(const exprUMin* node) = 0;
-	virtual void visit(const exprNeg* node) = 0;
-	virtual void visit(const exprBitwNeg* node) = 0;
-	virtual void visit(const exprLen* node) = 0;
-	virtual void visit(const exprFull* node) = 0;
-	virtual void visit(const exprNFull* node) = 0;
-	virtual void visit(const exprEmpty* node) = 0;
-	virtual void visit(const exprNEmpty* node) = 0;
-	
+	virtual ~ASTConstVisitor() {}
+	//virtual void visit(const stmnt* node) {}
+	virtual void visit(const stmntChanRecv* node) {}
+	virtual void visit(const stmntChanSnd* node) {}
+	virtual void visit(const stmntOpt* node) {}
+	virtual void visit(const stmntIf* node) {}
+	virtual void visit(const stmntDo* node) {}
+	virtual void visit(const stmntBreak* node) {}
+	virtual void visit(const stmntAction* node) {}
+	virtual void visit(const stmntGoto* node) {}
+	virtual void visit(const stmntLabel* node) {}
+	//virtual void visit(const stmntSeq* node) {}
+	virtual void visit(const stmntFct* node) {}
+	virtual void visit(const stmntCall* node) {}
+	virtual void visit(const stmntAtomic* node) {}
+	virtual void visit(const stmntDStep* node) {}
+	virtual void visit(const stmntAsgn* node) {}
+	virtual void visit(const stmntIncr* node) {}
+	virtual void visit(const stmntDecr* node) {}
+	virtual void visit(const stmntPrint* node) {}
+	virtual void visit(const stmntPrintm* node) {}
+	virtual void visit(const stmntAssert* node) {}
+	virtual void visit(const stmntExpr* node) {}
+	virtual void visit(const stmntElse* node) {}
+	virtual void visit(const stmntWait* node) {}
+	virtual void visit(const stmntWhen* node) {}
+	virtual void visit(const varDecl* node) {}
+	virtual void visit(const chanDecl* node) {}
+	virtual void visit(const tdefDecl* node) {}
+	virtual void visit(const mtypeDecl* node) {}
+	virtual void visit(const inlineDecl* node) {}
+	virtual void visit(const procDecl* node) {}
+	virtual void visit(const initDecl* node) {}
+	virtual void visit(const neverDecl* node) {}
+	//virtual void visit(const expr* node) {}
+	virtual void visit(const exprCond* node) {}
+	virtual void visit(const exprRArg* node) {}
+	virtual void visit(const exprRArgVar* node) {}
+	virtual void visit(const exprRArgEval* node) {}
+	virtual void visit(const exprRArgConst* node) {}
+	virtual void visit(const exprRArgList* node) {}
+	virtual void visit(const exprArg* node) {}
+	virtual void visit(const exprArgList* node) {}
+	virtual void visit(const exprVarRefName* node) {}
+	virtual void visit(const exprVarRef* node) {}
+	virtual void visit(const exprVar* node) {}
+	virtual void visit(const exprRun* node) {}
+	virtual void visit(const exprConst* node) {}
+	virtual void visit(const exprTimeout* node) {}
+	virtual void visit(const exprSkip* node) {}
+	virtual void visit(const exprTrue* node) {}
+	virtual void visit(const exprFalse* node) {}
+	virtual void visit(const exprPlus* node) {}
+	virtual void visit(const exprMinus* node) {}
+	virtual void visit(const exprTimes* node) {}
+	virtual void visit(const exprDiv* node) {}
+	virtual void visit(const exprMod* node) {}
+	virtual void visit(const exprGT* node) {}
+	virtual void visit(const exprLT* node) {}
+	virtual void visit(const exprGE* node) {}
+	virtual void visit(const exprLE* node) {}
+	virtual void visit(const exprEQ* node) {}
+	virtual void visit(const exprNE* node) {}
+	virtual void visit(const exprAnd* node) {}
+	virtual void visit(const exprOr* node) {}
+	virtual void visit(const exprBitwAnd* node) {}
+	virtual void visit(const exprBitwOr* node) {}
+	virtual void visit(const exprBitwXor* node) {}
+	virtual void visit(const exprLShift* node) {}
+	virtual void visit(const exprRShift* node) {}
+	virtual void visit(const exprPar* node) {}
+	virtual void visit(const exprCount* node) {}
+	virtual void visit(const exprUMin* node) {}
+	virtual void visit(const exprNeg* node) {}
+	virtual void visit(const exprBitwNeg* node) {}
+	virtual void visit(const exprLen* node) {}
+	virtual void visit(const exprFull* node) {}
+	virtual void visit(const exprNFull* node) {}
+	virtual void visit(const exprEmpty* node) {}
+	virtual void visit(const exprNEmpty* node) {}
+
+
 };
 
 class ASTVisitor {
 public:
-	virtual void visit(stmnt* node) = 0;
-	virtual void visit(stmntChanRecv* node) = 0;
-	virtual void visit(stmntChanSnd* node) = 0;
-	virtual void visit(stmntOpt* node) = 0;
-	virtual void visit(stmntIf* node) = 0;
-	virtual void visit(stmntDo* node) = 0;
-	virtual void visit(stmntBreak* node) = 0;
-	virtual void visit(stmntAction* node) = 0;
-	virtual void visit(stmntGoto* node) = 0;
-	virtual void visit(stmntLabel* node) = 0;
-	virtual void visit(stmntSeq* node) = 0;
-	virtual void visit(stmntFct* node) = 0;
-	virtual void visit(stmntAtomic* node) = 0;
-	virtual void visit(stmntDStep* node) = 0;
-	virtual void visit(stmntAsgn* node) = 0;
-	virtual void visit(stmntIncr* node) = 0;
-	virtual void visit(stmntDecr* node) = 0;
-	virtual void visit(stmntPrint* node) = 0;
-	virtual void visit(stmntPrintm* node) = 0;
-	virtual void visit(stmntAssert* node) = 0;
-	virtual void visit(stmntExpr* node) = 0;
-	virtual void visit(stmntElse* node) = 0;
-	virtual void visit(stmntWait* node) = 0;
-	virtual void visit(stmntWhen* node) = 0;
-	virtual void visit(varDecl* node) = 0;
-	virtual void visit(chanDecl* node) = 0;
-	virtual void visit(tdefDecl* node) = 0;
-	virtual void visit(mtypeDecl* node) = 0;
-	virtual void visit(inlineDecl* node) = 0;
-	virtual void visit(procDecl* node) = 0;
-	virtual void visit(initDecl* node) = 0;
-	virtual void visit(neverDecl* node) = 0;
-	virtual void visit(expr* node) = 0;
-	virtual void visit(exprCond* node) = 0;
-	virtual void visit(exprRArg* node) = 0;
-	virtual void visit(exprRArgVar* node) = 0;
-	virtual void visit(exprRArgEval* node) = 0;
-	virtual void visit(exprRArgConst* node) = 0;
-	virtual void visit(exprArgList* node) = 0;
-	virtual void visit(exprRun* node) = 0;
-	virtual void visit(exprConst* node) = 0;
-	virtual void visit(exprTimeout* node) = 0;
-	virtual void visit(exprSkip* node) = 0;
-	virtual void visit(exprTrue* node) = 0;
-	virtual void visit(exprFalse* node) = 0;
-	virtual void visit(exprPlus* node) = 0;
-	virtual void visit(exprMinus* node) = 0;
-	virtual void visit(exprTimes* node) = 0;
-	virtual void visit(exprDiv* node) = 0;
-	virtual void visit(exprMod* node) = 0;
-	virtual void visit(exprGT* node) = 0;
-	virtual void visit(exprLT* node) = 0;
-	virtual void visit(exprGE* node) = 0;
-	virtual void visit(exprLE* node) = 0;
-	virtual void visit(exprEQ* node) = 0;
-	virtual void visit(exprNE* node) = 0;
-	virtual void visit(exprAnd* node) = 0;
-	virtual void visit(exprOr* node) = 0;
-	virtual void visit(exprBitwAnd* node) = 0;
-	virtual void visit(exprBitwOr* node) = 0;
-	virtual void visit(exprBitwXor* node) = 0;
-	virtual void visit(exprLShift* node) = 0;
-	virtual void visit(exprRShift* node) = 0;
-	virtual void visit(exprPar* node) = 0;
-	virtual void visit(exprCount* node) = 0;
-	virtual void visit(exprUMin* node) = 0;
-	virtual void visit(exprNeg* node) = 0;
-	virtual void visit(exprBitwNeg* node) = 0;
-	virtual void visit(exprLen* node) = 0;
-	virtual void visit(exprFull* node) = 0;
-	virtual void visit(exprNFull* node) = 0;
-	virtual void visit(exprEmpty* node) = 0;
-	virtual void visit(exprNEmpty* node) = 0;
+	virtual ~ASTVisitor() {}
+	//virtual void visit(stmnt* node) {}
+	virtual void visit(stmntChanRecv* node) {}
+	virtual void visit(stmntChanSnd* node) {}
+	virtual void visit(stmntOpt* node) {}
+	virtual void visit(stmntIf* node) {}
+	virtual void visit(stmntDo* node) {}
+	virtual void visit(stmntBreak* node) {}
+	virtual void visit(stmntAction* node) {}
+	virtual void visit(stmntGoto* node) {}
+	virtual void visit(stmntLabel* node) {}
+	//virtual void visit(stmntSeq* node) {}
+	virtual void visit(stmntFct* node) {}
+	virtual void visit(stmntCall* node) {}
+	virtual void visit(stmntAtomic* node) {}
+	virtual void visit(stmntDStep* node) {}
+	virtual void visit(stmntAsgn* node) {}
+	virtual void visit(stmntIncr* node) {}
+	virtual void visit(stmntDecr* node) {}
+	virtual void visit(stmntPrint* node) {}
+	virtual void visit(stmntPrintm* node) {}
+	virtual void visit(stmntAssert* node) {}
+	virtual void visit(stmntExpr* node) {}
+	virtual void visit(stmntElse* node) {}
+	virtual void visit(stmntWait* node) {}
+	virtual void visit(stmntWhen* node) {}
+	virtual void visit(varDecl* node) {}
+	virtual void visit(chanDecl* node) {}
+	virtual void visit(tdefDecl* node) {}
+	virtual void visit(mtypeDecl* node) {}
+	virtual void visit(inlineDecl* node) {}
+	virtual void visit(procDecl* node) {}
+	virtual void visit(initDecl* node) {}
+	virtual void visit(neverDecl* node) {}
+	//virtual void visit(expr* node) {}
+	virtual void visit(exprCond* node) {}
+	virtual void visit(exprRArg* node) {}
+	virtual void visit(exprRArgVar* node) {}
+	virtual void visit(exprRArgEval* node) {}
+	virtual void visit(exprRArgConst* node) {}
+	virtual void visit(exprRArgList* node) {}
+	virtual void visit(exprArg* node) {}
+	virtual void visit(exprArgList* node) {}
+	virtual void visit(exprVarRefName* node) {}
+	virtual void visit(exprVarRef* node) {}
+	virtual void visit(exprVar* node) {}
+	virtual void visit(exprRun* node) {}
+	virtual void visit(exprConst* node) {}
+	virtual void visit(exprTimeout* node) {}
+	virtual void visit(exprSkip* node) {}
+	virtual void visit(exprTrue* node) {}
+	virtual void visit(exprFalse* node) {}
+	virtual void visit(exprPlus* node) {}
+	virtual void visit(exprMinus* node) {}
+	virtual void visit(exprTimes* node) {}
+	virtual void visit(exprDiv* node) {}
+	virtual void visit(exprMod* node) {}
+	virtual void visit(exprGT* node) {}
+	virtual void visit(exprLT* node) {}
+	virtual void visit(exprGE* node) {}
+	virtual void visit(exprLE* node) {}
+	virtual void visit(exprEQ* node) {}
+	virtual void visit(exprNE* node) {}
+	virtual void visit(exprAnd* node) {}
+	virtual void visit(exprOr* node) {}
+	virtual void visit(exprBitwAnd* node) {}
+	virtual void visit(exprBitwOr* node) {}
+	virtual void visit(exprBitwXor* node) {}
+	virtual void visit(exprLShift* node) {}
+	virtual void visit(exprRShift* node) {}
+	virtual void visit(exprPar* node) {}
+	virtual void visit(exprCount* node) {}
+	virtual void visit(exprUMin* node) {}
+	virtual void visit(exprNeg* node) {}
+	virtual void visit(exprBitwNeg* node) {}
+	virtual void visit(exprLen* node) {}
+	virtual void visit(exprFull* node) {}
+	virtual void visit(exprNFull* node) {}
+	virtual void visit(exprEmpty* node) {}
+	virtual void visit(exprNEmpty* node) {}
 	
 };
 

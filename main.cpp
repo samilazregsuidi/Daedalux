@@ -15,7 +15,7 @@
 #include "lexer.h"
 #include "tvl.hpp"
 
-#include "ASTtoFSM.hpp"
+#include "astToFsm.hpp"
 
 #include "semantic.hpp"
 
@@ -440,7 +440,7 @@ int main(int argc, char *argv[]) {
 	output.close();
 
 	ASTtoFSM converter;
-	fsm* automata = converter.astToFsm(globalSymTab, program);
+	fsm* automata = converter.astToFsm(globalSymTab, program, tvl);
 	std::ofstream graph;
 	graph.open("fsm_graphvis");
 	automata->printGraphVis(graph);

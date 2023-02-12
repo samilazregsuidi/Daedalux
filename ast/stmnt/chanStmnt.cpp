@@ -1,5 +1,7 @@
 #include "chanStmnt.hpp"
 
+#include "astVisitor.hpp"
+
 stmntChan::stmntChan(Type type, exprVarRef *chan, int lineNb)
     : stmnt(type, lineNb)
 {
@@ -52,6 +54,14 @@ stmnt* stmntChanRecv::deepCopy(void) const {
     return copy;
 }
 
+void stmntChanRecv::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntChanRecv::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /*************************************************************************************/
 
 stmntChanSnd::stmntChanSnd(exprVarRef *chan, exprArgList *argList, int lineNb)
@@ -87,4 +97,12 @@ stmnt* stmntChanSnd::deepCopy(void) const {
     //if(copy->getNext())
     //	return stmnt::merge(copy, getNext()->deepCopy());
     return copy;
+}
+
+void stmntChanSnd::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntChanSnd::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }

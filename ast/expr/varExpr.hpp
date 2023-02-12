@@ -39,6 +39,10 @@ public:
 
 	expr* deepCopy(void) const override;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 protected:
 	std::string symName;
 	symbol* sym;
@@ -85,6 +89,10 @@ public:
 
 	expr* deepCopy(void) const override;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 };
 
 //E_EXPR_VAR,			// child[0] = E_VARREF
@@ -110,6 +118,10 @@ public:
 	symbol* getFirstSymbol(void) const;
 
 	expr* deepCopy(void) const override;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 
 protected:
 	exprVar(astNode::Type type, exprVarRef *varRef, int lineNb);

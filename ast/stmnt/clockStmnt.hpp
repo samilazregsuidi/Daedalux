@@ -20,6 +20,7 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
 };
 
 //E_STMNT_WHEN,		// child[0] = E_EXPR_*, child[1] = E_STMNT_* symTab = clock symbols

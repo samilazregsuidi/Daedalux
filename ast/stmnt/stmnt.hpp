@@ -35,10 +35,6 @@ public:
 
 	virtual stmnt* deepCopy(void) const = 0;
 
-	void acceptVisitor(ASTConstVisitor* visitor) const override;
-
-	void acceptVisitor(ASTVisitor* visitor) override;
-
 	void setProb(double newProb);
 
 	double getProb(void) const;
@@ -70,10 +66,6 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
-
-	void acceptVisitor(ASTConstVisitor* visitor) const override;
-
-	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_STMNT_ATOMIC,		// fsm = fsm of the atomic sequence
@@ -131,6 +123,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_STMNT_INCR,		// child[0] = E_VARREF
@@ -148,6 +144,10 @@ public:
 	std::string getTypeDescr(void) const override;
 	
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_STMNT_DECR,		// child[0] = E_VARREF
@@ -165,6 +165,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_STMNT_EXPR,		// child[0] = E_EXPR_*
@@ -182,6 +186,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 //E_STMNT_CALL
@@ -199,6 +207,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 
 private:
 	std::string name;

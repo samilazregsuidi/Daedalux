@@ -6,7 +6,9 @@
 
 #include "symbol.hpp"
 #include "varSymNode.hpp"
+
 #include "astVisitor.hpp"
+
 #include "utypeSymNode.hpp"
 #include "tdefSymNode.hpp"
 #include "ptypeSymNode.hpp"

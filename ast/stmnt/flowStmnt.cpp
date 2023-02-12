@@ -226,6 +226,14 @@ stmnt* stmntAction::deepCopy(void) const {
     return copy;
 }
 
+void stmntAction::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntAction::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 /*****************************************************************************************/
 
 stmntGoto::stmntGoto(const std::string& label, int lineNb)
@@ -333,4 +341,12 @@ stmnt* stmntElse::deepCopy(void) const {
     //if(copy->getNext())
     //	return stmnt::merge(copy, getNext()->deepCopy());
     return copy;
+}
+
+void stmntElse::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntElse::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
 }

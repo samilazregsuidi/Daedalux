@@ -4,8 +4,10 @@
 #include <string.h>
 
 #include "tvl.hpp"
+#include "expToADD.hpp"
 #include "utypeSymNode.hpp"
 #include "constExpr.hpp"
+#include "expr.hpp"
 
 extern int copyFile(const std::string& source, const std::string& target);
 
@@ -123,12 +125,13 @@ bool TVL::dimacsFileToBool(const std::string& filePath, ADD& fm) {
 				conjunction &= disjunction;
 				disjunction = mgr->bddZero();
 			} else { 
-				BDD var = mgr->bddVar(std::abs(currentNbr));
+				auto absCurrentNbr = std::abs(currentNbr);
+				BDD var = mgr->bddVar(absCurrentNbr);
 				vars.push_back(var);
 				if (currentNbr > 0)  
-					var = mgr->bddVar(currentNbr);
+					var = mgr->bddVar(absCurrentNbr);
 				else
-					var = !mgr->bddVar(-currentNbr);
+					var = !mgr->bddVar(absCurrentNbr);
 				disjunction |= var;
 			}
 		}
@@ -199,6 +202,10 @@ int TVL::createMapping(const std::string& name) {
 	return maxId;
 }
 
+bool TVL::hasFeature(const std::string& name) const {
+	return featureIDMapping.find(name) != featureIDMapping.end();
+}
+
 void TVL::initBoolFct(void) {
 	mgr = new Cudd();
 	//boolFctGarbageCollect("initBoolFct()");
@@ -221,7 +228,7 @@ BDD TVL::getFeature(const std::string& name) const {
 	return res;
 }
 
-BDD TVL::getProduct(utypeSymNode* features) const {
+ADD TVL::getFormula(utypeSymNode* features) const {
 	//assert(spinMode);
 	BDD minterm = mgr->addOne().BddPattern();
 
@@ -229,16 +236,27 @@ BDD TVL::getProduct(utypeSymNode* features) const {
 		//printf("%s\n", features->name);
 		BDD fbdd = getFeature(f->getName());
 		assert(fbdd);
+
 		auto cstExpr = dynamic_cast<exprConst*>(f->getInitExpr());
-		assert(cstExpr);
-		auto iVal = cstExpr->getCstValue();
-		minterm &= iVal == 1? fbdd : !fbdd;
+		if(cstExpr) {
+			auto iVal = cstExpr->getCstValue();
+			minterm &= iVal == 1? fbdd : !fbdd;
+		}
 	}
 
-	//printBool(getFeatureModelClauses());
-	//printBool(minterm.Add());
-	assert(minterm & getFeatureModelClauses().BddPattern());
-	return minterm & getFeatureModelClauses().BddPattern();
+	return minterm.Add() * getFeatureModelClauses();
+}
+
+std::vector<ADD> TVL::getProducts(utypeSymNode* features) const {
+	auto formula = getFormula(features);
+	assert(formula);
+	return getProducts(formula);
+}
+
+ADD TVL::getFormula(const expr* e) const {
+	expToADD* visitor = new expToADD(this);
+	e->acceptVisitor(visitor);
+	return visitor->getFormula();
 }
 
 void TVL::printBool(const ADD& formula) const {

@@ -106,6 +106,10 @@ public:
 
 	stmnt* deepCopy(void) const override;
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 private:
 	std::string label;
 };
@@ -169,6 +173,10 @@ public:
 	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const;
+
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
 };
 
 #endif
