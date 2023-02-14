@@ -41,6 +41,8 @@ public:
 
 	thread(const seqSymNode* sym, const fsmNode* start, unsigned int index = 0);
 
+	thread(const thread& other);
+
 	thread(const thread* other);
 
 	void init(void) override;
@@ -93,6 +95,8 @@ public:
 	template <typename T> T* getTVar(const expr* varExpr, const thread* proc) const {
 		return dynamic_cast<T*>(getVariable(varExpr));
 	}
+
+	void printGraphViz(unsigned long i) const;
 
 	//byte compare(const state& s2) const override;
 

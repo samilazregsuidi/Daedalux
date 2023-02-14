@@ -46,6 +46,13 @@ progState::progState(const progState* other)
 	: state(other)
 	, globalSymTab(other->globalSymTab)
 	, stateMachine(other->stateMachine)
+	, pidCounter(other->pidCounter)
+	, nbProcesses(other->nbProcesses)
+	, lastStepPid(other->lastStepPid)
+	, handShakeChan(other->handShakeChan)
+	, handShakeProc(other->handShakeProc)
+	, exclusiveProc(other->exclusiveProc)
+	, timeout(other->timeout)
 {}
 
 
@@ -375,7 +382,11 @@ state* progState::apply(const transition* trans) {
 	process* proc = progTrans->getProc();
 	assert(proc);
 	//warning if "different" procs have the same pid i.e., dynamic proc creation
+
+	auto _pid = proc->getPid();
+
 	proc = getProc(proc->getPid());
+	assert(proc);
 
 	proc->apply(trans);
 

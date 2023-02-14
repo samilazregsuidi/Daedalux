@@ -81,6 +81,7 @@ add_executable(deadalux
 	./automata/fsmEdge.cpp
 	
 	./semantic/state.cpp
+	./semantic/stateDecorator.cpp
 	./semantic/programState.cpp
 	./semantic/featuredStateDecorator.cpp
 	./semantic/compositeState.cpp
@@ -89,6 +90,7 @@ add_executable(deadalux
 	./semantic/never.cpp
 	
 	./semantic/variable/variable.cpp
+	./semantic/variable/variableDecorator.cpp
 	./semantic/variable/primitiveVariable.cpp
 	./semantic/variable/utypeVariable.cpp
 	./semantic/variable/boolVariable.cpp

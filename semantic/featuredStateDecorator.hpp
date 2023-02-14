@@ -5,11 +5,13 @@
 
 #include "cuddObj.hh"
 
+class TVL;
+
 // State
 class featStateDecorator : public stateDecorator {
 public:
 
-	featStateDecorator(state* wrappee, const ADD diagram); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
 	featStateDecorator(const featStateDecorator* other);
 
@@ -30,9 +32,9 @@ public:
 	const ADD& getDiagram(void) const;
 
 public:
-	fsm* stateMachine;
 	ADD features;
 	const ADD diagram;
+	const TVL* tvl;
 };
 
 #endif

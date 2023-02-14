@@ -149,12 +149,16 @@ std::list<transition*> compState::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
+
+#include <iostream>
+
 state* compState::apply(const transition* trans) {
 	
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 	assert(compTrans);
 
 	for(auto trans : compTrans->Ts) {
+		std::cout << trans->src->getLocalName() << std::endl;
 		auto s = getSubState(trans->src->getLocalName());
 		assert(s);
 		s->apply(trans);

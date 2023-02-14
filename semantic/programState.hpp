@@ -170,6 +170,7 @@ public:
 
 	//const ADD& getFeatures(void) const;
 
+
 public:
 	const symTable* const globalSymTab;
 	const fsm* const stateMachine;
@@ -185,6 +186,8 @@ public:
 	mutable bool timeout;
 
 	std::list<std::string> actions;
+	transition* origin;
+	double prob;
 };
 
 #endif

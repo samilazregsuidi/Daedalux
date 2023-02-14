@@ -9,10 +9,10 @@ byte n, i;
 
 active proctype foo() {
 	
-	do
+	/*do
 	:: break;
 	:: n++;
-	od;
+	od;*/
 	
 Start:
 	skip;
@@ -21,10 +21,10 @@ Start:
 	:: else -> skip;
 	fi;
 	
-	if
+	/*if
 	:: f.B2 -> i = i + 2;
 	:: else -> skip;
-	fi;
+	fi;*/
 	
 Final:
 	skip;

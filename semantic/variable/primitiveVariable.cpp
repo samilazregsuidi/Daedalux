@@ -61,6 +61,10 @@ void primitiveVariable::init(void) {
 	variable::init();
 }
 
+bool primitiveVariable::isGlobal(void) const {
+	return varSym->isGlobal();
+}
+
 int primitiveVariable::operator = (const primitiveVariable& rvalue) {
 	int res = rvalue.getValue(); 
 	setValue(res);
@@ -98,17 +102,20 @@ bool primitiveVariable::operator != (const primitiveVariable& other) const {
 }
 
 void primitiveVariable::setValue(int value) {
+	assert(getPayload());
 	assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
 	getPayload()->setValue(getOffset(), value, getType());
 }
 	
 int primitiveVariable::getValue(void) const {
+	assert(getPayload());
 	auto value = getPayload()->getValue(getOffset(), getType());
 	assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
 	return value;
 }
 
 void primitiveVariable::print(void) const {
+	assert(getPayload());
 	auto value = getPayload()->getValue(getOffset(), getType());
 	printf("0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
 
@@ -116,6 +123,7 @@ void primitiveVariable::print(void) const {
 }
 
 void primitiveVariable::printTexada(void) const {
+	assert(getPayload());
 	if(varSym->isPredefined())
 		return;
 
@@ -182,6 +190,7 @@ PIDVar::PIDVar(const pidSymNode* sym, unsigned int bound)
 
 variable* PIDVar::deepCopy(void) const{
 	variable* copy = new PIDVar(*this);
+	assert(copy->getOffset() == this->getOffset());
 	return copy;
 }
 

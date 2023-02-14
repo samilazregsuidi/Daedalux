@@ -113,6 +113,10 @@ public:
 
 	virtual state* getNeverClaim(void) const = 0;
 
+	virtual const transition* getOrigin(void) const;
+
+	virtual double getProbability(void) const;
+
 	/*
 	* If the pid of the last process is 'pid' then:
 	*  - the stateMask of the process is removed
@@ -134,7 +138,7 @@ public:
 	
 	//virtual byte compare(const state& s2) const = 0;
 
-	virtual void printGraphViz(unsigned long i) const {}
+	virtual void printGraphViz(unsigned long i) const = 0;
 
 public:
 	double prob;

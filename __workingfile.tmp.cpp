@@ -4,34 +4,20 @@
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
 # 1 "__workingfile.tmp"
-typedef features {
- bool B1;
- bool B2
+int i = 0;
+
+active proctype I (){
+ if
+ :: i++ -> skip;
+ :: i-- -> skip;
+ :: else -> skip;
+ fi;
 }
 
-features f;
-
-byte n, i;
-
-active proctype foo() {
-
- do
- :: break;
- :: n++;
- od;
-
-Start:
- skip;
+active proctype J (){
  if
- :: f.B1 -> i = i + 1;
+ :: i++ -> skip;
+ :: i-- -> skip;
  :: else -> skip;
  fi;
-
- if
- :: f.B2 -> i = i + 2;
- :: else -> skip;
- fi;
-
-Final:
- skip;
 }

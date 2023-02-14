@@ -14,9 +14,11 @@ public:
 	
 	primitiveVariable(const primitiveVariable* other);
 
-	virtual variable* deepCopy(void) const override;
+	variable* deepCopy(void) const override;
 
 	~primitiveVariable() override {}
+
+	bool isGlobal(void) const override;
 
 	/****************************************************/
 

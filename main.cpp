@@ -59,8 +59,8 @@ int copyFile(const std::string& source, const std::string& target) {
 
 #define B 50
 
-void launchExecution(const fsm* automata) {
-	state* current = initState::createInitState(automata);
+void launchExecution(const fsm* automata, const TVL* tvl) {
+	state* current = initState::createInitState(automata, tvl);
 	unsigned long i = 0;
 	//printf("**********************************\n");
 	current->PRINT_STATE();
@@ -85,13 +85,13 @@ void launchExecution(const fsm* automata) {
 
 #define K 3
 
-void findLasso(const fsm* automata, size_t k_steps) {
+void findLasso(const fsm* automata, const TVL* tvl, size_t k_steps) {
 	
 	size_t i = 0;
 
 	std::set<unsigned long> hashSet;
 
-	state* current = initState::createInitState(automata);
+	state* current = initState::createInitState(automata, tvl);
 	transition* trans = nullptr;
 
 	while(true) {
@@ -120,9 +120,9 @@ void findLasso(const fsm* automata, size_t k_steps) {
 
 #define D 5
 
-void createStateSpace(const fsm* automata) {
+void createStateSpace(const fsm* automata, const TVL* tvl) {
 	std::stack<state*> st;
-	state* current = new progState(automata);
+	state* current = initState::createInitState(automata, tvl);
 	st.push(current);
 	unsigned long i = 0;
 	
@@ -131,6 +131,7 @@ void createStateSpace(const fsm* automata) {
 		current = st.top();
 		printf("****************** current state ****************\n");
 		current->PRINT_STATE();
+		current->printGraphViz(i++);
 		st.pop();
 		
 		
@@ -402,9 +403,6 @@ int main(int argc, char *argv[]) {
 		if(!fm && (spinMode || optimisedSpinMode) && !tvlFilter.empty()) error("The -filter option can only be used when a feature model is charged.");
 	}
 
-	tvl->printBool();
-	std::cout << "nb products : " <<  tvl->getNbProducts() << std::endl;
-
 	if(propFile.empty() && (sim || stutterStep)) {
 		error("Simulation checking and non stutter steps require a property file.");
 	}
@@ -459,7 +457,7 @@ int main(int argc, char *argv[]) {
 	/*for(int i = 0; i < NB_LASSO; ++i)
 		findLasso(automata, K);*/
 
-	launchExecution(automata);
+	createStateSpace(automata, tvl);
 
 	//std::ofstream symtable;
 	//symtable.open("sym_table_graphviz");

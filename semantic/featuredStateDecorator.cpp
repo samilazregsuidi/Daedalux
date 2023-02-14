@@ -1,15 +1,20 @@
 #include "featuredStateDecorator.hpp"
 #include "featuredProgramTransition.hpp"
 
+//bad coupling!
+#include "tvl.hpp"
+
 /**
  * Adds the global variables in the memory chunk.
  *
  * Does not set the payloadHash.
  */
 
-featStateDecorator::featStateDecorator(state* wrappee, const ADD diagram) 
+featStateDecorator::featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl) 
 	: stateDecorator(wrappee)
+	, features(ADD())
 	, diagram(diagram)
+	, tvl(tvl)
 {
 }
 
@@ -104,7 +109,8 @@ void featStateDecorator::print(void) const {
 
 	printf("\n\n");
 
-	features.PrintMinterm();
+	if(features)
+		tvl->printBool(features);
 }
 
 /**
@@ -120,8 +126,21 @@ std::list<transition*> featStateDecorator::executables(void) const {
 
 	for(auto candidate : candidates) {
 		auto featTrans = dynamic_cast<featProgTransition*>(candidate);
-		if(!featTrans || !(features * featTrans->getFeatExpr() * diagram).IsZero())
-			execs.push_back(featTrans);
+		if(!featTrans) {
+			execs.push_back(candidate);
+			
+
+		} else if(features) {
+
+
+
+			if(!(features * featTrans->getFeatExpr() * diagram).IsZero())
+				execs.push_back(candidate);
+		
+		} else {
+			if(!(featTrans->getFeatExpr() * diagram).IsZero())
+				execs.push_back(candidate);
+		}
 	}
 
 	return execs;
@@ -143,7 +162,12 @@ state* featStateDecorator::apply(const transition* trans) {
 	wrappee->apply(trans);
 
 	auto ftrans = dynamic_cast<const featProgTransition*>(trans);
-	features = (features * ftrans->getFeatExpr()) * diagram;
+	if(ftrans) {
+		if(!features)
+			features = ftrans->getFeatExpr() * diagram;
+		else 
+			features = features * ftrans->getFeatExpr() * diagram;
+	}
 
 	return this;
 }

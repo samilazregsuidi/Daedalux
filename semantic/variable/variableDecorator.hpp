@@ -1,21 +1,22 @@
-#ifndef STATE_DECORATOR_H
-#define STATE_DECORATOR_H
+#ifndef VARIABLE_DECORATOR_H
+#define VARIABLE_DECORATOR_H
 
-#include "state.hpp"
+#include "variable.hpp"
 
-// State
-class stateDecorator : public state {
+class variableDecorator : public variable {
 public:
 
-	stateDecorator(state* wrappee);
+	variableDecorator(variable* wrappee);
 
-	stateDecorator(const stateDecorator& s);
+	variableDecorator(const variableDecorator& other);
+	
+	variableDecorator(const variableDecorator* other);
 
-	stateDecorator(const stateDecorator* other);
+	virtual variableDecorator* deepCopy(void) const = 0;
 
-	virtual state* deepCopy(void) const = 0;
+	~variableDecorator() override;
 
-	~stateDecorator() override;
+	void init(void) override;
 
 	/****************************************************/
 
@@ -103,30 +104,11 @@ public:
 
 	std::map<std::string, variable*> getVariablesMap(void) const override;
 
+
 	unsigned long hash(void) const override;
 
-	void init(void) override;
-
-	std::list<transition*> executables(void) const override;
-
-	state* apply(const transition* trans) override;
-
-	bool nullstate(void) const override;
-
-	bool endstate(void) const override;
-
-	bool isAccepting(void) const override;
-
-	state* getNeverClaim(void) const override;
-
-	const transition* getOrigin(void) const override;
-
-	double getProbability(void) const override;
-
-	void printGraphViz(unsigned long i) const override;
-
-public:
-	state* wrappee;
+protected:
+	variable* wrappee;
 };
 
 #endif

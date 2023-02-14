@@ -16,13 +16,15 @@ class variable;
 class varSymNode;
 class seqSymNode;
 
+class TVL;
+
 typedef char byte;
 typedef unsigned char ubyte;
 
 // State
 class initState {
 public:
-	static state* createInitState(const fsm* automata);
+	static state* createInitState(const fsm* automata, const TVL* tvl);
 
 	static std::list<variable*> addVariables(variable* v, const varSymNode* sym);
 
@@ -30,7 +32,7 @@ public:
 
 	static never* createNever(const fsm* stateMachine, const seqSymNode* procType);
 	
-	static state* createProgState(const fsm* stateMachine, const std::string& name);
+	static state* createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl);
 
 	static transition* createTransition(const fsmEdge* edge, state* s, process* proc, transition* response = nullptr);
 };

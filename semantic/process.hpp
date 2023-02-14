@@ -41,6 +41,8 @@ public:
 
 	process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index = 0);
 
+	process(const process& other);
+
 	process(const process* other);
 
 	process* deepCopy(void) const override;

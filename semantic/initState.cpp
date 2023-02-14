@@ -23,7 +23,9 @@
 #include "constExpr.hpp"
 #include "varExpr.hpp"
 
-state* initState::createInitState(const fsm* automata) {
+#include "tvl.hpp"
+
+state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 
 	auto sysTable = automata->getSystemSymTab();
 	auto compS = new compState("sys");
@@ -32,11 +34,11 @@ state* initState::createInitState(const fsm* automata) {
 		
 		for(auto sys : sysTable->getSymbols()) {
 			assert(sys->getType() == symbol::T_SYS);
-			compS->addState(initState::createProgState(automata, sys->getName()));
+			compS->addState(initState::createProgState(automata, sys->getName(), tvl));
 		}
 
 	} else
-		compS->addState(initState::createProgState(automata, ""));
+		compS->addState(initState::createProgState(automata, "", tvl));
 
 	auto globSymTab = automata->getGlobalSymTab();
 	auto neverSymList = globSymTab->getSymbols<neverSymNode*>();
@@ -179,7 +181,7 @@ never* initState::createNever(const fsm* stateMachine, const seqSymNode* procTyp
 	return proc;
 }
 
-state* initState::createProgState(const fsm* stateMachine, const std::string& name) {
+state* initState::createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl) {
 
 	state* res = nullptr;
 
@@ -202,7 +204,7 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 	res = s;
 
 	if(stateMachine->isFeatured()){
-		res = new featStateDecorator(res, stateMachine->getFeatureDiagram()); 
+		res = new featStateDecorator(res, stateMachine->getFeatureDiagram(), tvl); 
 	}
 
 	return res;

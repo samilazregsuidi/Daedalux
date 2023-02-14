@@ -33,6 +33,14 @@ thread::thread(const seqSymNode* sym, const fsmNode* start, unsigned int index)
 	addRawBytes(sizeof(const fsmNode*));
 }
 
+thread::thread(const thread& other)
+	: state(other)
+	, symType(other.symType)
+	, index(other.index)
+	, start(other.start)
+	, _else(other._else)
+{}
+
 thread::thread(const thread* other)
 	: state(other)
 	, symType(other->symType)
@@ -214,4 +222,8 @@ bool thread::endstate(void) const {
 
 std::string thread::getName(void) const {
 	return variable::getLocalName();
+}
+
+void thread::printGraphViz(unsigned long i) const {
+	
 }

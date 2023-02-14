@@ -24,6 +24,12 @@ process::process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned
 	, pid(pid)
 {}
 
+process::process(const process& other) 
+	: thread(other)
+	, pid(other.pid)
+{
+}
+
 process::process(const process* other)
 	: thread(other)
 	, pid(other->pid)
@@ -31,14 +37,18 @@ process::process(const process* other)
 }
 
 process* process::deepCopy(void) const {
-	return new process(this);
+	auto copy = new process(this);
+	assert(offset == copy->offset);
+	assert(getOffset() == copy->getOffset());
+	return copy;
 }
 
 void process::init(void) {
 	//assert(getProgState());
 
 	thread::init();
-	variable::getTVariable<primitiveVariable*>("_pid")->setValue(pid);
+
+	variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
 }
 
 void process::setProgState(progState* newS) {
@@ -50,11 +60,13 @@ progState* process::getProgState(void) const {
 }
 
 byte process::getPid(void) const {
-	return variable::getTVariable<primitiveVariable*>("_pid")->getValue();
+	return payLoad? variable::getTVariable<PIDVar*>("_pid")->getValue() : pid;
 }
 
 void process::setPid(byte pid) {
 	this->pid = pid;
+	if(payLoad)
+		variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
 }
 
 bool process::isAccepting(void) const {
@@ -675,6 +687,8 @@ Apply:
 		}
 		s->lastStepPid = proc->getPid();
 	}
+
+	this->trans = trans;
 
 	return s;
 }

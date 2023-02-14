@@ -94,7 +94,10 @@ variable::variable(const variable& other)
 	: name(other.name)
 	, parent(other.parent)
 	, vid(other.vid)
+	, varType(other.varType)
 	, rawBytes(other.rawBytes)
+	, varMap(other.varMap)
+	, varList(other.varList)
 	, sizeOf(other.sizeOf)
 	, offset(other.offset)
 	, payLoad(other.payLoad)
@@ -114,6 +117,9 @@ variable::variable(const variable* other)
 
 	for(auto subVar : getVariables())
 		subVar->assign(this);
+
+	if(!parent)
+		setPayload(other->getPayload()->copy());
 }
 
 variable::~variable() {
@@ -128,13 +134,20 @@ variable::Type variable::getType(void) const {
 	return varType;
 }
 
+bool variable::isGlobal(void) const {
+	assert(false);
+	return false;
+}
+
 void variable::assign(const variable* sc) {
 	if(parent) {
-		parent = sc->getVariable(parent->getLocalName());
-		assert(parent);
+		assert(parent == sc);
+	} else {
+		//?
+		assert(false);
 	}
 
-	if(hasVariables()){
+	/*if(hasVariables()){
 		std::list<variable*> newFields;
 		for(auto varSubField : getVariables()) {
 			auto field = sc->getVariable(varSubField->getLocalName());
@@ -142,7 +155,7 @@ void variable::assign(const variable* sc) {
 			newFields.push_back(field);
 		}
 		varList = newFields;
-	}
+	}*/
 }
 
 void variable::init(void) {
@@ -463,14 +476,15 @@ variable* variable::getVariable(const std::string& name) const {
 	variable* var = nullptr;
 	if(parent)
 		var = parent->getVariable(name);
+	
 	else {
 		bool found = false;
 		for (auto scope : varList) {
-			resIt = scope->varMap.find(name);
-			if(resIt != scope->varMap.cend()) {
-				assert(found == false);
+			auto v = scope->getVariable(name);
+			if(v) {
+				assert(!found);
 				found = true;
-				var = resIt->second;
+				var = v;
 			}
 		}
 	}
