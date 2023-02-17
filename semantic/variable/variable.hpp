@@ -190,7 +190,7 @@ protected:
 	size_t rawBytes;
 	std::map<std::string, variable*> varMap;
 	std::list<variable*> varList;
-	size_t sizeOf;
+	//size_t sizeOf;
 	size_t offset;
 	payload* payLoad;
 	bool isHidden;

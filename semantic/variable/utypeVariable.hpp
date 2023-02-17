@@ -15,6 +15,8 @@ public:
 
 	variable* deepCopy(void) const override;
 
+	size_t getSizeOf(void) const override;
+
 	int operator = (const primitiveVariable& rvalue) override;
 
 	int operator ++ (void) override;

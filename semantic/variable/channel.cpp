@@ -12,7 +12,7 @@ channel::channel(const chanSymNode* chanSym, unsigned int index)
 		name += "["+std::to_string(index)+"]";
 
 	if(chanSym->getCapacity() > 0)
-		sizeOf += 1;
+		rawBytes++;
 
 	for(int i = 0; i < chanSym->getCapacity(); ++i){
 		unsigned int fieldIndex = 0;
@@ -34,6 +34,10 @@ variable* channel::deepCopy(void) const{
 }
 
 channel::~channel() {
+}
+
+size_t channel::getSizeOf(void) const {
+	return variable::getSizeOf();
 }
 
 void channel::reset(void) {
@@ -163,8 +167,12 @@ channelField::channelField(const varSymNode* sym, unsigned int fieldNumber, unsi
 	name = ".("+sym->getTypeName()+")m" + std::to_string(messageIndex) + ".f" + std::to_string(fieldNumber) + name;
 }
 
+channelField::channelField(const channelField* other) 
+	: primitiveVariable(other)
+{}
+
 variable* channelField::deepCopy(void) const{
-	variable* copy = new channelField(*this);
+	variable* copy = new channelField(this);
 	return copy;
 }
 

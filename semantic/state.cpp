@@ -62,8 +62,8 @@ state* state::Post(const transition* trans) const {
 
 /*static*/ state* state::apply(const state* s, const transition* t) {
 	auto copy = s->deepCopy();
-	printf("copy print\n");
-	copy->print();
+	//printf("copy print\n");
+	//copy->print();
 	assert(copy);
 	assert(s->hash() == copy->hash());
 	printf("s hash %lu and copy hash %lu\n", s->hash(), copy->hash());

@@ -11,8 +11,6 @@ primitiveVariable::primitiveVariable(const varSymNode* const varSym, unsigned in
 	, index(index)
 {
 	//assert(varSym && (varSym->getType() == symbol::T_INT || varSym->getType() == symbol::T_BIT || varSym->getType() == symbol::T_BYTE || varSym->getType() == symbol::T_SHORT));
-
-	sizeOf += varSym->getTypeSize();
 }
 
 primitiveVariable::primitiveVariable(Type varType, unsigned int index) 
@@ -25,8 +23,6 @@ primitiveVariable::primitiveVariable(Type varType, unsigned int index)
 
 	if(index > 0)
 		name += "["+std::to_string(index)+"]";
-
-	sizeOf += varSym->getTypeSize();
 }
 
 primitiveVariable::primitiveVariable(const primitiveVariable& other)
@@ -65,6 +61,10 @@ bool primitiveVariable::isGlobal(void) const {
 	return varSym->isGlobal();
 }
 
+size_t primitiveVariable::getSizeOf(void) const {
+	return varSym->getTypeSize();
+}
+
 int primitiveVariable::operator = (const primitiveVariable& rvalue) {
 	int res = rvalue.getValue(); 
 	setValue(res);
@@ -72,24 +72,34 @@ int primitiveVariable::operator = (const primitiveVariable& rvalue) {
 }
 
 int primitiveVariable::operator ++ (void) {
-	setValue(getValue()+1);
-	return getValue();
+	auto temp = getValue();
+	if(temp + 1 <= varSymNode::getUpperBound(varSym->getType())) {
+		setValue(temp + 1);
+		return temp + 1;
+	}
+	return temp;
 }
 
 int primitiveVariable::operator -- (void) {
-	setValue(getValue()-1);
-	return getValue();
+	auto temp = getValue();
+	if(temp - 1  >= varSymNode::getLowerBound(varSym->getType())) {
+		setValue(temp - 1);
+		return temp - 1;
+	}
+	return temp;
 }
 
 int primitiveVariable::operator ++ (int) {
 	auto temp = getValue();
-	setValue(getValue()+1);
+	if(temp + 1 <= varSymNode::getUpperBound(varSym->getType()))
+		setValue(temp + 1);
 	return temp;
 }
 
 int primitiveVariable::operator -- (int) {
 	auto temp = getValue();
-	setValue(getValue()-1);
+	if(temp - 1  >= varSymNode::getLowerBound(varSym->getType()))
+		setValue(temp - 1);
 	return temp;
 }
 
@@ -110,7 +120,7 @@ void primitiveVariable::setValue(int value) {
 int primitiveVariable::getValue(void) const {
 	assert(getPayload());
 	auto value = getPayload()->getValue(getOffset(), getType());
-	assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
+	//assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
 	return value;
 }
 
@@ -144,7 +154,7 @@ constVar::constVar(int value, variable::Type type, int lineNb)
 }
 
 void constVar::setValue(int value) {
-	value;
+	value = value;
 	assert(false);
 }
 
@@ -153,7 +163,7 @@ int constVar::getValue(void) const {
 }
 
 int constVar::operator = (const primitiveVariable& rvalue) {
-	rvalue;
+	value = rvalue.getValue();
 	assert(false);
 }
 
@@ -190,7 +200,6 @@ PIDVar::PIDVar(const pidSymNode* sym, unsigned int bound)
 
 variable* PIDVar::deepCopy(void) const{
 	variable* copy = new PIDVar(*this);
-	assert(copy->getOffset() == this->getOffset());
 	return copy;
 }
 

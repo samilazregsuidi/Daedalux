@@ -17,7 +17,7 @@ for test in tests:
 	
 	#print(to_print)
 	
-	if to_print.find('Assertion failed.') != -1:
+	if to_print.find('failed') != -1:
 		print('KO test' + test +'\n')
 	else:
 		print('OK test ' + test +'\n')

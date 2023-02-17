@@ -59,8 +59,8 @@ public:
 private:
 	void _connect(std::list<fsmEdge*>& edges, fsmNode* target);
 	void _label(fsmNode* node);
-	void _looseEnd(const stmnt* node);
-	void _looseBreak(const stmnt* node);
+	fsmEdge* _looseEnd(const stmnt* node);
+	fsmEdge* _looseBreak(const stmnt* node);
 
 	void _toFsm(const stmnt* node);
 
@@ -84,7 +84,6 @@ private:
 	//std::list<fsmEdge*> flowLooseBreaks;
 	std::stack<ADD> optFeatures;
 	bool skip;
-	bool isElse;
 	const TVL* fm;
 	ADD looseFeatures;
 };

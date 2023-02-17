@@ -22,8 +22,8 @@ expToADD::~expToADD() {
 
 void expToADD::visit(const exprVarRefName* node) {
 	auto varSym = dynamic_cast<varSymNode*>(node->getSymbol());
-	assert(varSym && varSym->getInitExpr());
-	varSym->getInitExpr()->acceptVisitor(this);
+	if(varSym->getInitExpr())
+		varSym->getInitExpr()->acceptVisitor(this);
 }
 
 void expToADD::visit(const exprVarRef* node) {
@@ -68,7 +68,8 @@ void expToADD::visit(const exprPlus* node)  {
 	node->getRightExpr()->acceptVisitor(this);
 	auto rightFormula = current;
 
-	current = leftFormula + rightFormula;
+	if(leftFormula && rightFormula)
+		current = leftFormula + rightFormula;
 }
 
 void expToADD::visit(const exprMinus* node)  {
@@ -78,7 +79,8 @@ void expToADD::visit(const exprMinus* node)  {
 	node->getRightExpr()->acceptVisitor(this);
 	auto rightFormula = current;
 
-	current = leftFormula - rightFormula;
+	if(leftFormula && rightFormula)
+		current = leftFormula - rightFormula;
 }
 
 void expToADD::visit(const exprTimes* node)  {
@@ -88,7 +90,8 @@ void expToADD::visit(const exprTimes* node)  {
 	node->getRightExpr()->acceptVisitor(this);
 	auto rightFormula = current;
 
-	current = leftFormula + rightFormula;
+	if(leftFormula && rightFormula)
+		current = leftFormula + rightFormula;
 }
 
 void expToADD::visit(const exprAnd* node)  {
@@ -98,7 +101,8 @@ void expToADD::visit(const exprAnd* node)  {
 	node->getRightExpr()->acceptVisitor(this);
 	auto rightFormula = current;
 
-	current = leftFormula & rightFormula;
+	if(leftFormula && rightFormula)
+		current = leftFormula & rightFormula;
 }
 
 void expToADD::visit(const exprOr* node)  {
@@ -108,7 +112,8 @@ void expToADD::visit(const exprOr* node)  {
 	node->getRightExpr()->acceptVisitor(this);
 	auto rightFormula = current;
 
-	current = leftFormula | rightFormula;
+	if(leftFormula && rightFormula)
+		current = leftFormula | rightFormula;
 }
 
 void expToADD::visit(const exprPar* node)  {
@@ -117,12 +122,16 @@ void expToADD::visit(const exprPar* node)  {
 
 void expToADD::visit(const exprUMin* node)  {
 	node->getExpr()->acceptVisitor(this);
-	current = -current;
+
+	if(current)
+		current = -current;
 }
 
 void expToADD::visit(const exprNeg* node)  {
 	node->getExpr()->acceptVisitor(this);
-	current = ~current;
+
+	if(current)
+		current = ~current;
 }
 
 ADD expToADD::getFormula(void) const {

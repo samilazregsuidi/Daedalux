@@ -22,6 +22,7 @@ featStateDecorator::featStateDecorator(const featStateDecorator* other)
 	: stateDecorator(other)
 	, features(other->getFeatures())
 	, diagram(other->diagram)
+	, tvl(other->tvl)
 {}
 
 
@@ -109,8 +110,7 @@ void featStateDecorator::print(void) const {
 
 	printf("\n\n");
 
-	if(features)
-		tvl->printBool(features);
+	tvl->printBool(features);
 }
 
 /**

@@ -5,41 +5,29 @@
 # 0 "<command-line>" 2
 # 1 "__workingfile.tmp"
 typedef structure {
- bool a;
- bool b;
- bool c;
- bool d
+ bool B1;
+ bool B2
 }
 
-structure s;
+byte n, i;
 
-active proctype I(){
+active proctype foo() {
 
- s.a = true;
- s.b = true;
+ structure s;
+ s.B1 = true;
+ s.B2 = true;
 
  do
- :: s.c = false;
- :: s.d = false;
- :: !s.c && !s.d
-  -> break
-
- :: s.c = true;
- :: s.d = true;
- :: s.c && s.d
-  -> break
+ :: break;
+ :: n++;
  od;
 
- assert((s.c && s.d) || (!s.c && !s.d));
-}
+Start:
+ i = n;
 
-active proctype J(){
- do
- :: s.a = !s.a
- :: s.b = !s.b
- :: s.a || s.b
-  -> break
- od;
+ if :: s.B1 -> i = i+2; :: else -> skip; fi;
+ if :: s.B2 -> i = i+1; :: else -> skip; fi;
 
- assert(s.a || s.b);
+Final:
+ assert(i == n + 3);
 }

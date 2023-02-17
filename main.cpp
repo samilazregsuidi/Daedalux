@@ -57,7 +57,7 @@ int copyFile(const std::string& source, const std::string& target) {
 
 #define PRINT_STATE print
 
-#define B 50
+#define B 100
 
 void launchExecution(const fsm* automata, const TVL* tvl) {
 	state* current = initState::createInitState(automata, tvl);
@@ -118,12 +118,16 @@ void findLasso(const fsm* automata, const TVL* tvl, size_t k_steps) {
 	printf("--\n");
 }
 
-#define D 5
+#define D 1000
 
 void createStateSpace(const fsm* automata, const TVL* tvl) {
 	std::stack<state*> st;
+	std::map<unsigned long, state*> hm;
 	state* current = initState::createInitState(automata, tvl);
+
 	st.push(current);
+	hm[current->hash()] = current;
+	
 	unsigned long i = 0;
 	
 	while(!st.empty()){
@@ -131,7 +135,7 @@ void createStateSpace(const fsm* automata, const TVL* tvl) {
 		current = st.top();
 		printf("****************** current state ****************\n");
 		current->PRINT_STATE();
-		current->printGraphViz(i++);
+		//current->printGraphViz(i++);
 		st.pop();
 		
 		
@@ -140,8 +144,14 @@ void createStateSpace(const fsm* automata, const TVL* tvl) {
 		if(nexts.size() > 0) {
 			printf("************* next possible states **************\n");
 			for(auto n : nexts) {
+
+				if(hm.find(n->hash()) != hm.end()) {
+					printf("************* already visited state **************\n");
+				} else {
+					st.push(n);
+				}
 				n->PRINT_STATE();
-				st.push(n);
+
 				if(nexts.size() > 1)
 					printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
 			}
@@ -149,10 +159,12 @@ void createStateSpace(const fsm* automata, const TVL* tvl) {
 			printf("************* end state **************\n");
 		}
 
-		if(i > D)
-			break;
+		/*if(i > D)
+			break;*/
 		//add error status
 	}
+
+	printf("number of states : %d\n", i);
 
 }
 
@@ -395,7 +407,7 @@ int main(int argc, char *argv[]) {
 		if(!tvl->loadFeatureModel(tvlFile, tvlFilter)) error("Could not load the specified feature model file.");
 	} else if(!fm && /*!spinM* &&*/ !optimisedSpinMode) {
 		// Try to guess name of feature model file name
-		std::string tvlFile = std::string(argv[argc - 1]).replace(tvlFile.find("."), 4, ".tvl");
+		std::string tvlFile = std::string(argv[argc - 1]).replace(tvlFile.find(".pml"), 4, ".tvl");
 		printf("tvl file = %s\n", tvlFile.c_str());
 		
 		if(!tvl->loadFeatureModel(tvlFile, tvlFilter) && !tvlFilter.empty()) error("The -filter option can only be used when a feature model is charged.");

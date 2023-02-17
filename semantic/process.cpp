@@ -38,8 +38,6 @@ process::process(const process* other)
 
 process* process::deepCopy(void) const {
 	auto copy = new process(this);
-	assert(offset == copy->offset);
-	assert(getOffset() == copy->getOffset());
 	return copy;
 }
 

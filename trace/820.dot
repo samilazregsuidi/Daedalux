@@ -1,0 +1,28 @@
+digraph finite_state_machine {
+	rankdir=LR
+	size="8,5"
+	93824994230640 [label = 12, shape = doublecircle, fixedsize = true]; 
+	s93824994230640 [shape = point];
+	e93824994234208 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white,  label = end];
+	 93824994230800 [label = 14, shape = circle, fixedsize = true ];
+	 93824994231936 [label = 16, shape = circle, fixedsize = true ];
+	 93824994231424 [label = 20, shape = circle, fixedsize = true ];
+	 93824994232336 [label = 22, shape = circle, color = red, fixedsize = true ];
+	 93824994233136 [label = 22, shape = circle, fixedsize = true ];
+	 93824994237552 [label = 23, shape = circle, fixedsize = true ];
+	 93824994234784 [label = 23, shape = circle, fixedsize = true ];
+	 93824994234208 [label = 26, shape = circle, fixedsize = true ];
+	s93824994230640 -> 93824994230640;
+	93824994230640 -> 93824994230800 [ label = "12 | skip; "];
+	93824994230800 -> 93824994230800 [ label = "15 | n++; "];
+	93824994230800 -> 93824994231936 [ label = "16 | skip; "];
+	93824994231936 -> 93824994231424 [ label = "16 | break; "];
+	93824994231424 -> 93824994232336 [color = red, label = "20 | i = n; "];
+	93824994232336 -> 93824994237552 [ label = "22 | i = i + 2; "];
+	93824994232336 -> 93824994233136 [ label = "22 | skip; "];
+	93824994233136 -> 93824994237552 [ label = "22 | skip; "];
+	93824994237552 -> 93824994234208 [ label = "23 | i = i + 1; "];
+	93824994237552 -> 93824994234784 [ label = "23 | skip; "];
+	93824994234784 -> 93824994234208 [ label = "23 | skip; "];
+	93824994234208 -> e93824994234208 [ label = "26 | assert(i == n + 3); "];
+}

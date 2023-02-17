@@ -215,10 +215,10 @@ void fsm::printGraphVisWithLocations(std::ofstream& file, const std::list<const 
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		if(t->getTargetNode()) {
-			file << "\t" <<  t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() << " [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << exprStr << "\"];\n";
+			file << "\t" <<  t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() << " [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << t->getLineNb() << " | " << exprStr << "\"];\n";
 		}
 		else
-			file << "\t" <<  t->getSourceNode()->getID() <<" -> e" << t->getSourceNode()->getID() <<" [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << exprStr << "\"];\n";
+			file << "\t" <<  t->getSourceNode()->getID() <<" -> e" << t->getSourceNode()->getID() <<" [" << (std::find(edges.begin(), edges.end(), t) != edges.end()? "color = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << t->getLineNb() << " | " << exprStr << "\"];\n";
 		
 	}
 

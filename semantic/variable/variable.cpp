@@ -82,7 +82,7 @@ variable::variable(Type varType, const std::string& name)
 	, vid(++vidCounter)
 	, varType(varType)
 	, rawBytes(0)
-	, sizeOf(0)
+	//, sizeOf(0)
 	, offset(0)
 	, payLoad(nullptr)
 	, isHidden(false)
@@ -98,8 +98,8 @@ variable::variable(const variable& other)
 	, rawBytes(other.rawBytes)
 	, varMap(other.varMap)
 	, varList(other.varList)
-	, sizeOf(other.sizeOf)
-	, offset(other.offset)
+	//, sizeOf(other.sizeOf)
+	, offset(0)
 	, payLoad(other.payLoad)
 	, isHidden(other.isHidden)
 {
@@ -261,15 +261,11 @@ size_t variable::getOffset(void) const {
 }
 
 size_t variable::getEndOffset(void) const {
-	auto subSize = 0;
-	for(auto var : varList)
-		subSize += var->getSizeOf();
-	return offset + sizeOf + subSize;
+	return offset + getSizeOf();
 }
 
 void variable::addRawBytes(size_t size) {
 	rawBytes += size;
-	sizeOf += size;
 }
 
 /*std::list<variable*> variable::addVariables(const varSymNode* sym) {
@@ -516,7 +512,7 @@ std::map<std::string, variable*> variable::getVariablesMap(void) const {
 
 
 size_t variable::getSizeOf(void) const {
-	size_t size = sizeOf;
+	size_t size = rawBytes;
 
 	for(auto var : varList)
 		size += var->getSizeOf();

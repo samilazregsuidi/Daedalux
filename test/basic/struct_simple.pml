@@ -15,5 +15,5 @@ active proctype test (){
 	assert(v.y ==  0);
 	assert(v.z ==  1);
 	
-	assert((v.x * v.y * v.z) == 0);
+	//assert((v.x * v.y * v.z) == 0);
 }

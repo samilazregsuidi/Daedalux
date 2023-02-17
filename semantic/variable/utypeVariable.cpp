@@ -19,6 +19,10 @@ int utypeVar::operator = (const primitiveVariable& rvalue) {
 	assert(false);
 }
 
+size_t utypeVar::getSizeOf(void) const {
+	return variable::getSizeOf();
+}
+
 int utypeVar::operator ++ (void) {
 	assert(false);
 }
@@ -46,7 +50,7 @@ bool utypeVar::operator != (const primitiveVariable& other) const {
 }
 
 variable* utypeVar::deepCopy(void) const {
-	utypeVar* copy = new utypeVar(*this);
+	utypeVar* copy = new utypeVar(this);
 	//warning shared payload! 
 	return copy;
 }

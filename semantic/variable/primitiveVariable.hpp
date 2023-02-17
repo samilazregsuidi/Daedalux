@@ -20,6 +20,8 @@ public:
 
 	bool isGlobal(void) const override;
 
+	size_t getSizeOf(void) const override;
+
 	/****************************************************/
 
 	virtual void setValue(int value) ;

@@ -16,6 +16,8 @@ public:
 
 	~channel() override;
 
+	size_t getSizeOf(void) const override;
+
 	int operator = (const primitiveVariable& rvalue) override;
 
 	int operator ++ (void) override;
@@ -59,6 +61,8 @@ private:
 class channelField : public primitiveVariable {
 public:
 	channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex = 0, unsigned int index =  0);
+
+	channelField(const channelField* other);
 
 	variable* deepCopy(void) const override;
 };

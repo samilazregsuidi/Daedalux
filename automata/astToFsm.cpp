@@ -8,10 +8,13 @@
 #include "expToADD.hpp"
 
 ASTtoFSM::ASTtoFSM() 
-    : skip(false)
-    , flags(0)
+    : flags(0)
+    , res(nullptr)
+    , init(nullptr)
+    , current(nullptr)
+    , newNode(nullptr)
+    , prev(nullptr)
     , fm(nullptr)
-    , isElse(false)
 {}
 
 ASTtoFSM::~ASTtoFSM() {
@@ -43,24 +46,21 @@ void ASTtoFSM::_label(fsmNode* node){
     labels.clear();
 }
 
-void ASTtoFSM::_looseEnd(const stmnt* node) {
+fsmEdge* ASTtoFSM::_looseEnd(const stmnt* node) {
     auto edge = current->createfsmEdge(node->getLineNb(), node);
-    looseEnds.push_back(edge);
 
-    if(!isElse){
-        edge->setFeatures(looseFeatures);
-        fm->printBool(looseFeatures);
-        looseFeatures = ADD();
-    } else {
-        assert(!looseFeatures);
-        edge->setFeatures(optFeatures.top());
-        fm->printBool(edge->getFeatures());
-    }
-    
+    edge->setFeatures(looseFeatures);
+    fm->printBool(looseFeatures);
+    looseFeatures = ADD();
+
+    looseEnds.push_back(edge);
+    return edge;
 }
 
-void ASTtoFSM::_looseBreak(const stmnt* node) {
-    looseBreaks.push_back(current->createfsmEdge(node->getLineNb(), node));
+fsmEdge* ASTtoFSM::_looseBreak(const stmnt* node) {
+    auto edge = current->createfsmEdge(node->getLineNb(), node);
+    looseBreaks.push_back(edge);
+    return edge;
 }
 
 void ASTtoFSM::_toFsm(const stmnt* node) {
@@ -82,26 +82,6 @@ void ASTtoFSM::_toFsm(const stmnt* node) {
     }
 }
 
-/*void ASTtoFSM::visit(const stmnt* node)  {
-
-
-    current = (res->createFsmNode(flags, node->getLineNb()));
-
-        if(!init) init = current;
-
-        _label(current);
-        
-        _connect(looseEnds, current);
-
-        _looseEnd(node);
-
-
-    node = node->getNext();
-    if(node) {
-        node->acceptVisitor(this);
-    }
-}*/
-
 void ASTtoFSM::visit(const stmntExpr* node)  {
 
     auto toADD = new expToADD(fm);
@@ -113,12 +93,8 @@ void ASTtoFSM::visit(const stmntExpr* node)  {
         looseFeatures = toADD->getFormula();
         optFeatures.top() &= ~looseFeatures;
 
-    }
+    } else {
 
-    delete toADD;
-    
-
-    if(!looseFeatures) {
         current = (res->createFsmNode(flags, node->getLineNb()));
 
         if(!init) init = current;
@@ -128,8 +104,10 @@ void ASTtoFSM::visit(const stmntExpr* node)  {
         _connect(looseEnds, current);
 
         _looseEnd(node);
+        
     }
 
+    delete toADD;
 
     auto next = node->getNext();
     if(next) {
@@ -167,8 +145,6 @@ void ASTtoFSM::visit(const stmntIf* node)  {
         auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
         looseEnds.push_back(trans);
         
-        skip = true;
-
         opt->acceptVisitor(this);
 
         assert(trans->getTargetNode());
@@ -376,6 +352,27 @@ void ASTtoFSM::visit(const stmntDStep* node)  {
         next->acceptVisitor(this);
 }
 
+void ASTtoFSM::visit(const stmntElse* node) {
+
+
+    current = (res->createFsmNode(flags, node->getLineNb()));
+
+    _label(current);
+    
+    _connect(looseEnds, current);
+
+    if(optFeatures.top()) {
+        auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
+        fm->printBool(optFeatures.top());
+        edge->setFeatures(optFeatures.top());
+    }
+
+    auto next = node->getNext();
+    if(next) {
+        next->acceptVisitor(this);
+    }
+}
+
 void ASTtoFSM::visit(const stmntChanRecv* node) {
     _toFsm(node);
 }
@@ -410,22 +407,4 @@ void ASTtoFSM::visit(const stmntPrintm* node) {
 
 void ASTtoFSM::visit(const stmntAssert* node) {
     _toFsm(node);
-}
-
-void ASTtoFSM::visit(const stmntElse* node) {
-    
-    current = (res->createFsmNode(flags, node->getLineNb()));
-
-    _label(current);
-    
-    _connect(looseEnds, current);
-
-    isElse = true;
-    _looseEnd(node);
-    isElse = false;
-
-    auto next = node->getNext();
-    if(next) {
-        next->acceptVisitor(this);
-    }
 }
