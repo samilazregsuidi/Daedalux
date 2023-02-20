@@ -1,4 +1,4 @@
-typedef features {
+typedef structure {
 	bool B1;
 	bool B2
 }
@@ -7,14 +7,14 @@ active proctype foo() {
 
 	byte n, i;
 
-	features f;
+	structure f;
 	f.B1 = true;
 	f.B2 = true;
 
-	do 
-	:: break;
+	if 
 	:: n++;
-	od;
+	:: else -> skip;
+	fi;
 	
 Start:
 	i = n;

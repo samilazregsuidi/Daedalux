@@ -61,6 +61,8 @@ std::list<transition*> never::executables(void) const {
 		}
 	}
 
+	assert(res.size() > 0);
+
 	return res;
 }
 

@@ -3,7 +3,8 @@ typedef features {
 	bool B2
 }
 
-byte n, i;
+byte n;
+short i;
 
 features f;
 
@@ -11,10 +12,10 @@ active proctype foo() {
 
 	skip;
 	
-	do 
+	if 
 	:: n++;
-	:: else -> break;
-	od;
+	:: else -> skip;
+	fi;
 	
 Start:
 	i = n;

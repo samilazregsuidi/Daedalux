@@ -409,3 +409,11 @@ std::vector<astNode*> exprRShift::getMutations(void) const {
         //new exprRShift(dynamic_cast<expr*>(getLeftExpr()->deepCopy()), dynamic_cast<expr*>(getRightExpr()->deepCopy()), lineNb)
         };
 }
+
+void exprRemoteRef::acceptVisitor(ASTConstVisitor* visitor) const {
+    visitor->visit(this);
+}
+
+void exprRemoteRef::acceptVisitor(ASTVisitor* visitor) {
+    visitor->visit(this);
+}

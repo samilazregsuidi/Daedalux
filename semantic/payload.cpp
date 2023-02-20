@@ -112,7 +112,7 @@ int payload::getValue(size_t offset, variable::Type type) const {
 		case variable::V_CID:
 		case variable::V_MTYPE:
 		case variable::V_CMTYPE:
-			return getValue<byte>(offset);
+			return getValue<ubyte>(offset);
 		case variable::V_BOOL:
 			return getValue<bool>(offset);
 		case variable::V_SHORT:
@@ -135,7 +135,7 @@ void payload::setValue(size_t offset, int value, variable::Type type) {
 		case variable::V_CID:
 		case variable::V_MTYPE:
 		//case variable::V_CMTYPE:
-			setValue<byte>(offset, value);
+			setValue<ubyte>(offset, value);
 			return;
 		case variable::V_BOOL:
 			setValue<bool>(offset, value);

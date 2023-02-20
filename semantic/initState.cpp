@@ -25,6 +25,8 @@
 
 #include "tvl.hpp"
 
+#include "expToADD.hpp"
+
 state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 
 	auto sysTable = automata->getSystemSymTab();
@@ -34,7 +36,7 @@ state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 		
 		for(auto sys : sysTable->getSymbols()) {
 			assert(sys->getType() == symbol::T_SYS);
-			compS->addState(initState::createProgState(automata, sys->getName(), tvl));
+			compS->addState(initState::createProgState(automata, sys->getName(), tvl, dynamic_cast<const sysSymNode*>(sys)));
 		}
 
 	} else
@@ -181,7 +183,7 @@ never* initState::createNever(const fsm* stateMachine, const seqSymNode* procTyp
 	return proc;
 }
 
-state* initState::createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl) {
+state* initState::createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl, const sysSymNode* sym) {
 
 	state* res = nullptr;
 
@@ -204,7 +206,15 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 	res = s;
 
 	if(stateMachine->isFeatured()){
-		res = new featStateDecorator(res, stateMachine->getFeatureDiagram(), tvl); 
+		res = new featStateDecorator(res, stateMachine->getFeatureDiagram(), tvl);
+		if(sym->getInitExpr()){
+			auto v = new expToADD(tvl);
+			sym->getInitExpr()->acceptVisitor(v);
+			auto cst = v->getFormula();
+			assert(cst);
+			auto b = dynamic_cast<featStateDecorator*>(res)->constraint(cst);
+			assert(b);
+		}
 	}
 
 	return res;

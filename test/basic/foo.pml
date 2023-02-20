@@ -14,14 +14,26 @@ active proctype foo() {
 
 	if 
 	:: n++;
-	:: else -> skip;
+	:: else 
+		-> skip;
 	fi;
 	
 Start:
 	i = n;
 	
-	if :: s.B1 -> i = i+2; :: else -> skip; fi;
-	if :: s.B2 -> i = i+1; :: else -> skip; fi;
+	if 
+	:: s.B1 -> 
+		i = i+2; 
+	:: else -> 
+		skip; 
+	fi;
+	
+	if 
+	:: s.B2 -> 
+		i = i+1; 
+	:: else -> 
+		skip; 
+	fi;
 	
 Final:
 	assert(i == n + 3);

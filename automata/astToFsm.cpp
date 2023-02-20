@@ -15,6 +15,7 @@ ASTtoFSM::ASTtoFSM()
     , newNode(nullptr)
     , prev(nullptr)
     , fm(nullptr)
+    , hasOptFeatures(false)
 {}
 
 ASTtoFSM::~ASTtoFSM() {
@@ -92,6 +93,7 @@ void ASTtoFSM::visit(const stmntExpr* node)  {
         
         looseFeatures = toADD->getFormula();
         optFeatures.top() &= ~looseFeatures;
+        hasOptFeatures = true;
 
     } else {
 
@@ -361,10 +363,14 @@ void ASTtoFSM::visit(const stmntElse* node) {
     
     _connect(looseEnds, current);
 
-    if(optFeatures.top()) {
+    if(hasOptFeatures) {
         auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
         fm->printBool(optFeatures.top());
         edge->setFeatures(optFeatures.top());
+        hasOptFeatures = false;
+    } 
+    else {
+        _looseEnd(node);
     }
 
     auto next = node->getNext();

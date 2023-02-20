@@ -31,6 +31,8 @@ public:
 
 	const ADD& getDiagram(void) const;
 
+	bool constraint(const ADD& cst);
+
 public:
 	ADD features;
 	const ADD diagram;

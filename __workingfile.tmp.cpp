@@ -9,17 +9,19 @@ typedef features {
  bool B2
 }
 
-byte n, i;
-
 features f;
+
+system p1 = f.B1;
+system p2 = f.B2;
 
 active proctype foo() {
 
- skip;
+ byte n;
+ short i;
 
  do
  :: n++;
- :: else -> break;
+ :: break;
  od;
 
 Start:
@@ -30,4 +32,19 @@ Start:
 
 Final:
  assert(i == n + 3);
+}
+
+never {
+ do
+ :: p1.foo@Start && p2.foo@Start -> break;
+
+
+
+
+
+
+ :: p1.foo@Final && p2.foo@Final -> break;
+
+ :: true -> skip
+ od;
 }

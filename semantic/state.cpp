@@ -66,7 +66,7 @@ state* state::Post(const transition* trans) const {
 	//copy->print();
 	assert(copy);
 	assert(s->hash() == copy->hash());
-	printf("s hash %lu and copy hash %lu\n", s->hash(), copy->hash());
+	//printf("s hash %lu and copy hash %lu\n", s->hash(), copy->hash());
 	copy->apply(t);
 	return copy;
 }

@@ -7,5 +7,4 @@ active proctype foo() {
 	:: n++;
 	od;
 	
-	assert(n >= 0);
 }

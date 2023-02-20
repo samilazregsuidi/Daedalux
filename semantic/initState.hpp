@@ -15,6 +15,7 @@ class transition;
 class variable;
 class varSymNode;
 class seqSymNode;
+class sysSymNode;
 
 class TVL;
 
@@ -32,7 +33,7 @@ public:
 
 	static never* createNever(const fsm* stateMachine, const seqSymNode* procType);
 	
-	static state* createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl);
+	static state* createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl, const sysSymNode* sym = nullptr);
 
 	static transition* createTransition(const fsmEdge* edge, state* s, process* proc, transition* response = nullptr);
 };

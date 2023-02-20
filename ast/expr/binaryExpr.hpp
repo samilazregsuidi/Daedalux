@@ -680,6 +680,10 @@ public:
 		return copy;
 	}
 
+	void acceptVisitor(ASTConstVisitor* visitor) const override;
+
+	void acceptVisitor(ASTVisitor* visitor) override;
+
 private:
 	std::string label;
 	int labelLine;

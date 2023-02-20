@@ -133,30 +133,37 @@ void createStateSpace(const fsm* automata, const TVL* tvl) {
 	while(!st.empty()){
 
 		current = st.top();
+		i++;
+
 		printf("****************** current state ****************\n");
 		current->PRINT_STATE();
-		//current->printGraphViz(i++);
+		//current->printGraphViz(i);
 		st.pop();
 		
 		
 		auto nexts = current->Post();
 
 		if(nexts.size() > 0) {
-			printf("************* next possible states **************\n");
+			//printf("************* next possible states **************\n");
 			for(auto n : nexts) {
 
 				if(hm.find(n->hash()) != hm.end()) {
-					printf("************* already visited state **************\n");
+					//printf("************* already visited state **************\n");
+					;
 				} else {
 					st.push(n);
+					hm[n->hash()] = n;
 				}
-				n->PRINT_STATE();
+				//n->PRINT_STATE();
 
-				if(nexts.size() > 1)
-					printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+				if(nexts.size() > 1) {
+					;
+					//printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+				}
 			}
 		} else {
-			printf("************* end state **************\n");
+			;
+			//printf("************* end state **************\n");
 		}
 
 		/*if(i > D)
@@ -471,10 +478,14 @@ int main(int argc, char *argv[]) {
 
 	createStateSpace(automata, tvl);
 
-	//std::ofstream symtable;
-	//symtable.open("sym_table_graphviz");
-	//globalSymTab->printGraphViz(symtable);
-	//symtable.close();
+	std::ofstream symtable;
+	symtable.open("sym_table_graphviz");
+	
+	while(globalSymTab->prevSymTab()) 
+		globalSymTab = globalSymTab->prevSymTab();
+
+	globalSymTab->printGraphViz(symtable);
+	symtable.close();
 
 	//output.open("mutants/original_.pml");
 	//output << stmnt::string(program);

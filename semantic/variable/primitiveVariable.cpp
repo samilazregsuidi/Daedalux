@@ -73,7 +73,8 @@ int primitiveVariable::operator = (const primitiveVariable& rvalue) {
 
 int primitiveVariable::operator ++ (void) {
 	auto temp = getValue();
-	if(temp + 1 <= varSymNode::getUpperBound(varSym->getType())) {
+	auto bound = varSymNode::getUpperBound(varSym->getType());
+	if(temp < bound) {
 		setValue(temp + 1);
 		return temp + 1;
 	}
@@ -113,7 +114,8 @@ bool primitiveVariable::operator != (const primitiveVariable& other) const {
 
 void primitiveVariable::setValue(int value) {
 	assert(getPayload());
-	assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
+	assert(value >= varSymNode::getLowerBound(varSym->getType()));
+	assert(value <= varSymNode::getUpperBound(varSym->getType()));
 	getPayload()->setValue(getOffset(), value, getType());
 }
 	

@@ -56,6 +56,8 @@ public:
 	void visit(const tdefDecl* node) override;
 	void visit(const mtypeDecl* node) override;
 
+	//void visit(const )
+
 private:
 	void _connect(std::list<fsmEdge*>& edges, fsmNode* target);
 	void _label(fsmNode* node);
@@ -86,6 +88,7 @@ private:
 	bool skip;
 	const TVL* fm;
 	ADD looseFeatures;
+	bool hasOptFeatures;
 };
 
 #endif

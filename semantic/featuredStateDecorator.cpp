@@ -12,7 +12,7 @@
 
 featStateDecorator::featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl) 
 	: stateDecorator(wrappee)
-	, features(ADD())
+	, features(tvl->getMgr()->addOne())
 	, diagram(diagram)
 	, tvl(tvl)
 {
@@ -128,18 +128,9 @@ std::list<transition*> featStateDecorator::executables(void) const {
 		auto featTrans = dynamic_cast<featProgTransition*>(candidate);
 		if(!featTrans) {
 			execs.push_back(candidate);
-			
 
-		} else if(features) {
-
-
-
-			if(!(features * featTrans->getFeatExpr() * diagram).IsZero())
-				execs.push_back(candidate);
-		
-		} else {
-			if(!(featTrans->getFeatExpr() * diagram).IsZero())
-				execs.push_back(candidate);
+		} else if(!(features * featTrans->getFeatExpr() * diagram).IsZero()) {
+			execs.push_back(candidate);
 		}
 	}
 
@@ -170,4 +161,9 @@ state* featStateDecorator::apply(const transition* trans) {
 	}
 
 	return this;
+}
+
+bool featStateDecorator::constraint(const ADD& cst) {
+	features &= cst;
+	return !features.IsZero();
 }

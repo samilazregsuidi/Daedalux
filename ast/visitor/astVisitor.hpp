@@ -80,6 +80,7 @@ class exprFull;
 class exprNFull;
 class exprEmpty;
 class exprNEmpty;
+class exprRemoteRef;
 
 class ASTConstVisitor {
 public:
@@ -163,6 +164,7 @@ public:
 	virtual void visit(const exprNFull* node) {}
 	virtual void visit(const exprEmpty* node) {}
 	virtual void visit(const exprNEmpty* node) {}
+	virtual void visit(const exprRemoteRef* node) {}
 
 
 };
@@ -249,6 +251,7 @@ public:
 	virtual void visit(exprNFull* node) {}
 	virtual void visit(exprEmpty* node) {}
 	virtual void visit(exprNEmpty* node) {}
+	virtual void visit(exprRemoteRef* node) {}
 	
 };
 
