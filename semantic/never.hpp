@@ -51,6 +51,8 @@ public:
 
 	std::list<transition*> executables(void) const override;
 
+	std::list<transition*> transitions(void) const override;
+
 	state* apply(const transition* trans) override;
 
 	// Expression evaluation (flag)

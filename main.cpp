@@ -19,6 +19,8 @@
 
 #include "semantic.hpp"
 
+#include "explore.hpp"
+
 extern void init_lex();
 
 // Settings defined in main
@@ -55,125 +57,6 @@ int copyFile(const std::string& source, const std::string& target) {
 	return 0;
 }
 
-#define PRINT_STATE print
-
-#define B 100
-
-void launchExecution(const fsm* automata, const TVL* tvl) {
-	state* current = initState::createInitState(automata, tvl);
-	unsigned long i = 0;
-	//printf("**********************************\n");
-	current->PRINT_STATE();
-	current->printGraphViz(i++);
-
-	while(transition* trans = transition::sample(current->executables())){
-		current->apply(trans);
-		//printf("--------------------------------------\n");
-		current->PRINT_STATE();
-		current->printGraphViz(i++);
-
-		if(current->isAccepting())
-			printf("***** ACCEPTING STATE *****\n");
-
-		if(i > B){
-			break;
-		}
-		//add error status
-	}
-	printf("--\n");
-}
-
-#define K 3
-
-void findLasso(const fsm* automata, const TVL* tvl, size_t k_steps) {
-	
-	size_t i = 0;
-
-	std::set<unsigned long> hashSet;
-
-	state* current = initState::createInitState(automata, tvl);
-	transition* trans = nullptr;
-
-	while(true) {
-
-		//printf("**********************************\n");
-		current->PRINT_STATE();
-		current->printGraphViz(i);
-
-		auto hash = current->hash();
-		if(hashSet.find(hash) == hashSet.end() || i++ < k_steps) {
-			
-			hashSet.insert(current->hash());
-			
-			if((trans = transition::sample(current->executables()))) {
-				printf("..\n");
-				current->apply(trans);
-			} else 
-				break;
-
-		} else break;
-		
-	}
-		
-	printf("--\n");
-}
-
-#define D 1000
-
-void createStateSpace(const fsm* automata, const TVL* tvl) {
-	std::stack<state*> st;
-	std::map<unsigned long, state*> hm;
-	state* current = initState::createInitState(automata, tvl);
-
-	st.push(current);
-	hm[current->hash()] = current;
-	
-	unsigned long i = 0;
-	
-	while(!st.empty()){
-
-		current = st.top();
-		i++;
-
-		printf("****************** current state ****************\n");
-		current->PRINT_STATE();
-		//current->printGraphViz(i);
-		st.pop();
-		
-		
-		auto nexts = current->Post();
-
-		if(nexts.size() > 0) {
-			//printf("************* next possible states **************\n");
-			for(auto n : nexts) {
-
-				if(hm.find(n->hash()) != hm.end()) {
-					//printf("************* already visited state **************\n");
-					;
-				} else {
-					st.push(n);
-					hm[n->hash()] = n;
-				}
-				//n->PRINT_STATE();
-
-				if(nexts.size() > 1) {
-					;
-					//printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
-				}
-			}
-		} else {
-			;
-			//printf("************* end state **************\n");
-		}
-
-		/*if(i > D)
-			break;*/
-		//add error status
-	}
-
-	printf("number of states : %d\n", i);
-
-}
 
 #define NB_LASSO 1
 

@@ -55,7 +55,7 @@ public:
 
 	void print(void) const override;
 
-	std::list<transition*> transitions(void) const;
+	std::list<transition*> transitions(void) const override;
 
 	void setProgState(progState* newS);
 

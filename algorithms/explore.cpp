@@ -6,6 +6,125 @@
 #include "transition.hpp"
 #include "process.hpp"
 
+#include "initState.hpp"
+
+#define PRINT_STATE print
+
+#define B 100
+
+void launchExecution(const fsm* automata, const TVL* tvl) {
+	state* current = initState::createInitState(automata, tvl);
+	unsigned long i = 0;
+	//printf("**********************************\n");
+	current->PRINT_STATE();
+	current->printGraphViz(i++);
+
+	while(transition* trans = transition::sample(current->executables())){
+		current->apply(trans);
+		//printf("--------------------------------------\n");
+		current->PRINT_STATE();
+		current->printGraphViz(i++);
+
+		if(current->isAccepting())
+			printf("***** ACCEPTING STATE *****\n");
+
+		if(i > B){
+			break;
+		}
+		//add error status
+	}
+	printf("--\n");
+}
+
+#define K 3
+
+void findLasso(const fsm* automata, const TVL* tvl, size_t k_steps) {
+	
+	size_t i = 0;
+
+	std::set<unsigned long> hashSet;
+
+	state* current = initState::createInitState(automata, tvl);
+	transition* trans = nullptr;
+
+	while(true) {
+
+		//printf("**********************************\n");
+		current->PRINT_STATE();
+		current->printGraphViz(i);
+
+		auto hash = current->hash();
+		if(hashSet.find(hash) == hashSet.end() || i++ < k_steps) {
+			
+			hashSet.insert(current->hash());
+			
+			if((trans = transition::sample(current->executables()))) {
+				printf("..\n");
+				current->apply(trans);
+			} else 
+				break;
+
+		} else break;
+		
+	}
+		
+	printf("--\n");
+}
+
+#define D 1000
+
+void createStateSpace(const fsm* automata, const TVL* tvl) {
+	std::stack<state*> st;
+	std::map<unsigned long, state*> hm;
+	state* current = initState::createInitState(automata, tvl);
+
+	st.push(current);
+	hm[current->hash()] = current;
+	
+	unsigned long i = 0;
+	
+	while(!st.empty()){
+
+		current = st.top();
+		i++;
+
+		printf("****************** current state ****************\n");
+		current->PRINT_STATE();
+		//current->printGraphViz(i);
+		st.pop();
+		
+		
+		auto nexts = current->Post();
+
+		if(nexts.size() > 0) {
+			printf("************* next possible states **************\n");
+			for(auto n : nexts) {
+
+				if(hm.find(n->hash()) != hm.end()) {
+					printf("************* already visited state **************\n");
+				} else {
+					st.push(n);
+					hm[n->hash()] = n;
+				}
+				n->PRINT_STATE();
+
+				if(nexts.size() > 1) {
+					printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+				}
+			}
+		} else {
+			printf("************* end state **************\n");
+		}
+	}
+
+	printf("number of states : %d\n", i);
+}
+
+void countStates(const fsm* automata, const TVL* tvl) {
+	state* current = initState::createInitState(automata, tvl);
+
+}
+
 static 		unsigned int _nbErrors = 0;				// Total number of encountered problems
 static long unsigned int _nbStatesExplored = 1;		// Total of distinct states (without features) explored
 static long unsigned int _nbStatesReExplored = 0;	// Total of states that had to be re-explored because new products were found to be able to reach them
@@ -15,31 +134,12 @@ static long unsigned int _nbStatesReExploredInner = 0;//As before, but for inner
 static long unsigned int _nbStatesStopsInner = 0;	// As before, but for inner search.
 static long unsigned int _depth = 0;				// Current exploration depth (inner and outer)
 
-void launchExecution(const fsm* automata) {
-	state* current = new state(automata);
-	while(transition* trans = transition::sample(current->executables())){
-		current->apply(trans);
-		printf("--------------------------------------\n");
-		current->print();
-		//add error status
-	}
-}
-
-void countStates(const fsm* automata) {
-	state* current = new state(automata);
-
-}
-
-void startNestedDFS(const fsm* automata) {
+void startNestedDFS(const fsm* automata, const TVL* tvl) {
     _nbStatesExplored = 0;
 	_nbStatesReExplored = 0;
 	printf("[startNestedDFS]\n");
 	// Create initial state
-	state* init = new state(automata);
-
-	
-    //htVisitedStatesInsert(init->payloadHash, init, DFS_OUTER);
-	//htOuterStatesInsert(init->payloadHash, init);
+	state* init = initState::createInitState(automata, tvl);
 
 	// Sanity checks
     auto neverClaim = init->getNeverClaim();
@@ -48,18 +148,22 @@ void startNestedDFS(const fsm* automata) {
         printf("init->never is NULL\n");
     }
 
-    std::stack<state*> stack;
+    std::stack<element> stack;
     stack.push(init);
 
 	if(outerDFS(stack) == 0) 
         printf("Property satisfied");
 }
 
-byte outerDFS(std::stack<state*>& stackOuter) {
+byte outerDFS(std::stack<element>& stackOuter) {
 
 	byte error = 0;
     byte exhaustive = 1;
 	byte temp; // TODO remove
+
+	std::list<state*> Post;
+
+	std::set<unsigned long> outerHT; 
 
 	// Execution continues as long as the
 	//  - stack is not empty
@@ -67,9 +171,9 @@ byte outerDFS(std::stack<state*>& stackOuter) {
 	while(!stackOuter.empty() && (!error || exhaustive)) {
 
 		auto current = stackOuter.top();
-		auto neverClaim = current->getNeverClaim();
+		auto neverClaim = current.s->getNeverClaim();
 
-		if(0 < _nbErrors /*&& temp*/) {
+		if(_nbErrors /*&& temp*/) {
 			//DEBUG_PRINT("    +-> is known to violate, backtrack.\n");
 			stackOuter.pop();
 			//htOuterStatesRemove(current->state->payloadHash, current->state->payload, current->state->payloadSize);
@@ -100,117 +204,74 @@ byte outerDFS(std::stack<state*>& stackOuter) {
 
 		// Otherwise, the state can be explored (or exploration continue)
 		} else {
-			//DEBUG_PRINT("    +-> exploring...\n");
+			printf("    +-> exploring...\n");
 			//current->setErrorStatus = _nbErrors;
 
-			for(auto p : current->post()){
-				if(p->hasDeadlock()) {
-					printf("Found deadlock");
-					p->addError();
-				}
-				stackOuter.push(p);
-			}
-
 			// If the element is uninitialised; the executable transitions have to be determined
-			if(!current->E_save && !current->E_never_save) {
-				DEBUG_PRINT("    +-> initialising...\n");
-				if(E) {
-					current->E = E;
-					E = NULL;
+			if(!current.Post_save.size()) {
+				printf("    +-> initialising...\n");
+				if(Post.size()) {
+					current.Post = Post;
+					Post.clear();
 				}
 				else
-					current->E = executables(globalSymTab, mtypes, current->state, 1, _nbErrors, &hasDeadlock, NULL, NULL, &noOutgoing, &resetExclusivity);
-				current->E_save = current->E;
-				current->E_never = executablesNever(globalSymTab, mtypes, current->state);
-				current->E_never_save = current->E_never;
+					current.Post = current.s->Post();
+
+				current.Post_save = current.Post;
+
 				// Check for deadlocks
-				if(hasDeadlock) {
-#ifndef CEGAR
-					STOP_ERROR("Found deadlock", current->state->features, stackOuter, NULL, NULL);
-#else
-					STOP_ERROR("Found deadlock", current->state->features, stackOuter, NULL, NULL);
-					ce = createCounterExample(stackOuter, NULL, current->state->features);
-					ces = listAdd(ces, ce);
-					_allProductsFail = !addConstraintToFD(negateBool(current->state->features));
-#endif
+				if(!current.Post.size()) {
+					printf("Found deadlock");
 					error = 1;
-					current->E = NULL; // This will cause backtracking
-				} else if(!current->E_never) current->E = NULL;
-				if(fullDeadlockCheck && noOutgoing) {
-					if(isSatisfiableWrtFD(noOutgoing)) {
-#ifndef CEGAR
-						STOP_ERROR("Found trivially invalid end state; the following set of products can reach the state, but has no outgoing transition.", noOutgoing, stackOuter, NULL, NULL);
-#else
-						STOP_ERROR("Found trivially invalid end state; the following set of products can reach the state, but has no outgoing transition.", noOutgoing, stackOuter, NULL, NULL);
-						ce = createCounterExample(stackOuter, NULL, noOutgoing);
-						ces = listAdd(ces, ce);
-						_allProductsFail = !addConstraintToFD(negateBool(noOutgoing));
-#endif
-						error = 1;
-					}
-					destroyBool(noOutgoing);
-					noOutgoing = NULL;
 				}
+				
 			}
 			// If we have explored all transitions of the state (!current->E_never; see "struct stackElt"
 			// in stack.h), we check whether the state is accepting and start a backlink search if it is;
 			// otherwise just backtrack
-			if(!current->E) {
-				DEBUG_PRINT("    +-> all transitions of state fired, acceptance check and backtracking...\n");
+			if(!current.Post.size()) {
+				printf("    +-> all transitions of state fired, acceptance check and backtracking...\n");
 				// Back these values up, the inner search will free current->state before returning
-				void* payloadBak = current->state->payload;
-				unsigned int payloadHashBak = current->state->payloadHash;
-				unsigned int payloadSizeBak = current->state->payloadSize;
-				if((neverNode->flags & N_ACCEPT) == N_ACCEPT) {
-					DEBUG_PRINT("    +-> found accepting, starting inner...\n");
-					new = createStackElement(current->state, _nbErrors);
-					ptStack stackInner = push(NULL, new);
-#ifdef CEGAR
-					new->accFeatures = copyBool(current->accFeatures);
-#endif
+
+				auto accStateHash = current.s->hash();
+
+				if(current.s->isAccepting()) {
+					printf("    +-> found accepting, starting inner...\n");
+					std::stack<element> stackInner;
+					stackInner.push(current.s);
+
 					_depth++;
 					_nbStatesExploredInner++;
-#ifndef CEGAR
-					error = innerDFS(globalSymTab, mtypes, stackOuter, stackInner) || error; // error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
-#else
-					ces = listConcat(ces, innerDFS(globalSymTab, mtypes, stackOuter, stackInner));
-#endif
-					current->state = NULL; // it will have been destroyed when the innerDFS backtracked for the last time
+
+					error = innerDFS(stackOuter, stackInner) || error; // error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
+
+					current.s = nullptr; // it will have been destroyed when the innerDFS backtracked for the last time
 				}
-				pop(&stackOuter);
-				htOuterStatesRemove(payloadHashBak, payloadBak, payloadSizeBak);
-				destroyStackElement(current, processTrans);
+				
+				stackOuter.pop();
+				outerHT.erase(accStateHash);
 				_depth--;
 
 			// ..., or there is a transition to be executed:
-			} else if(current->E) {
-#ifdef CEGAR
-				ptBoolFct conjunction = addConjunction(current->accFeatures, ((ptProcessTransition) current->E->value)->trans->origFeatures, 1, 1);
-				if(isSatisfiableWrtFD(conjunction)) {
-#endif
-				DEBUG_PRINT_d("    +-> firing transition TL%02d...", ((ptProcessTransition) current->E->value)->trans ? ((ptProcessTransition) current->E->value)->trans->lineNb : -1);
-				s_ = apply(globalSymTab, mtypes, current->state, (ptProcessTransition) current->E->value, 1, &assertViolation);
-				s_ = applyNever(globalSymTab, mtypes, s_, (ptFsmTrans) current->E_never->value);
-				E = executables(globalSymTab, mtypes, s_, 1, _nbErrors, &hasDeadlock, NULL, NULL, &noOutgoing, &resetExclusivity);
-				if(resetExclusivity) {
-					stateSetValue(s_->payload, OFFSET_EXCLUSIVE, T_BYTE, NO_PROCESS);
-					DEBUG_PRINT_d("         - lost exclusivity, state became %u\n", s_->payloadHash);
-				}
+			} else if(current.Post.size()) {
 
-				s_->payloadHash = hashState(s_);
-				DEBUG_PRINT_d(" got %u\n", s_->payloadHash);
-				if(assertViolation) {
+				auto s_ = *current.Post.begin();
+
+				Post = s_->Post();
+
+				if(s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
 					char msg[40];
-					sprintf(msg, "Assertion at line %d violated", ((ptProcessTransition) current->E->value)->trans->lineNb);
-					STOP_ERROR(msg, s_->features, stackOuter, NULL, NULL);
+					printf("Assertion at line %d violated", s_->trans->lines.begin());
 					error = 1;
-					stateDestroy(s_, false);
-					s_ = NULL;
-					destroyProcTransList(E, processTrans);
-					E = NULL;
+					delete s_;
+					s_ = nullptr;
+					//destroyProcTransList(E, processTrans);
+					Post.clear();
 
 				} else {
-					prevS_ = NULL;
+					state* prevS_ = nullptr;
+
+
 					if(htVisitedStatesFind(s_->payloadHash, s_, DFS_OUTER, &prevS_)) {
 						DEBUG_PRINT("         - state already visited.\n");
 						stateDestroy(s_, false);
@@ -289,19 +350,13 @@ byte outerDFS(std::stack<state*>& stackOuter) {
 		} // explore state
 	} // end while
 
-#ifndef CEGAR
+
 	// If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
 	if(error /* not needed: && exhaustive */) STOP_ERROR_GLOBAL;
 	destroyStackElementStack(stackOuter, processTrans);
 	return error;
-#else
-	destroyStackElementStack(stackOuter, processTrans);
-	if(_explored) (*_explored) += _nbStatesExplored;
-	if(_reexplored) (*_reexplored) += _nbStatesReExplored;
-	return ces;
-#endif
 }
 
-byte innerDFS(std::stack<state*>& stackOuter, std::stack<state*>& stackInner) {
+byte innerDFS(std::stack<element*>& stackOuter, std::stack<element*>& stackInner) {
 
 }

@@ -51,7 +51,7 @@ public:
 
 	void setPid(byte pid);
 
-	std::list<transition*> transitions(void) const;
+	virtual std::list<transition*> transitions(void) const = 0;
 
 	const fsmNode* getFsmNodePointer(void) const;
 

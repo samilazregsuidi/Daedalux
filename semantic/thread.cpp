@@ -65,6 +65,8 @@ void thread::setFsmNodePointer(const fsmNode* pointer) {
 	getPayload()->setValue<const fsmNode*>(getOffset(), pointer);
 }
 
+
+
 bool thread::isAtLabel(int nbLine) const {
 	return getFsmNodePointer()? getFsmNodePointer()->getLineNb() == nbLine : false;
 }

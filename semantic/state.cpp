@@ -19,6 +19,7 @@ state::state(variable::Type type, const std::string& name)
 	: variable(type, name)
 	, prob(1.0)
 	, trans(nullptr)
+	, errorMask(0)
 {
 }
 
@@ -26,6 +27,7 @@ state::state(const state& other)
 	: variable(other)
 	, prob(other.prob)
 	, trans(other.trans)
+	, errorMask(other.errorMask)
 {
 }
 
@@ -33,10 +35,19 @@ state::state(const state* other)
 	: variable(other)
 	, prob(other->prob)
 	, trans(other->trans)
+	, errorMask(other->errorMask)
 {
 }
 
 state::~state() {}
+
+void state::addError(unsigned int e) {
+	errorMask |= e;
+}
+
+unsigned int state::getErrorMask(void) const {
+	return errorMask;
+}
 
 bool state::hasDeadlock(void) const {
 	return executables().size() == 0;

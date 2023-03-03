@@ -27,6 +27,7 @@
 
 #include <list>
 #include <map>
+#include <stack>
 #include <string>
 #include <functional>
 
@@ -40,6 +41,9 @@ class transition;
 // State
 class state : public variable {
 public:
+
+	static const unsigned int ERR_DEADLOCK = 0x1;
+	static const unsigned int ERR_ASSERT_FAIL = 0x2;
 
 	state(variable::Type type, const std::string& name = "");
 
@@ -75,11 +79,15 @@ public:
 
 	//virtual std::map<state*, std::list<transition*>> executablesMap(void) const;
 
+	virtual std::list<transition*> transitions(void) const = 0;
+
 	virtual bool hasDeadlock(void) const;
 
 	//virtual unsigned int getErrors(void) const = 0;
 
-	//virtual void addError(void) = 0;
+	void addError(unsigned int e);
+	
+	unsigned int getErrorMask(void) const;
 
 	// Applying statements
 
@@ -143,6 +151,7 @@ public:
 public:
 	double prob;
 	const transition* trans;
+	unsigned int errorMask;
 };
 
 template<> struct std::hash<state*> {

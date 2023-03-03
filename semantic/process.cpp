@@ -75,6 +75,14 @@ state* process::getNeverClaim(void) const {
 	return parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr;
 }
 
+std::list<transition*> process::transitions(void) const {
+	auto node = getFsmNodePointer();
+	std::list<transition*> res;
+	for(auto e : node->getEdges())
+		res.push_back(new progTransition(getProgState(), const_cast<process*>(this), e));
+	return res;
+}
+
 /**
  * Returns a list of all the executable transitions (for all the processes).
  * EFFECTS: None. (It CANNOT have any!)

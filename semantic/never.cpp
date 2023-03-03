@@ -38,6 +38,14 @@ void never::init(void) {
 	setFsmNodePointer(start);
 }
 
+std::list<transition*> never::transitions(void) const {
+	auto node = getFsmNodePointer();
+	std::list<transition*> res;
+	for(auto e : node->getEdges())
+		res.push_back(new neverTransition(const_cast<never*>(this), e));
+	return res;
+}
+
 /**
  * Returns a list of all the executable transitions (for all the processes).
  * EFFECTS: None. (It CANNOT have any!)
