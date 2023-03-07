@@ -173,3 +173,15 @@ double stateDecorator::getProbability(void) const {
 void stateDecorator::printGraphViz(unsigned long i) const {
 	wrappee->printGraphViz(i);
 }
+
+byte stateDecorator::compare(const state& s2) const {
+	return wrappee->compare(s2);
+}
+
+std::list<transition*> stateDecorator::transitions(void) const {
+	return wrappee->transitions();
+}
+
+void stateDecorator::accept(stateVisitor* visitor) {
+	wrappee->accept(visitor);
+}

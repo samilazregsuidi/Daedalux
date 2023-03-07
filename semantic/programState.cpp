@@ -19,6 +19,8 @@
 
 #include "neverTransition.hpp"
 
+#include "stateVisitor.hpp"
+
 /**
  * Adds the global variables in the memory chunk.
  *
@@ -89,6 +91,13 @@ void progState::assign(const variable* sc) {
 		exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
 		assert(exclusiveProc);
 	}
+}
+
+std::list<transition*> progState::transitions(void) const {
+	std::list<transition*> res;
+	for(auto p : getProcs())
+		res.merge(p->transitions());
+	return res;
 }
 
 
@@ -426,4 +435,8 @@ bool progState::isAtomic(void) const {
 		if(p->isAtomic())
 			return true;
 	return false;
+}
+
+void progState::accept(stateVisitor* visitor) {
+	visitor->visit(this);
 }

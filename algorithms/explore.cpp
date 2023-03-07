@@ -8,6 +8,10 @@
 
 #include "initState.hpp"
 
+//bad coupling?
+
+#include "semantic.hpp"
+
 #define PRINT_STATE print
 
 #define B 100
@@ -163,7 +167,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 
 	std::list<state*> Post;
 
-	std::set<unsigned long> outerHT; 
+	reachabilityRelation* R = new reachabilityRelation();
 
 	// Execution continues as long as the
 	//  - stack is not empty
@@ -173,16 +177,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 		auto current = stackOuter.top();
 		auto neverClaim = current.s->getNeverClaim();
 
-		if(_nbErrors /*&& temp*/) {
-			//DEBUG_PRINT("    +-> is known to violate, backtrack.\n");
-			stackOuter.pop();
-			//htOuterStatesRemove(current->state->payloadHash, current->state->payload, current->state->payloadSize);
-			//destroyStackElement(current, processTrans);
-			_depth--;
-		// If the node of the never claim is NULL, then it had a loose end which was taken in the
-		// previous transition.  This means that we are in a final state, which is assumed to be
-		// accepting; hence:
-		} else if(neverClaim->endstate()) {
+		if(neverClaim->endstate()) {
 			// Safety property violated.
 			// We have to pop two states off the stack to get to the violating state:
 			//  -> the current top is a skip transition fired from an accepting state
@@ -194,22 +189,28 @@ byte outerDFS(std::stack<element>& stackOuter) {
             auto newTop = stackOuter.top();
             stackOuter.pop();
 
+			printf("Safety property violated.\n");
+
 			//STOP_ERROR("Safety property violated", ((ptStackElt) top(stackOuter))->state->features, stackOuter, NULL, NULL);
 			error = 1;
-			//htOuterStatesRemove(current->state->payloadHash, current->state->payload, current->state->payloadSize);
+
+			R->outerHT.erase(current.s->hash());
 
 			newTop = stackOuter.top();
             stackOuter.pop();
 			_depth = _depth - 3;
 
 		// Otherwise, the state can be explored (or exploration continue)
+
 		} else {
 			printf("    +-> exploring...\n");
 			//current->setErrorStatus = _nbErrors;
 
 			// If the element is uninitialised; the executable transitions have to be determined
-			if(!current.Post_save.size()) {
+			if(!current.init) {
 				printf("    +-> initialising...\n");
+				
+				//reusing Post of the last iteration
 				if(Post.size()) {
 					current.Post = Post;
 					Post.clear();
@@ -220,7 +221,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 				current.Post_save = current.Post;
 
 				// Check for deadlocks
-				if(!current.Post.size()) {
+				if(current.Post.size() == 0) {
 					printf("Found deadlock");
 					error = 1;
 				}
@@ -249,7 +250,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 				}
 				
 				stackOuter.pop();
-				outerHT.erase(accStateHash);
+				R->outerHT.erase(accStateHash);
 				_depth--;
 
 			// ..., or there is a transition to be executed:
@@ -265,24 +266,30 @@ byte outerDFS(std::stack<element>& stackOuter) {
 					error = 1;
 					delete s_;
 					s_ = nullptr;
-					//destroyProcTransList(E, processTrans);
 					Post.clear();
 
 				} else {
-					state* prevS_ = nullptr;
+					
+					auto s_Hash = s_->hash();
+					auto foundIt = R->outerHT.find(s_Hash);
+					if(foundIt != R->outerHT.end()){
 
-
-					if(htVisitedStatesFind(s_->payloadHash, s_, DFS_OUTER, &prevS_)) {
-						DEBUG_PRINT("         - state already visited.\n");
-						stateDestroy(s_, false);
-						s_ = NULL;
-						destroyProcTransList(E, processTrans);
-						E = NULL;
-						_nbStatesStops++;
-
-					} else {
-						if(prevS_) {
-							DEBUG_PRINT("         - state visited but features fresh, pushing on stack.\n");
+						htState prevS_ = foundIt->second;
+						state* candidate = prevS_.s;
+						
+						auto comp = R->updateReachability(s_);
+	
+						if(comp == STATES_SAME_S1_VISITED) {
+							printf("         - state already visited.\n");
+							delete s_;
+							s_ = nullptr;
+							for(auto p : Post) {
+								delete p;
+							}
+							_nbStatesStops++;
+						
+						} else if(comp == STATES_SAME_S1_FRESH) {
+							printf("         - state visited but features fresh, pushing on stack.\n");
 							// The state was visited already, but the current copy is "fresher".
 							// No need to insert it into the hash table, just update the feature expression
 
@@ -293,70 +300,152 @@ byte outerDFS(std::stack<element>& stackOuter) {
 							// This means, that all states that could be visited with prevS_->features have
 							// been visited already.  So, when we continue, we use s_->features and not
 							// s_->features || prevS_->features.
-							ptBoolFct negPrev = negateBool(prevS_->outerFeatures);
-							if(s_->features == NULL) {
-								destroyBool(prevS_->outerFeatures);
-								prevS_->outerFeatures = getTrue();
-							} else {
-								prevS_->outerFeatures = addDisjunction(prevS_->outerFeatures, s_->features, 0, 1);
-
-								#ifdef CHECK_TAUTOLOGY
-									if(prevS_->outerFeatures && isTautology(prevS_->outerFeatures)) {
-										destroyBool(prevS_->outerFeatures);
-										prevS_->outerFeatures = getTrue();
-									}
-								#endif
-							}
-							s_->features = addConjunction(negPrev, s_->features, 0, 0);
-							free(s_->payload);
-							s_->payload = prevS_->payload;
+							
 
 							// The state is not a new state:
+
+							//done by the reachability relation object logic
 							_nbStatesReExplored++;
-							STATS;
-
-						} else {
-							DEBUG_PRINT("         - state fresh, pushing on stack.\n");
-							// The state was not visited at all
-							htVisitedStatesInsert(s_->payloadHash, s_, DFS_OUTER);
-							_nbStatesExplored++;
-							STATS;
-
 						}
-						new = createStackElement(s_, _nbErrors);
-#ifdef CEGAR
-						new->trans = ((ptProcessTransition) current->E->value)->trans;
-						new->accFeatures = conjunction;
-#endif
-						stackOuter = push(stackOuter, new);
-						htOuterStatesInsert(s_->payloadHash, s_);
-						_depth++;
-					} // fresh state
-				} // no assert violation
-#ifdef CEGAR
-				}
-				else
-					destroyBool(conjunction);
-#endif
+
+					} else {
+
+						printf("         - state fresh, pushing on stack.\n");
+						R->outerHT[s_Hash] = stateToHTState(s_);
+						_nbStatesExplored++;
+					}
+
+				
+	
+					auto new_ = element(s_);
+
+					stackOuter.push(new_);
+					_depth++;
+				} // fresh state
+				// no assert violation
+
 				// Simulate nested loop: when at the end of E, restart the E and advance the E_never
 				// The deadlock test (E empty) is already done.  This also guarantees that E->value
 				// is never NULL in the above apply(globalSymTab, mtypes, ).
-				current->E_never = current->E_never->next;
-				if(!current->E_never) {
-					current->E = current->E->next;
-					current->E_never = current->E_never_save;
-				}
+
+				current.Post.pop_front();
+
 			} // fire transition
 		} // explore state
 	} // end while
 
-
+				
 	// If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
-	if(error /* not needed: && exhaustive */) STOP_ERROR_GLOBAL;
-	destroyStackElementStack(stackOuter, processTrans);
+	//if(error /* not needed: && exhaustive */
+	//destroyStackElementStack(stackOuter, processTrans);
+				
 	return error;
 }
 
 byte innerDFS(std::stack<element*>& stackOuter, std::stack<element*>& stackInner) {
 
+}
+
+byte reachabilityRelation::updateReachability(state* s_) {
+	auto s_Hash = s_->hash();
+	auto foundIt = outerHT.find(s_Hash);
+	if(foundIt != outerHT.end()) {
+
+		current = foundIt->second;
+		s_->accept(this);
+		
+		return res;
+
+	} else {
+		return STATES_DIFF;
+	}
+}
+
+void reachabilityRelation::visit(state* s) {
+	assert(false);
+}
+
+void reachabilityRelation::visit(process* s) {
+	assert(false);
+}
+
+void reachabilityRelation::visit(progState* s) {
+	res = s->compare(*current.s);
+}
+
+void reachabilityRelation::visit(featStateDecorator* s) {
+	
+	auto res = s->compare(*current.s, current.outerFeatures);
+	if(res == STATES_DIFF || res == STATES_SAME_S1_VISITED) {
+		return;
+	}
+
+	assert(res == STATES_SAME_S1_FRESH);
+
+	auto negPrev = ~current.outerFeatures;
+	current.outerFeatures |= s->getFeatures();
+	s->constraint(negPrev);
+}
+
+void reachabilityRelation::visit(compState* s) {
+	auto comp = s->compare(*current.s);
+	if(comp == STATES_DIFF) {
+		res = STATES_DIFF;
+		return;
+	}
+
+	else if (comp == STATES_SAME_S1_VISITED) {
+	 	
+		auto save = current;
+		for(auto s : s->getSubStates()) {
+			current = current.getSubHtState(s->hash());
+			assert(current.s);
+			s->accept(this);
+			assert(res != STATES_DIFF);
+			if(res == STATES_SAME_S1_FRESH)
+				comp = STATES_SAME_S1_FRESH;
+			current = save;
+		}
+		
+		res = comp;
+		return;
+	} else {
+		assert(false);
+	}
+}
+
+stateToHTState::stateToHTState(state* s) {
+	res = htState(s);
+	s->accept(this);
+}
+    
+void stateToHTState::visit(state* s) {
+	assert(false); 
+}
+
+void stateToHTState::visit(process* s) {
+
+}
+
+void stateToHTState::visit(progState* s) {
+	
+}
+
+void stateToHTState::visit(compState* s) {
+	auto save = res;
+	for(auto s : s->getSubStates()) {
+		htState htS = s;
+		res.subStates.push_back(s);
+		res = s;
+		s->accept(this);
+		res = save;
+	}
+}
+
+void stateToHTState::visit(featStateDecorator* s) {
+	
+}
+
+stateToHTState::operator htState(void) const {
+	return res;
 }

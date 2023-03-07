@@ -77,7 +77,7 @@ public:
 
 	state* getNeverClaim(void) const override;
 
-	//byte compare(const state& s2) const override;
+	void accept(stateVisitor* visitor) override;
 
 protected:
 	byte pid;

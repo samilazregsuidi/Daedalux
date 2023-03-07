@@ -125,6 +125,12 @@ public:
 
 	void printGraphViz(unsigned long i) const override;
 
+	byte compare(const state& s2) const override;
+
+	std::list<transition*> transitions(void) const override;
+
+	void accept(stateVisitor* visitor) override;
+
 public:
 	state* wrappee;
 };

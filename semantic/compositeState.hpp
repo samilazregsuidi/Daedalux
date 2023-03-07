@@ -66,10 +66,6 @@ public:
 
 	std::map<state*, std::list<transition*>> executablesMap(void) const;
 
-	unsigned int getErrors(void) const;
-
-	void addError(void);
-
 	// Applying statements
 
 	state* apply(const transition* trans) override;
@@ -126,6 +122,10 @@ public:
 	bool isAccepting(void) const override;
 
 	state* getNeverClaim(void) const override;
+
+	std::list<transition*> transitions(void) const override;
+
+	void accept(stateVisitor* visitor) override;
 
 private:
 	state* never;

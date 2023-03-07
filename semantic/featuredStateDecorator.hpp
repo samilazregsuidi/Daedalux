@@ -21,6 +21,10 @@ public:
 
 	std::list<transition*> executables(void) const override;
 
+	byte compare(const state& s2) const override;
+
+	byte compare(const state& s2, const ADD& features) const;
+
 	// Applying statements
 
 	state* apply(const transition* trans) override;
@@ -32,6 +36,8 @@ public:
 	const ADD& getDiagram(void) const;
 
 	bool constraint(const ADD& cst);
+
+	void accept(stateVisitor* visitor) override;
 
 public:
 	ADD features;

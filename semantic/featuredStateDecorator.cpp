@@ -4,6 +4,10 @@
 //bad coupling!
 #include "tvl.hpp"
 
+#include "stateVisitor.hpp"
+
+#include "ADDutils.hpp"
+
 /**
  * Adds the global variables in the memory chunk.
  *
@@ -166,4 +170,34 @@ state* featStateDecorator::apply(const transition* trans) {
 bool featStateDecorator::constraint(const ADD& cst) {
 	features &= cst;
 	return !features.IsZero();
+}
+
+byte featStateDecorator::compare(const state& s2) const {
+	byte res = wrappee->compare(s2);
+	
+	auto featStateS2 = dynamic_cast<const featStateDecorator*>(&s2);
+	if(res == STATES_DIFF || !featStateS2) 
+		return res;
+	
+	if(implies(features, featStateS2->getFeatures()))
+		return STATES_SAME_S1_VISITED;
+
+	return STATES_SAME_S1_FRESH;
+}
+
+byte featStateDecorator::compare(const state& s2, const ADD& featS2) const {
+	byte res = wrappee->compare(s2);
+	
+	auto featStateS2 = dynamic_cast<const featStateDecorator*>(&s2);
+	if(res == STATES_DIFF || !featStateS2) 
+		return res;
+	
+	if(implies(features, featS2))
+		return STATES_SAME_S1_VISITED;
+
+	return STATES_SAME_S1_FRESH;
+}
+
+void featStateDecorator::accept(stateVisitor* visitor) {
+	visitor->visit(this);
 }

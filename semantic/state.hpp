@@ -38,6 +38,14 @@ typedef unsigned char ubyte;
 
 class transition;
 
+class stateVisitor;
+
+// State comparison. Returns:
+#define STATES_DIFF 0				// if s1 and s2 are totally different states, meaning s1 is fresh.
+#define STATES_SAME_S1_VISITED 1	// if s1 and s2 are identical but s2 is reachable by more products; hence, s1 adds nothing new
+#define STATES_SAME_S1_FRESH 2		// if s1 and s2 are identical but s1 has products that were not explored with s2; hence, s1 is fresh
+
+
 // State
 class state : public variable {
 public:
@@ -138,15 +146,12 @@ public:
 
 	// State printing
 	//virtual void print(const state* diffState) const = 0;
-
-	// State comparison. Returns:
-	//#define STATES_DIFF 0				// if s1 and s2 are totally different states, meaning s1 is fresh.
-	//#define STATES_SAME_S1_VISITED 1	// if s1 and s2 are identical but s2 is reachable by more products; hence, s1 adds nothing new
-	//#define STATES_SAME_S1_FRESH 2		// if s1 and s2 are identical but s1 has products that were not explored with s2; hence, s1 is fresh
 	
-	//virtual byte compare(const state& s2) const = 0;
+	virtual byte compare(const state& s2) const;
 
 	virtual void printGraphViz(unsigned long i) const = 0;
+
+	virtual void accept(stateVisitor* visitor);
 
 public:
 	double prob;

@@ -85,6 +85,7 @@ public:
 
 	bool isAtomic(void) const;
 	
+	std::list<transition*> transitions(void) const override;
 
 	std::list<transition*> executables(void) const override;
 
@@ -99,8 +100,6 @@ public:
 	// Applying statements
 
 	state* apply(const transition* trans) override;
-	
-	state* applyNever(const transition* trans);
 	
 	process* getProc(int pid) const; // Returns the stateMask with pid 'pid'.
 
@@ -162,13 +161,11 @@ public:
 	// State printing
 	//void print(const state* diffState) const;
 
-	//byte compare(const state& s2) const override;
-
 	void print(void) const override;
 
 	void printGraphViz(unsigned long i) const override;
 
-	//const ADD& getFeatures(void) const;
+	void accept(stateVisitor* visitor) override;
 
 
 public:

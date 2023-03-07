@@ -13,6 +13,8 @@
 #include "programState.hpp"
 #include "process.hpp"
 
+#include "stateVisitor.hpp"
+
 /**
  * Adds the global variables in the memory chunk.
  *
@@ -206,4 +208,15 @@ std::list<state*> compState::getSubStates(void) const {
 
 void compState::printHexadecimal(void) const {
 	assert(false);
+}
+
+std::list<transition*> compState::transitions(void) const {
+	std::list<transition*> res;
+	for(auto s : getSubStates())
+		res.merge(s->transitions());
+	return res;
+ }
+
+ void compState::accept(stateVisitor* visitor) {
+	visitor->visit(this);
 }

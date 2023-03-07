@@ -3,6 +3,8 @@
 #include <time.h>
 #include <string.h>
 
+#include "stateVisitor.hpp"
+
 #include "process.hpp"
 #include "transition.hpp"
 #include "programTransition.hpp"
@@ -16,8 +18,6 @@
 #include "ast.hpp"
 
 #include "initState.hpp"
-
-//#include "cuddObj.hh"
 
 process::process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
 	: thread(sym, start, index)
@@ -708,4 +708,8 @@ void process::print(void) const {
 
 	variable::print();
 
+}
+
+void process::accept(stateVisitor* visitor) {
+	visitor->visit(this);
 }

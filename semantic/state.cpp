@@ -8,6 +8,9 @@
 #include "process.hpp"
 
 #include "state.hpp"
+
+#include "stateVisitor.hpp"
+
 /**
  * Adds the global variables in the memory chunk.
  *
@@ -90,3 +93,10 @@ double state::getProbability(void) const {
 	return prob;
 }
 
+byte state::compare(const state& s2) const {
+	return hash() == s2.hash();
+}
+
+void state::accept(stateVisitor* visitor) {
+	visitor->visit(this);
+}
