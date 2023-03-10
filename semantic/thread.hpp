@@ -7,27 +7,20 @@
 #include <cassert>
 
 #include "state.hpp"
+#include "transition.hpp"
 
 typedef char byte;
 
-class progState;
-class transition;
-class RVTransition;
-
 #include "symbols.hpp"
 
-class astNode;
-class expr;
+#include "variable.hpp"
+#include "channel.hpp"
 
-class fsm;
-class fsmNode;
-class fsmEdge;
 
-class state;
-class payload;
+#include "astNode.hpp"
+#include "expr.hpp"
 
-class variable;
-class channel;
+#include "automata.hpp"
 
 class exprArgList;
 class exprRArgList;

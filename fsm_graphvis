@@ -1,40 +1,20 @@
 digraph finite_state_machine {
 	rankdir=LR
 	size="8,5"
-	94204611512016 [label = 16, shape = doublecircle, fixedsize = true]; 
-	s94204611512016 [shape = point];
-	94204611505536 [label = 32, shape = doublecircle, fixedsize = true]; 
-	s94204611505536 [shape = point];
-	e94204611504576 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white, label = end];
-	e94204611506336 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white, label = end];
-	e94204611507088 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white, label = end];
-	 94204611512016 [label = 16, shape = circle, fixedsize = true ];
-	 94204611503232 [label = 22, shape = circle, fixedsize = true ];
-	 94204611503568 [label = 24, shape = circle, fixedsize = true ];
-	 94204611509360 [label = 24, shape = circle, fixedsize = true ];
-	 94204611508784 [label = 25, shape = circle, fixedsize = true ];
-	 94204611505152 [label = 25, shape = circle, fixedsize = true ];
-	 94204611504576 [label = 28, shape = circle, fixedsize = true ];
-	 94204611505536 [label = 32, shape = circle, fixedsize = true ];
-	 94204611506336 [label = 33, shape = circle, fixedsize = true ];
-	 94204611507088 [label = 40, shape = circle, fixedsize = true ];
-	 94204611507840 [label = 43, shape = circle, fixedsize = true ];
-	s94204611512016 -> 94204611512016;
-	s94204611505536 -> 94204611505536;
-	94204611512016 -> 94204611512016 [label = "n++; "];
-	94204611512016 -> 94204611503232 [label = "break; "];
-	94204611503232 -> 94204611503568 [label = "i = n; "];
-	94204611503568 -> 94204611508784 [label = "i = i + 2; "];
-	94204611503568 -> 94204611509360 [label = "skip; "];
-	94204611509360 -> 94204611508784 [label = "skip; "];
-	94204611508784 -> 94204611504576 [label = "i = i + 1; "];
-	94204611508784 -> 94204611505152 [label = "skip; "];
-	94204611505152 -> 94204611504576 [label = "skip; "];
-	94204611504576 -> e94204611504576 [label = "assert(i == n + 3); "];
-	94204611505536 -> 94204611506336 [label = "p1.foo@Start && p2.foo@Start; "];
-	94204611506336 -> e94204611506336 [label = "break; "];
-	94204611505536 -> 94204611507088 [label = "p1.foo@Final && p2.foo@Final; "];
-	94204611507088 -> e94204611507088 [label = "break; "];
-	94204611505536 -> 94204611507840 [label = "true; "];
-	94204611507840 -> 94204611505536 [label = "skip; "];
+	93824994260096 [label = 14, shape = doublecircle, fixedsize = true]; 
+	s93824994260096 [shape = point];
+	93824994259776 [label = 5, shape = doublecircle, fixedsize = true]; 
+	s93824994259776 [shape = point];
+	e93824994261328 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white, label = end];
+	 93824994259936 [label = 6, shape = circle, fixedsize = true ];
+	 93824994261664 [label = 15, shape = circle, fixedsize = true ];
+	 93824994261328 [label = 19, shape = circle, fixedsize = true ];
+	s93824994260096 -> 93824994260096;
+	s93824994259776 -> 93824994259776;
+	93824994259776 -> 93824994259936 [label = "x = true; "];
+	93824994259936 -> 93824994259936 [label = "x = false; "];
+	93824994259936 -> 93824994259936 [label = "x = true; "];
+	93824994260096 -> 93824994261664 [label = "(!x); "];
+	93824994261664 -> 93824994261328 [label = "goto accept_all; "];
+	93824994261328 -> e93824994261328 [label = "skip; "];
 }

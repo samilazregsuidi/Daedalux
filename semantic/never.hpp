@@ -8,31 +8,6 @@
 
 #include "thread.hpp"
 
-typedef char byte;
-
-class progState;
-class transition;
-class RVTransition;
-
-#include "symbols.hpp"
-
-class astNode;
-class expr;
-
-class fsm;
-class fsmNode;
-class fsmEdge;
-
-class state;
-class payload;
-
-class variable;
-class channel;
-
-class exprArgList;
-class exprRArgList;
-
-
 // A state mask gives for every process the pid, a pointer to its symtab node
 // and its offset in the payload
 class never : public thread {
@@ -66,6 +41,8 @@ public:
 	bool isAccepting(void) const override;
 
 	state* getNeverClaim(void) const override;
+
+	void accept(stateVisitor* visitor) override;
 
 	//byte compare(const state& s2) const override;
 };

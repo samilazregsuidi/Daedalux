@@ -66,6 +66,8 @@ public:
 
 	std::map<state*, std::list<transition*>> executablesMap(void) const;
 
+	void assign(const variable* sc) override;
+
 	// Applying statements
 
 	state* apply(const transition* trans) override;
@@ -128,7 +130,7 @@ public:
 	void accept(stateVisitor* visitor) override;
 
 private:
-	state* never;
+	state* n;
 };
 
 #endif

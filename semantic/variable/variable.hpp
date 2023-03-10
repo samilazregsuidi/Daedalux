@@ -152,6 +152,8 @@ public:
 
 	virtual variable* getVariable(const std::string& name) const;
 
+	virtual variable* getVariableDownScoping(const std::string& name) const;
+
 	template <typename T> T getTVariable(const std::string& name) const {
 		std::map<std::string, variable*>::const_iterator resIt = varMap.find(name);
 		if(resIt != varMap.cend())

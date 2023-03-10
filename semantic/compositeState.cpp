@@ -12,6 +12,7 @@
 
 #include "programState.hpp"
 #include "process.hpp"
+#include "never.hpp"
 
 #include "stateVisitor.hpp"
 
@@ -22,7 +23,7 @@
  */
 compState::compState(const std::string& name) 
 	: state(variable::V_COMP_STATE, name)
-	, never(nullptr)
+	, n(nullptr)
 {
 }
 
@@ -44,9 +45,19 @@ void compState::addState(state* s) {
 }
 
 void compState::addNeverState(state* s) {
-	assert(never);
-	never = s;
+	assert(s);
+	n = s;
 	addState(s);
+}
+
+void compState::assign(const variable* sc) {
+
+	variable::assign(sc);
+
+	if(n) {
+		n = sc->getTVariable<state*>(n->getLocalName());
+		assert(n && dynamic_cast<never*>(n));
+	}
 }
 
 /*
@@ -195,7 +206,7 @@ bool compState::isAccepting(void) const {
 }
 
 state* compState::getNeverClaim(void) const {
-	return never? never : (parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr);
+	return n? n : (parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr);
 }
 
 state* compState::getSubState(const std::string& name) const {

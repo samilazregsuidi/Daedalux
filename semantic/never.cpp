@@ -6,6 +6,8 @@
 #include "never.hpp"
 #include "neverTransition.hpp"
 
+#include "stateVisitor.hpp"
+
 #include "payload.hpp"
 #include "variable.hpp"
 #include "channel.hpp"
@@ -335,9 +337,13 @@ void never::print(void) const {
 }
 
 bool never::isAccepting(void) const {
-	return endstate() ? false : getFsmNodePointer()->getFlags() & fsmNode::N_ACCEPT;
+	return endstate() ? true : getFsmNodePointer()->getFlags() & fsmNode::N_ACCEPT;
 }
 
 state* never::getNeverClaim(void) const {
 	return const_cast<never*>(this);
+}
+
+void never::accept(stateVisitor* visitor) {
+	visitor->visit(this);
 }

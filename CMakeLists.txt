@@ -110,6 +110,9 @@ add_executable(deadalux
 	
 	./features/tvl.cpp
 	./features/expToADD.cpp
+	./features/ADDutils.cpp
+	
+	./algorithms/explore.cpp
 	
 	./logic/ltl-ltl2ba.c
     
@@ -136,6 +139,8 @@ target_include_directories(deadalux
     ./parser
     
     ./features
+    
+    ./algorithms
     
     ./libs/cudd
     ./libs/cudd/st

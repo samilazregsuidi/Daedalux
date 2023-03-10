@@ -11,7 +11,6 @@ class process;
 class channel;
 class payload;
 class variable;
-class scope;
 
 // Bytes needed to record the system variables: exclusive and handshake.
 // For any channel, its offset is positive. Thus, we use the value -1 to specify the absence of rendezvous request.

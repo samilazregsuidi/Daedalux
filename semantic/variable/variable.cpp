@@ -476,7 +476,7 @@ variable* variable::getVariable(const std::string& name) const {
 	else {
 		bool found = false;
 		for (auto scope : varList) {
-			auto v = scope->getVariable(name);
+			auto v = scope->getVariableDownScoping(name);
 			if(v) {
 				assert(!found);
 				found = true;
@@ -485,6 +485,23 @@ variable* variable::getVariable(const std::string& name) const {
 		}
 	}
 	
+	return var;
+}
+
+variable* variable::getVariableDownScoping(const std::string& name) const {
+	std::map<std::string, variable*>::const_iterator resIt = varMap.find(name);
+	if(resIt != varMap.cend())
+		return resIt->second;
+	
+	variable* var = nullptr;
+	bool found = false;
+	for (auto scope : varList) {
+		auto v = scope->getVariableDownScoping(name);
+		if(v) {
+			var = v;
+			break;
+		}
+	}
 	return var;
 }
 

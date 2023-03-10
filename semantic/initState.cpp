@@ -47,7 +47,7 @@ state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 	if(neverSymList.size() > 0) {
 		assert(neverSymList.size() == 1);
 		auto never = createNever(automata, *(neverSymList.cbegin()));
-		compS->addState(never);
+		compS->addNeverState(never);
 	}
 
 

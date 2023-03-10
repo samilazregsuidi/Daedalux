@@ -4,13 +4,11 @@
 /*
  * Execution of FSMs
  * * * * * * * * * * * * * * * * * * * * * * * */
-
+#include "never.hpp"
 #include "transition.hpp"
+#include "fsmEdge.hpp"
 
 //#include "cuddObj.hh"
-
-class fsmEdge;
-class never;
 
 // ProcessTransitions are returned by the executables() function
 class neverTransition : public transition {

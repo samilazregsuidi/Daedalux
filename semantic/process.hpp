@@ -10,28 +10,10 @@
 
 typedef char byte;
 
-class progState;
-class transition;
-class RVTransition;
-
-#include "symbols.hpp"
-
-class astNode;
-class expr;
-
-class fsm;
-class fsmNode;
-class fsmEdge;
-
-class state;
-class payload;
-
-class variable;
-class channel;
-
-class exprArgList;
-class exprRArgList;
-
+#include "astNode.hpp"
+#include "automata.hpp"
+#include "state.hpp"
+#include "programState.hpp"
 
 // A state mask gives for every process the pid, a pointer to its symtab node
 // and its offset in the payload

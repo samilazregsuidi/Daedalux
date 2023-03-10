@@ -1,5 +1,5 @@
 #include "stateVisitor.hpp"
-#include "state.hpp"
+#include "stateDecorator.hpp"
 #include "programState.hpp"
 #include "initState.hpp"
 #include "compositeState.hpp"
@@ -12,4 +12,5 @@
 #include "mtypeVariable.hpp"
 #include "channel.hpp"
 #include "featuredStateDecorator.hpp"
+#include "state.hpp"
 

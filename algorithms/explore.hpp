@@ -2,13 +2,11 @@
 #define EXPLORE_H
 
 #include <stack>
+#include <list>
 
+#include "automata.hpp"
+#include "state.hpp"
 #include "tvl.hpp"
-
-class fsm;
-class symTable;
-class state;
-class TVL;
 
 typedef char byte;
 typedef unsigned char ubyte;
@@ -27,16 +25,17 @@ struct element {
 	{}
 
     ~element() {
-        if(s) delete s;
+        if(s) 
+            delete s;
         for(auto p : Post)
             delete p;
-        for(auto p : Post_save)
-            delete p;
+        /*for(auto p : Post_save)
+            delete p;*/
     }
 
 	state* s;
 	std::list<state*> Post;
-	std::list<state*> Post_save;
+	//std::list<state*> Post_save;
     bool init;
 };
 
@@ -54,34 +53,44 @@ struct htState {
         , innerFeatures(innerFeatures)
     {}
 
-    htState getSubHtState(unsigned long hash) {
+    htState* getSubHtState(unsigned long hash) {
         for(auto htS : subStates)  {
             if(s->hash() == hash)
                 return htS;
         }
-        return htState();
+        return nullptr;
     }
 
     state* s;
     ADD outerFeatures;
     ADD innerFeatures;
 
-    std::list<htState> subStates;
+    std::list<htState*> subStates;
 };
 
 class reachabilityRelation : public stateVisitor {
 public:
+    enum DFS {
+        OUTER,
+        INNER
+    };
+    reachabilityRelation(DFS dfs);
+
+    ~reachabilityRelation();
+
     byte updateReachability(state* s);
 
     void visit(state* s) override;
 	void visit(process* s) override;
 	void visit(progState* s) override;
 	void visit(compState* s) override;
+    void visit(never* s) override;
 	void visit(featStateDecorator* s) override;
 
 public:
-    std::map<unsigned long, htState> outerHT; 
-    htState current;
+    DFS dfs;
+    std::map<unsigned long, htState*> outerHT; 
+    htState* current;
     byte res;
 };
 
@@ -92,10 +101,11 @@ public:
 	void visit(process* s) override;
 	void visit(progState* s) override;
 	void visit(compState* s) override;
+    void visit(never* s) override;
 	void visit(featStateDecorator* s) override;
-    operator htState(void) const;
+    operator htState*(void) const;
 public:
-    htState res;
+    htState* res;
 };
 
 void launchExecution(const fsm* automata, const TVL* tvl = nullptr);
@@ -103,7 +113,7 @@ void createStateSpace(const fsm* automata, const TVL* tvl = nullptr);
 void countStates(const fsm* automata, const TVL* tvl = nullptr);
 
 void startNestedDFS(const fsm* automata, const TVL* tvl);
-byte outerDFS(std::stack<element>& stackOuter);
-byte innerDFS(std::stack<element>& stackOuter, std::stack<element>& stackInner);
+byte outerDFS(std::stack<element*>& stackOuter);
+byte innerDFS(std::stack<element*>& stackInner, const std::map<unsigned long, htState*>& outerHT);
 
 #endif

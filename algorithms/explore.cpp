@@ -147,27 +147,24 @@ void startNestedDFS(const fsm* automata, const TVL* tvl) {
 
 	// Sanity checks
     auto neverClaim = init->getNeverClaim();
-	if(!neverClaim || !neverClaim->nullstate() || neverClaim->transitions().size() == 0) {
-        assert(false);
+	if(!neverClaim || neverClaim->nullstate() || neverClaim->transitions().size() == 0) {
         printf("init->never is NULL\n");
+		assert(false);
     }
 
-    std::stack<element> stack;
-    stack.push(init);
+    std::stack<element*> stack;
+    stack.push(new element(init));
 
 	if(outerDFS(stack) == 0) 
         printf("Property satisfied");
 }
 
-byte outerDFS(std::stack<element>& stackOuter) {
+byte outerDFS(std::stack<element*>& stackOuter) {
 
 	byte error = 0;
     byte exhaustive = 1;
-	byte temp; // TODO remove
 
-	std::list<state*> Post;
-
-	reachabilityRelation* R = new reachabilityRelation();
+	reachabilityRelation* R = new reachabilityRelation(reachabilityRelation::OUTER);
 
 	// Execution continues as long as the
 	//  - stack is not empty
@@ -175,7 +172,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 	while(!stackOuter.empty() && (!error || exhaustive)) {
 
 		auto current = stackOuter.top();
-		auto neverClaim = current.s->getNeverClaim();
+		auto neverClaim = current->s->getNeverClaim();
 
 		if(neverClaim->endstate()) {
 			// Safety property violated.
@@ -184,21 +181,26 @@ byte outerDFS(std::stack<element>& stackOuter) {
 			//  -> the state below that is the accepting state
 			//  -> the state below that is the state that actually led to the accepting state to be reachable.
 			//     i.e. this state is the actual violating state.
+			delete current;
 			stackOuter.pop();
 			
             auto newTop = stackOuter.top();
+			delete newTop;
             stackOuter.pop();
 
 			printf("Safety property violated.\n");
 
-			//STOP_ERROR("Safety property violated", ((ptStackElt) top(stackOuter))->state->features, stackOuter, NULL, NULL);
 			error = 1;
 
-			R->outerHT.erase(current.s->hash());
+			auto e = R->outerHT.find(current->s->hash());
+			assert(e != R->outerHT.end());
+			delete e->second;
+			R->outerHT.erase(e);
 
 			newTop = stackOuter.top();
+			delete newTop;
             stackOuter.pop();
-			_depth = _depth - 3;
+			_depth -= 3;
 
 		// Otherwise, the state can be explored (or exploration continue)
 
@@ -207,66 +209,63 @@ byte outerDFS(std::stack<element>& stackOuter) {
 			//current->setErrorStatus = _nbErrors;
 
 			// If the element is uninitialised; the executable transitions have to be determined
-			if(!current.init) {
+			if(!current->init) {
 				printf("    +-> initialising...\n");
+				current->init = true;
 				
-				//reusing Post of the last iteration
-				if(Post.size()) {
-					current.Post = Post;
-					Post.clear();
-				}
-				else
-					current.Post = current.s->Post();
+				auto neverPost = neverClaim->executables();
+				if(!(neverPost.size() == 0)) {
+					current->Post = current->s->Post();
+					//current->Post_save = current->Post;
 
-				current.Post_save = current.Post;
-
-				// Check for deadlocks
-				if(current.Post.size() == 0) {
-					printf("Found deadlock");
-					error = 1;
+					// Check for deadlocks
+					if(current->Post.size() == 0) {
+						printf("Found deadlock");
+						error = 1;	
+					}
 				}
 				
 			}
 			// If we have explored all transitions of the state (!current->E_never; see "struct stackElt"
 			// in stack.h), we check whether the state is accepting and start a backlink search if it is;
 			// otherwise just backtrack
-			if(!current.Post.size()) {
+			if(current->Post.size() == 0) {
 				printf("    +-> all transitions of state fired, acceptance check and backtracking...\n");
 				// Back these values up, the inner search will free current->state before returning
 
-				auto accStateHash = current.s->hash();
+				auto accStateHash = current->s->hash();
 
-				if(current.s->isAccepting()) {
+				if(current->s->isAccepting()) {
 					printf("    +-> found accepting, starting inner...\n");
-					std::stack<element> stackInner;
-					stackInner.push(current.s);
+					std::stack<element*> stackInner;
+					stackInner.push(new element(current->s));
 
 					_depth++;
 					_nbStatesExploredInner++;
 
-					error = innerDFS(stackOuter, stackInner) || error; // error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
-
-					current.s = nullptr; // it will have been destroyed when the innerDFS backtracked for the last time
+					// error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
+					error = innerDFS(stackInner, R->outerHT) || error;
+					// it will have been destroyed when the innerDFS backtracked for the last time 
+					current->s = nullptr;
 				}
 				
+				delete current;
 				stackOuter.pop();
 				R->outerHT.erase(accStateHash);
 				_depth--;
 
 			// ..., or there is a transition to be executed:
-			} else if(current.Post.size()) {
+			} else if(current->Post.size() > 0) {
 
-				auto s_ = *current.Post.begin();
-
-				Post = s_->Post();
+				auto s_ = *current->Post.begin();
 
 				if(s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-					char msg[40];
 					printf("Assertion at line %d violated", s_->trans->lines.begin());
+					
 					error = 1;
+					
 					delete s_;
 					s_ = nullptr;
-					Post.clear();
 
 				} else {
 					
@@ -274,7 +273,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 					auto foundIt = R->outerHT.find(s_Hash);
 					if(foundIt != R->outerHT.end()){
 
-						htState prevS_ = foundIt->second;
+						htState prevS_ = *foundIt->second;
 						state* candidate = prevS_.s;
 						
 						auto comp = R->updateReachability(s_);
@@ -283,13 +282,10 @@ byte outerDFS(std::stack<element>& stackOuter) {
 							printf("         - state already visited.\n");
 							delete s_;
 							s_ = nullptr;
-							for(auto p : Post) {
-								delete p;
-							}
 							_nbStatesStops++;
 						
 						} else if(comp == STATES_SAME_S1_FRESH) {
-							printf("         - state visited but features fresh, pushing on stack.\n");
+							
 							// The state was visited already, but the current copy is "fresher".
 							// No need to insert it into the hash table, just update the feature expression
 
@@ -303,8 +299,12 @@ byte outerDFS(std::stack<element>& stackOuter) {
 							
 
 							// The state is not a new state:
-
+							printf("         - state visited but features fresh, pushing on stack.\n");
 							//done by the reachability relation object logic
+
+							auto new_ = new element(s_);
+							stackOuter.push(new_);
+							_depth++;
 							_nbStatesReExplored++;
 						}
 
@@ -312,15 +312,12 @@ byte outerDFS(std::stack<element>& stackOuter) {
 
 						printf("         - state fresh, pushing on stack.\n");
 						R->outerHT[s_Hash] = stateToHTState(s_);
+						auto new_ = new element(s_);
+						stackOuter.push(new_);
+						_depth++;
 						_nbStatesExplored++;
 					}
 
-				
-	
-					auto new_ = element(s_);
-
-					stackOuter.push(new_);
-					_depth++;
 				} // fresh state
 				// no assert violation
 
@@ -328,7 +325,7 @@ byte outerDFS(std::stack<element>& stackOuter) {
 				// The deadlock test (E empty) is already done.  This also guarantees that E->value
 				// is never NULL in the above apply(globalSymTab, mtypes, ).
 
-				current.Post.pop_front();
+				current->Post.pop_front();
 
 			} // fire transition
 		} // explore state
@@ -337,13 +334,195 @@ byte outerDFS(std::stack<element>& stackOuter) {
 				
 	// If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
 	//if(error /* not needed: && exhaustive */
-	//destroyStackElementStack(stackOuter, processTrans);
-				
+	
+	while(!stackOuter.empty()) {
+		delete stackOuter.top();
+		stackOuter.pop();
+	}
+
+	delete R;
+
 	return error;
 }
 
-byte innerDFS(std::stack<element*>& stackOuter, std::stack<element*>& stackInner) {
+byte innerDFS(std::stack<element*>& stackInner, const std::map<unsigned long, htState*>& outerHT) {
 
+	byte error = 0;
+    byte exhaustive = 1;
+
+	reachabilityRelation* R = new reachabilityRelation(reachabilityRelation::INNER);
+
+	// Execution continues as long as the
+	//  - stack is not empty
+	//  - no error was found (except in the exhaustive case)
+	while(!stackInner.empty() && (!error || exhaustive)) {
+
+		auto current = stackInner.top();
+		auto neverClaim = current->s->getNeverClaim();
+
+		if(neverClaim->endstate()) {
+			// Safety property violated.
+			// We have to pop two states off the stack to get to the violating state:
+			//  -> the current top is a skip transition fired from an accepting state
+			//  -> the state below that is the accepting state
+			//  -> the state below that is the state that actually led to the accepting state to be reachable.
+			//     i.e. this state is the actual violating state.
+			delete current;
+			stackInner.pop();
+			
+            auto newTop = stackInner.top();
+			delete newTop;
+            stackInner.pop();
+
+			printf("Safety property violated.\n");
+
+			error = 1;
+
+			R->outerHT.erase(current->s->hash());
+
+			newTop = stackInner.top();
+			delete newTop;
+            stackInner.pop();
+			_depth -= 3;
+
+		// Otherwise, the state can be explored (or exploration continue)
+
+		} else {
+			printf("    +-> exploring...\n");
+			//current->setErrorStatus = _nbErrors;
+
+			// If the element is uninitialised; the executable transitions have to be determined
+			if(!current->init) {
+				printf("    +-> initialising...\n");
+				current->init = true;
+				
+				auto neverPost = neverClaim->executables();
+				if(!(neverPost.size() == 0)) {
+					current->Post = current->s->Post();
+					//current->Post_save = current->Post;
+
+					// Check for deadlocks
+					if(current->Post.size() == 0) {
+						printf("Found deadlock");
+						error = 1;	
+					}
+				
+				}
+			}
+			// If we have explored all transitions of the state (!current->E_never; see "struct stackElt"
+			// in stack.h), we check whether the state is accepting and start a backlink search if it is;
+			// otherwise just backtrack
+			if(!current->Post.size()) {
+				printf("    +-> all transitions of state fired, backtracking...\n");
+				stackInner.pop();
+				_depth--;
+
+			// ..., or there is a transition to be executed:
+			} else if(current->Post.size() > 0) {
+
+				state* s_ = *current->Post.begin();
+				unsigned long s_Hash = s_->hash();
+				bool onSt = outerHT.find(s_Hash) != outerHT.end();
+
+				if(onSt || s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
+
+					if(onSt) {	
+						printf("Property violated\n");
+					
+					} else {
+						printf("Assertion at line %d violated", s_->trans->lines.begin());
+					}
+
+					error = 1;
+
+					delete s_;
+					s_ = nullptr;
+
+				} else {
+						
+					auto s_Hash = s_->hash();
+					auto foundIt = R->outerHT.find(s_Hash);
+					if(foundIt != R->outerHT.end()){
+
+						htState prevS_ = *foundIt->second;
+						state* candidate = prevS_.s;
+						
+						auto comp = R->updateReachability(s_);
+
+						if(comp == STATES_SAME_S1_VISITED) {
+							printf("         - state already visited.\n");
+							delete s_;
+							s_ = nullptr;
+							_nbStatesStops++;
+						
+						} else if(comp == STATES_SAME_S1_FRESH) {
+							
+							// The state was visited already, but the current copy is "fresher".
+							// No need to insert it into the hash table, just update the feature expression
+
+							// Important: PrevS_ can only be a state that was fully explored with the features
+							// it has now. This is because:
+							//  - it has been visited already (otherwise, it wouldn't be in the hashtab)
+							//  - it is not a state on the current stack (otherwise, it wouldn't be fresh)
+							// This means, that all states that could be visited with prevS_->features have
+							// been visited already.  So, when we continue, we use s_->features and not
+							// s_->features || prevS_->features.
+							
+
+							// The state is not a new state:
+							printf("         - state visited but features fresh, pushing on stack.\n");
+							//done by the reachability relation object logic
+
+							auto new_ = new element(s_);
+							stackInner.push(new_);
+							_depth++;
+							_nbStatesReExplored++;
+						}
+
+					} else {
+
+						printf("         - state fresh, pushing on stack.\n");
+						R->outerHT[s_Hash] = stateToHTState(s_);
+						auto new_ = new element(s_);
+						stackInner.push(new_);
+						_depth++;
+						_nbStatesExplored++;
+
+					} // fresh state
+					// no assert violation
+
+					// Simulate nested loop: when at the end of E, restart the E and advance the E_never
+					// The deadlock test (E empty) is already done.  This also guarantees that E->value
+					// is never NULL in the above apply(globalSymTab, mtypes, ).
+
+					current->Post.pop_front();
+				}
+
+			} // fire transition
+		} // explore state
+	} // end while
+
+				
+	// If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
+	//if(error /* not needed: && exhaustive */
+	
+	while(!stackInner.empty()) {
+		delete stackInner.top();
+		stackInner.pop();
+	}
+
+	delete R;
+
+	return error;
+}
+
+reachabilityRelation::reachabilityRelation(DFS dfs)
+	: dfs(dfs)
+{}
+
+reachabilityRelation::~reachabilityRelation() {
+	for(auto e : outerHT)
+		delete e.second;
 }
 
 byte reachabilityRelation::updateReachability(state* s_) {
@@ -369,26 +548,31 @@ void reachabilityRelation::visit(process* s) {
 	assert(false);
 }
 
+void reachabilityRelation::visit(never* s) {	
+}
+
 void reachabilityRelation::visit(progState* s) {
-	res = s->compare(*current.s);
+	res = s->compare(*current->s);
 }
 
 void reachabilityRelation::visit(featStateDecorator* s) {
 	
-	auto res = s->compare(*current.s, current.outerFeatures);
+	auto feat = (dfs == OUTER)? &current->outerFeatures : &current->innerFeatures;
+
+	auto res = s->compare(*current->s, *feat);
 	if(res == STATES_DIFF || res == STATES_SAME_S1_VISITED) {
 		return;
 	}
 
 	assert(res == STATES_SAME_S1_FRESH);
-
-	auto negPrev = ~current.outerFeatures;
-	current.outerFeatures |= s->getFeatures();
+	
+	auto negPrev = ~(*feat);
+	*feat |= s->getFeatures();
 	s->constraint(negPrev);
 }
 
 void reachabilityRelation::visit(compState* s) {
-	auto comp = s->compare(*current.s);
+	auto comp = s->compare(*current->s);
 	if(comp == STATES_DIFF) {
 		res = STATES_DIFF;
 		return;
@@ -398,8 +582,8 @@ void reachabilityRelation::visit(compState* s) {
 	 	
 		auto save = current;
 		for(auto s : s->getSubStates()) {
-			current = current.getSubHtState(s->hash());
-			assert(current.s);
+			current = current->getSubHtState(s->hash());
+			assert(current->s);
 			s->accept(this);
 			assert(res != STATES_DIFF);
 			if(res == STATES_SAME_S1_FRESH)
@@ -415,7 +599,7 @@ void reachabilityRelation::visit(compState* s) {
 }
 
 stateToHTState::stateToHTState(state* s) {
-	res = htState(s);
+	res = new htState(s);
 	s->accept(this);
 }
     
@@ -431,12 +615,16 @@ void stateToHTState::visit(progState* s) {
 	
 }
 
+void stateToHTState::visit(never* s) {
+	
+}
+
 void stateToHTState::visit(compState* s) {
 	auto save = res;
 	for(auto s : s->getSubStates()) {
-		htState htS = s;
-		res.subStates.push_back(s);
-		res = s;
+		htState* htS = new htState(s);
+		res->subStates.push_back(htS);
+		res = htS;
 		s->accept(this);
 		res = save;
 	}
@@ -446,6 +634,6 @@ void stateToHTState::visit(featStateDecorator* s) {
 	
 }
 
-stateToHTState::operator htState(void) const {
+stateToHTState::operator htState*(void) const {
 	return res;
 }
