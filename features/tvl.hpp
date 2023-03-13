@@ -13,6 +13,8 @@ class utypeSymNode;
 class TVL {
 public:
     static void initBoolFct(void);
+
+    static void deleteBoolFct(void);
     
     static Cudd* getMgr(void);
     

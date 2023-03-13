@@ -184,7 +184,7 @@ void progState::printGraphViz(unsigned long i) const {
 		locs.push_back(p->getFsmNodePointer());
 	
 	std::list<const fsmEdge*> edges;
-	if(auto progTrans = dynamic_cast<const progTransition*>(trans)) {
+	if(auto progTrans = dynamic_cast<const progTransition*>(origin)) {
 		edges.push_back(progTrans->getEdge());
 		auto t = progTrans;
 
@@ -403,7 +403,7 @@ state* progState::apply(const transition* trans) {
 
 	this->prob *= trans->prob;
 
-	this->trans = trans;
+	this->origin = trans;
 
 	return this;
 }

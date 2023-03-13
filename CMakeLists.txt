@@ -27,7 +27,7 @@ add_compile_options(
 	-Wno-unused-parameter
 	-pedantic
 	-ggdb
-	-O0
+	-g
 	${ASAN}
 )
 add_link_options(

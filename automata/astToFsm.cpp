@@ -144,7 +144,7 @@ void ASTtoFSM::visit(const stmntIf* node)  {
     auto opt = node->getOpts();
     while(opt){
         //opt->getBlock()->getType() == astNode::E_STMNT_ATOMIC? dynamic_cast<stmntAtomic*>(opt->getBlock())->getBlock() : opt->getBlock();
-        auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
+        auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), nullptr, true);
         looseEnds.push_back(trans);
         
         opt->acceptVisitor(this);
@@ -192,7 +192,7 @@ void ASTtoFSM::visit(const stmntDo* node)  {
     auto opt = node->getOpts();
     while(opt){
         //auto block = opt->getBlock()->getType() == astNode::E_STMNT_ATOMIC? dynamic_cast<stmntAtomic*>(opt->getBlock())->getBlock() : opt->getBlock();
-        auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
+        auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), nullptr, true);
         looseEnds.push_back(trans);
         
         opt->acceptVisitor(this);

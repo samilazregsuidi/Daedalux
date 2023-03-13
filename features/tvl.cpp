@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <iostream>
 
 #include "tvl.hpp"
 #include "expToADD.hpp"
@@ -53,21 +54,33 @@ bool TVL::filterFeatureModel(const std::string& filename, const std::string& fil
 }
 
 bool TVL::loadFeatureModel(const std::string& filename, const std::string& filter) {
-	if(copyFile(filename, "__workingfile.tvl")) {
-		
-		if(!filter.empty())
-			filterFeatureModel("__workingfile.tvl", filter);
 
-		if(system("java -jar ./libs/tvl/TVLParser.jar -dimacs __mapping.tmp __clauses.tmp __workingfile.tvl") != 0) {
-			//if(!keepTempFiles) remove("__workingfile.tvl");
-			return 0;
-		} else {
-			return loadFeatureModelDimacs("__clauses.tmp", "__mapping.tmp");
-			//if(!keepTempFiles) remove("__workingfile.tvl");
-			//if(!keepTempFiles) remove("__mapping.tmp");
-			//if(!keepTempFiles) remove("__clauses.tmp");
+	std::ifstream tvl;
+
+	try {
+		tvl.open(filename);
+
+		if(copyFile(filename, "__workingfile.tvl")) {
+		
+			if(!filter.empty())
+				filterFeatureModel("__workingfile.tvl", filter);
+
+			if(system("java -jar ./libs/tvl/TVLParser.jar -dimacs __mapping.tmp __clauses.tmp __workingfile.tvl") != 0) {
+				//if(!keepTempFiles) remove("__workingfile.tvl");
+				return 0;
+			} else {
+				return loadFeatureModelDimacs("__clauses.tmp", "__mapping.tmp");
+				//if(!keepTempFiles) remove("__workingfile.tvl");
+				//if(!keepTempFiles) remove("__mapping.tmp");
+				//if(!keepTempFiles) remove("__clauses.tmp");
+			}
 		}
+
+	} catch(const std::ifstream::failure& e) {
+		std::cout<<"no tvl file exists"<<std::endl;
 	}
+
+	
 	
 	//printBool(getFeatureModelClauses);
 	return false;
@@ -212,6 +225,11 @@ void TVL::initBoolFct(void) {
 	FILE* file = fopen("cudd_info.txt", "w");
 	Cudd_PrintInfo(mgr->getManager(), file);
 	fclose(file);
+}
+
+void TVL::deleteBoolFct(void) {
+	delete mgr;
+	mgr = nullptr;
 }
 
 void TVL::printInfo(void) const {

@@ -27,6 +27,8 @@ public:
 
 	process(const process* other);
 
+	~process() override;
+
 	process* deepCopy(void) const override;
 
 	void init(void) override;

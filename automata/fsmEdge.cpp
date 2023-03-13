@@ -11,14 +11,15 @@
 #include "symbols.hpp"
 #include "ast.hpp"
 
-fsmEdge::fsmEdge(fsmNode* source, const astNode* expression, int lineNb){
-	this->parent = source->getParent();
-	this->source = source;
-	this->target = nullptr;
-	this->expression = expression;
-	this->lineNb = lineNb;
-	this->prob = 1.0;
-
+fsmEdge::fsmEdge(fsmNode* source, const astNode* expression, int lineNb, bool owner)
+	: parent(source->getParent())
+	, source(source)
+	, target(nullptr)
+	, expression(expression)
+	, lineNb(lineNb)
+	, prob(1.0)
+	, owner(owner)
+{
 	auto stmntCast = dynamic_cast<const stmnt*>(expression);
 	prob = stmntCast? stmntCast->getProb() : prob;
 }
@@ -27,6 +28,8 @@ fsmEdge::fsmEdge(fsmNode* source, const astNode* expression, int lineNb){
  * Destroys a transition; but not the attached nodes.
  */
 fsmEdge::~fsmEdge(){
+	if(owner)
+		delete expression;
 }
 
 fsmNode* fsmEdge::setTargetNode(fsmNode* target) {

@@ -39,19 +39,33 @@ struct element {
     bool init;
 };
 
+enum DFS {
+    OUTER,
+    INNER
+};
+
 struct htState {
     
     htState(state* s = nullptr)
         : s(s)
         , outerFeatures(TVL::getMgr()->addOne())
         , innerFeatures(TVL::getMgr()->addOne())
+        , foundIn(OUTER)
     {}
     
     htState(state* s, const ADD& outerFeatures, const ADD& innerFeatures) 
         : s(s)
         , outerFeatures(outerFeatures)
         , innerFeatures(innerFeatures)
+        , foundIn(OUTER)
     {}
+
+    ~htState() {
+        /*if(s)
+            delete s;*/
+        for(auto subS : subStates)
+            delete subS;
+    }
 
     htState* getSubHtState(unsigned long hash) {
         for(auto htS : subStates)  {
@@ -64,17 +78,15 @@ struct htState {
     state* s;
     ADD outerFeatures;
     ADD innerFeatures;
+    DFS foundIn;
 
     std::list<htState*> subStates;
 };
 
 class reachabilityRelation : public stateVisitor {
 public:
-    enum DFS {
-        OUTER,
-        INNER
-    };
-    reachabilityRelation(DFS dfs);
+
+    reachabilityRelation(DFS dfs, std::map<unsigned long, htState*>& map);
 
     ~reachabilityRelation();
 
@@ -89,7 +101,7 @@ public:
 
 public:
     DFS dfs;
-    std::map<unsigned long, htState*> outerHT; 
+    std::map<unsigned long, htState*>& map; 
     htState* current;
     byte res;
 };
@@ -114,6 +126,6 @@ void countStates(const fsm* automata, const TVL* tvl = nullptr);
 
 void startNestedDFS(const fsm* automata, const TVL* tvl);
 byte outerDFS(std::stack<element*>& stackOuter);
-byte innerDFS(std::stack<element*>& stackInner, const std::map<unsigned long, htState*>& outerHT);
+byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*>& map);
 
 #endif

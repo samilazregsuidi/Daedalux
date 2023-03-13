@@ -30,12 +30,11 @@ symTable* symTable::createSubTable(const std::string& name) {
 }
 
 symTable::~symTable() {
-	//for(const auto& s : syms) {
-		//delete s.second;
-	//}
-	//for(auto& n : nexts)
-		//delete n;
-		;
+	for(const auto& s : syms)
+		delete s.second;
+
+	for(auto& n : nexts)
+		delete n;
 }
 
 std::string symTable::getNameSpace(void) const {
@@ -199,8 +198,8 @@ void symTable::acceptVisitor(symTabConstVisitor* visitor) const {
 
 void symTable::printGraphViz(std::ofstream& file) const {
 
-	if(syms.empty())
-		return;
+	/*if(syms.empty())
+		return;*/
 
 	if(!prev){
 		file << "digraph symbol_table {\n";

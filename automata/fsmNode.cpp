@@ -15,8 +15,8 @@
 /**
  * Creates a transition and adds it to the node list of the fsm.
  */
-fsmEdge* fsmNode::createfsmEdge(int lineNb, const astNode* expression, fsmNode* target) {
-	fsmEdge* newTrans = new fsmEdge(this, expression, lineNb);
+fsmEdge* fsmNode::createfsmEdge(int lineNb, const astNode* expression, fsmNode* target, bool owner) {
+	fsmEdge* newTrans = new fsmEdge(this, expression, lineNb, owner);
 	if(target)
 		newTrans->setTargetNode(target);
 	this->trans.push_back(newTrans);

@@ -34,27 +34,12 @@ TVL* tvl = nullptr;
  * Simply copies a file byte by byte; could be made more efficient.
  */
 int copyFile(const std::string& source, const std::string& target) {
-	FILE* fsource;
-	FILE* ftarget;
-	fsource = fopen(source.c_str(), "r");
-	ftarget = fopen(target.c_str(), "w");
-
-	if(fsource != nullptr && ftarget != nullptr)  {
-		char buffer;
-		buffer = fgetc(fsource);
-		while(!feof(fsource)) {
-			fputc(buffer, ftarget);
-			buffer = fgetc(fsource);
-		}
-		fclose(fsource);
-		fclose(ftarget);
-		return 1;
-	}
-
-	if(fsource != nullptr) fclose(fsource);
-	if(ftarget != nullptr) fclose(ftarget);
-
-	return 0;
+	std::ifstream src(source, std::ios::binary);
+	std::ofstream dst(target, std::ios::binary);
+	dst << src.rdbuf();
+	src.close();
+	dst.close();
+	return 1;
 }
 
 
@@ -333,18 +318,18 @@ int main(int argc, char *argv[]) {
 	output << stmnt::string(program);
 	output.close();*/
 
-	std::ofstream output;
-	output.open("output.pml");
+	//std::ofstream output;
+	//output.open("output.pml");
 	//output << "#include \"./Theory.prp\"\n";
-	output << stmnt::string(program);
-	output.close();
+	//output << stmnt::string(program);
+	//output.close();
 
-	ASTtoFSM converter;
-	fsm* automata = converter.astToFsm(globalSymTab, program, tvl);
-	std::ofstream graph;
-	graph.open("fsm_graphvis");
-	automata->printGraphVis(graph);
-	graph.close();
+	ASTtoFSM* converter = new ASTtoFSM();
+	fsm* automata = converter->astToFsm(globalSymTab, program, tvl);
+	//std::ofstream graph;
+	//graph.open("fsm_graphvis");
+	//automata->printGraphVis(graph);
+	//graph.close();
 
 	/*for(unsigned int i = 1; i <= index; i++) {
 		auto copy = program->deepCopy();
@@ -364,7 +349,7 @@ int main(int argc, char *argv[]) {
 	startNestedDFS(automata, tvl);
 
 	std::ofstream symtable;
-	symtable.open("sym_table_graphviz");
+	symtable.open("sym_table_graphviz.dot");
 	
 	while(globalSymTab->prevSymTab()) 
 		globalSymTab = globalSymTab->prevSymTab();
@@ -379,11 +364,22 @@ int main(int argc, char *argv[]) {
 	
 	//state* init = new state(globalSymTab, automata);
 
+	delete converter;
+
+	delete automata;
+
+	delete tvl;
+
+	TVL::deleteBoolFct();
+
 	delete globalSymTab;
 
 	delete program;
 
-	if(yyin != nullptr) fclose(yyin);
+	if(yyin != nullptr) {
+		fclose(yyin);
+		yylex_destroy();
+	}
 	
 	exit(0);
 }

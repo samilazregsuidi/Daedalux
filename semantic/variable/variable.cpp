@@ -118,16 +118,24 @@ variable::variable(const variable* other)
 	for(auto subVar : getVariables())
 		subVar->assign(this);
 
-	if(!parent)
+	if(!parent) {
 		setPayload(other->getPayload()->copy());
+	}
 }
 
 variable::~variable() {
-	for(auto var : varList)
+	auto copy = varList;
+	for(auto var : copy)
 		delete var;
+
+	assert(varList.empty());
 
 	if(parent)
 		parent->_rmVariable(this);
+	else {
+		if(payLoad)
+			delete payLoad;
+	}
 }
 
 variable::Type variable::getType(void) const {

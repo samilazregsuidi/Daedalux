@@ -1,20 +1,20 @@
 digraph finite_state_machine {
 	rankdir=LR
 	size="8,5"
-	93824994260096 [label = 14, shape = doublecircle, fixedsize = true]; 
-	s93824994260096 [shape = point];
-	93824994259776 [label = 5, shape = doublecircle, fixedsize = true]; 
-	s93824994259776 [shape = point];
-	e93824994261328 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white, label = end];
-	 93824994259936 [label = 6, shape = circle, fixedsize = true ];
-	 93824994261664 [label = 15, shape = circle, fixedsize = true ];
-	 93824994261328 [label = 19, shape = circle, fixedsize = true ];
-	s93824994260096 -> 93824994260096;
-	s93824994259776 -> 93824994259776;
-	93824994259776 -> 93824994259936 [label = "x = true; "];
-	93824994259936 -> 93824994259936 [label = "x = false; "];
-	93824994259936 -> 93824994259936 [label = "x = true; "];
-	93824994260096 -> 93824994261664 [label = "(!x); "];
-	93824994261664 -> 93824994261328 [label = "goto accept_all; "];
-	93824994261328 -> e93824994261328 [label = "skip; "];
+	83857392 [label = 14, shape = doublecircle, fixedsize = true]; 
+	s83857392 [shape = point];
+	83852208 [label = 5, shape = doublecircle, fixedsize = true]; 
+	s83852208 [shape = point];
+	e83860880 [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white, label = end];
+	 83852848 [label = 6, shape = circle, fixedsize = true ];
+	 83859472 [label = 15, shape = circle, fixedsize = true ];
+	 83860880 [label = 19, shape = circle, fixedsize = true ];
+	s83857392 -> 83857392;
+	s83852208 -> 83852208;
+	83852208 -> 83852848 [label = "x = true; "];
+	83852848 -> 83852848 [label = "x = false; "];
+	83852848 -> 83852848 [label = "x = true; "];
+	83857392 -> 83859472 [label = "(!x); "];
+	83859472 -> 83860880 [label = "goto accept_all; "];
+	83860880 -> e83860880 [label = "skip; "];
 }

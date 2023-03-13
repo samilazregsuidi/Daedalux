@@ -182,8 +182,6 @@ public:
 	mutable bool timeout;
 
 	std::list<std::string> actions;
-	transition* origin;
-	double prob;
 };
 
 #endif

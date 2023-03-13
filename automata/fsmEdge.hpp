@@ -16,7 +16,7 @@ class fsmEdge
 {
 
 public:
-	fsmEdge(fsmNode *source, const astNode *expression, int lineNb);
+	fsmEdge(fsmNode *source, const astNode *expression, int lineNb, bool owner = false);
 	~fsmEdge();
 	fsmNode* setTargetNode(fsmNode *target);
 	fsmNode* setSourceNode(fsmNode *source);
@@ -46,6 +46,7 @@ private:
 	const astNode *expression;
 	fsmNode *target;
 	double prob;
+	bool owner;
 };
 
 #endif

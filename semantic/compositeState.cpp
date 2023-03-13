@@ -29,7 +29,12 @@ compState::compState(const std::string& name)
 
 compState::compState(const compState* other)
 	: state(other)
+	, n(nullptr)
 {
+	if(other->n) {
+		n = getTVariable<state*>(other->n->getLocalName());
+		assert(n && dynamic_cast<never*>(n));
+	}
 }
 
 compState* compState::deepCopy(void) const {
@@ -37,6 +42,7 @@ compState* compState::deepCopy(void) const {
 }
 
 compState::~compState() {
+
 }
 
 void compState::addState(state* s) {
@@ -179,7 +185,7 @@ state* compState::apply(const transition* trans) {
 
 	this->prob *= trans->prob;
 
-	this->trans = trans;
+	this->origin = trans;
 
 	return this;
 }

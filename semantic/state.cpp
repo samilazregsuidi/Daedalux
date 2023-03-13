@@ -21,7 +21,7 @@
 state::state(variable::Type type, const std::string& name)
 	: variable(type, name)
 	, prob(1.0)
-	, trans(nullptr)
+	, origin(nullptr)
 	, errorMask(0)
 {
 }
@@ -29,7 +29,7 @@ state::state(variable::Type type, const std::string& name)
 state::state(const state& other)
 	: variable(other)
 	, prob(other.prob)
-	, trans(other.trans)
+	, origin(other.origin)
 	, errorMask(other.errorMask)
 {
 }
@@ -37,12 +37,15 @@ state::state(const state& other)
 state::state(const state* other)
 	: variable(other)
 	, prob(other->prob)
-	, trans(other->trans)
+	, origin(other->origin)
 	, errorMask(other->errorMask)
 {
 }
 
-state::~state() {}
+state::~state() {
+	if(origin)
+		delete origin;
+}
 
 void state::addError(unsigned int e) {
 	errorMask |= e;
@@ -86,7 +89,7 @@ state* state::Post(const transition* trans) const {
 }
 
 const transition* state::getOrigin(void) const {
-	return trans;
+	return origin;
 }
 
 double state::getProbability(void) const {

@@ -36,6 +36,10 @@ process::process(const process* other)
 {
 }
 
+process::~process() {
+
+}
+
 process* process::deepCopy(void) const {
 	auto copy = new process(this);
 	return copy;
@@ -694,7 +698,7 @@ Apply:
 		s->lastStepPid = proc->getPid();
 	}
 
-	this->trans = trans;
+	//this->origin = trans;
 
 	return s;
 }

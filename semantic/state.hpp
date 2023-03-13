@@ -155,7 +155,7 @@ public:
 
 public:
 	double prob;
-	const transition* trans;
+	const transition* origin;
 	unsigned int errorMask;
 };
 

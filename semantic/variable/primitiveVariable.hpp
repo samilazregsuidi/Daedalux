@@ -16,8 +16,6 @@ public:
 
 	variable* deepCopy(void) const override;
 
-	~primitiveVariable() override {}
-
 	bool isGlobal(void) const override;
 
 	size_t getSizeOf(void) const override;

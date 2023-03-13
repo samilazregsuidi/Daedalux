@@ -3,20 +3,21 @@ bool x;
 active proctype test()
 {
 	x = true;
+	
 	do
 	:: x = false;
 	:: x = true;
 	od;
 }
 
-never { // !x
+/*never { // !x
 T0_init :    // init
 	if
 	:: (!x) -> goto accept_all
 	fi;
 accept_all :    //1
 	skip
-}
+}*/
 
 /*never { // x
 T0_init :    // init
@@ -27,7 +28,7 @@ accept_all :    //1
 	skip
 }*/
 
-/*never { // (! x) -> X (x) 
+never { // (! x) -> X (x) 
 accept_init :    // init
 	if
 	:: (x) -> goto accept_all
@@ -39,7 +40,7 @@ accept_S1 :    // 1
 	fi;
 accept_all :    // 2 
 	skip
-}*/
+}
 
 /*never { // (!x) -> <> (x)
 T0_init :    // init

@@ -32,7 +32,7 @@ private:
 public:
 	~fsmNode(void);
 	
-	fsmEdge *createfsmEdge(int lineNb, const astNode *expression = nullptr, fsmNode *target = nullptr);
+	fsmEdge *createfsmEdge(int lineNb, const astNode *expression = nullptr, fsmNode *target = nullptr, bool owner = false);
 	
 	fsmEdge *copyfsmEdge(const fsmEdge *trans);
 
