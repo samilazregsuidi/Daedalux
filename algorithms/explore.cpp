@@ -94,7 +94,7 @@ void createStateSpace(const fsm* automata, const TVL* tvl) {
 
 		printf("****************** current state ****************\n");
 		current->PRINT_STATE();
-		//current->printGraphViz(i);
+		current->printGraphViz(i);
 		st.pop();
 		
 		
@@ -161,6 +161,8 @@ void startNestedDFS(const fsm* automata, const TVL* tvl) {
         printf("Property satisfied");
 }
 
+int i = 0;
+
 byte outerDFS(std::stack<element*>& stackOuter) {
 
 	byte error = 0;
@@ -181,6 +183,8 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 		auto neverClaim = current->s->getNeverClaim();
 		auto s_hash = current->s->hash();
 
+		current->s->printGraphViz(i++);
+
 		if(neverClaim->endstate()) {
 			// Safety property violated.
 			// We have to pop two states off the stack to get to the violating state:
@@ -188,11 +192,12 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 			//  -> the state below that is the accepting state
 			//  -> the state below that is the state that actually led to the accepting state to be reachable.
 			//     i.e. this state is the actual violating state.
-			delete current;
+			//delete current;
 			stackOuter.pop();
-			
+
             auto newTop = stackOuter.top();
-			delete newTop;
+			newTop->s->printGraphViz(i++);
+			//delete newTop;
 
             stackOuter.pop();
 
@@ -203,12 +208,13 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 			auto e = R->map.find(s_hash);
 			assert(e != R->map.end());
 
-			delete e->second;
+			//delete e->second;
 			R->map.erase(e);
 			printf("State %lu erase from the hast table.\n", s_hash);
 
 			newTop = stackOuter.top();
-			delete newTop;
+			newTop->s->printGraphViz(i++);
+			//delete newTop;
 
             stackOuter.pop();
 			
@@ -262,13 +268,13 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 					current->s = nullptr;
 				}
 				
-				delete current;
+				//delete current;
 				stackOuter.pop();
 				_depth--;
 
 				auto htElem = R->map.find(s_hash);
 				assert(htElem != R->map.end());
-				delete htElem->second;
+				//delete htElem->second;
 				R->map.erase(htElem);
 				printf("State %lu erase from the hast table.\n", s_hash);
 				
@@ -279,12 +285,14 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 				auto s_ = *current->Post.begin();
 				s_hash = s_->hash();
 
+				s_->printGraphViz(i++);
+
 				if(s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-					printf("Assertion at line %d violated", s_->getOrigin()->lines.begin());
+					printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
 					
 					error = 1;
 					
-					delete s_;
+					//delete s_;
 					s_ = nullptr;
 
 				} else {
@@ -299,7 +307,7 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 	
 						if(comp == STATES_SAME_S1_VISITED) {
 							printf("         - state %lu already visited.\n", s_hash);
-							delete s_;
+							//delete s_;
 							s_ = nullptr;
 							_nbStatesStops++;
 						
@@ -346,7 +354,7 @@ byte outerDFS(std::stack<element*>& stackOuter) {
 
 				current->Post.pop_front();
 
-			} // fire transition
+			} // fire post
 		} // explore state
 	} // end while
 
@@ -382,6 +390,8 @@ byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*
 		auto current = stackInner.top();
 		auto neverClaim = current->s->getNeverClaim();
 		auto s_hash = current->s->hash();
+
+		current->s->printGraphViz(i++);
 		
 		printf("    +-> exploring %lu...\n", s_hash);
 		//current->setErrorStatus = _nbErrors;
@@ -409,7 +419,7 @@ byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*
 		// otherwise just backtrack
 		if(!current->Post.size()) {
 			printf("    +-> all transitions of state %lu fired, backtracking...\n", s_hash);
-			delete current;
+			//delete current;
 			stackInner.pop();
 			_depth--;
 
@@ -420,18 +430,20 @@ byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*
 			s_hash = s_->hash();
 			bool onSt = map.find(s_hash) != map.end();
 
+			s_->printGraphViz(i++);
+
 			if(onSt || s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
 
 				if(onSt) {	
 					printf("Property violated\n");
 				
 				} else {
-					printf("Assertion at line %d violated", s_->getOrigin()->lines.begin());
+					printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
 				}
 
 				error = 1;
 
-				delete s_;
+				//delete s_;
 				s_ = nullptr;
 
 			} else {
@@ -447,7 +459,7 @@ byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*
 
 					if(comp == STATES_SAME_S1_VISITED) {
 						printf("         - state %lu already visited.\n", s_hash);
-						delete s_;
+						//delete s_;
 						s_ = nullptr;
 						_nbStatesStops++;
 					
@@ -493,11 +505,11 @@ byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*
 				// Simulate nested loop: when at the end of E, restart the E and advance the E_never
 				// The deadlock test (E empty) is already done.  This also guarantees that E->value
 				// is never NULL in the above apply(globalSymTab, mtypes, ).
+			}
 
-				current->Post.pop_front();
-			                                                                                                                                                                                                            }// fire transition
+			current->Post.pop_front();
+		} // fire post
 
-		} // explore state 
 	} // end while 
 				
 	// If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed

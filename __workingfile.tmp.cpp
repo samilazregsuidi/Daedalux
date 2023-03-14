@@ -6,25 +6,16 @@
 # 1 "__workingfile.tmp"
 bool x;
 
-active proctype test()
-{
- x = true;
-
- do
- :: x = false;
- :: x = true;
- od;
-}
-# 31 "__workingfile.tmp"
-never {
+active proctype n() {
 accept_init :
  if
  :: (x) -> goto accept_all
  :: (1) -> goto accept_S1
  fi;
+
 accept_S1 :
  if
- :: (x) -> goto accept_all
+ :: (!x) -> goto accept_all
  fi;
 accept_all :
  skip

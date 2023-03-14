@@ -2,12 +2,12 @@ digraph symbol_table {
 	 rankdir = LR
 	system[ shape = record, label = "<f0> system"]
 
-	global[ shape = record, label = "<f0> global | { <93824994196688> int|_| 4 bytes | predef. } | { <93824994196960> int|_nr_pr| 4 bytes | predef. } | { <93824994197120> pid|_last| 1 byte | predef. } | { <93824994197280> bool|np_| 1 byte | predef. } | { <93824994197440> int|k| 4 bytes | predef. } | { <93824994197712> bool|x| 1 byte | line 1 } | { <93824994255216> proctype|test| 0 byte | line 5 } | { <93824994258656> never|never| 0 byte | line 19 }"]
+	global[ shape = record, label = "<f0> global | { <93824994196688> int|_| 4 bytes | predef. } | { <93824994196960> int|_nr_pr| 4 bytes | predef. } | { <93824994197120> pid|_last| 1 byte | predef. } | { <93824994197280> bool|np_| 1 byte | predef. } | { <93824994197440> int|k| 4 bytes | predef. } | { <93824994197712> bool|x| 1 byte | line 1 } | { <93824994258000> proctype|n| 0 byte | line 8 }"]
 
-	test[ shape = record, label = "<f0> test | { <93824994198336> pid|_pid| 1 byte | predef. }"]
+	n[ shape = record, label = "<f0> n | { <93824994198336> pid|_pid| 1 byte | predef. }"]
 
 
-	global:f0 -> test:f0
+	global:f0 -> n:f0
 
 
 	system:f0 -> global:f0

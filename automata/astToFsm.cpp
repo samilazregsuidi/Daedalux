@@ -137,6 +137,7 @@ void ASTtoFSM::visit(const stmntIf* node)  {
     
     if(!init) init = current;
 
+    _label(current);
     _connect(looseEnds, current);
 
     optFeatures.push(fm->getMgr()->addOne());
@@ -185,6 +186,8 @@ void ASTtoFSM::visit(const stmntDo* node)  {
     current = start;
     if(!init) init = current;
 
+
+    _label(current);
     _connect(looseEnds, start);
 
     optFeatures.push(fm->getMgr()->addOne());
