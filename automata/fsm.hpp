@@ -58,10 +58,16 @@ public:
 	void connect(fsmNode* begin, fsmNode* end);
 
 	std::list<fsmNode *> getNodes(void) const;
+
+	std::list<fsmNode*> getNodes(fsmNode* from) const;
 	
 	std::list<fsmEdge *> getTransitions(void) const;
 
+	std::list<fsmEdge *> getTransitions(fsmNode* from) const;
+
 	std::list<fsmEdge*> getEndTransitions(void) const;
+
+	std::list<fsmEdge*> getEndTransitions(fsmNode* from) const;
 
 	bool isFeatured(void) const;
 

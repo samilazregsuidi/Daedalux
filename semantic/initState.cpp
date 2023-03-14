@@ -10,6 +10,7 @@
 #include "featuredStateDecorator.hpp"
 #include "compositeState.hpp"
 
+#include "processTransition.hpp"
 #include "featuredProgramTransition.hpp"
 
 #include "symbols.hpp"
@@ -223,15 +224,14 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 transition* initState::createTransition(const fsmEdge* edge, state* s, process* proc, transition* response) {
 	
 	transition* res = nullptr;
+
+	auto procTrans = new processTransition(proc, edge);
 	
 	if(edge->hasFeatures()){
-		res = new featProgTransition(s, proc, edge, edge->getFeatures());
+		res = new featProgTransition(s, procTrans, edge->getFeatures(), response);
 	} else {
-		res = new progTransition(s, proc, edge);
+		res = new programTransition(s, procTrans, response);
 	}
-
-	if(response)
-		res->responses.push_back(response);
 	
 	return res;
 }

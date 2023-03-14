@@ -7,7 +7,7 @@
 
 #include "process.hpp"
 #include "transition.hpp"
-#include "programTransition.hpp"
+#include "processTransition.hpp"
 #include "programState.hpp"
 
 #include "payload.hpp"
@@ -83,7 +83,7 @@ std::list<transition*> process::transitions(void) const {
 	auto node = getFsmNodePointer();
 	std::list<transition*> res;
 	for(auto e : node->getEdges())
-		res.push_back(new progTransition(getProgState(), const_cast<process*>(this), e));
+		res.push_back(new processTransition(const_cast<process*>(this), e));
 	return res;
 }
 
@@ -130,7 +130,7 @@ std::list<transition*> process::executables(void) const {
 					//conjunct *= dynamic_cast<progTransition*>(response)->getEdge()->getFeatures();
 					//if((conjunct * s->stateMachine->getFD()).IsOne())
 						//res.push_back(new RVTransition(s, const_cast<process*>(this), edge, conjunct, dynamic_cast<progTransition*>(response)));
-					res.push_back(initState::createTransition(edge, s, const_cast<process*>(this), dynamic_cast<progTransition*>(response)));
+					res.push_back(initState::createTransition(edge, s, const_cast<process*>(this), dynamic_cast<processTransition*>(response)));
 				}
 
 				chan->reset();
@@ -451,8 +451,8 @@ int process::eval(const astNode* node, byte flag) const {
  * that evaluated to false.
  */
 state* process::apply(const transition* trans) {
-	const process* proc = dynamic_cast<const progTransition*>(trans)->getProc();
-	const fsmEdge* edge =  dynamic_cast<const progTransition*>(trans)->getEdge();
+	const process* proc = dynamic_cast<const processTransition*>(trans)->getProc();
+	const fsmEdge* edge =  dynamic_cast<const processTransition*>(trans)->getEdge();
 
 	assert(proc);
 	assert(edge);
@@ -464,7 +464,7 @@ state* process::apply(const transition* trans) {
 	progState* s = getProgState();
 
 	//std::cout << " APPLYING LINE: " << *(trans->lines.cbegin()) << " to process " << this->getFullName() << std::endl;
-	std::cout << " APPLYING LINE: " << dynamic_cast<const progTransition*>(trans)->getEdge()->getLineNb() << " to process " << this->getFullName() << std::endl;
+	std::cout << " APPLYING LINE: " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << " to process " << this->getFullName() << std::endl;
 
 	byte leaveUntouched = 0; // Set to 1 in case of a rendez-vous channel send.
 Apply:
@@ -497,7 +497,7 @@ Apply:
 			if(chan->isRendezVous()) {
 				leaveUntouched = 1;
 
-				assert(trans->getResponses().size() > 0);
+				//assert(trans->getResponses().size() > 0);
 
 				// Send was a rendezvous request. We immediately try to complete this rendezvous.
 				s->setHandShake({chan, this});
@@ -511,9 +511,9 @@ Apply:
 				// Also, applying this transition will free _handshake_transit (because of calling "channelReceive()").
 				// Furthermore, the number of message in the rendezvous channel will be 0.
 				
-				for(auto r : trans->getResponses()) {
+				/*for(auto r : trans->getResponses()) {
 					dynamic_cast<progTransition*>(r)->getProc()->apply(r);
-				}
+				}*/
 				
 				// Rendezvous completed: HANDSHAKE is reset.
 				s->resetHandShake();

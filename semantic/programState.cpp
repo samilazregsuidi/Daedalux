@@ -16,6 +16,7 @@
 #include "payload.hpp"
 
 #include "programTransition.hpp"
+#include "processTransition.hpp"
 
 #include "neverTransition.hpp"
 
@@ -386,9 +387,9 @@ std::list<transition*> progState::executables(void) const {
  */
 state* progState::apply(const transition* trans) {
 	
-	const progTransition* progTrans = dynamic_cast<const progTransition*>(trans);
+	const programTransition* progTrans = dynamic_cast<const programTransition*>(trans);
 	assert(progTrans);
-	process* proc = progTrans->getProc();
+	process* proc = dynamic_cast<processTransition*>(progTrans->getProcTrans())->getProc();
 	assert(proc);
 	//warning if "different" procs have the same pid i.e., dynamic proc creation
 
@@ -398,6 +399,11 @@ state* progState::apply(const transition* trans) {
 	assert(proc);
 
 	proc->apply(trans);
+
+	auto response = dynamic_cast<processTransition*>(progTrans->getResponse());
+	if(response) {
+		response->getProc()->apply(response);
+	}
 
 	assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);
 

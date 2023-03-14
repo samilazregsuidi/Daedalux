@@ -67,6 +67,31 @@ std::list<fsmNode *> fsm::getNodes(void) const {
 	return nodes;
 }
 
+std::list<fsmNode*> fsm::getNodes(fsmNode* from) const {
+	std::list<fsmNode*> reachables;
+	std::stack<fsmNode*> stack;
+
+	stack.push(from);
+
+	while(!stack.empty()) {
+		auto current = stack.top();
+		stack.pop();
+
+		if(std::find(reachables.begin(), reachables.end(), current) == reachables.end())
+			reachables.push_back(current);
+
+		for(auto e : from->getEdges()) {
+			if(std::find(reachables.begin(), reachables.end(), current) == reachables.end()) {
+				auto next = e->getTargetNode();
+				if (next)
+					stack.push(next);
+			}
+		}
+	}
+
+	return reachables;
+}
+
 void fsm::deleteTransition(fsmEdge* edge) {
 	assert(std::find(this->trans.begin(), this->trans.end(), edge) != this->trans.end());
 	
@@ -130,12 +155,71 @@ fsmNode* fsm::getFsmWithName(const std::string& name) const {
 	return inits.at(name);
 }
 
+std::list<fsmEdge *> fsm::getTransitions(void) const {
+	return trans;
+}
+
+std::list<fsmEdge*> fsm::getTransitions(fsmNode* from) const {
+	std::list<fsmNode*> reachables;
+	std::list<fsmEdge*> edges;
+	std::stack<fsmNode*> stack;
+
+	stack.push(from);
+
+	while(!stack.empty()) {
+		auto current = stack.top();
+		stack.pop();
+
+		if(std::find(reachables.begin(), reachables.end(), current) == reachables.end())
+			reachables.push_back(current);
+
+		for(auto e : current->getEdges()) {
+			edges.push_back(e);
+
+			if(std::find(reachables.begin(), reachables.end(), current) == reachables.end()) {
+				auto next = e->getTargetNode();
+				if (next)
+					stack.push(next);
+			}
+		}
+	}
+
+	return edges;
+}
+
 std::list<fsmEdge*> fsm::getEndTransitions(void) const {
 	std::list<fsmEdge*> res;
 	for (auto t : trans)
         if(t->getTargetNode() == nullptr)
             res.push_back(t);
 	return res;
+}
+
+std::list<fsmEdge*> fsm::getEndTransitions(fsmNode* from) const {
+	std::list<fsmNode*> reachables;
+	std::list<fsmEdge*> endEdges;
+	std::stack<fsmNode*> stack;
+
+	stack.push(from);
+
+	while(!stack.empty()) {
+		auto current = stack.top();
+		stack.pop();
+
+		if(std::find(reachables.begin(), reachables.end(), current) == reachables.end())
+			reachables.push_back(current);
+
+		for(auto e : from->getEdges()) {
+			auto next = e->getTargetNode();
+			if(!next)
+				endEdges.push_back(e);
+
+			if(std::find(reachables.begin(), reachables.end(), current) == reachables.end() && next) 
+				stack.push(next);
+		}
+	}
+
+	return endEdges;
 }
 
 void fsm::addTransition(fsmEdge* edge){

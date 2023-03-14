@@ -11,9 +11,9 @@
 
 
 // ProcessTransitions are returned by the executables() function
-class featProgTransition : public progTransition {
+class featProgTransition : public programTransition {
 public:
-	featProgTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr);
+	featProgTransition(state* s, transition* procTrans, const ADD& featExpr, transition* response = nullptr);
 	
 	~featProgTransition() override;
 

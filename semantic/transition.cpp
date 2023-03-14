@@ -18,10 +18,8 @@ transition::transition(state* s)
 }
 
 transition::~transition(){
-	for(auto r : responses)
-		delete r;
 }
 
-std::list<transition*> transition::getResponses(void) const {
-	return responses;
+double transition::getProbability(void) const {
+	return prob;
 }

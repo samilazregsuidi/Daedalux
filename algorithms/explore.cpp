@@ -639,7 +639,7 @@ void stateToHTState::visit(compState* s) {
 }
 
 void stateToHTState::visit(featStateDecorator* s) {
-	
+	assert(false);
 }
 
 stateToHTState::operator htState*(void) const {

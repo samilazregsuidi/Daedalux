@@ -9,27 +9,22 @@
 
 //#include "cuddObj.hh"
 
-class fsmEdge;
-class process;
-
 // ProcessTransitions are returned by the executables() function
-class progTransition : public transition {
+class programTransition : public transition {
 public:
-	progTransition(state* s, process* proc, const fsmEdge* trans);
+	programTransition(state* s, transition* procTrans, transition* response = nullptr);
 
 	//progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr);
 	
-	~progTransition() override;
+	~programTransition() override;
 	
-	process* getProc(void) const;
+	transition* getProcTrans(void) const;
 
-	const fsmEdge* getEdge(void) const;
-
-	//void fire(state* s) const override;
+	transition* getResponse(void) const;
 
 public:		//
-	process* proc;		//	- The mask of the process to which the transition belongs (from the state that was given to executables())
-	const fsmEdge* const edge;			//  - The transition that can be fired
+	transition* procTrans;
+	transition* response;
 };
 
 #endif

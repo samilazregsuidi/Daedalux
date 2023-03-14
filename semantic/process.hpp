@@ -63,7 +63,7 @@ public:
 
 	void accept(stateVisitor* visitor) override;
 
-protected:
+public:
 	byte pid;
 };
 

@@ -93,7 +93,7 @@ public:
 
 	//byte compare(const state& s2) const override;
 
-protected:
+public:
 	const seqSymNode* symType;
 	unsigned int index;
 

@@ -8,8 +8,8 @@
 #include <assert.h>
 #include <iterator>
 
-featProgTransition::featProgTransition(state* s, process* proc, const fsmEdge* edge, const ADD& featExpr) 
-	: progTransition(s, proc, edge)
+featProgTransition::featProgTransition(state* s, transition* procTrans, const ADD& featExpr, transition* response)
+	: programTransition(s, procTrans, response)
 	, features(featExpr)
 {
 }

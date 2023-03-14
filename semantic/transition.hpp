@@ -28,7 +28,9 @@ public:
 
 	virtual ~transition();
 
-	std::list<transition*> getResponses(void) const;
+	double getProbability(void) const;
+
+	//std::list<transition*> getResponses(void) const;
 	
 	//virtual transition* deepCopy(void) const;
 
@@ -37,7 +39,7 @@ public:
 public:		//
 	state* src;
 	double prob;
-	std::list<transition*> responses;
+	//std::list<transition*> responses;
 	std::list<unsigned int> lines;
 };
 

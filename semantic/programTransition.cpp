@@ -1,26 +1,27 @@
 #include "programTransition.hpp"
+#include "processTransition.hpp"
 
-#include "state.hpp"
-#include "programState.hpp"
 #include "fsmEdge.hpp"
 #include "process.hpp"
 
 #include <assert.h>
 #include <iterator>
 
-progTransition::progTransition(state* s, process* proc, const fsmEdge* edge) 
+programTransition::programTransition(state* s, transition* procTrans, transition* response) 
 	: transition(s)
-	, proc(proc)
-	, edge(edge)
+	, procTrans(procTrans)
+	, response(response)
 	//, features(ADD())
 {
 	assert(s);
-	assert(proc);
-	assert(edge);
+	assert(procTrans);
 
-	prob = edge->getProbability();
+	prob = procTrans->getProbability() * (response ? response->getProbability() : 1.0);
 
-	lines.push_back(edge->getLineNb());
+	lines.push_back(dynamic_cast<processTransition*>(procTrans)->getLineNb());
+	if(response)
+		lines.push_back(dynamic_cast<processTransition*>(response)->getLineNb());
+
 }
 
 /*progTransition::progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr)
@@ -33,7 +34,7 @@ progTransition::progTransition(state* s, process* proc, const fsmEdge* edge)
 	prob = edge->getProbability();
 }*/
 
-progTransition::~progTransition() {
+programTransition::~programTransition() {
 
 }
 
@@ -46,10 +47,10 @@ progTransition::~progTransition() {
 	proc->apply(this);
 }*/
 
-process* progTransition::getProc(void) const {
-	return proc;
+transition* programTransition::getProcTrans(void) const {
+	return procTrans;
 }
 
-const fsmEdge* progTransition::getEdge(void) const {
-	return edge;
+transition* programTransition::getResponse(void) const {
+	return response;
 }

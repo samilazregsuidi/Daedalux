@@ -88,7 +88,7 @@ public:
 
     reachabilityRelation(DFS dfs, std::map<unsigned long, htState*>& map);
 
-    ~reachabilityRelation();
+    ~reachabilityRelation() override;
 
     byte updateReachability(state* s);
 
