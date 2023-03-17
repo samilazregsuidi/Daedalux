@@ -13,10 +13,11 @@
 extern int copyFile(const std::string& source, const std::string& target);
 
 Cudd* TVL::mgr = nullptr;
+int TVL::maxId = 0;
+std::map<std::string, int> TVL::featureIDMapping = std::map<std::string, int>();
 
 TVL::TVL(void)
 	: nbFeatures(0)
-	, maxId(0)
 {
 	if(!mgr)
 		initBoolFct();
@@ -181,14 +182,14 @@ const std::vector<BDD>& TVL::getVars() const {
 	return vars;
 }
 
-int TVL::getFeatureID(const std::string& name) const {
+int TVL::getFeatureID(const std::string& name) {
 	auto it = featureIDMapping.find(name);
 	if(it != featureIDMapping.end())
 		return it->second;
 	return -1;
 }
 
-std::string TVL::getFeatureIDName(int id) const {
+std::string TVL::getFeatureIDName(int id) {
 	for(auto k : featureIDMapping){
 		if(k.second == id)
 			return k.first;
@@ -215,7 +216,7 @@ int TVL::createMapping(const std::string& name) {
 	return maxId;
 }
 
-bool TVL::hasFeature(const std::string& name) const {
+bool TVL::hasFeature(const std::string& name) {
 	return featureIDMapping.find(name) != featureIDMapping.end();
 }
 
@@ -277,7 +278,7 @@ ADD TVL::getFormula(const expr* e) const {
 	return visitor->getFormula();
 }
 
-void TVL::printBool(const ADD& formula) const {
+void TVL::printBool(const ADD& formula) {
 
 	if(!formula) printf("All");
 	//else if(isLogicZero(formula)) printf("None");
@@ -348,6 +349,76 @@ void TVL::printBool(const ADD& formula) const {
 
 void TVL::printBool(void) const {
 	printBool(featureModelClauses);
+}
+
+std::string TVL::toString(const ADD& formula) {
+	std::string res;
+	if(!formula) res = "All";
+	//else if(isLogicZero(formula)) printf("None");
+	else if(formula.IsOne()) res = "All";
+	else {
+		formula.manager()->out = fopen("__printbool.tmp","w");
+		Cudd_PrintMinterm(formula.manager(), formula.getNode());
+		fclose(formula.manager()->out);
+		FILE * stream = fopen("__printbool.tmp", "r");
+		char c = 'c';
+		std::string feature;
+		std::string op;
+		int i = 0;
+		byte nextliteral = 0;
+		byte nextminterm = 0;
+		printf("(");
+		while(c != EOF && fscanf(stream, "%c", &c) != EOF) {
+			if(c == '0') {
+				if(nextliteral) res += (" & !");
+				else if (nextminterm) res += ("|\n(!");
+				else res += "!";
+				feature = getFeatureIDName(i);
+				res += !feature.empty()? feature.c_str() : "_";
+				nextliteral = 1;
+				nextminterm = 0;
+				i++;
+			}
+			else if (c == '1') {
+				if(nextliteral) res += (" & ");
+				else if (nextminterm) res += ("|\n(");
+				else res += "!";
+				feature = getFeatureIDName(i);
+				res += !feature.empty()? feature.c_str() : "_";
+				nextliteral = 1;
+				nextminterm = 0;
+				i++;
+			}
+			else if(c == '-'){
+				if(nextliteral) op = (" & ?");
+				else if (nextminterm) op = ("|\n(?");
+				else op = "";
+				feature = getFeatureIDName(i);
+				//printf("%s%s", op.c_str(), !feature.empty()? feature : "_");
+				nextliteral = 1;
+				nextminterm = 0;
+				i++;
+			}
+			else if(c == ' ') {
+				//res += (": ");
+				while(c != '\n' && fscanf(stream, "%c", &c) != EOF) {
+					if(c != '\n') {
+						//res += c;
+					}
+				}
+				nextliteral = 0;
+				nextminterm = 1;
+				i = 0;
+			} else 
+				assert(0);
+		}
+		fclose(stream);
+	}
+	return res;
+}
+
+std::string TVL::toString(void) const {
+	return toString(featureModelClauses);
 }
 
 std::vector<ADD> TVL::getProducts(const ADD& formula) const {

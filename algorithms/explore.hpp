@@ -69,7 +69,7 @@ struct htState {
 
     htState* getSubHtState(unsigned long hash) {
         for(auto htS : subStates)  {
-            if(s->hash() == hash)
+            if(htS->s->hash() == hash)
                 return htS;
         }
         return nullptr;

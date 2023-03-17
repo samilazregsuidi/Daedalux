@@ -61,6 +61,8 @@ public:
 
 	state* getNeverClaim(void) const override;
 
+	bool safetyPropertyViolation(void) const override;
+
 	void accept(stateVisitor* visitor) override;
 
 public:

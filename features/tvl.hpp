@@ -32,15 +32,15 @@ public:
     
     const std::vector<BDD>& getVars(void) const ;
     
-    int getFeatureID(const std::string& name) const; // Returns the ID mapped to feature 'name'
+    static int getFeatureID(const std::string& name); // Returns the ID mapped to feature 'name'
     
-    std::string getFeatureIDName(int id) const; // Returns the feature name mapped to ID 'id'.
+    static std::string getFeatureIDName(int id); // Returns the feature name mapped to ID 'id'.
     
     int getNbFeatures(void) const; // Returns highest feature ID
     
-    int createMapping(const std::string& name); // Returns the ID mapped to feature 'name'. Iff the mapping does not already exist, it is created.
+    static int createMapping(const std::string& name); // Returns the ID mapped to feature 'name'. Iff the mapping does not already exist, it is created.
     
-    bool hasFeature(const std::string& name) const;
+    static bool hasFeature(const std::string& name) ;
 
     BDD getFeature(const std::string& name) const;
 
@@ -54,9 +54,13 @@ public:
     
     void printInfo(void) const;
 
-    void printBool(const ADD& formula) const;
+    static void printBool(const ADD& formula);
 
     void printBool(void) const;
+
+    static std::string toString(const ADD& formula);
+
+    std::string toString(void) const;
 
     std::vector<ADD> getProducts(const ADD& formula) const;
 
@@ -74,9 +78,9 @@ public:
     ADD featureModelClauses;
     std::vector<BDD> vars;
 
-    std::map<std::string, int> featureIDMapping;
+    static std::map<std::string, int> featureIDMapping;
     int nbFeatures;
-    int maxId;
+    static int maxId;
 };
 
 #endif

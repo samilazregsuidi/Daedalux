@@ -19,8 +19,8 @@
 
 //#include "cuddObj.hh"
 
-thread::thread(const seqSymNode* sym, const fsmNode* start, unsigned int index)
-	: state(variable::V_PROC, sym->getName())
+thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, unsigned int index)
+	: state(type, sym->getName())
 	, symType(sym)
 	, index(index)
 	, start(start)
@@ -65,7 +65,10 @@ void thread::setFsmNodePointer(const fsmNode* pointer) {
 	getPayload()->setValue<const fsmNode*>(getOffset(), pointer);
 }
 
-
+int thread::getLocation(void) const {
+	auto node = getFsmNodePointer();
+	return node? node->getLineNb() : -1;
+}
 
 bool thread::isAtLabel(int nbLine) const {
 	return getFsmNodePointer()? getFsmNodePointer()->getLineNb() == nbLine : false;

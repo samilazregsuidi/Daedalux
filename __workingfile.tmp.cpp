@@ -4,19 +4,28 @@
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
 # 1 "__workingfile.tmp"
+system p1;
+system p2;
+
 bool x;
 
-active proctype n() {
-accept_init :
- if
- :: (x) -> goto accept_all
- :: (1) -> goto accept_S1
- fi;
+active proctype test()
+{
+ do
+ :: x = false;
+ :: x = true;
+ od;
+}
 
-accept_S1 :
+never {
+T0_init :
  if
- :: (!x) -> goto accept_all
+ :: !(p1.x && p2.x) -> goto accept_S2
+ :: (1) -> goto T0_init
+
  fi;
-accept_all :
- skip
+accept_S2 :
+ if
+ :: !(p1.x && p2.x) -> goto accept_S2
+ fi;
 }

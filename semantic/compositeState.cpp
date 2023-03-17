@@ -22,7 +22,7 @@
  * Does not set the payloadHash.
  */
 compState::compState(const std::string& name) 
-	: state(variable::V_COMP_STATE, name)
+	: state(variable::V_COMP_S, name)
 	, n(nullptr)
 {
 }
@@ -107,11 +107,11 @@ void compState::printTexada(void) const {
 	printf("..\n");
 }
 
-void compState::printGraphViz(unsigned long i) const {
+/*void compState::printGraphViz(unsigned long i) const {
 	auto subStates = getTVariables<state*>();
 	for(auto s : subStates)
 		s->printGraphViz(i);
-}
+}*/
 
 void CartesianRecurse(std::vector<std::vector<transition*>> &accum, std::vector<transition*> stack, std::vector<std::vector<transition*>> sequences, int index) {
     std::vector<transition*> sequence = sequences[index];
@@ -146,6 +146,10 @@ std::list<transition*> compState::executables(void) const {
 
 	for(auto s : getSubStates()) {
 		auto Ts = s->executables();
+		
+		if(Ts.size() == 0)
+			return execs;
+
 		stateTransList.push_back(std::vector<transition*>{ std::begin(Ts), std::end(Ts) });
 	}
 
@@ -177,15 +181,14 @@ state* compState::apply(const transition* trans) {
 	assert(compTrans);
 
 	for(auto trans : compTrans->Ts) {
-		std::cout << trans->src->getLocalName() << std::endl;
+		//std::cout << trans->src->getLocalName() << std::endl;
 		auto s = getSubState(trans->src->getLocalName());
 		assert(s);
 		s->apply(trans);
 	}
 
-	this->prob *= trans->prob;
-
-	this->origin = trans;
+	prob *= trans->prob;
+	origin = trans;
 
 	return this;
 }
@@ -209,6 +212,10 @@ bool compState::isAccepting(void) const {
 		if(elem->isAccepting())
 			return true;
 	return false;
+}
+
+bool compState::safetyPropertyViolation(void) const {
+	return n? n->safetyPropertyViolation() : false;
 }
 
 state* compState::getNeverClaim(void) const {

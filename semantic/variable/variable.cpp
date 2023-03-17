@@ -116,7 +116,7 @@ variable::variable(const variable* other)
 	}
 
 	for(auto subVar : getVariables())
-		subVar->assign(this);
+		subVar->assign(subVar);
 
 	if(!parent) {
 		setPayload(other->getPayload()->copy());
@@ -149,7 +149,7 @@ bool variable::isGlobal(void) const {
 
 void variable::assign(const variable* sc) {
 	if(parent) {
-		assert(parent == sc);
+		assert(parent == sc->getParent());
 	} else {
 		//?
 		assert(false);
@@ -276,202 +276,6 @@ void variable::addRawBytes(size_t size) {
 	rawBytes += size;
 }
 
-/*std::list<variable*> variable::addVariables(const varSymNode* sym) {
-	assert(sym);
-
-	std::list<variable*> res;
-
-	switch(sym->getType())
-	{
-	case symbol::T_NA:
-		assert(false);
-	case symbol::T_BOOL:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new boolVar(dynamic_cast<const boolSymNode*>(sym), i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_BIT:
-	case symbol::T_BYTE:
-	case symbol::T_SHORT:
-	case symbol::T_INT:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new primitiveVariable(sym, i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_UNSGN: 	// not supported yet
-		assert(false);
-	case symbol::T_MTYPE:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new mtypeVar(dynamic_cast<const mtypeSymNode*>(sym), i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_CLOCK:	// dense time clock
-	case symbol::T_MTYPE_DEF:
-		assert(false);
-	case symbol::T_CMTYPE:
-	{
-		auto var = new cmtypeVar(dynamic_cast<const cmtypeSymNode*>(sym));
-		_addVariable(var);
-		res.push_back(var);
-		return res;
-	}
-	//case symbol::T_FEAT,
-	//case symbol::T_UFEAT,
-	case symbol::T_UTYPE:	// Type of variable is a user type (basically, a case symbol::T_TDEF record is being used as the type): utype points to the type record
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new utypeVar(dynamic_cast<const utypeSymNode*>(sym), i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-		// "Special" types:
-	case symbol::T_CHAN:		// Channel: capacity used; children denote message fields
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new channel(dynamic_cast<const chanSymNode*>(sym), i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_CID:		// Channel reference; capacity and children are not used.
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new CIDVar(dynamic_cast<const cidSymNode*>(sym), i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_PID:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new PIDVar(dynamic_cast<const pidSymNode*>(sym), i);
-			_addVariable(var);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_TDEF:		// Type definition: children denote fields of type
-	case symbol::T_INIT:
-	case symbol::T_PTYPE:		// ProcType: fsm field used; bound denotes the number of initially active processes
-	case symbol::T_INLINE:
-	case symbol::T_NEVER:	// Never claim
-		assert(false);
-	default:
-		assert(false);
-	}
-	return res;
-}*/
-/*
-std::list<variable*> variable::createVariables(const varSymNode* sym) {
-	assert(sym);
-
-	std::list<variable*> res;
-
-	switch(sym->getType())
-	{
-	case symbol::T_NA:
-		assert(false);
-	case symbol::T_BOOL:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new boolVar(this, dynamic_cast<const boolSymNode*>(sym), i);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_BIT:
-	case symbol::T_BYTE:
-	case symbol::T_SHORT:
-	case symbol::T_INT:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new primitiveVariable(sym, this, i);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_UNSGN: 	// not supported yet
-		assert(false);
-	case symbol::T_MTYPE:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new mtypeVar(this, dynamic_cast<const mtypeSymNode*>(sym), i);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_CLOCK:	// dense time clock
-	case symbol::T_MTYPE_DEF:
-		assert(false);
-	case symbol::T_CMTYPE:
-	{
-		auto var = new cmtypeVar(this, dynamic_cast<const cmtypeSymNode*>(sym));
-		res.push_back(var);
-		return res;
-	}
-	//case symbol::T_FEAT,
-	//case symbol::T_UFEAT,
-	case symbol::T_UTYPE:	// Type of variable is a user type (basically, a case symbol::T_TDEF record is being used as the type): utype points to the type record
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new utypeVar(this, dynamic_cast<const utypeSymNode*>(sym), i);
-			res.push_back(var);
-		}
-		return res;
-	}
-		// "Special" types:
-	case symbol::T_CHAN:		// Channel: capacity used; children denote message fields
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new channel(this, dynamic_cast<const chanSymNode*>(sym), i);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_CID:		// Channel reference; capacity and children are not used.
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new CIDVar(this, dynamic_cast<const cidSymNode*>(sym), i);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_PID:
-	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new PIDVar(this, dynamic_cast<const pidSymNode*>(sym), i);
-			res.push_back(var);
-		}
-		return res;
-	}
-	case symbol::T_TDEF:		// Type definition: children denote fields of type
-	case symbol::T_INIT:
-	case symbol::T_PROC:		// ProcType: fsm field used; bound denotes the number of initially active processes
-	case symbol::T_INLINE:
-	case symbol::T_NEVER:	// Never claim
-		assert(false);
-	default:
-		assert(false);
-	}
-	return res;
-}
-*/
 variable* variable::getVariable(const std::string& name) const {
 	std::map<std::string, variable*>::const_iterator resIt = varMap.find(name);
 	if(resIt != varMap.cend())

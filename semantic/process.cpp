@@ -20,7 +20,7 @@
 #include "initState.hpp"
 
 process::process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: thread(sym, start, index)
+	: thread(variable::V_PROC, sym, start, index)
 	, pid(pid)
 {}
 
@@ -72,6 +72,10 @@ void process::setPid(byte pid) {
 }
 
 bool process::isAccepting(void) const {
+	return false;
+}
+
+bool process::safetyPropertyViolation(void) const {
 	return false;
 }
 
@@ -459,12 +463,12 @@ state* process::apply(const transition* trans) {
 
 	auto expression = edge->getExpression();
 
+	auto oldLocation = getLocation();
 	//_assertViolation = 0;
 
 	progState* s = getProgState();
 
 	//std::cout << " APPLYING LINE: " << *(trans->lines.cbegin()) << " to process " << this->getFullName() << std::endl;
-	std::cout << " APPLYING LINE: " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << " to process " << this->getFullName() << std::endl;
 
 	byte leaveUntouched = 0; // Set to 1 in case of a rendez-vous channel send.
 Apply:
@@ -516,7 +520,6 @@ Apply:
 				}*/
 				
 				// Rendezvous completed: HANDSHAKE is reset.
-				s->resetHandShake();
 			}
 			break;
 		}
@@ -687,6 +690,7 @@ Apply:
 	if(!leaveUntouched) {
 		
 		// Proceed in automaton
+		
 		setFsmNodePointer(edge->getTargetNode());
 
 		// Set exclusivity of process
@@ -698,7 +702,9 @@ Apply:
 		s->lastStepPid = proc->getPid();
 	}
 
-	//this->origin = trans;
+	origin = trans;
+
+	std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
 
 	return s;
 }

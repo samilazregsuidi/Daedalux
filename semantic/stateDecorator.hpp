@@ -117,13 +117,13 @@ public:
 
 	bool isAccepting(void) const override;
 
+	bool safetyPropertyViolation(void) const override;
+
 	state* getNeverClaim(void) const override;
 
 	const transition* getOrigin(void) const override;
 
 	double getProbability(void) const override;
-
-	void printGraphViz(unsigned long i) const override;
 
 	byte compare(const state& s2) const override;
 

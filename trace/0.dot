@@ -1,0 +1,57 @@
+digraph finite_state_machine {
+	rankdir=LR
+	size="8,5" 
+
+	subgraph cluster_sys {
+		style=filled;
+		color=darkgrey;
+		label = " sys : depth : 1 "; 
+		subgraph cluster_p1 {
+			style=filled;
+			color=lightgrey;
+			label = " p1 "; 
+			subgraph cluster_test {
+				style=filled;
+				color=white;
+				label = " test "; 
+				93824994286521 [label = 8, shape = doublecircle, color = red, fixedsize = true]; 
+				s93824994286521 [shape = point];
+				s93824994286521 -> 93824994286521;
+				93824994286521 -> 93824994286521 [ label = "9 | x = false; "];
+				93824994286521 -> 93824994286521 [ label = "10 | x = true; "];
+
+			}
+		}
+		subgraph cluster_p2 {
+			style=filled;
+			color=lightgrey;
+			label = " p2 "; 
+			subgraph cluster_test {
+				style=filled;
+				color=white;
+				label = " test "; 
+				93824994286530 [label = 8, shape = doublecircle, color = red, fixedsize = true]; 
+				s93824994286530 [shape = point];
+				s93824994286530 -> 93824994286530;
+				93824994286530 -> 93824994286530 [ label = "9 | x = false; "];
+				93824994286530 -> 93824994286530 [ label = "10 | x = true; "];
+
+			}
+		}
+		subgraph cluster_never {
+			style=filled;
+			color=white;
+			label = " never "; 
+			93824994286880 [label = 16, shape = doublecircle, color = red, fixedsize = true]; 
+			s93824994286880 [shape = point];
+			93824994287392 [label = 22, shape = circle, fixedsize = true , style = filled, fillcolor = darkgrey];
+			s93824994286880 -> 93824994286880;
+			93824994286880 -> 93824994287392 [ label = "17 | !(p1.x && p2.x); "];
+			93824994286880 -> 93824994286880 [ label = "18 | (1); "];
+			93824994287392 -> 93824994287392 [ label = "23 | !(p1.x && p2.x); "];
+
+		}
+
+	}
+
+}

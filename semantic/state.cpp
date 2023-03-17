@@ -31,16 +31,14 @@ state::state(const state& other)
 	, prob(other.prob)
 	, origin(other.origin)
 	, errorMask(other.errorMask)
-{
-}
+{}
 
 state::state(const state* other)
 	: variable(other)
 	, prob(other->prob)
 	, origin(other->origin)
 	, errorMask(other->errorMask)
-{
-}
+{}
 
 state::~state() {
 	if(origin)

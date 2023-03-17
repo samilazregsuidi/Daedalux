@@ -111,11 +111,13 @@ public:
 
 	void print(void) const override;
 
-	void printGraphViz(unsigned long i) const override;
+	//void printGraphViz(unsigned long i) const override;
 
 	void printTexada(void) const override;
 
 	void printHexadecimal(void) const override;
+
+	bool safetyPropertyViolation(void) const override;
 
 	bool nullstate(void) const override;
 

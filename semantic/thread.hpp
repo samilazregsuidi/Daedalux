@@ -32,7 +32,7 @@ class thread : public state {
 public:
 	friend class state;
 
-	thread(const seqSymNode* sym, const fsmNode* start, unsigned int index = 0);
+	thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, unsigned int index = 0);
 
 	thread(const thread& other);
 
@@ -49,6 +49,8 @@ public:
 	const fsmNode* getFsmNodePointer(void) const;
 
 	void setFsmNodePointer(const fsmNode* pointer);
+
+	int getLocation(void) const;
 
 	bool isAtLabel(int nbLine) const;
 
@@ -90,7 +92,7 @@ public:
 	}
 
 	void printGraphViz(unsigned long i) const;
-
+	
 	//byte compare(const state& s2) const override;
 
 public:

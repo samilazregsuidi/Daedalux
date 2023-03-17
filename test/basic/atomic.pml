@@ -1,7 +1,7 @@
-int i = 0;
-int a = 0;
-int j = 0;
-int b = 0;
+byte i = 0;
+byte a = 0;
+byte j = 0;
+byte b = 0;
 	
 active proctype I (){
 	

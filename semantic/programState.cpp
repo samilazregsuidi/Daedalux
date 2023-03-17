@@ -29,7 +29,7 @@
  */
 
 progState::progState(const fsm* stateMachine, const std::string& name) 
-	: state(variable::V_STATE, name)
+	: state(variable::V_PROG, name)
 	, globalSymTab(stateMachine->getGlobalSymTab())
 	, stateMachine (stateMachine)
 	, pidCounter(0)
@@ -56,6 +56,19 @@ progState::progState(const progState* other)
 	, handShakeProc(other->handShakeProc)
 	, exclusiveProc(other->exclusiveProc)
 	, timeout(other->timeout)
+{}
+
+progState::progState(const progState& other)
+	: state(other)
+	, globalSymTab(other.globalSymTab)
+	, stateMachine(other.stateMachine)
+	, pidCounter(other.pidCounter)
+	, nbProcesses(other.nbProcesses)
+	, lastStepPid(other.lastStepPid)
+	, handShakeChan(other.handShakeChan)
+	, handShakeProc(other.handShakeProc)
+	, exclusiveProc(other.exclusiveProc)
+	, timeout(other.timeout)
 {}
 
 
@@ -175,6 +188,7 @@ void progState::print(void) const {
 	printf("\n\n");
 }
 
+/*
 void progState::printGraphViz(unsigned long i) const {
 	std::ofstream stateFile;
 	//stateFile.open("trace/" + std::to_string(hash()));
@@ -196,7 +210,7 @@ void progState::printGraphViz(unsigned long i) const {
 
 	stateMachine->printGraphVisWithLocations(stateFile, locs, edges);
 	stateFile.close();
-}
+}*/
 
 std::list<process*> progState::getProcs(void) const {
 	return getTVariables<process*>();
@@ -214,6 +228,10 @@ process* progState::getProc(int pid) const {
 
 state* progState::getNeverClaim(void) const {
 	return parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr;
+}
+
+bool progState::safetyPropertyViolation(void) const {
+	return false;
 }
 
 /**
@@ -398,18 +416,19 @@ state* progState::apply(const transition* trans) {
 	proc = getProc(proc->getPid());
 	assert(proc);
 
-	proc->apply(trans);
+	proc->apply(progTrans->getProcTrans());
 
 	auto response = dynamic_cast<processTransition*>(progTrans->getResponse());
 	if(response) {
 		response->getProc()->apply(response);
+		resetHandShake();
 	}
 
 	assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);
 
-	this->prob *= trans->prob;
+	prob *= trans->prob;
 
-	this->origin = trans;
+	origin = trans;
 
 	return this;
 }

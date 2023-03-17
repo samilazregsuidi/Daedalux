@@ -49,11 +49,10 @@ public:
 		V_INLINE,
 		V_UTYPE,	// Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type record
 		V_NEVER,	// Never claim
+		V_PROG,
+		V_COMP_S,
 
-		V_VARIANT,
-
-		V_STATE,
-		V_COMP_STATE
+		V_VARIANT
 	};
 
 	variable(Type type, const std::string& name = std::string());

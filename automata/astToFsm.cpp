@@ -51,7 +51,7 @@ fsmEdge* ASTtoFSM::_looseEnd(const stmnt* node) {
     auto edge = current->createfsmEdge(node->getLineNb(), node);
 
     edge->setFeatures(looseFeatures);
-    fm->printBool(looseFeatures);
+    //fm->printBool(looseFeatures);
     looseFeatures = ADD();
 
     looseEnds.push_back(edge);
@@ -150,24 +150,20 @@ void ASTtoFSM::visit(const stmntIf* node)  {
         
         opt->acceptVisitor(this);
 
+        //(nx, ex, nx+1), (nx+1, ex+1, 0) becomes (nx, ex+1, 0)
         assert(trans->getTargetNode());
         for(auto t : trans->getTargetNode()->getEdges()) {
             t->setSourceNode(start);
         }
         res->deleteNode(trans->getTargetNode());
-    
-        
         
         flowLooseEnds.merge(looseEnds);
         looseEnds.clear();
-        flowLooseBreaks.merge(looseBreaks);
-        looseBreaks.clear();
 
         opt = opt->getNextOpt();
     }
 
     looseEnds.merge(flowLooseEnds);
-    looseBreaks.merge(flowLooseBreaks);
 
     optFeatures.pop();
 
@@ -292,8 +288,12 @@ void ASTtoFSM::visit(const stmntFct* decl)  {
         auto labelledNodeIt = labeledNodes.find(looseGotoList.first);
         assert(labelledNodeIt != labeledNodes.end());
         auto labelledNode = labelledNodeIt->second;
-        for(auto looseGoto : looseGotoList.second)
-            looseGoto->setTargetNode(labelledNode);
+        for(auto looseGoto : looseGotoList.second) {
+            for(auto inputs : looseGoto->getSourceNode()->getInputEdges()) {
+                inputs->setTargetNode(labelledNode);
+            }
+            res->deleteNode(looseGoto->getSourceNode());
+        }
     }
     looseGotos.clear();
 

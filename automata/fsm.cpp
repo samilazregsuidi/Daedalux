@@ -80,11 +80,10 @@ std::list<fsmNode*> fsm::getNodes(fsmNode* from) const {
 		if(std::find(reachables.begin(), reachables.end(), current) == reachables.end())
 			reachables.push_back(current);
 
-		for(auto e : from->getEdges()) {
-			if(std::find(reachables.begin(), reachables.end(), current) == reachables.end()) {
-				auto next = e->getTargetNode();
-				if (next)
-					stack.push(next);
+		for(auto e : current->getEdges()) {
+			auto next = e->getTargetNode();
+			if(next && std::find(reachables.begin(), reachables.end(), next) == reachables.end()) {
+				stack.push(next);
 			}
 		}
 	}
@@ -161,7 +160,7 @@ std::list<fsmEdge *> fsm::getTransitions(void) const {
 
 std::list<fsmEdge*> fsm::getTransitions(fsmNode* from) const {
 	std::list<fsmNode*> reachables;
-	std::list<fsmEdge*> edges;
+	std::set<fsmEdge*> edges;
 	std::stack<fsmNode*> stack;
 
 	stack.push(from);
@@ -174,17 +173,15 @@ std::list<fsmEdge*> fsm::getTransitions(fsmNode* from) const {
 			reachables.push_back(current);
 
 		for(auto e : current->getEdges()) {
-			edges.push_back(e);
-
-			if(std::find(reachables.begin(), reachables.end(), current) == reachables.end()) {
-				auto next = e->getTargetNode();
-				if (next)
-					stack.push(next);
+			edges.insert(e);
+			auto next = e->getTargetNode();
+			if(next && std::find(reachables.begin(), reachables.end(), next) == reachables.end()) {
+				stack.push(next);
 			}
 		}
 	}
 
-	return edges;
+	return std::list<fsmEdge*>(edges.begin(), edges.end());
 }
 
 std::list<fsmEdge*> fsm::getEndTransitions(void) const {
@@ -197,7 +194,7 @@ std::list<fsmEdge*> fsm::getEndTransitions(void) const {
 
 std::list<fsmEdge*> fsm::getEndTransitions(fsmNode* from) const {
 	std::list<fsmNode*> reachables;
-	std::list<fsmEdge*> endEdges;
+	std::set<fsmEdge*> endEdges;
 	std::stack<fsmNode*> stack;
 
 	stack.push(from);
@@ -209,17 +206,16 @@ std::list<fsmEdge*> fsm::getEndTransitions(fsmNode* from) const {
 		if(std::find(reachables.begin(), reachables.end(), current) == reachables.end())
 			reachables.push_back(current);
 
-		for(auto e : from->getEdges()) {
+		for(auto e : current->getEdges()) {
 			auto next = e->getTargetNode();
 			if(!next)
-				endEdges.push_back(e);
-
-			if(std::find(reachables.begin(), reachables.end(), current) == reachables.end() && next) 
+				endEdges.insert(e);
+			else if(std::find(reachables.begin(), reachables.end(), next) == reachables.end()) 
 				stack.push(next);
 		}
 	}
 
-	return endEdges;
+	return std::list<fsmEdge*>(endEdges.begin(), endEdges.end());
 }
 
 void fsm::addTransition(fsmEdge* edge){

@@ -36,6 +36,8 @@ public:
 
 	progState(const progState* other);
 
+	progState(const progState& other);
+
 	//state(const state& s) = default;
 
 	progState* deepCopy(void) const override;
@@ -83,6 +85,8 @@ public:
 	bool isAccepting(void) const override;
 
 	bool isAtomic(void) const;
+
+	bool safetyPropertyViolation(void) const override;
 	
 	std::list<transition*> transitions(void) const override;
 
@@ -162,10 +166,9 @@ public:
 
 	void print(void) const override;
 
-	void printGraphViz(unsigned long i) const override;
+	//void printGraphViz(unsigned long i) const override;
 
 	void accept(stateVisitor* visitor) override;
-
 
 public:
 	const symTable* const globalSymTab;

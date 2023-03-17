@@ -100,6 +100,7 @@ add_executable(deadalux
 	./semantic/payload.cpp
 	./semantic/transition.cpp
 	./semantic/programTransition.cpp
+	./semantic/processTransition.cpp
 	./semantic/compositeTransition.cpp
 	./semantic/featuredProgramTransition.cpp
 	./semantic/neverTransition.cpp
@@ -113,6 +114,8 @@ add_executable(deadalux
 	./features/ADDutils.cpp
 	
 	./algorithms/explore.cpp
+	
+	./visualizers/stateToGraphViz.cpp
 	
 	./logic/ltl-ltl2ba.c
     
@@ -141,6 +144,8 @@ target_include_directories(deadalux
     ./features
     
     ./algorithms
+    
+    ./visualizers
     
     ./libs/cudd
     ./libs/cudd/st

@@ -121,6 +121,8 @@ public:
 
 	//size_t getSizeOf(void) const;
 
+	virtual bool safetyPropertyViolation(void) const = 0;
+
 	virtual bool nullstate(void) const = 0;
 
 	virtual bool endstate(void) const = 0;
@@ -132,7 +134,7 @@ public:
 	virtual const transition* getOrigin(void) const;
 
 	virtual double getProbability(void) const;
-
+	
 	/*
 	* If the pid of the last process is 'pid' then:
 	*  - the stateMask of the process is removed
@@ -145,11 +147,10 @@ public:
 	//void clean(void); // Applies stateKillProctype while this latter function succeeds.
 
 	// State printing
-	//virtual void print(const state* diffState) const = 0;
-	
+
 	virtual byte compare(const state& s2) const;
 
-	virtual void printGraphViz(unsigned long i) const = 0;
+	//virtual void printGraphViz(unsigned long i) const = 0;
 
 	virtual void accept(stateVisitor* visitor);
 

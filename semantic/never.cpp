@@ -20,7 +20,12 @@
 //#include "cuddObj.hh"
 
 never::never(const seqSymNode* sym, const fsmNode* start)
-	: thread(sym, start, 0)
+	: thread(variable::V_NEVER, sym, start)
+{
+}
+
+never::never(const never& other) 
+	: thread(other)
 {
 }
 
@@ -71,7 +76,7 @@ std::list<transition*> never::executables(void) const {
 		}
 	}
 
-	assert(res.size() > 0);
+	//assert(res.size() > 0);
 
 	return res;
 }
@@ -218,6 +223,7 @@ int never::eval(const astNode* node, byte flag) const {
  * that evaluated to false.
  */
 state* never::apply(const transition* trans) {
+	assert(dynamic_cast<const neverTransition*>(trans));
 	const never* proc = dynamic_cast<const neverTransition*>(trans)->getNeverClaim();
 	const fsmEdge* edge =  dynamic_cast<const neverTransition*>(trans)->getEdge();
 
@@ -227,6 +233,8 @@ state* never::apply(const transition* trans) {
 	auto expression = edge->getExpression();
 
 	//_assertViolation = 0;
+
+	auto oldLocation = getLocation();
 
 	byte leaveUntouched = 0; // Set to 1 in case of a rendez-vous channel send.
 Apply:
@@ -322,6 +330,10 @@ Apply:
 	// Proceed in automaton
 	setFsmNodePointer(edge->getTargetNode());
 
+	origin = trans;
+
+	std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const neverTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
+
 	return this;
 }
 
@@ -337,7 +349,11 @@ void never::print(void) const {
 }
 
 bool never::isAccepting(void) const {
-	return endstate() ? true : getFsmNodePointer()->getFlags() & fsmNode::N_ACCEPT;
+	return getFsmNodePointer()->isAccepting();
+}
+
+bool never::safetyPropertyViolation(void) const {
+	return endstate();
 }
 
 state* never::getNeverClaim(void) const {

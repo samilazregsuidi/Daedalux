@@ -46,6 +46,14 @@ public:
 	
 	void addFlags(unsigned int flags);
 
+	bool isAccepting(void) const;
+
+	bool isProgress(void) const;
+
+	bool isDeterministic(void) const;
+
+	bool isAtomic(void) const;
+
 	fsm* getParent(void) const;
 	
 	void detachTransitions(void);

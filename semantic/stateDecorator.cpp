@@ -158,6 +158,10 @@ bool stateDecorator::isAccepting(void) const {
 	return wrappee->isAccepting();
 }
 
+bool stateDecorator::safetyPropertyViolation(void) const {
+	return wrappee->safetyPropertyViolation();
+}
+
 state* stateDecorator::getNeverClaim(void) const {
 	return wrappee->getNeverClaim();
 }
@@ -168,10 +172,6 @@ const transition* stateDecorator::getOrigin(void) const {
 
 double stateDecorator::getProbability(void) const {
 	return wrappee->getProbability();
-}
-
-void stateDecorator::printGraphViz(unsigned long i) const {
-	wrappee->printGraphViz(i);
 }
 
 byte stateDecorator::compare(const state& s2) const {

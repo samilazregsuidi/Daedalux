@@ -16,6 +16,8 @@ public:
 
 	never(const seqSymNode* sym, const fsmNode* start);
 
+	never(const never& other);
+
 	never(const never* other);
 
 	never* deepCopy(void) const override;
@@ -41,6 +43,8 @@ public:
 	bool isAccepting(void) const override;
 
 	state* getNeverClaim(void) const override;
+
+	bool safetyPropertyViolation(void) const override;
 
 	void accept(stateVisitor* visitor) override;
 

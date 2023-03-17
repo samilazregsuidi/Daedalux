@@ -22,6 +22,8 @@ fsmEdge::fsmEdge(fsmNode* source, const astNode* expression, int lineNb, bool ow
 {
 	auto stmntCast = dynamic_cast<const stmnt*>(expression);
 	prob = stmntCast? stmntCast->getProb() : prob;
+
+	std::cout << "add (n"<< source->getLineNb() << ", e"<< lineNb << ", n-1)" << std::endl;
 }
 
 /**
@@ -33,7 +35,7 @@ fsmEdge::~fsmEdge(){
 }
 
 fsmNode* fsmEdge::setTargetNode(fsmNode* target) {
-	assert(!this->target);
+	//assert(!this->target);
 	assert(target);
 	
 	if(this->target) {

@@ -40,7 +40,7 @@ void expToADD::visit(const exprVarRef* node) {
 			node->getSubField()->acceptVisitor(this);
 		}
 	} else {
-		assert(!node->hasSubField());
+		//assert(!node->hasSubField());
 		node->getVarRefName()->acceptVisitor(this);
 	}
 }

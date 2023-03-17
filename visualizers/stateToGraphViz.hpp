@@ -13,7 +13,7 @@ public:
 
     ~stateToGraphViz() override;
 
-    void printGraphViz(state* s); 
+    void printGraphViz(state* s, int depth = 0); 
 
     void visit(state* s) override;
 	void visit(process* s) override;
@@ -22,10 +22,15 @@ public:
     void visit(never* s) override;
 	void visit(featStateDecorator* s) override;
 
+private:
+    std::string _tab(void) const;
+
 public:
     const fsm* automata;
     size_t index;
     std::ofstream file;
+    size_t tab;
+    int depth;
 };
 
 #endif
