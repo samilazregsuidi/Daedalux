@@ -104,6 +104,7 @@ add_executable(deadalux
 	./semantic/compositeTransition.cpp
 	./semantic/featuredProgramTransition.cpp
 	./semantic/neverTransition.cpp
+	./semantic/deleteTransVisitor.cpp
 	./semantic/initState.cpp
 
 	./parser/${Parser}

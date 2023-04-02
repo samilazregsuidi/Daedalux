@@ -5,28 +5,36 @@
 #include "fsmEdge.hpp"
 #include "process.hpp"
 
+#include "transitionVisitor.hpp"
+
 #include <assert.h>
 #include <iterator>
+#include <iostream>
 
-featProgTransition::featProgTransition(state* s, transition* procTrans, const ADD& featExpr, transition* response)
+featProgTransition::featProgTransition(state* s, transition* procTrans, ADD featExpr, transition* response)
 	: programTransition(s, procTrans, response)
 	, features(featExpr)
 {
 }
 
-featProgTransition::~featProgTransition() {
-
+featProgTransition::featProgTransition(const featProgTransition* other) 
+	: programTransition(other)
+	, features(other->features)
+{
 }
 
-const ADD& featProgTransition::getFeatExpr(void) const {
+featProgTransition::~featProgTransition() 
+{
+}
+
+ADD featProgTransition::getFeatExpr(void) const {
 	return features;
 }
 
-/*void progTransition::fire(state* s) const {
-	process* proc = this->getProc();
-	assert(proc);
-	//warning if "different" procs have the same pid i.e., dynamic proc creation
-	proc = dynamic_cast<progState*>(s)->getProc(proc->getPid());
+transition* featProgTransition::deepCopy(void) const {
+	return new featProgTransition(this);
+}
 
-	proc->apply(this);
-}*/
+void featProgTransition::accept(transitionVisitor* visitor) {
+	visitor->visit(this);
+}

@@ -30,6 +30,7 @@
 #include <stack>
 #include <string>
 #include <functional>
+#include <memory>
 
 #include "variable.hpp"
 
@@ -99,21 +100,21 @@ public:
 
 	// Applying statements
 
-	virtual state* apply(const transition* trans) = 0;
+	virtual state* apply(transition* trans) = 0;
 
 	virtual state* applyRepeated(const std::list<transition*>& transList);
 	
-	static state* apply(const state* s, const transition* t);
+	static state* apply(const state* s, transition* t);
 
 	static state* applyRepeated(const state* s, const std::list<transition*> transList);
 
 	virtual std::list<state*> Post(void) const;
 
-	static std::list<state*> Post(const state* s);
+	//static std::list<std::shared_ptr<state>> Post(const state* s);
 
-	virtual state* Post(const transition* trans) const;
+	virtual state* Post(transition* trans) const;
 
-	static state* Post(const transition* trans, const state* s);
+	//static std::shared_ptr<state> Post(transition* trans, const state* s);
 
 	//virtual state* getSubState(const std::string& name) const;
 
@@ -149,6 +150,8 @@ public:
 	// State printing
 
 	virtual byte compare(const state& s2) const;
+
+	virtual byte compare(unsigned long s2Hash) const;
 
 	//virtual void printGraphViz(unsigned long i) const = 0;
 

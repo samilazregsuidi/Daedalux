@@ -17,6 +17,8 @@ class processTransition : public transition {
 public:
 	processTransition(process* proc, const fsmEdge* trans);
 
+	processTransition(const processTransition* other);
+
 	//progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr);
 	
 	~processTransition() override;
@@ -27,7 +29,9 @@ public:
 
 	int getLineNb(void) const;
 
-	//void fire(state* s) const override;
+	transition* deepCopy(void) const override;
+
+	void accept(transitionVisitor* visitor) override;
 
 public:		//
 	const fsmEdge* const edge;			//  - The transition that can be fired

@@ -14,12 +14,12 @@ active proctype test()
 never { // !(G ((! x) -> F x)) 
 T0_init :
 	if
-	:: !(p1.x && p2.x) -> goto accept_S2
+	:: p1.x != p2.x -> goto accept_S2
 	:: (1) -> goto T0_init
 
 	fi;
 accept_S2 :
 	if
-	:: !(p1.x && p2.x) -> goto accept_S2
+	:: p1.x != p2.x -> goto accept_S2
 	fi;
 }

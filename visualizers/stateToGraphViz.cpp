@@ -67,6 +67,10 @@ void stateToGraphViz::visit(process* s) {
 		auto exprStr = std::string(*t->getExpression());
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
+		
+		if(exprStr.size() > 16)
+			exprStr = "...";
+
 		if(t->getTargetNode()) {
 			file << _tab() << sId + t->getSourceNode()->getID() <<" -> "<< sId + t->getTargetNode()->getID() << " [" << (firedEdge == t ? "color = red, fontcolor = red," : "") << " label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << t->getLineNb() << " | " << (t->getFeatures()? TVL::toString(t->getFeatures()) + " | " : "") << exprStr << "\"];" << std::endl;
 		}
@@ -141,6 +145,10 @@ void stateToGraphViz::visit(never* s) {
 		auto exprStr = std::string(*t->getExpression());
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
+		
+		if(exprStr.size() > 16)
+			exprStr = "...";
+
 		if(t->getTargetNode()) {
 			file <<_tab() <<   t->getSourceNode()->getID() <<" -> "<< t->getTargetNode()->getID() << " [" << (firedEdge == t ? "color = red, fontcolor = red," : "") <<" label = \""<< ( t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability())+"] " : "") << t->getLineNb() << " | " << exprStr << "\"];" << std::endl;
 		}

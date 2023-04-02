@@ -208,11 +208,12 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 
 	if(stateMachine->isFeatured()){
 		res = new featStateDecorator(res, stateMachine->getFeatureDiagram(), tvl);
-		if(sym->getInitExpr()){
-			auto v = new expToADD(tvl);
-			sym->getInitExpr()->acceptVisitor(v);
-			auto cst = v->getFormula();
+		if(sym && sym->getInitExpr()){
+			auto v = expToADD(tvl);
+			sym->getInitExpr()->acceptVisitor(&v);
+			auto cst = v.getFormula();
 			assert(cst);
+			
 			auto b = dynamic_cast<featStateDecorator*>(res)->constraint(cst);
 			assert(b);
 		}

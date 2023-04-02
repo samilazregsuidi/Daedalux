@@ -14,13 +14,17 @@ class programTransition : public transition {
 public:
 	programTransition(state* s, transition* procTrans, transition* response = nullptr);
 
-	//progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr);
-	
+	programTransition(const programTransition* other);
+
 	~programTransition() override;
 	
 	transition* getProcTrans(void) const;
 
 	transition* getResponse(void) const;
+
+	transition* deepCopy(void) const override;
+
+	void accept(transitionVisitor* visitor) override;
 
 public:		//
 	transition* procTrans;

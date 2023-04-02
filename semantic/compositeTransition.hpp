@@ -17,14 +17,14 @@ class compTransition : public transition {
 public:
 	compTransition(state* s, const std::list<transition*>& ts);
 
-	compTransition(state* s, const std::vector<transition*>& ts);
+	compTransition(const compTransition* other);
 	
 	~compTransition() override;
 	
-	//void fire(state* s) const override;
+	transition* deepCopy(void) const override;
 
-public:		//
-	std::list<transition*> Ts;
+	void accept(transitionVisitor* visitor) override;
+
 };
 
 #endif

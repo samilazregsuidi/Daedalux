@@ -17,7 +17,7 @@ public:
 
 	state* deepCopy(void) const override;
 
-	virtual ~featStateDecorator();
+	~featStateDecorator() override;
 
 	std::list<transition*> executables(void) const override;
 
@@ -25,15 +25,17 @@ public:
 
 	byte compare(const state& s2, const ADD& features) const;
 
+	byte compare(unsigned long s2Hash, const ADD& features) const;
+
 	// Applying statements
 
-	state* apply(const transition* trans) override;
+	state* apply(transition* trans) override;
 
 	void print(void) const override;
 
-	const ADD& getFeatures(void) const;
+	ADD getFeatures(void) const;
 
-	const ADD& getDiagram(void) const;
+	ADD getDiagram(void) const;
 
 	bool constraint(const ADD& cst);
 
@@ -41,7 +43,7 @@ public:
 
 public:
 	ADD features;
-	const ADD diagram;
+	ADD diagram;
 	const TVL* tvl;
 };
 

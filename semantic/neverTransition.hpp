@@ -15,7 +15,7 @@ class neverTransition : public transition {
 public:
 	neverTransition(never* n, const fsmEdge* trans);
 
-	//progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr);
+	neverTransition(const neverTransition* other);
 	
 	~neverTransition() override;
 	
@@ -23,7 +23,9 @@ public:
 
 	const fsmEdge* getEdge(void) const;
 
-	//void fire(state* s) const override;
+	transition* deepCopy(void) const override;
+
+	void accept(transitionVisitor* visitor) override;
 
 public:		//
 	const fsmEdge* const edge;			//  - The transition that can be fired

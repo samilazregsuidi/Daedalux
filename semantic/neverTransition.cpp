@@ -1,4 +1,5 @@
 #include "neverTransition.hpp"
+#include "transitionVisitor.hpp"
 
 #include "state.hpp"
 #include "never.hpp"
@@ -21,28 +22,20 @@ neverTransition::neverTransition(never* proc, const fsmEdge* edge)
 	prob = edge->getProbability();
 }
 
-/*neverTransition::neverTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr)
-	: transition(s)
-	, proc(proc)
-	, edge(edge)
-	//, features(featExpr)
+neverTransition::neverTransition(const neverTransition* other)
+	: transition(other)
+	, edge(other->edge)
 {
-	assert(proc && edge);
-	prob = edge->getProbability();
-}*/
+
+}
+
+transition* neverTransition::deepCopy(void) const {
+	return new neverTransition(this);
+}
 
 neverTransition::~neverTransition() {
 
 }
-
-/*void progTransition::fire(state* s) const {
-	process* proc = this->getProc();
-	assert(proc);
-	//warning if "different" procs have the same pid i.e., dynamic proc creation
-	proc = dynamic_cast<progState*>(s)->getProc(proc->getPid());
-
-	proc->apply(this);
-}*/
 
 never* neverTransition::getNeverClaim(void) const {
 	return dynamic_cast<never*>(src);
@@ -50,4 +43,8 @@ never* neverTransition::getNeverClaim(void) const {
 
 const fsmEdge* neverTransition::getEdge(void) const {
 	return edge;
+}
+
+void neverTransition::accept(transitionVisitor* visitor) {
+	visitor->visit(this);
 }

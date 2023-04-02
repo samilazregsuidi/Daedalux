@@ -1,13 +1,17 @@
 digraph symbol_table {
 	 rankdir = LR
-	system[ shape = record, label = "<f0> system | { <93824994218208> system|p1| 0 byte | line 1 } | { <93824994218592> system|p2| 0 byte | line 2 }"]
+	system[ shape = record, label = "<f0> system | { <94621325648176> system|p1 : f.B1| 0 byte | line 8 } | { <94621325649504> system|p2 : f.B2| 0 byte | line 9 }"]
 
-	global[ shape = record, label = "<f0> global | { <93824994217184> int|_| 4 bytes | predef. } | { <93824994217456> int|_nr_pr| 4 bytes | predef. } | { <93824994217616> pid|_last| 1 byte | predef. } | { <93824994217776> bool|np_| 1 byte | predef. } | { <93824994217936> int|k| 4 bytes | predef. } | { <93824994218992> bool|x| 1 byte | line 4 } | { <93824994275744> proctype|test| 0 byte | line 8 } | { <93824994284560> never|never| 0 byte | line 25 }"]
+	global[ shape = record, label = "<f0> global | { <94621325607472> int|_| 4 bytes | predef. } | { <94621325607744> int|_nr_pr| 4 bytes | predef. } | { <94621325607904> pid|_last| 1 byte | predef. } | { <94621325608064> bool|np_| 1 byte | predef. } | { <94621325641504> int|k| 4 bytes | predef. } | { <94621325646240> typedef|features| 0 byte | line 4 } | { <94621325646832> features|f| 2 bytes | line 6 } | { <94621325649872> byte|n| 1 byte | line 11 } | { <94621325650272> short|i| 2 bytes | line 12 } | { <94621325691632> proctype|foo| 0 byte | line 22 } | { <94621325720288> never|never| 0 byte | line 45 }"]
 
-	test[ shape = record, label = "<f0> test | { <93824994273408> pid|_pid| 1 byte | predef. }"]
+	foo[ shape = record, label = "<f0> foo | { <94621325650944> pid|_pid| 1 byte | predef. }"]
 
 
-	global:f0 -> test:f0
+	global:f0 -> foo:f0
+
+	features[ shape = record, label = "{ <94621325645888> bool|B1| 1 byte | line 2 } | { <94621325646080> bool|B2| 1 byte | line 4 }"]
+
+	global:94621325646240 -> features
 
 
 	system:f0 -> global:f0

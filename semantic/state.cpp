@@ -29,14 +29,14 @@ state::state(variable::Type type, const std::string& name)
 state::state(const state& other)
 	: variable(other)
 	, prob(other.prob)
-	, origin(other.origin)
+	, origin(nullptr)
 	, errorMask(other.errorMask)
 {}
 
 state::state(const state* other)
 	: variable(other)
 	, prob(other->prob)
-	, origin(other->origin)
+	, origin(nullptr)
 	, errorMask(other->errorMask)
 {}
 
@@ -62,11 +62,13 @@ std::list<state*> state::Post(void) const {
 	for(auto t : executables())
 		res.push_back(this->Post(t));
 	return res;
-
 }
 
-state* state::Post(const transition* trans) const {
-	return state::apply(this, trans);
+state* state::Post(transition* trans) const {
+	auto post = state::apply(this, trans);
+	assert(trans->src == this);
+	trans->dst = post;
+	return post;
 }
 
 /*static*/ state* state::applyRepeated(const std::list<transition*>& transList) {
@@ -75,14 +77,16 @@ state* state::Post(const transition* trans) const {
 	return this;
 }
 
-/*static*/ state* state::apply(const state* s, const transition* t) {
+/*static*/ state* state::apply(const state* s, transition* t) {
 	auto copy = s->deepCopy();
+	assert(copy->getOrigin() == nullptr);
 	//printf("copy print\n");
 	//copy->print();
 	assert(copy);
 	assert(s->hash() == copy->hash());
 	//printf("s hash %lu and copy hash %lu\n", s->hash(), copy->hash());
 	copy->apply(t);
+	assert(copy->getOrigin() == t);
 	return copy;
 }
 
@@ -96,6 +100,10 @@ double state::getProbability(void) const {
 
 byte state::compare(const state& s2) const {
 	return hash() == s2.hash();
+}
+
+byte state::compare(unsigned long s2Hash) const {
+	return hash() == s2Hash;
 }
 
 void state::accept(stateVisitor* visitor) {

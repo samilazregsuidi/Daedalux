@@ -22,6 +22,7 @@
 never::never(const seqSymNode* sym, const fsmNode* start)
 	: thread(variable::V_NEVER, sym, start)
 {
+	//lines.push_back(edge->getLineNb());
 }
 
 never::never(const never& other) 
@@ -142,7 +143,8 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_RREF): 
 		{	
 			auto rref = dynamic_cast<const exprRemoteRef*>(node);
-			return dynamic_cast<thread*>(getVariable(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+			auto isAtLabel = dynamic_cast<thread*>(getVariable(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+			return isAtLabel;
 		}
 
 		case(astNode::E_EXPR_GT):
@@ -171,7 +173,7 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_OR):
 			if(!eval(binaryExpr->getLeftExpr(), flag))
 				return eval(binaryExpr->getRightExpr(), flag);
-			return 0;
+			return 1;
 
 		case(astNode::E_EXPR_NEG):
 			return !eval(unaryExpr->getExpr(), flag);
@@ -222,13 +224,15 @@ int never::eval(const astNode* node, byte flag) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-state* never::apply(const transition* trans) {
+state* never::apply(transition* trans) {
 	assert(dynamic_cast<const neverTransition*>(trans));
 	const never* proc = dynamic_cast<const neverTransition*>(trans)->getNeverClaim();
 	const fsmEdge* edge =  dynamic_cast<const neverTransition*>(trans)->getEdge();
 
 	assert(proc);
 	assert(edge);
+
+	assert(origin == nullptr);
 
 	auto expression = edge->getExpression();
 
@@ -331,6 +335,7 @@ Apply:
 	setFsmNodePointer(edge->getTargetNode());
 
 	origin = trans;
+	trans->dst = this;
 
 	std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const neverTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
 

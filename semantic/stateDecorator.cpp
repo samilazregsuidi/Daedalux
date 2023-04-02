@@ -2,23 +2,31 @@
 // State
 
 stateDecorator::stateDecorator(state* wrappee) 
-	: state(wrappee->getType())
+	: state(*wrappee)
 	, wrappee(wrappee)
-{}
+{
+	variable::clearVariables();
+}
 
 stateDecorator::stateDecorator(const stateDecorator& s) 
 	: state(*s.wrappee)
 	, wrappee(s.wrappee)
-{}
+{
+	variable::clearVariables();
+}
 
 stateDecorator::stateDecorator(const stateDecorator* other)
 	: state(*other->wrappee)
 	, wrappee(nullptr)
 {
 	wrappee = other->wrappee->deepCopy();
+	
+	variable::clearVariables();
 }
 
 stateDecorator::~stateDecorator() {
+	wrappee->setParent(nullptr);
+	wrappee->origin = nullptr;
 	delete wrappee;
 }
 
@@ -43,6 +51,7 @@ bool stateDecorator::operator != (const variable& other) const {
 }*/
 
 void stateDecorator::setParent(variable* parent) {
+	this->parent = parent;
 	wrappee->setParent(parent);
 }
 
@@ -142,7 +151,7 @@ std::list<transition*> stateDecorator::executables(void) const {
 	return wrappee->executables();
 }
 
-state* stateDecorator::apply(const transition* trans) {
+state* stateDecorator::apply(transition* trans) {
 	return wrappee->apply(trans);
 }
 

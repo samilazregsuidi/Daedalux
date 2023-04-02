@@ -47,8 +47,8 @@ void ASTtoFSM::_label(fsmNode* node){
     labels.clear();
 }
 
-fsmEdge* ASTtoFSM::_looseEnd(const stmnt* node) {
-    auto edge = current->createfsmEdge(node->getLineNb(), node);
+fsmEdge* ASTtoFSM::_looseEnd(const stmnt* node, bool owner) {
+    auto edge = current->createfsmEdge(node->getLineNb(), node, nullptr, owner);
 
     edge->setFeatures(looseFeatures);
     //fm->printBool(looseFeatures);
@@ -367,7 +367,7 @@ void ASTtoFSM::visit(const stmntElse* node) {
     _connect(looseEnds, current);
 
     if(hasOptFeatures) {
-        auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
+        auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
         fm->printBool(optFeatures.top());
         edge->setFeatures(optFeatures.top());
         hasOptFeatures = false;

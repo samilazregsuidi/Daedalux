@@ -61,7 +61,7 @@ public:
 private:
 	void _connect(std::list<fsmEdge*>& edges, fsmNode* target);
 	void _label(fsmNode* node);
-	fsmEdge* _looseEnd(const stmnt* node);
+	fsmEdge* _looseEnd(const stmnt* node, bool owner = false);
 	fsmEdge* _looseBreak(const stmnt* node);
 
 	void _toFsm(const stmnt* node);

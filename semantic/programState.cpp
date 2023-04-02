@@ -185,7 +185,6 @@ void progState::print(void) const {
 		for(auto a : actions)
 			printf(" %s, ", a.c_str());
 	}
-	printf("\n\n");
 }
 
 /*
@@ -403,7 +402,7 @@ std::list<transition*> progState::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-state* progState::apply(const transition* trans) {
+state* progState::apply(transition* trans) {
 	
 	const programTransition* progTrans = dynamic_cast<const programTransition*>(trans);
 	assert(progTrans);
@@ -429,6 +428,7 @@ state* progState::apply(const transition* trans) {
 	prob *= trans->prob;
 
 	origin = trans;
+	trans->dst = this;
 
 	return this;
 }

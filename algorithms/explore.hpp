@@ -19,24 +19,23 @@ struct element {
         , init(false)
     {}
     
-    element(state* s)
+    element(state* s, unsigned int depth = 0)
 		: s(s)
         , init(false)
+        , depth(depth)
 	{}
 
     ~element() {
-        if(s) 
+        if(s)
             delete s;
         for(auto p : Post)
             delete p;
-        /*for(auto p : Post_save)
-            delete p;*/
     }
 
 	state* s;
 	std::list<state*> Post;
-	//std::list<state*> Post_save;
     bool init;
+    unsigned int depth;
 };
 
 enum DFS {
@@ -44,38 +43,41 @@ enum DFS {
     INNER
 };
 
+void printElementStack(const std::stack<element*>& outerStack, const std::stack<element*>& innerStack = std::stack<element*>(), const state* loopBegin = nullptr);
+
 struct htState {
     
-    htState(state* s = nullptr)
-        : s(s)
+    htState(unsigned long hash)
+        : hash(hash)
         , outerFeatures(TVL::getMgr()->addOne())
         , innerFeatures(TVL::getMgr()->addOne())
         , foundIn(OUTER)
-    {}
+    {
+    }
     
-    htState(state* s, const ADD& outerFeatures, const ADD& innerFeatures) 
-        : s(s)
+    htState(unsigned long hash, const ADD& outerFeatures, const ADD& innerFeatures) 
+        : hash(hash)
         , outerFeatures(outerFeatures)
         , innerFeatures(innerFeatures)
         , foundIn(OUTER)
-    {}
+    {
+    }
 
     ~htState() {
-        /*if(s)
-            delete s;*/
-        for(auto subS : subStates)
+        for(auto subS : subStates) {
             delete subS;
+        }
     }
 
     htState* getSubHtState(unsigned long hash) {
         for(auto htS : subStates)  {
-            if(htS->s->hash() == hash)
+            if(htS->hash == hash)
                 return htS;
         }
         return nullptr;
     }
 
-    state* s;
+    unsigned long hash;
     ADD outerFeatures;
     ADD innerFeatures;
     DFS foundIn;
@@ -121,11 +123,11 @@ public:
 };
 
 void launchExecution(const fsm* automata, const TVL* tvl = nullptr);
-void createStateSpace(const fsm* automata, const TVL* tvl = nullptr);
-void countStates(const fsm* automata, const TVL* tvl = nullptr);
+void createStateSpaceDFS(const fsm* automata, const TVL* tvl = nullptr);
+void createStateSpaceBFS(const fsm* automata, const TVL* tvl = nullptr);
 
 void startNestedDFS(const fsm* automata, const TVL* tvl);
 byte outerDFS(std::stack<element*>& stackOuter);
-byte innerDFS(std::stack<element*>& stackInner, std::map<unsigned long, htState*>& map);
+byte innerDFS(std::stack<element*>& stackInner, const std::stack<element*>& stackOuter, std::map<unsigned long, htState*>& map);
 
 #endif

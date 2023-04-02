@@ -98,7 +98,6 @@ variable::variable(const variable& other)
 	, rawBytes(other.rawBytes)
 	, varMap(other.varMap)
 	, varList(other.varList)
-	//, sizeOf(other.sizeOf)
 	, offset(0)
 	, payLoad(other.payLoad)
 	, isHidden(other.isHidden)
@@ -193,8 +192,13 @@ bool variable::operator != (const variable& other) const {
 
 void variable::setParent(variable* parent) {
 	this->parent = parent;
-	offset = parent->getEndOffset();
-	payLoad = parent->getPayload();
+	if(parent) {
+		offset = parent->getEndOffset();
+		payLoad = parent->getPayload();
+	} else {
+		offset = 0;
+		payLoad = nullptr;
+	}
 }
 
 variable* variable::getParent(void) const {

@@ -344,9 +344,11 @@ int main(int argc, char *argv[]) {
 	/*for(int i = 0; i < NB_LASSO; ++i)
 		findLasso(automata, K);*/
 
-	createStateSpace(automata, tvl);
+	//createStateSpace2(automata, tvl);
 
 	//startNestedDFS(automata, tvl);
+
+	createStateSpaceDFS(automata, tvl);
 
 	std::ofstream symtable;
 	symtable.open("sym_table_graphviz.dot");

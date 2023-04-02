@@ -622,7 +622,11 @@ expr    : '(' expr ')'							{ $$ = new exprPar		($2, nbrLines); }
 		| PC_VAL '(' expr ')'					{ std::cout << "The 'pc_value()' construct is not supported."; } /* Predefined function (p. 448). */
 		| varref '[' expr ']' '@' NAME			{ std::cout << "Construct not supported."; /* Unclear */ }
 		| varref '[' expr ']' ':' varref		{ std::cout << "Construct not supported."; /* Unclear */ }
-		| varref '@' NAME						{ $$ = new exprRemoteRef($1 , $3, labelsMap[$3]->getLineNb(), nbrLines); assert(labelsMap.find($3) != labelsMap.end()); assert($1->getFinalSymbol()->getType() == symbol::T_PTYPE);}
+		| varref '@' NAME						{ $$ = new exprRemoteRef($1 , $3, labelsMap[$3]->getLineNb(), nbrLines); 
+													assert(labelsMap.find($3) != labelsMap.end()); 
+													assert($1->getFinalSymbol()->getType() == symbol::T_PTYPE);
+													free($3);
+												}
 		| varref ':' varref						{ assert($1->getFinalSymbol()->getType() == symbol::T_PTYPE); $1->appendVarRef($3); $$ = $1; }
 		| ltl_expr								{ $$ = $1; }
 		| bltl_expr								{ $$ = $1; }

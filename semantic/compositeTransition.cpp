@@ -1,24 +1,29 @@
 #include "compositeTransition.hpp"
 #include "transition.hpp"
-
+#include "transitionVisitor.hpp"
 #include "state.hpp"
+
+#include <iostream>
 
 compTransition::compTransition(state* s, const std::list<transition*>& Ts)
 	: transition(s)
-	, Ts(Ts)
-{}
-
-compTransition::compTransition(state* s, const std::vector<transition*>& Ts)
-	: transition(s)
-	, Ts(Ts.begin(), Ts.end())
-{}
-
-compTransition::~compTransition(){
-	
+{
+	add(Ts);
 }
 
-/*void compTransition::fire(state* s) const {
-	for(auto trans : Ts) {
-		trans->fire();
-	}
-}*/
+compTransition::compTransition(const compTransition* other) 
+	: transition(other)
+{
+}
+
+compTransition::~compTransition()
+{
+}
+
+transition* compTransition::deepCopy(void) const {
+	return new compTransition(this);
+}
+
+void compTransition::accept(transitionVisitor* visitor) {
+	visitor->visit(this);
+}

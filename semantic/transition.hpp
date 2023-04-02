@@ -6,8 +6,11 @@
  * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <list>
+#include <vector>
 
 class state;
+
+class transitionVisitor;
 
 typedef char byte;
 typedef unsigned char ubyte;
@@ -22,24 +25,38 @@ public:
 	
 	static byte isProbabilisticTransList(std::list<transition*> list);
 
+	static void erase(const std::list<transition*>& list);
+
 	/***************************************************************************************************/
 
 	transition(state* src);
 
+	transition(const transition* other);
+
 	virtual ~transition();
 
 	double getProbability(void) const;
-
-	//std::list<transition*> getResponses(void) const;
 	
-	//virtual transition* deepCopy(void) const;
+	virtual transition* deepCopy(void) const = 0;
 
-	//virtual void fire(state* s) const = 0;
+	void add(transition* t);
+
+	void add(const std::list<transition*>& Ts);
+
+	void detach(void);
+
+	void detach(transition* t);
+
+	void detach(const std::list<transition*>& Ts);
+
+	virtual void accept(transitionVisitor* visitor) = 0;
 
 public:		//
+	transition* parent;
 	state* src;
+	state* dst;
 	double prob;
-	//std::list<transition*> responses;
+	std::list<transition*> subTs; 
 	std::list<unsigned int> lines;
 };
 

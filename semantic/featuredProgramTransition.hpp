@@ -13,11 +13,17 @@
 // ProcessTransitions are returned by the executables() function
 class featProgTransition : public programTransition {
 public:
-	featProgTransition(state* s, transition* procTrans, const ADD& featExpr, transition* response = nullptr);
+	featProgTransition(state* s, transition* procTrans, ADD featExpr, transition* response = nullptr);
+
+	featProgTransition(const featProgTransition* other);
 	
 	~featProgTransition() override;
 
-	const ADD& getFeatExpr(void) const;
+	ADD getFeatExpr(void) const;
+
+	transition* deepCopy(void) const override;
+
+	void accept(transitionVisitor* visitor) override;
 
 public:		//
 	ADD features;

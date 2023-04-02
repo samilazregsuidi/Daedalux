@@ -1,20 +1,24 @@
 #include "programTransition.hpp"
 #include "processTransition.hpp"
+#include "transitionVisitor.hpp"
 
 #include "fsmEdge.hpp"
 #include "process.hpp"
 
 #include <assert.h>
 #include <iterator>
+#include <iostream>
 
 programTransition::programTransition(state* s, transition* procTrans, transition* response) 
 	: transition(s)
 	, procTrans(procTrans)
 	, response(response)
-	//, features(ADD())
 {
 	assert(s);
 	assert(procTrans);
+
+	add(procTrans);
+	add(response);
 
 	prob = procTrans->getProbability() * (response ? response->getProbability() : 1.0);
 
@@ -24,28 +28,19 @@ programTransition::programTransition(state* s, transition* procTrans, transition
 
 }
 
-/*progTransition::progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr)
-	: transition(s)
-	, proc(proc)
-	, edge(edge)
-	//, features(featExpr)
+programTransition::programTransition(const programTransition* other)
+	: transition(other)
+	, procTrans(nullptr)
+	, response(nullptr)
 {
-	assert(proc && edge);
-	prob = edge->getProbability();
-}*/
-
-programTransition::~programTransition() {
-
+	auto it = subTs.begin();
+	procTrans = *it;
+	if(++it != subTs.end())
+		response = *it;
 }
 
-/*void progTransition::fire(state* s) const {
-	process* proc = this->getProc();
-	assert(proc);
-	//warning if "different" procs have the same pid i.e., dynamic proc creation
-	proc = dynamic_cast<progState*>(s)->getProc(proc->getPid());
-
-	proc->apply(this);
-}*/
+programTransition::~programTransition() {
+}
 
 transition* programTransition::getProcTrans(void) const {
 	return procTrans;
@@ -53,4 +48,12 @@ transition* programTransition::getProcTrans(void) const {
 
 transition* programTransition::getResponse(void) const {
 	return response;
+}
+
+transition* programTransition::deepCopy(void) const {
+	return new programTransition(this);
+}
+
+void programTransition::accept(transitionVisitor* visitor) {
+	visitor->visit(this);
 }

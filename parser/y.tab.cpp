@@ -770,13 +770,13 @@ static const yytype_int16 yyrline[] =
      581,   582,   583,   584,   585,   586,   587,   588,   589,   590,
      591,   592,   593,   601,   602,   603,   608,   609,   610,   611,
      612,   615,   616,   617,   618,   619,   620,   621,   622,   623,
-     624,   625,   626,   627,   628,   631,   632,   635,   636,   639,
-     640,   645,   646,   647,   648,   649,   650,   651,   652,   653,
-     659,   660,   661,   662,   666,   667,   671,   672,   676,   677,
-     680,   681,   684,   685,   686,   687,   691,   692,   693,   694,
-     697,   698,   699,   703,   704,   705,   708,   715,   723,   734,
-     735,   736,   737,   738,   741,   742,   743,   744,   745,   748,
-     749,   750,   751,   752,   753,   756,   757,   760,   761,   764
+     624,   625,   630,   631,   632,   635,   636,   639,   640,   643,
+     644,   649,   650,   651,   652,   653,   654,   655,   656,   657,
+     663,   664,   665,   666,   670,   671,   675,   676,   680,   681,
+     684,   685,   688,   689,   690,   691,   695,   696,   697,   698,
+     701,   702,   703,   707,   708,   709,   712,   719,   727,   738,
+     739,   740,   741,   742,   745,   746,   747,   748,   749,   752,
+     753,   754,   755,   756,   757,   760,   761,   764,   765,   768
 };
 #endif
 
@@ -3436,246 +3436,250 @@ yyreduce:
 
   case 181: /* expr: varref '@' NAME  */
 #line 625 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
-                                                                                { (yyval.pExprVal) = new exprRemoteRef((yyvsp[-2].pExprVarRefVal) , (yyvsp[0].sVal), labelsMap[(yyvsp[0].sVal)]->getLineNb(), nbrLines); assert(labelsMap.find((yyvsp[0].sVal)) != labelsMap.end()); assert((yyvsp[-2].pExprVarRefVal)->getFinalSymbol()->getType() == symbol::T_PTYPE);}
-#line 3441 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+                                                                                { (yyval.pExprVal) = new exprRemoteRef((yyvsp[-2].pExprVarRefVal) , (yyvsp[0].sVal), labelsMap[(yyvsp[0].sVal)]->getLineNb(), nbrLines); 
+													assert(labelsMap.find((yyvsp[0].sVal)) != labelsMap.end()); 
+													assert((yyvsp[-2].pExprVarRefVal)->getFinalSymbol()->getType() == symbol::T_PTYPE);
+													free((yyvsp[0].sVal));
+												}
+#line 3445 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 182: /* expr: varref ':' varref  */
-#line 626 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 630 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { assert((yyvsp[-2].pExprVarRefVal)->getFinalSymbol()->getType() == symbol::T_PTYPE); (yyvsp[-2].pExprVarRefVal)->appendVarRef((yyvsp[0].pExprVarRefVal)); (yyval.pExprVal) = (yyvsp[-2].pExprVarRefVal); }
-#line 3447 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3451 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 183: /* expr: ltl_expr  */
-#line 627 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 631 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprVal) = (yyvsp[0].pExprVal); }
-#line 3453 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3457 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 184: /* expr: bltl_expr  */
-#line 628 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 632 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprVal) = (yyvsp[0].pExprVal); }
-#line 3459 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3463 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 186: /* Opt_priority: PRIORITY CONST  */
-#line 632 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 636 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { assert(false); std::cout << "The 'priority' construct is related to simulation and not supported."; }
-#line 3465 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3469 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 187: /* full_expr: expr  */
-#line 635 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 639 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = (yyvsp[0].pExprVal); }
-#line 3471 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3475 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 188: /* full_expr: Expr  */
-#line 636 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 640 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprVal) = (yyvsp[0].pExprVal); }
-#line 3477 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3481 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 190: /* Opt_enabler: PROVIDED '(' full_expr ')'  */
-#line 640 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 644 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                 { assert(false); std::cout << "The 'provided' construct is currently not supported."; }
-#line 3483 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3487 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 191: /* Expr: Probe  */
-#line 645 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 649 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = (yyvsp[0].pExprVal); }
-#line 3489 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3493 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 192: /* Expr: '(' Expr ')'  */
-#line 646 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 650 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprPar	((yyvsp[-1].pExprVal), nbrLines); }
-#line 3495 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3499 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 193: /* Expr: Expr AND Expr  */
-#line 647 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 651 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprAnd	((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3501 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3505 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 194: /* Expr: Expr AND expr  */
-#line 648 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 652 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprAnd	((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3507 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3511 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 195: /* Expr: Expr OR Expr  */
-#line 649 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 653 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprOr	((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3513 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3517 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 196: /* Expr: Expr OR expr  */
-#line 650 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 654 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprOr	((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3519 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3523 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 197: /* Expr: expr AND Expr  */
-#line 651 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 655 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprAnd	((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3525 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3529 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 198: /* Expr: expr OR Expr  */
-#line 652 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 656 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprOr	((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3531 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3535 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 199: /* Expr: SKIP  */
-#line 653 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 657 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprVal) = new exprSkip	(nbrLines); }
-#line 3537 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3541 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 200: /* Probe: FULL '(' varref ')'  */
-#line 659 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 663 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                 { (yyval.pExprVal) = new exprFull	((yyvsp[-1].pExprVarRefVal), nbrLines); }
-#line 3543 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3547 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 201: /* Probe: NFULL '(' varref ')'  */
-#line 660 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 664 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprVal) = new exprNFull((yyvsp[-1].pExprVarRefVal), nbrLines); }
-#line 3549 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3553 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 202: /* Probe: EMPTY '(' varref ')'  */
-#line 661 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 665 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprVal) = new exprEmpty((yyvsp[-1].pExprVarRefVal), nbrLines); }
-#line 3555 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3559 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 203: /* Probe: NEMPTY '(' varref ')'  */
-#line 662 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 666 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprVal) = new exprNEmpty((yyvsp[-1].pExprVarRefVal), nbrLines); }
-#line 3561 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3565 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 204: /* args: %empty  */
-#line 666 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 670 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                 { (yyval.pExprArgListVal) = nullptr; }
-#line 3567 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3571 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 205: /* args: arg  */
-#line 667 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 671 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprArgListVal) = (yyvsp[0].pExprArgListVal); }
-#line 3573 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3577 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 206: /* prargs: %empty  */
-#line 671 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 675 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprArgListVal) = nullptr; }
-#line 3579 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3583 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 207: /* prargs: ',' arg  */
-#line 672 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 676 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprArgListVal) = (yyvsp[0].pExprArgListVal); }
-#line 3585 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3589 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 208: /* margs: arg  */
-#line 676 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 680 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprArgListVal) = (yyvsp[0].pExprArgListVal); }
-#line 3591 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3595 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 209: /* margs: expr '(' arg ')'  */
-#line 677 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 681 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { assert(false); }
-#line 3597 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3601 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 210: /* arg: expr  */
-#line 680 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 684 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprArgListVal) = new exprArgList(new exprArg((yyvsp[0].pExprVal), nbrLines), nbrLines); }
-#line 3603 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3607 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 211: /* arg: expr ',' arg  */
-#line 681 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 685 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprArgListVal) = new exprArgList(new exprArg((yyvsp[-2].pExprVal), nbrLines), (yyvsp[0].pExprArgListVal), nbrLines); }
-#line 3609 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3613 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 212: /* rarg: varref  */
-#line 684 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 688 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprRArgVal) = new exprRArgVar((yyvsp[0].pExprVarRefVal), nbrLines); }
-#line 3615 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3619 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 213: /* rarg: EVAL '(' expr ')'  */
-#line 685 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 689 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprRArgVal) = new exprRArgEval((yyvsp[-1].pExprVal), nbrLines); }
-#line 3621 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3625 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 214: /* rarg: CONST  */
-#line 686 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 690 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprRArgVal) = new exprRArgConst(new exprConst((yyvsp[0].iVal), nbrLines), nbrLines); }
-#line 3627 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3631 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 215: /* rarg: '-' CONST  */
-#line 687 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 691 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprRArgVal) = new exprRArgConst(new exprConst(-(yyvsp[0].iVal), nbrLines), nbrLines); }
-#line 3633 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3637 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 216: /* rargs: rarg  */
-#line 691 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 695 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprRArgListVal) = new exprRArgList((yyvsp[0].pExprRArgVal), nbrLines); }
-#line 3639 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3643 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 217: /* rargs: rarg ',' rargs  */
-#line 692 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 696 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprRArgListVal) = new exprRArgList((yyvsp[-2].pExprRArgVal), (yyvsp[0].pExprRArgListVal), nbrLines); }
-#line 3645 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3649 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 218: /* rargs: rarg '(' rargs ')'  */
-#line 693 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 697 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprRArgListVal) = new exprRArgList((yyvsp[-3].pExprRArgVal), (yyvsp[-1].pExprRArgListVal), nbrLines); }
-#line 3651 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3655 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 219: /* rargs: '(' rargs ')'  */
-#line 694 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 698 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprRArgListVal) = (yyvsp[-1].pExprRArgListVal); }
-#line 3657 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3661 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 220: /* nlst: NAME  */
-#line 697 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 701 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { /*DBUG("REDUCE: NAME -> nlst\n")*/ cmtypeSymNode* sym = new cmtypeSymNode(nbrLines, mtypeDef, (yyvsp[0].sVal), mtypeId++); (*globalSymTab)->insert(sym); free((yyvsp[0].sVal)); }
-#line 3663 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3667 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 221: /* nlst: nlst NAME  */
-#line 698 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 702 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { /*DBUG("REDUCE: nlst NAME -> NAME\n")*/ cmtypeSymNode* sym = new cmtypeSymNode(nbrLines, mtypeDef, (yyvsp[0].sVal), mtypeId++); (*globalSymTab)->insert(sym); free((yyvsp[0].sVal)); }
-#line 3669 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3673 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 222: /* nlst: nlst ','  */
-#line 699 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 703 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                 { /*DBUG("REDUCE: nlst , -> nlst\n")*/ }
-#line 3675 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3679 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 226: /* prop: LTL NAME '{' ltl_expr '}'  */
-#line 708 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 712 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 {	/*DBUG("REDUCE: one_decl -> unit\n")*/
 															auto sym = new ltlSymNode((yyvsp[-3].sVal), (yyvsp[-1].pExprVal), nbrLines);
 															(*globalSymTab)->insert(sym);
@@ -3683,11 +3687,11 @@ yyreduce:
 															assert(decl);
 															*program = stmnt::merge(*program, decl);
 														}
-#line 3687 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3691 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 227: /* prop: BLTL NAME '{' bltl_expr '}'  */
-#line 715 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 719 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 {
 															/*DBUG("REDUCE: one_decl -> unit\n")*/
 															auto sym = new bltlSymNode((yyvsp[-3].sVal), (yyvsp[-1].pExprVal), nbrLines);
@@ -3696,11 +3700,11 @@ yyreduce:
 															assert(decl);
 															*program = stmnt::merge(*program, decl);
 														}
-#line 3700 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3704 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 228: /* prop: FMULTILTL NAME variant_quants '{' ltl_expr '}'  */
-#line 723 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 727 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                  { 	/*DBUG("REDUCE: one_decl -> unit\n")*/
 															auto sym = new fMultiLTLSymNode((yyvsp[-4].sVal), variants, (yyvsp[-1].pExprVal), nbrLines);
 															(*globalSymTab)->insert(sym);
@@ -3709,137 +3713,137 @@ yyreduce:
 															assert(decl);
 															*program = stmnt::merge(*program, decl);
 														}
-#line 3713 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3717 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 229: /* ltl_expr: GLOBALLY expr  */
-#line 734 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 738 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprGlobally((yyvsp[0].pExprVal), nbrLines); 	}
-#line 3719 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3723 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 230: /* ltl_expr: FINALLY expr  */
-#line 735 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 739 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprVal) = new exprFinally((yyvsp[0].pExprVal), nbrLines); 	}
-#line 3725 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3729 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 231: /* ltl_expr: NEXT expr  */
-#line 736 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 740 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                                 { (yyval.pExprVal) = new exprNext((yyvsp[0].pExprVal), nbrLines); 		}
-#line 3731 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3735 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 232: /* ltl_expr: expr UNTIL expr  */
-#line 737 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 741 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                                 { (yyval.pExprVal) = new exprUntil((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3737 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3741 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 233: /* ltl_expr: expr IMPLIES expr  */
-#line 738 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 742 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                                 { (yyval.pExprVal) = new exprImplies((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3743 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3747 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 234: /* bltl_expr: GLOBALLY k_steps expr  */
-#line 741 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 745 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprVal) = new exprBoundedGlobally((yyvsp[-1].pExprVal), (yyvsp[0].pExprVal), nbrLines); 	}
-#line 3749 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3753 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 235: /* bltl_expr: FINALLY k_steps expr  */
-#line 742 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 746 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprBoundedFinally((yyvsp[-1].pExprVal), (yyvsp[0].pExprVal), nbrLines); 	}
-#line 3755 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3759 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 236: /* bltl_expr: NEXT expr  */
-#line 743 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 747 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pExprVal) = new exprNext((yyvsp[0].pExprVal), nbrLines); 		}
-#line 3761 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3765 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 237: /* bltl_expr: expr UNTIL expr  */
-#line 744 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 748 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                                 { (yyval.pExprVal) = new exprUntil((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3767 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3771 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 238: /* bltl_expr: expr IMPLIES expr  */
-#line 745 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 749 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                                 { (yyval.pExprVal) = new exprImplies((yyvsp[-2].pExprVal), (yyvsp[0].pExprVal), nbrLines); }
-#line 3773 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3777 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 239: /* k_steps: '{' varref GT expr '}'  */
-#line 748 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 752 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pExprVal) = new exprGT ((yyvsp[-3].pExprVarRefVal), (yyvsp[-1].pExprVal), nbrLines); }
-#line 3779 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3783 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 240: /* k_steps: '{' varref LT expr '}'  */
-#line 749 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 753 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprLT ((yyvsp[-3].pExprVarRefVal), (yyvsp[-1].pExprVal), nbrLines); }
-#line 3785 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3789 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 241: /* k_steps: '{' varref GE expr '}'  */
-#line 750 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 754 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprGE ((yyvsp[-3].pExprVarRefVal), (yyvsp[-1].pExprVal), nbrLines); }
-#line 3791 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3795 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 242: /* k_steps: '{' varref LE expr '}'  */
-#line 751 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 755 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprLE ((yyvsp[-3].pExprVarRefVal), (yyvsp[-1].pExprVal), nbrLines); }
-#line 3797 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3801 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 243: /* k_steps: '{' varref EQ expr '}'  */
-#line 752 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 756 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprEQ ((yyvsp[-3].pExprVarRefVal), (yyvsp[-1].pExprVal), nbrLines); }
-#line 3803 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3807 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 244: /* k_steps: '{' varref NE expr '}'  */
-#line 753 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 757 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { (yyval.pExprVal) = new exprNE ((yyvsp[-3].pExprVarRefVal), (yyvsp[-1].pExprVal), nbrLines); }
-#line 3809 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3813 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 245: /* variant_quants: variant_quant  */
-#line 756 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 760 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                 { variants.push_front((yyvsp[0].pVarQuantVal)); }
-#line 3815 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3819 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 246: /* variant_quants: variant_quant ',' variant_quants  */
-#line 757 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 761 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { variants.push_front((yyvsp[-2].pVarQuantVal)); }
-#line 3821 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3825 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 247: /* variant_quant: ALWAYS variant_expr  */
-#line 760 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 764 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                         { (yyval.pVarQuantVal) = new exprAlways((yyvsp[0].pExprVarRefNameVal), nbrLines); }
-#line 3827 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3831 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 248: /* variant_quant: EVENTUALLY variant_expr  */
-#line 761 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 765 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                                                         { (yyval.pVarQuantVal) = new exprEventually((yyvsp[0].pExprVarRefNameVal), nbrLines); }
-#line 3833 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3837 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
   case 249: /* variant_expr: '{' NAME '}' '[' expr ']'  */
-#line 764 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 768 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
                                                         { auto sym = new variantSymNode(nbrLines, (yyvsp[-4].sVal), (yyvsp[-1].pExprVal)); (*globalSymTab)->insert(sym); (yyval.pExprVarRefNameVal) = new exprVarRefName((yyvsp[-4].sVal), sym, nbrLines); }
-#line 3839 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3843 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
     break;
 
 
-#line 3843 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
+#line 3847 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.cpp"
 
       default: break;
     }
@@ -4063,5 +4067,5 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 770 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 774 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
 

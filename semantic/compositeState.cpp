@@ -10,6 +10,8 @@
 #include "compositeState.hpp"
 #include "compositeTransition.hpp"
 
+#include "deleteTransVisitor.hpp"
+
 #include "programState.hpp"
 #include "process.hpp"
 #include "never.hpp"
@@ -42,7 +44,8 @@ compState* compState::deepCopy(void) const {
 }
 
 compState::~compState() {
-
+	/*if(origin)
+		delete origin;*/
 }
 
 void compState::addState(state* s) {
@@ -133,6 +136,14 @@ std::vector<std::vector<transition*>> CartesianProduct(std::vector<std::vector<t
     return accum;
 }
 
+
+std::list<transition*> t_copy(const std::vector<transition*>& Ts) {
+	std::list<transition*> res;
+	for(auto t : Ts)
+		res.push_back(t->deepCopy());
+	return res;
+}
+
 /**
  * Returns a list of all the executable transitions (for all the processes).
  * EFFECTS: None. (It CANNOT have any!)
@@ -147,16 +158,26 @@ std::list<transition*> compState::executables(void) const {
 	for(auto s : getSubStates()) {
 		auto Ts = s->executables();
 		
-		if(Ts.size() == 0)
+		if(Ts.size() == 0) {
+			for(auto stateTransListIt : stateTransList)
+				for(auto t : stateTransListIt)
+					delete t;
+
 			return execs;
+		}
 
 		stateTransList.push_back(std::vector<transition*>{ std::begin(Ts), std::end(Ts) });
 	}
 
+
 	auto Tss = CartesianProduct(stateTransList);
 	for (auto Ts : Tss) {
-		execs.push_back(new compTransition(const_cast<compState*>(this), Ts));
+		execs.push_back(new compTransition(const_cast<compState*>(this), t_copy(Ts)));
 	}
+
+	for(auto stateTransListIt : stateTransList)
+		for(auto t : stateTransListIt)
+			delete t;
 	
 	return execs;
 }
@@ -173,14 +194,14 @@ std::list<transition*> compState::executables(void) const {
  * that evaluated to false.
  */
 
-#include <iostream>
-
-state* compState::apply(const transition* trans) {
+state* compState::apply(transition* trans) {
 	
+	assert(origin == nullptr);
+
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 	assert(compTrans);
 
-	for(auto trans : compTrans->Ts) {
+	for(auto trans : compTrans->subTs) {
 		//std::cout << trans->src->getLocalName() << std::endl;
 		auto s = getSubState(trans->src->getLocalName());
 		assert(s);
@@ -189,6 +210,7 @@ state* compState::apply(const transition* trans) {
 
 	prob *= trans->prob;
 	origin = trans;
+	trans->dst = this;
 
 	return this;
 }

@@ -1,10 +1,12 @@
 #include "processTransition.hpp"
+#include "transitionVisitor.hpp"
 
 #include "fsmEdge.hpp"
 #include "process.hpp"
 
 #include <assert.h>
 #include <iterator>
+#include <iostream>
 
 processTransition::processTransition(process* proc, const fsmEdge* edge) 
 	: transition(proc)
@@ -19,28 +21,15 @@ processTransition::processTransition(process* proc, const fsmEdge* edge)
 	lines.push_back(edge->getLineNb());
 }
 
-/*progTransition::progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr)
-	: transition(s)
-	, proc(proc)
-	, edge(edge)
-	//, features(featExpr)
+processTransition::processTransition(const processTransition* other)
+	: transition(other)
+	, edge(other->edge)
 {
-	assert(proc && edge);
-	prob = edge->getProbability();
-}*/
-
-processTransition::~processTransition() {
-
 }
 
-/*void progTransition::fire(state* s) const {
-	process* proc = this->getProc();
-	assert(proc);
-	//warning if "different" procs have the same pid i.e., dynamic proc creation
-	proc = dynamic_cast<progState*>(s)->getProc(proc->getPid());
-
-	proc->apply(this);
-}*/
+processTransition::~processTransition() 
+{
+}
 
 process* processTransition::getProc(void) const {
 	return dynamic_cast<process*>(src);
@@ -52,4 +41,12 @@ const fsmEdge* processTransition::getEdge(void) const {
 
 int processTransition::getLineNb(void) const {
 	return getEdge()->getLineNb();
+}
+
+transition* processTransition::deepCopy(void) const {
+	return new processTransition(this);
+}
+
+void processTransition::accept(transitionVisitor* visitor) {
+	visitor->visit(this);
 }
