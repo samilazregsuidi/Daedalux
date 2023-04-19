@@ -13,10 +13,10 @@ short i;
 
 active proctype foo() {
 
-	/*do 
+	do 
 	:: break;
 	:: n++;
-	od;*/
+	od;
 	
 	
 Start:  i = n;

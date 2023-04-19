@@ -337,7 +337,7 @@ Apply:
 	origin = trans;
 	trans->dst = this;
 
-	std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const neverTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
+	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const neverTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
 
 	return this;
 }

@@ -5,14 +5,17 @@ bool x;
 
 active proctype test()
 {
-Start:
-	do
+Start:	do
 	:: x = false;
 	:: x = true;
 	:: break;
 	od;
-Final:
-	skip;
+
+Final:	skip;
+
+	do
+	:: true;
+	od;
 }
 
 never { // !(G ((! x) -> F x)) 

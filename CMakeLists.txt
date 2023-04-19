@@ -115,6 +115,8 @@ add_executable(deadalux
 	./features/ADDutils.cpp
 	
 	./algorithms/explore.cpp
+	./algorithms/elementStack.cpp
+	./algorithms/reachabilityRelation.cpp
 	
 	./visualizers/stateToGraphViz.cpp
 	

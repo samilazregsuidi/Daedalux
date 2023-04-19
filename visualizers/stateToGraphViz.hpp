@@ -31,6 +31,7 @@ public:
     std::ofstream file;
     size_t tab;
     int depth;
+    ADD featToPrint;
 };
 
 #endif

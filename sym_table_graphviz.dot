@@ -1,17 +1,17 @@
 digraph symbol_table {
 	 rankdir = LR
-	system[ shape = record, label = "<f0> system | { <94621325648176> system|p1 : f.B1| 0 byte | line 8 } | { <94621325649504> system|p2 : f.B2| 0 byte | line 9 }"]
+	system[ shape = record, label = "<f0> system | { <93824994280640> system|p1 : f.B1| 0 byte | line 9 } | { <93824994281936> system|p2 : f.B2| 0 byte | line 10 } | { <93824994283200> system|p3 : f.B3| 0 byte | line 11 }"]
 
-	global[ shape = record, label = "<f0> global | { <94621325607472> int|_| 4 bytes | predef. } | { <94621325607744> int|_nr_pr| 4 bytes | predef. } | { <94621325607904> pid|_last| 1 byte | predef. } | { <94621325608064> bool|np_| 1 byte | predef. } | { <94621325641504> int|k| 4 bytes | predef. } | { <94621325646240> typedef|features| 0 byte | line 4 } | { <94621325646832> features|f| 2 bytes | line 6 } | { <94621325649872> byte|n| 1 byte | line 11 } | { <94621325650272> short|i| 2 bytes | line 12 } | { <94621325691632> proctype|foo| 0 byte | line 22 } | { <94621325720288> never|never| 0 byte | line 45 }"]
+	global[ shape = record, label = "<f0> global | { <93824994272992> int|_| 4 bytes | predef. } | { <93824994273264> int|_nr_pr| 4 bytes | predef. } | { <93824994273424> pid|_last| 1 byte | predef. } | { <93824994273584> bool|np_| 1 byte | predef. } | { <93824994273744> int|k| 4 bytes | predef. } | { <93824994278704> typedef|features| 0 byte | line 5 } | { <93824994279296> features|f| 3 bytes | line 7 } | { <93824994283568> byte|n| 1 byte | line 13 } | { <93824994283936> short|i| 2 bytes | line 14 } | { <93824994334144> proctype|foo| 0 byte | line 18 } | { <93824994365968> never|never| 0 byte | line 49 }"]
 
-	foo[ shape = record, label = "<f0> foo | { <94621325650944> pid|_pid| 1 byte | predef. }"]
+	foo[ shape = record, label = "<f0> foo | { <93824994284608> pid|_pid| 1 byte | predef. }"]
 
 
 	global:f0 -> foo:f0
 
-	features[ shape = record, label = "{ <94621325645888> bool|B1| 1 byte | line 2 } | { <94621325646080> bool|B2| 1 byte | line 4 }"]
+	features[ shape = record, label = "{ <93824994278160> bool|B1| 1 byte | line 2 } | { <93824994278352> bool|B2| 1 byte | line 3 } | { <93824994278544> bool|B3| 1 byte | line 5 }"]
 
-	global:94621325646240 -> features
+	global:93824994278704 -> features
 
 
 	system:f0 -> global:f0

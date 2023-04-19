@@ -185,6 +185,8 @@ public:
 	mutable bool timeout;
 
 	std::list<std::string> actions;
+
+	unsigned long _hash;
 };
 
 #endif

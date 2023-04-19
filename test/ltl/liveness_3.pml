@@ -1,12 +1,18 @@
 bool x;
 
-active proctype test()
+active proctype test_true()
 {
-	x = true;
+	
+	do
+	:: x = true;
+	od;
+}
+
+active proctype test_false()
+{
 	
 	do
 	:: x = false;
-	:: x = true;
 	od;
 }
 

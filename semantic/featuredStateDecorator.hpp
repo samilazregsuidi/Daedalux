@@ -21,6 +21,8 @@ public:
 
 	std::list<transition*> executables(void) const override;
 
+	unsigned long hash(void) const override;
+
 	byte compare(const state& s2) const override;
 
 	byte compare(const state& s2, const ADD& features) const;

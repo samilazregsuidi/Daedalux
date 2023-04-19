@@ -45,6 +45,7 @@ class stateVisitor;
 #define STATES_DIFF 0				// if s1 and s2 are totally different states, meaning s1 is fresh.
 #define STATES_SAME_S1_VISITED 1	// if s1 and s2 are identical but s2 is reachable by more products; hence, s1 adds nothing new
 #define STATES_SAME_S1_FRESH 2		// if s1 and s2 are identical but s1 has products that were not explored with s2; hence, s1 is fresh
+#define STATES_S1_NEVER_VISITED 3
 
 
 // State
@@ -160,7 +161,7 @@ public:
 public:
 	double prob;
 	const transition* origin;
-	unsigned int errorMask;
+	mutable unsigned int errorMask;
 };
 
 template<> struct std::hash<state*> {

@@ -8,8 +8,9 @@ bool implies(const ADD& a, const ADD& b) {
 	if(!b) return true;
 	if(!a) return isTautology(b);
 
-	return !((a & ~b).IsZero());
+	auto isSat = !((a & ~b).IsZero());
 
+	return !isSat;
 }
 
 bool isTautology(const ADD& fct) {

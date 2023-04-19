@@ -163,7 +163,7 @@ std::list<transition*> compState::executables(void) const {
 				for(auto t : stateTransListIt)
 					delete t;
 
-			return execs;
+			return std::list<transition*>();
 		}
 
 		stateTransList.push_back(std::vector<transition*>{ std::begin(Ts), std::end(Ts) });

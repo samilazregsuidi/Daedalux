@@ -20,6 +20,9 @@ stateToGraphViz::~stateToGraphViz() {}
 void stateToGraphViz::printGraphViz(state* s, int depth) {
 	this->depth = depth;
 
+	if(index > 100)
+		return;
+
 	file.open("trace/" + std::to_string(index++) + ".dot");
 
 	file.precision(3);
@@ -87,7 +90,7 @@ void stateToGraphViz::visit(progState* s) {
 	++tab;
 	file << _tab() << "style=filled;" << std::endl \
 	<<  _tab() << "color=lightgrey;" << std::endl \
-	<<  _tab() << "label = \" "<< s->getLocalName() <<" \"; " << std::endl;
+	<<  _tab() << "label = \" "<< s->getLocalName() << " : " << (featToPrint? TVL::toString(featToPrint) : "") << " \"; " << std::endl;
 
 	for(auto subS : s->getProcs())
 		subS->accept(this);
@@ -161,5 +164,7 @@ void stateToGraphViz::visit(never* s) {
 }
 
 void stateToGraphViz::visit(featStateDecorator* s) {
+	featToPrint = s->getFeatures();
 	s->wrappee->accept(this);
+	featToPrint = ADD();
 }

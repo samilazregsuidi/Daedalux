@@ -1,7 +1,6 @@
 root TestFM {
 	group allOf  {
 		opt B1,
-		opt B2,
-		opt B3
+		opt B2
 	}
 }

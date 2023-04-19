@@ -57,6 +57,10 @@ state* featStateDecorator::deepCopy(void) const {
 featStateDecorator::~featStateDecorator() {
 }
 
+unsigned long featStateDecorator::hash(void) const {
+	return wrappee->hash();
+}
+
 ADD featStateDecorator::getFeatures(void) const {
 	return features;
 }
@@ -154,6 +158,13 @@ byte featStateDecorator::compare(unsigned long s2Hash, const ADD& featS2) const 
 	if(res == STATES_DIFF)
 		return res;
 	
+	/*printf("implies \n");
+	tvl->printBool(features);
+	printf("\n\n");
+
+	tvl->printBool(featS2);
+	printf("\n\n");*/
+
 	if(implies(features, featS2))
 		return STATES_SAME_S1_VISITED;
 
