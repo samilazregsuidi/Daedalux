@@ -95,7 +95,7 @@ public:
 	virtual void visit(const stmntAction* node) {}
 	virtual void visit(const stmntGoto* node) {}
 	virtual void visit(const stmntLabel* node) {}
-	//virtual void visit(const stmntSeq* node) {}
+	virtual void visit(const stmntSeq* node) {}
 	virtual void visit(const stmntFct* node) {}
 	virtual void visit(const stmntCall* node) {}
 	virtual void visit(const stmntAtomic* node) {}
@@ -182,7 +182,7 @@ public:
 	virtual void visit(stmntAction* node) {}
 	virtual void visit(stmntGoto* node) {}
 	virtual void visit(stmntLabel* node) {}
-	//virtual void visit(stmntSeq* node) {}
+	virtual void visit(stmntSeq* node) {}
 	virtual void visit(stmntFct* node) {}
 	virtual void visit(stmntCall* node) {}
 	virtual void visit(stmntAtomic* node) {}

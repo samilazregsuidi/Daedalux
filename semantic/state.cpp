@@ -62,11 +62,12 @@ std::list<state*> state::Post(void) const {
 	for(auto t : executables())
 		res.push_back(this->Post(t));
 	
-	auto neverTs = getNeverClaim()->executables();
-	if(res.empty() && !neverTs.empty())
-		this->errorMask |= ERR_DEADLOCK;
-		
-	transition::erase(neverTs);
+	if(getNeverClaim()) {
+		auto neverTs = getNeverClaim()->executables();
+		if(res.empty() && !neverTs.empty())
+			this->errorMask |= ERR_DEADLOCK;
+		transition::erase(neverTs);
+	}
 
 	return res;
 }

@@ -107,6 +107,8 @@ public:
 
 	/**********************************************************/
 
+	virtual operator std::string(void) const;
+
 	virtual void print(void) const;
 
 	virtual void printTexada(void) const;
@@ -142,6 +144,8 @@ public:
 	virtual channel* getChannel(const std::string& name) const;
 
 	virtual void clearVariables(void);
+
+	virtual void reset(void);
 
 	//std::list<variable*> addVariables(const varSymNode* sym);
 
@@ -183,7 +187,7 @@ public:
 	static unsigned int vidCounter;
 
 
-protected:
+public:
 	std::string name;
 	variable* parent;
 	unsigned int vid;
@@ -195,6 +199,7 @@ protected:
 	size_t offset;
 	payload* payLoad;
 	bool isHidden;
+	bool isPredef;
 };
 
 #endif

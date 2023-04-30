@@ -41,6 +41,7 @@ public:
 	void visit(const stmntFct* node) override;
 	void visit(const stmntAtomic* node) override;
 	void visit(const stmntDStep* node) override;
+	void visit(const stmntSeq* node) override;
 
 	void visit(const stmntAsgn* node) override;
 	void visit(const stmntIncr* node) override;
@@ -59,7 +60,7 @@ public:
 	//void visit(const )
 
 private:
-	void _connect(std::list<fsmEdge*>& edges, fsmNode* target);
+	void _connect(fsmNode* target);
 	void _label(fsmNode* node);
 	fsmEdge* _looseEnd(const stmnt* node, bool owner = false);
 	fsmEdge* _looseBreak(const stmnt* node);
@@ -84,11 +85,11 @@ private:
 	std::list<fsmEdge *> looseBreaks;						 // List of fsmEdge	- For model construction: contains those transitions that were generated because of a break statement and are waiting to be matched to a DO.
 	//std::list<fsmEdge*> flowLooseEnds;
 	//std::list<fsmEdge*> flowLooseBreaks;
-	std::stack<ADD> optFeatures;
+	ADD elseFeatures;
 	bool skip;
 	const TVL* fm;
 	ADD looseFeatures;
-	bool hasOptFeatures;
+	bool hasElseFeatures;
 };
 
 #endif

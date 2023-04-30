@@ -46,6 +46,7 @@ public:
 public:
 	ADD features;
 	ADD diagram;
+	ADD choices;
 	const TVL* tvl;
 };
 

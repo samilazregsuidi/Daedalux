@@ -164,6 +164,8 @@ public:
 	// State printing
 	//void print(const state* diffState) const;
 
+	//operator std::string(void) const override;
+
 	void print(void) const override;
 
 	//void printGraphViz(unsigned long i) const override;

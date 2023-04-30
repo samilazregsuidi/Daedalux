@@ -10,6 +10,8 @@ primitiveVariable::primitiveVariable(const varSymNode* const varSym, unsigned in
 	, varSym(varSym)
 	, index(index)
 {
+	isPredef = varSym->isHidden();
+	isHidden = varSym->isPredefined();
 	//assert(varSym && (varSym->getType() == symbol::T_INT || varSym->getType() == symbol::T_BIT || varSym->getType() == symbol::T_BYTE || varSym->getType() == symbol::T_SHORT));
 }
 
@@ -126,12 +128,24 @@ int primitiveVariable::getValue(void) const {
 	return value;
 }
 
-void primitiveVariable::print(void) const {
+void primitiveVariable::reset(void) {
+	setValue(0);
+}
+
+primitiveVariable::operator::std::string(void) const {
 	assert(getPayload());
 	auto value = getPayload()->getValue(getOffset(), getType());
-	printf("0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
+	char buffer[128];
+	sprintf(buffer,"0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
 
-	variable::print();
+	//res += variable::operator std::string();
+	return buffer;
+}
+
+void primitiveVariable::print(void) const {
+	printf("%s", std::string(*this).c_str());
+
+	//variable::print();
 }
 
 void primitiveVariable::printTexada(void) const {

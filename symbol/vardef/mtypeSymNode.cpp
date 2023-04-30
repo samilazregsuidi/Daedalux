@@ -20,6 +20,7 @@ void mtypeSymNode::setSymTable(symTable* parent) {
 	auto mtypedefs = this->parent->getGlobalSymbols<mtypedefSymNode*>();
 	assert(mtypedefs.size() == 1);
 	def = *mtypedefs.begin();
+	assert(def);
 }
 
 int mtypeSymNode::getTypeSize(void) const {
@@ -61,6 +62,7 @@ cmtypeSymNode::cmtypeSymNode(int lineNb, mtypedefSymNode* def, const std::string
 	, value(value)
 	, def(def)
 {
+	assert(def);
 	def->addCMType(this);
 	mask = READ_ACCESS;
 }

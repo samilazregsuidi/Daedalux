@@ -12,6 +12,7 @@ utypeVar::utypeVar(const utypeSymNode* sym, unsigned int index)
 utypeVar::utypeVar(const utypeVar* other) 
 	: primitiveVariable(other)
 {
+	assert(getSizeOf() == other->getSizeOf());
 }
 
 int utypeVar::operator = (const primitiveVariable& rvalue) {
@@ -53,6 +54,10 @@ variable* utypeVar::deepCopy(void) const {
 	utypeVar* copy = new utypeVar(this);
 	//warning shared payload! 
 	return copy;
+}
+
+utypeVar::operator std::string(void) const {
+	return variable::operator std::string();
 }
 
 void utypeVar::print(void) const {

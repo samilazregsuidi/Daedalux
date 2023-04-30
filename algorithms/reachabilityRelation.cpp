@@ -15,11 +15,20 @@
 
 reachabilityRelation::reachabilityRelation()
 	: dfsIn(DFS_OUTER)
+	, tvl(nullptr)
+	, nbErrors(0)
 {}
 
 reachabilityRelation::~reachabilityRelation() {
 	for(auto elem : map)
 		delete elem.second;
+}
+
+void reachabilityRelation::init(state* init) {
+	update(init);
+	compBuilder build;
+	init->accept(&build);
+	violations.compMap = build.compMap;
 }
 
 void reachabilityRelation::setDFS(dfs dfs) {
@@ -56,6 +65,18 @@ reachabilityRelation::dfs reachabilityRelation::lastFoundIn(state* s) const {
 	return it->second->lastFoundIn;
 }
 
+void reachabilityRelation::addTraceViolation(state* loop) {
+	loop->accept(&violations);
+	++nbErrors;
+}
+
+bool reachabilityRelation::isComplete(void) const {
+	return violations.isViolationsComplete();
+}
+
+bool reachabilityRelation::hasErrors(void) const {
+	return nbErrors > 0;
+}
 
 /*******************************************/
 
@@ -67,20 +88,10 @@ reachabilityRelation::updateVisitor::updateVisitor(RState* rstate, state* s, dfs
 	s->accept(this);
 }
 
-void reachabilityRelation::updateVisitor::visit(state* s) {
-	assert(false);
-}
-
-void reachabilityRelation::updateVisitor::visit(process* s) {
-	assert(false);
-}
-
-void reachabilityRelation::updateVisitor::visit(never* s) {	
-}
-
-void reachabilityRelation::updateVisitor::visit(progState* s) {
-}
-
+void reachabilityRelation::updateVisitor::visit(state* s) { assert(false); }
+void reachabilityRelation::updateVisitor::visit(process* s) { assert(false); }
+void reachabilityRelation::updateVisitor::visit(never* s) {}
+void reachabilityRelation::updateVisitor::visit(progState* s) {}
 
 // The state was visited already, but the current copy is "fresher".
 // No need to insert it into the hash table, just update the feature expression
@@ -138,7 +149,6 @@ void reachabilityRelation::updateVisitor::visit(featStateDecorator* s) {
 
 void reachabilityRelation::updateVisitor::visit(compState* s) {
 	
-	
 	auto comp = s->compare(current->hash);
 	if(comp == STATES_DIFF) {
 		return;
@@ -159,6 +169,54 @@ void reachabilityRelation::updateVisitor::visit(compState* s) {
 	}
 }
 
+/*******************************************************/
+
+void reachabilityRelation::compBuilder::visit(state* s) {	assert(false);}
+void reachabilityRelation::compBuilder::visit(process* s) { assert(false);}
+void reachabilityRelation::compBuilder::visit(progState* s) {}
+void reachabilityRelation::compBuilder::visit(never* s) {}
+
+void reachabilityRelation::compBuilder::visit(compState* s) {
+	for(auto s : s->getSubStates()) {
+		s->accept(this);
+	}
+}
+
+void reachabilityRelation::compBuilder::visit(featStateDecorator* s) {
+	component newComp;
+	newComp.name = s->getLocalName();
+	newComp.productToVisit = s->getDiagram();
+	compMap[s->getLocalName()] = newComp;
+}
+
+/***********************************************************************/
+
+bool reachabilityRelation::violationsVisitor::isViolationsComplete(void) const {
+	for(auto comp : compMap)
+		if(!comp.second.allProductsFail)
+			return false;
+	return true;
+}
+
+void reachabilityRelation::violationsVisitor::visit(state* s) {	assert(false);}
+void reachabilityRelation::violationsVisitor::visit(process* s) { assert(false);}
+void reachabilityRelation::violationsVisitor::visit(progState* s) {}
+void reachabilityRelation::violationsVisitor::visit(never* s) {}
+
+void reachabilityRelation::violationsVisitor::visit(compState* s) {
+	for(auto s : s->getSubStates()) {
+		s->accept(this);
+	}
+}
+
+void reachabilityRelation::violationsVisitor::visit(featStateDecorator* s) {
+	auto comp = compMap[s->getLocalName()];
+	if(comp.allProductsFail)
+		return;
+	comp.productToVisit &= ~s->getFeatures();
+	comp.allProductsFail = !comp.productToVisit.IsZero();
+}
+
 /******************************************************/
 
 reachabilityRelation::getStatusVisitor::getStatusVisitor(RState* rstate, state* s, dfs dfsIn) 
@@ -168,21 +226,10 @@ reachabilityRelation::getStatusVisitor::getStatusVisitor(RState* rstate, state* 
 	s->accept(this);
 }
 
-void reachabilityRelation::getStatusVisitor::visit(state* s) {
-	assert(false);
-}
-
-void reachabilityRelation::getStatusVisitor::visit(process* s) {
-	assert(false);
-}
-
-void reachabilityRelation::getStatusVisitor::visit(never* s) {	
-	res = s->compare(current->hash);
-}
-
-void reachabilityRelation::getStatusVisitor::visit(progState* s) {
-	res = s->compare(current->hash);
-}
+void reachabilityRelation::getStatusVisitor::visit(state* s) {	assert(false); }
+void reachabilityRelation::getStatusVisitor::visit(process* s) { assert(false); }
+void reachabilityRelation::getStatusVisitor::visit(never* s) { res = s->compare(current->hash); }
+void reachabilityRelation::getStatusVisitor::visit(progState* s) { res = s->compare(current->hash); }
 
 void reachabilityRelation::getStatusVisitor::visit(featStateDecorator* s) {
 	
@@ -216,8 +263,6 @@ void reachabilityRelation::getStatusVisitor::visit(compState* s) {
 			}
 			current = save;
 		}
-
-		
 		res = comp;
 		return;
 	} else {
@@ -233,21 +278,10 @@ reachabilityRelation::stateToRState::stateToRState(state* s, dfs dfsIn) {
 	s->accept(this);
 }
     
-void reachabilityRelation::stateToRState::visit(state* s) {
-	assert(false); 
-}
-
-void reachabilityRelation::stateToRState::visit(process* s) {
-
-}
-
-void reachabilityRelation::stateToRState::visit(progState* s) {
-	
-}
-
-void reachabilityRelation::stateToRState::visit(never* s) {
-	
-}
+void reachabilityRelation::stateToRState::visit(state* s) { assert(false); }
+void reachabilityRelation::stateToRState::visit(process* s) {}
+void reachabilityRelation::stateToRState::visit(progState* s) {}
+void reachabilityRelation::stateToRState::visit(never* s) {}
 
 void reachabilityRelation::stateToRState::visit(compState* s) {
 	auto save = res;

@@ -2,10 +2,13 @@
 
 #include "tvl.hpp"
 
+#define PRINT_LIMIT 200
+
 stateToGraphViz::stateToGraphViz(const fsm* automata)
 	: automata(automata)
 	, index(0)
 	, tab(1)
+	, in(NONE)
 {}
 
 std::string stateToGraphViz::_tab(void) const {
@@ -20,7 +23,7 @@ stateToGraphViz::~stateToGraphViz() {}
 void stateToGraphViz::printGraphViz(state* s, int depth) {
 	this->depth = depth;
 
-	if(index > 100)
+	if(index > PRINT_LIMIT)
 		return;
 
 	file.open("trace/" + std::to_string(index++) + ".dot");
@@ -37,6 +40,10 @@ void stateToGraphViz::printGraphViz(state* s, int depth) {
 	file.close();
 }
 
+void stateToGraphViz::setIn(In in) {
+	this->in = in;
+}
+
 void stateToGraphViz::visit(state* s) {
 	assert(false);
 }
@@ -47,9 +54,19 @@ void stateToGraphViz::visit(process* s) {
 	++tab;
 	file << _tab() << "style=filled;" << std::endl \
 	<< _tab() << "color=white;" << std::endl \
-	<< _tab() << "label = \" "<< s->getLocalName() <<" \"; " << std::endl \
+	<< _tab() << "label = "<< ((s->getProgState()->getExclusiveProcId() != s->getPid())? "\"" + s->getLocalName() +"\"" : "<<B>"+ s->getLocalName() +"</B>>") <<" ; " << std::endl \
 	<< _tab() << sId + s->start->getID() << " [label = "<< s->start->getLineNb() <<", shape = doublecircle, "<< (s->getFsmNodePointer() == s->start ? "color = red, " : "") << "fixedsize = true]; " << std::endl \
 	<< _tab() << "s" << sId + s->start->getID() << " [shape = point];" << std::endl;
+
+	file << " \"node" << s->getVariableId() << "\"[ " << std::endl \
+	<< _tab() << "label = \"";
+	auto primVars = s->getTVariables<primitiveVariable*>();
+	for(auto primVar : primVars) {
+		auto str = std::string(*primVar);
+		if(str.size() && str.size() < 64 && !(primVar->isHidden || primVar->isPredef))
+			file << str << " | ";
+	}
+	file << "\"" << std::endl << _tab() << "shape = \"record\" "<< std::endl << "];" << std::endl;
 
 	auto endEdges = s->start->getParent()->getEndTransitions(const_cast<fsmNode*>(s->start));
 	if(endEdges.size() > 0)
@@ -71,7 +88,7 @@ void stateToGraphViz::visit(process* s) {
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		
-		if(exprStr.size() > 16)
+		if(exprStr.size() > 32)
 			exprStr = "...";
 
 		if(t->getTargetNode()) {
@@ -92,6 +109,16 @@ void stateToGraphViz::visit(progState* s) {
 	<<  _tab() << "color=lightgrey;" << std::endl \
 	<<  _tab() << "label = \" "<< s->getLocalName() << " : " << (featToPrint? TVL::toString(featToPrint) : "") << " \"; " << std::endl;
 
+	file << " \"node" << s->getVariableId() << "\"[ " << std::endl \
+	<< _tab() << "label = \"";
+	auto primVars = s->getTVariables<primitiveVariable*>();
+	for(auto primVar : primVars) {
+		auto str = std::string(*primVar);
+		if(str.size() && str.size() < 64 && !(primVar->isHidden || primVar->isPredef))
+			file << str << " | ";
+	}
+	file << "\"" << std::endl << _tab() << "shape = \"record\" "<< std::endl << "];" << std::endl;
+
 	for(auto subS : s->getProcs())
 		subS->accept(this);
 
@@ -100,12 +127,32 @@ void stateToGraphViz::visit(progState* s) {
 	file << std::endl <<  _tab() << "}" << std::endl;
 }
 
+std::string stateToGraphViz::_toInStrDescr(void) const {
+	std::string res;
+	switch (in)
+	{
+	case NONE:
+		return res;
+	case PREFIX:
+		return "PREFIX";
+	case CYCLE_BEGIN:
+		return "CYCLE BEGIN";
+	case CYCLE_END:
+		return "CYCLE_END";
+	case CYCLE:
+		return "CYCLE";
+	default:
+		assert(false);
+		return res;
+	}
+}
+
 void stateToGraphViz::visit(compState* s) {
 	file <<  _tab() << "subgraph cluster_"<< s->getLocalName() << " {" << std::endl;
 	++tab;
 	file <<  _tab() << "style=filled;" << std::endl \
 	<<  _tab() << "color=darkgrey;" << std::endl \
-	<<  _tab() << "label = \" "<< s->getLocalName() <<" : depth : "<< depth <<" \"; " <<  std::endl;
+	<<  _tab() << "label = \" "<< s->getLocalName() <<" : depth : "<< depth <<" | "<< _toInStrDescr() <<" \"; " <<  std::endl;
 
 	for(auto subS : s->getSubStates())
 		subS->accept(this);
@@ -149,7 +196,7 @@ void stateToGraphViz::visit(never* s) {
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		
-		if(exprStr.size() > 16)
+		if(exprStr.size() > 32)
 			exprStr = "...";
 
 		if(t->getTargetNode()) {
@@ -164,7 +211,7 @@ void stateToGraphViz::visit(never* s) {
 }
 
 void stateToGraphViz::visit(featStateDecorator* s) {
-	featToPrint = s->getFeatures();
+	featToPrint = s->choices;
 	s->wrappee->accept(this);
 	featToPrint = ADD();
 }

@@ -47,7 +47,7 @@ void fsmNode::addTransition(fsmEdge* trans) {
 	this->trans.push_back(trans);
 
 	std::cout << "add (n"<< lineNb << ", e" << trans->getLineNb() << ", n" << (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << ")" << std::endl;
-	assert(trans->getSourceNode() == this);
+	assert(trans->getSourceNode() == this || trans->getSourceNode() == nullptr);
 }
 
 void fsmNode::removeTransition(fsmEdge* trans) {
@@ -122,8 +122,16 @@ fsm* fsmNode::getParent(void) const {
 	return parent;
 }
 
-void fsmNode::orderAcceptTransitions(void) {
-	
+void fsmNode::orderAcceptingTransitions(void) {
+	std::list<fsmEdge*> newTrans;
+	for(auto e : trans) {
+		auto targetNode = e->getTargetNode();
+		if(targetNode && targetNode->isAccepting())
+			newTrans.push_front(e);
+		else
+			newTrans.push_back(e);
+	}
+	trans = newTrans;
 }
 
 fsmNode::operator std::string(void) const {

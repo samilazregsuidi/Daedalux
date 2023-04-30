@@ -63,6 +63,14 @@ fsmNode* fsm::copyFsmNode(const fsmNode* node) {
 	return createFsmNode(node->getFlags(), node->getLineNb());
 }
 
+
+fsmNode* fsm::getNode(unsigned int lineNb) const {
+	for(auto node : nodes)
+		if(node->getLineNb() == lineNb)
+			return node;
+	return nullptr;
+}
+
 std::list<fsmNode *> fsm::getNodes(void) const {
 	return nodes;
 }
@@ -103,6 +111,42 @@ void fsm::deleteTransition(fsmEdge* edge) {
 
 	trans.remove(edge);
 	delete edge;
+}
+
+void fsm::orderAcceptingTransitions(void){
+	for(auto node : nodes)
+		node->orderAcceptingTransitions();
+}
+
+void fsm::removeUselessTransitions(void){
+	auto tcopy = trans;
+	for(auto t : tcopy) {
+		if(t->expression->getType() == astNode::E_STMNT_EXPR){
+			auto node = dynamic_cast<const stmntExpr*>(t->expression)->getChild();
+			if(node->getType() == astNode::E_EXPR_SKIP) {
+				auto src = t->getSourceNode();
+				auto target = t->getTargetNode();
+				if(target && target->getInputEdges().size() == 1) {	
+					//assert(!target || target->getInputEdges().size() == 1);
+					auto t_feat = t->getFeatures();
+					deleteTransition(t);
+					if(target && target->getEdges().size()) { 
+						for(auto nextT : target->getEdges()) {
+							nextT->setFeatures(t_feat? (nextT->getFeatures()? t->getFeatures() & nextT->getFeatures() : t_feat) : nextT->getFeatures());
+							nextT->setSourceNode(src);
+							src->addTransition(nextT);
+						}
+					}
+				}
+			}
+		}
+	}
+	/*auto ncopy = nodes;
+	for(auto node : ncopy)
+		if(node->getInputEdges().size() == 0) {
+			nodes.remove(node);
+			delete node;
+		}*/
 }
 
 void fsm::deleteNode(fsmNode* node) {

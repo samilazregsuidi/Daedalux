@@ -196,7 +196,7 @@ std::list<transition*> compState::executables(void) const {
 
 state* compState::apply(transition* trans) {
 	
-	assert(origin == nullptr);
+	//assert(origin == nullptr);
 
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 	assert(compTrans);

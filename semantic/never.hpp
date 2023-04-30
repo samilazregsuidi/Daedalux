@@ -24,6 +24,8 @@ public:
 
 	void init(void) override;
 
+	//operator std::string(void) const override;
+
 	void print(void) const override;
 
 	std::list<transition*> executables(void) const override;

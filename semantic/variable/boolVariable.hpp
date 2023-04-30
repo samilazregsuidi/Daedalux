@@ -21,6 +21,8 @@ public:
 
 	int operator -- (int) override;
 
+	operator std::string(void) const override;
+
 	void print(void) const override;
 
 	void printTexada(void) const override;

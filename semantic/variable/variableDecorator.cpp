@@ -97,6 +97,10 @@ std::list<variable*> variableDecorator::getVariables(void) const {
 	return wrappee->getVariables();
 }
 
+variableDecorator::operator std::string() const {
+	return wrappee->operator std::string();
+}
+
 void variableDecorator::print(void) const {
 	wrappee->print();
 }

@@ -44,15 +44,25 @@ variable* mtypeVar::deepCopy(void) const {
 	return copy;
 }
 
-void mtypeVar::print(void) const {
+mtypeVar::operator std::string(void) const {
+	char buffer[128];
 	auto value = getValue();
 	if(value) {
 		auto def = dynamic_cast<const mtypeSymNode*>(varSym)->getMTypeDef();
-		auto mtypestr = def->getCmtypeSymNodeName(value);
-		printf("0x%-4lx:   %-23s = %s\n", getOffset(), getFullName().c_str(), mtypestr.c_str());
+		if(def) {
+			auto mtypestr = def->getCmtypeSymNodeName(value);
+			sprintf(buffer, "0x%-4lx:   %-23s = %s\n", getOffset(), getFullName().c_str(), mtypestr.c_str());
+		} else {
+			sprintf(buffer, "0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
+		}
 	} else {
-		printf("0x%-4lx:   %-23s = nil\n", getOffset(), getFullName().c_str());
+		sprintf(buffer, "0x%-4lx:   %-23s = nil\n", getOffset(), getFullName().c_str());
 	}
+	return buffer;
+}
+
+void mtypeVar::print(void) const {
+	printf("%s", std::string(*this));
 }
 
 void mtypeVar::printTexada(void) const {
@@ -108,6 +118,11 @@ int cmtypeVar::operator ++ (int) {
 
 int cmtypeVar::operator -- (int) {
 	assert(false);
+}
+
+cmtypeVar::operator std::string() const {
+	return std::string();
+	//assert(false);
 }
 
 void cmtypeVar::print(void) const {

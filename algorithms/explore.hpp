@@ -16,11 +16,6 @@ typedef unsigned char ubyte;
 
 #include "stateVisitor.hpp"
 
-enum DFS {
-    OUTER,
-    INNER
-};
-
 class ltlModelChecker {
 public:
     void startNestedDFS(const fsm* automata, const TVL* tvl);

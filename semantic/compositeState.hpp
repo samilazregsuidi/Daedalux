@@ -109,6 +109,8 @@ public:
 
 	//byte compare(const state& s2) const override;
 
+	//operator std::string(void) const override;
+
 	void print(void) const override;
 
 	//void printGraphViz(unsigned long i) const override;

@@ -38,7 +38,7 @@ public:
 
 	operator std::string(void) const;
 
-private:
+public:
 	fsm* parent;
 	int lineNb;
 	ADD features;

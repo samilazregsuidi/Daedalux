@@ -120,7 +120,7 @@ add_executable(deadalux
 	
 	./visualizers/stateToGraphViz.cpp
 	
-	./logic/ltl-ltl2ba.c
+	./logic/ltl.cpp
     
 	)
 

@@ -106,35 +106,38 @@ std::list<transition*> process::executables(void) const {
 	if(!node) 
 		return res;
 
+
+	auto s = getProgState();
+	if(s->hasExclusivity() && s->getExclusiveProcId() != getPid())
+		return res;
+
 	for(auto edge : node->getEdges()) {
 
 		if(eval(edge, EVAL_EXECUTABILITY) > 0) {
 
 			//auto conjunct = s->getFeatures() * edge->getFeatures();
 
-			progState* s = getProgState();
-
 			if(edge->getExpression()->getType() == astNode::E_STMNT_CHAN_SND) {
 				
 				auto cSendStmnt = dynamic_cast<const stmntChanSnd*>(edge->getExpression());
 				auto chan = getChannel(cSendStmnt->getChan());
-				
-
 				chan->send(getConstVariables(cSendStmnt->getArgList()));
 				// channelSend has modified the value of HANDSHAKE and one other byte in the payload.
 				// These two will have to get back their original value.
 				// Also, channelSend has allocated memory to handshake_transit: it will have to be free'd.
 
 				std::list<transition*> responses = s->executables();
-				//assert(responses.size() > 0);
+				
+				// assert(responses.size() > 0);
 				// After the recursive call, each transition in e_ is executable and its features satisfy the modified base FD.
 				// featuresOut contains all the outgoing features from now on, included the ones of the response that satisfy the base FD (those may not satisfy the modified FD, though).
 				// *allProductsOut == 1 if the outgoing features reference all the products.
+				
 				for(auto response : responses) {
 					//conjunct *= dynamic_cast<progTransition*>(response)->getEdge()->getFeatures();
 					//if((conjunct * s->stateMachine->getFD()).IsOne())
 						//res.push_back(new RVTransition(s, const_cast<process*>(this), edge, conjunct, dynamic_cast<progTransition*>(response)));
-					res.push_back(initState::createTransition(edge, s, const_cast<process*>(this), dynamic_cast<processTransition*>(response)));
+					res.push_back(initState::createTransition(edge, s, const_cast<process*>(this), response));
 				}
 
 				chan->reset();
@@ -145,6 +148,7 @@ std::list<transition*> process::executables(void) const {
 				//to wrap/abstract when I will have time
 				//if((conjunct * s->stateMachine->getFD()).IsOne())
 					//res.push_back(new progTransition(s, const_cast<process*>(this), edge, conjunct));
+				assert(edge->getExpression()->getType() != astNode::E_STMNT_CHAN_RCV || !edge->getFeatures());
 
 				res.push_back(initState::createTransition(edge, s, const_cast<process*>(this)));
 			}
@@ -231,18 +235,30 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_RARG_EVAL):
 			return eval(dynamic_cast<const exprRArgEval*>(node)->getToEval(), flag);
 
+		case(astNode::E_STMNT_CHAN_SND):
+		{
+			channel* chan = getChannel(dynamic_cast<const stmntChanSnd*>(node)->getChan());
+
+			if (chan->isRendezVous()) {
+				// We check if the rendezvous can be completed.
+				return s->requestHandShake({chan, this});
+
+			} else
+				// Ok if there is space in the channel
+				return !chan->isFull();
+			
+		}
+
 		case(astNode::E_STMNT_CHAN_RCV):
-		{		
+		{
 			auto chanRecvStmnt = dynamic_cast<const stmntChanRecv*>(node);
 			assert(chanRecvStmnt);
 			channel* chan = getChannel(chanRecvStmnt->getChan());
 			assert(chan);
 
-			if ((chan->isRendezVous() && chan != s->getHandShakeRequestChan()) || 
-				(!chan->isRendezVous() && chan->isEmpty())) {
-				
-					// Handshake request does not concern the channel or no message in the channel
-					return 0;
+			// Handshake request does not concern the channel or no message in the channel
+			if ((chan->isRendezVous() && chan != s->getHandShakeRequestChan()) || (!chan->isRendezVous() && chan->isEmpty())) {
+				return 0;
 
 			} else {
 				// Either a rendezvous concerns the channel, either the channel has a non null capacity and is not empty.
@@ -268,20 +284,6 @@ int process::eval(const astNode* node, byte flag) const {
 
 				return 1;
 			}
-		}
-
-		case(astNode::E_STMNT_CHAN_SND):
-		{
-			channel* chan = getChannel(dynamic_cast<const stmntChanSnd*>(node)->getChan());
-
-			if (chan->isRendezVous()) {
-				// We check if the rendezvous can be completed.
-				return s->requestHandShake({chan, this});
-
-			} else
-				// Ok if there is space in the channel
-				return !chan->isFull();
-			
 		}
 
 		case(astNode::E_STMNT_INCR):
@@ -458,12 +460,12 @@ state* process::apply(transition* trans) {
 	const process* proc = dynamic_cast<const processTransition*>(trans)->getProc();
 	const fsmEdge* edge =  dynamic_cast<const processTransition*>(trans)->getEdge();
 
-	assert(proc);
+	assert(proc && proc->getPid() == getPid());
 	assert(edge);
 
 	auto expression = edge->getExpression();
 
-	auto oldLocation = getLocation();
+	//auto oldLocation = getLocation();
 	//_assertViolation = 0;
 
 	progState* s = getProgState();
@@ -479,16 +481,6 @@ Apply:
 			assert(false);
 			break;
 
-
-		case(astNode::E_STMNT_CHAN_RCV):
-		{
-			auto recvStmnt = dynamic_cast<const stmntChanRecv*>(expression);
-			auto chan = getChannel(recvStmnt->getChan());
-			assert((!chan->isRendezVous() && !s->hasHandShakeRequest()) || s->getHandShakeRequestChan() == chan);
-			chan->receive(getVariables(recvStmnt->getRArgList()));
-			// If there was a rendezvous request, it has been accepted.
-			break;
-		}
 		case(astNode::E_STMNT_CHAN_SND):
 		{
 			// Sends the message in the correct channel.
@@ -523,6 +515,25 @@ Apply:
 			}
 			break;
 		}
+
+		case(astNode::E_STMNT_CHAN_RCV):
+		{
+			auto recvStmnt = dynamic_cast<const stmntChanRecv*>(expression);
+			auto chan = getChannel(recvStmnt->getChan());
+			
+			if(chan->isRendezVous())
+				assert(s->hasHandShakeRequest() && s->getHandShakeRequestChan() == chan);
+			else 
+				assert(!s->hasHandShakeRequest());
+
+			
+			chan->receive(getVariables(recvStmnt->getRArgList()));
+			if(s->getHandShakeRequestChan() == chan)
+				s->resetHandShake();
+			// If there was a rendezvous request, it has been accepted.
+			break;
+		}
+		
 		case(astNode::E_STMNT_IF):
 		case(astNode::E_STMNT_DO):
 		case(astNode::E_STMNT_OPT):
@@ -595,7 +606,7 @@ Apply:
 			auto assertExpr = dynamic_cast<const stmntAssert*>(expression);
 			if(eval(assertExpr->getToAssert(), EVAL_EXPRESSION) == 0) {
 				printf("Assertion failed.\n");
-				//assert(false);
+				assert(false);
 				//if(!_assertViolation) _assertViolation = 1;
 			}
 			//assert(false);
@@ -662,7 +673,7 @@ Apply:
 				auto vars = initState::addVariables(newProc, argSym);
 				assert(vars.size() == 1);
 				auto var = vars.begin();
-				**var = **argIt++;
+				*dynamic_cast<primitiveVariable*>(*var) = *dynamic_cast<const primitiveVariable*>(*argIt++);
 			}
 			
 			break;

@@ -85,6 +85,7 @@ variable::variable(Type varType, const std::string& name)
 	, offset(0)
 	, payLoad(nullptr)
 	, isHidden(false)
+	, isPredef(false)
 {
 
 }
@@ -100,12 +101,16 @@ variable::variable(const variable& other)
 	, offset(0)
 	, payLoad(other.payLoad)
 	, isHidden(other.isHidden)
+	, isPredef(other.isPredef)
 {
 }
 
 variable::variable(const variable* other)
 	: variable(*other)
 {
+	auto nbVariables = other->getVariables().size();
+	//auto otherSizeOf = other->getSizeOf();
+
 	payLoad = nullptr;
 	clearVariables();
 
@@ -119,6 +124,12 @@ variable::variable(const variable* other)
 	if(!parent) {
 		setPayload(other->getPayload()->copy());
 	}
+
+	assert(getVariables().size() == nbVariables);
+	/*auto thisSizeOf = getSizeOf();
+	if(thisSizeOf != otherSizeOf)
+		assert(false);
+	assert(getSizeOf() == otherSizeOf);*/
 }
 
 variable::~variable() {
@@ -236,6 +247,13 @@ std::list<variable*> variable::getVariables(void) const {
 	return varList;
 }
 
+variable::operator std::string(void) const {
+	std::string res;
+	for(auto var : varList)
+		res += std::string(*var);
+	return res;
+}
+
 void variable::print(void) const {
 	for(auto var : varList)
 		var->print();
@@ -249,7 +267,6 @@ void variable::printTexada(void) const {
 void variable::printHexadecimal(void) const {
 	payLoad->printHexadecimal(getOffset(), getSizeOf());
 }
-
 
 void variable::setPayload(payload* newPayLoad) {
 	assert(!payLoad);
@@ -355,6 +372,11 @@ size_t variable::getSizeOf(void) const {
 void variable::clearVariables(void) {
 	varList.clear();
 	varMap.clear();
+}
+
+void variable::reset(void) {
+	for(auto subVar : varList)
+		subVar->reset();
 }
 
 /*************************************************************************************************/

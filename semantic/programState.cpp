@@ -40,9 +40,6 @@ progState::progState(const fsm* stateMachine, const std::string& name)
 	, exclusiveProc(nullptr)
 	, timeout(false)
 {
-
-	addRawBytes(SIZE_EXCLUSIVITY_VAR);
-	addRawBytes(SIZE_HANDSHAKE_VAR);
 }
 
 progState::progState(const progState* other)
@@ -56,7 +53,13 @@ progState::progState(const progState* other)
 	, handShakeProc(other->handShakeProc)
 	, exclusiveProc(other->exclusiveProc)
 	, timeout(other->timeout)
-{}
+{
+	assert(handShakeChan == nullptr);
+	assert(handShakeProc == nullptr);
+
+	assert(other->getVariables().size() == getVariables().size());
+	assert(getVariables().size());
+}
 
 progState::progState(const progState& other)
 	: state(other)
@@ -69,7 +72,13 @@ progState::progState(const progState& other)
 	, handShakeProc(other.handShakeProc)
 	, exclusiveProc(other.exclusiveProc)
 	, timeout(other.timeout)
-{}
+{
+	assert(handShakeChan == nullptr);
+	assert(handShakeProc == nullptr);
+
+	assert(other.getVariables().size() == getVariables().size());
+	assert(getVariables().size());
+}
 
 
 progState* progState::deepCopy(void) const {
@@ -84,23 +93,25 @@ void progState::init(void) {
 
 	state::init();
 	// No process is executing something atomic
-	getPayload()->setValue(OFFSET_EXCLUSIVITY_VAR, NO_PROCESS);
+	//getPayload()->setValue(OFFSET_EXCLUSIVITY_VAR, NO_PROCESS);
 	// No rendezvous has been requested.
-	getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
+	//getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 }
 
 void progState::assign(const variable* sc) {
 	
+	assert(sc->getVariables().size());
 	variable::assign(sc);
+	assert(sc->getVariables().size());
 
-	if(handShakeChan) {
+	/*if(handShakeChan) {
 		handShakeChan = getChannel(handShakeChan->getLocalName());
 		assert(handShakeChan);
 	}
 	if(handShakeProc) {
 		handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
 		assert(handShakeProc);
-	}
+	}*/
 	if(exclusiveProc) {
 		exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
 		assert(exclusiveProc);
@@ -289,7 +300,7 @@ void progState::resetExclusivity(void) const {
 
 void progState::setExclusivity(const process* proc) const {
 	exclusiveProc = proc;
-	getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
+	//getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
 }
 
 void progState::setExclusivity(byte pid) const {
@@ -304,9 +315,10 @@ bool progState::requestHandShake(const std::pair<const channel*, const process*>
 }
 
 void progState::setHandShake(const std::pair<const channel*, const process*>& handShake) const {
+	assert((handShake.first && handShake.first) || (!handShake.first && !handShake.first));
 	handShakeChan = handShake.first;
 	handShakeProc = handShake.second;
-	getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
+	//getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
 }
 
 /*void progState::setHandShake(unsigned int cid) const {
@@ -322,11 +334,11 @@ unsigned int progState::getHandShakeRequestId(void) const {
 }
 
 const channel* progState::getHandShakeRequestChan(void) const {
-	return getHandShakeRequest().first;
+	return handShakeChan;
 }
 
 const process* progState::getHandShakeRequestProc(void) const {
-	return getHandShakeRequest().second;
+	return handShakeProc;
 }
 
 bool progState::hasHandShakeRequest(void) const {
@@ -335,7 +347,8 @@ bool progState::hasHandShakeRequest(void) const {
 
 void progState::resetHandShake(void) const {
 	handShakeChan = nullptr;
-	getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
+	handShakeProc = nullptr;
+	//getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 }
 
 bool progState::getTimeoutStatus(void) const {
@@ -356,18 +369,11 @@ std::list<transition*> progState::executables(void) const {
 	auto handShake = getHandShakeRequest();
 
 	for(auto proc : getProcs()) {
-		if (hasHandShakeRequest() || !hasExclusivity() || getExclusiveProcId() == proc->getPid()) {
-			auto Ts = proc->executables();
-
-			//assert(std::fabs([=](){ double resProb = 0.0; for(auto t : Ts) resProb += t->prob; return resProb; }() - (Ts.size() ? 1.0 : 0.0)) < std::numeric_limits<double>::epsilon());
-
-			for(auto t : Ts)
-				t->prob /= getProcs().size();
-			
-			
-			
-			execs.merge(Ts);
-		}
+		auto Ts = proc->executables();
+		//assert(std::fabs([=](){ double resProb = 0.0; for(auto t : Ts) resProb += t->prob; return resProb; }() - (Ts.size() ? 1.0 : 0.0)) < std::numeric_limits<double>::epsilon());
+		/*for(auto t : Ts)
+			t->prob /= getProcs().size();*/
+		execs.merge(Ts);
 	}
 
 	//assert(std::fabs([=](){ double resProb = 0.0; for(auto t : execs) resProb += t->prob; return resProb; }() - (execs.size() ? 1.0 : 0.0)) < std::numeric_limits<double>::epsilon());
@@ -419,8 +425,8 @@ state* progState::apply(transition* trans) {
 
 	auto response = dynamic_cast<processTransition*>(progTrans->getResponse());
 	if(response) {
-		response->getProc()->apply(response);
-		resetHandShake();
+		auto responseProc = getProc(response->getProc()->getPid());
+		responseProc->apply(response);
 	}
 
 	assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);

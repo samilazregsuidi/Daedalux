@@ -227,6 +227,11 @@ transition* initState::createTransition(const fsmEdge* edge, state* s, process* 
 	transition* res = nullptr;
 
 	auto procTrans = new processTransition(proc, edge);
+	if(response) {
+		auto castedResponse = dynamic_cast<programTransition*>(response);
+		assert(castedResponse && !castedResponse->response);
+		response = castedResponse->procTrans;
+	}
 	
 	if(edge->hasFeatures()){
 		res = new featProgTransition(s, procTrans, edge->getFeatures(), response);

@@ -58,6 +58,8 @@ public:
 
 	/**********************************************************/
 
+	virtual operator std::string() const override; 
+
 	virtual void print(void) const override;
 
 	virtual void printTexada(void) const override;

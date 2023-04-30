@@ -185,6 +185,10 @@ int never::eval(const astNode* node, byte flag) const {
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
 			auto var = getVariable(varRef);
+			if(!var) {
+				var = getVariable(varRef);
+				assert(false);
+			}
 			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
 			return value;
 		}

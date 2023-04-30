@@ -70,11 +70,11 @@ public:
 	
 	std::list<fsmEdge *> getInputEdges(void) const;
 	
-	void orderAcceptTransitions(void);
-
 	operator std::string(void) const;
 
 	unsigned long getID(void) const;
+
+	void orderAcceptingTransitions(void);
 
 private:
 	fsm *parent;

@@ -87,9 +87,9 @@ public:
 
 	channel* getChannel(const expr* varExpr) const;
 
-	template <typename T> T* getTVar(const expr* varExpr, const thread* proc) const {
+	/*template <typename T> T* getTVar(const expr* varExpr, const thread* proc) const {
 		return dynamic_cast<T*>(getVariable(varExpr));
-	}
+	}*/
 
 	void printGraphViz(unsigned long i) const;
 	

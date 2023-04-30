@@ -5,21 +5,31 @@
 #include "chanSymNode.hpp"
 #include "cidSymNode.hpp"
 
+#include "initState.hpp"
+
 channel::channel(const chanSymNode* chanSym, unsigned int index)
 	: primitiveVariable(chanSym, index)
 {
 	if(chanSym->getBound() > 1)
 		name += "["+std::to_string(index)+"]";
 
-	if(chanSym->getCapacity() > 0)
+	if(chanSym->getCapacity() > 0){
 		rawBytes++;
-
-	for(int i = 0; i < chanSym->getCapacity(); ++i){
+		for(int i = 0; i < chanSym->getCapacity(); ++i){
+			unsigned int fieldIndex = 0;
+			for(auto typeSym: chanSym->getTypeList()){
+				for(unsigned int j = 0; j < typeSym->getBound(); ++j){
+					//auto msgField = new channelField(typeSym, fieldIndex++, i, j);
+					auto addedVars = initState::addVariables(this, typeSym);
+				}
+			}
+		}
+	} else {
 		unsigned int fieldIndex = 0;
 		for(auto typeSym: chanSym->getTypeList()){
 			for(unsigned int j = 0; j < typeSym->getBound(); ++j){
-				auto msgField = new channelField(typeSym, fieldIndex++, i, j);
-				_addVariable(msgField);
+				//auto msgField = new channelField(typeSym, fieldIndex++, 0, j);
+				initState::addVariables(this, typeSym);
 			}
 		}
 	}
@@ -27,7 +37,9 @@ channel::channel(const chanSymNode* chanSym, unsigned int index)
 
 channel::channel(const channel* other) 
 	: primitiveVariable(other)
-{}
+{
+	assert(getSizeOf() == other->getSizeOf());
+}
 
 variable* channel::deepCopy(void) const{
 	return new channel(this);
@@ -41,7 +53,8 @@ size_t channel::getSizeOf(void) const {
 }
 
 void channel::reset(void) {
-	getPayload()->reset();
+	for(auto field : getVariables())
+		field->reset();
 }
 
 //int return type for executability check?
@@ -52,9 +65,9 @@ void channel::send(const std::list<const variable*>& args) {
 	for(auto field : varList) {
 		
 		//field->print();
-		//(*argIt)->print();
+		(*argIt)->print();
 
-		*field = **argIt++;
+		*dynamic_cast<primitiveVariable*>(field) = *dynamic_cast<const primitiveVariable*>(*argIt++);
 
 		//field->print();
 	
@@ -70,10 +83,13 @@ void channel::receive(const std::list<variable*>& rargs) {
 
 	for(auto field : varList) {
 		
-		//(*rargIt)->print();
-		//field->print();
+		auto rarg = (*rargIt);
+		rarg->print();
+		field->print();
 
-		**rargIt++ = *field;
+		*dynamic_cast<primitiveVariable*>(*rargIt++) = *dynamic_cast<primitiveVariable*>(field);
+
+		rarg->print();
 	}
 
 	if(isRendezVous())
@@ -151,6 +167,10 @@ bool channel::operator != (const primitiveVariable& other) const {
 	assert(false);
 }
 
+channel::operator std::string(void) const {
+
+}
+
 void channel::print(void) const {
 
 }
@@ -161,20 +181,11 @@ void channel::printTexada(void) const {
 
 /**************************************************************************************************/
 
-channelField::channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
+/*channelField::channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
 	: primitiveVariable(sym, index)
 {
 	name = ".("+sym->getTypeName()+")m" + std::to_string(messageIndex) + ".f" + std::to_string(fieldNumber) + name;
-}
-
-channelField::channelField(const channelField* other) 
-	: primitiveVariable(other)
-{}
-
-variable* channelField::deepCopy(void) const{
-	variable* copy = new channelField(this);
-	return copy;
-}
+}*/
 
 /**************************************************************************************************/
 
@@ -205,3 +216,10 @@ void CIDVar::assign(const variable* sc) {
 	}
 }
 
+CIDVar::operator std::string(void) const {
+	assert(false);
+}
+
+void CIDVar::print(void) const {
+	assert(false);
+}

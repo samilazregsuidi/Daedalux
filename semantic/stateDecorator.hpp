@@ -57,15 +57,17 @@ public:
 
 	/**********************************************************/
 
-	virtual void print(void) const override;
+	operator std::string(void) const override;
 
-	virtual void printTexada(void) const override;
+	void print(void) const override;
 
-	virtual void printHexadecimal(void) const override;
+	void printTexada(void) const override;
+
+	void printHexadecimal(void) const override;
 
 	/************************************************************/
 
-	virtual size_t getSizeOf(void) const override;
+	size_t getSizeOf(void) const override;
 
 	size_t getOffset(void) const override;
 

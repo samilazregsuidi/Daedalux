@@ -37,6 +37,8 @@ public:
 
 	void setPid(byte pid);
 
+	//operator std::string(void) const override;
+
 	void print(void) const override;
 
 	std::list<transition*> transitions(void) const override;

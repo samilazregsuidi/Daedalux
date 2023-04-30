@@ -1,15 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "error.h"
-#include "main.h"
-#include "list.h"
-#include "ltl.h"
+#include "ltl.hpp"
+#include "assert.h"
 
-int appendClaim(char* file, char* ltl, char* error) {
-	char command[44 + strlen(ltl) + 1];
-	sprintf(command, "%slib/ltl2ba/ltl2ba -f \"!(%s)\" > __formula.tmp", path, ltl);
-	if(system(command) != 0) {
+int appendClaim(const std::string& file, const std::string& path, const std::string& ltl, std::string& error) {
+	
+	if(system(std::string(path + "libs/ltl2ba/ltl2ba -f \"!("+ltl+")\" > __formula.tmp").c_str()) != 0) {
 		FILE* fsource;
 		fsource = fopen("__formula.tmp", "r");
 		if(fsource != NULL) {
@@ -25,11 +20,14 @@ int appendClaim(char* file, char* ltl, char* error) {
 		FILE* fsource;
 		FILE* ftarget;
 		fsource = fopen("__formula.tmp", "r");
-		ftarget = fopen(file, "a");
+		ftarget = fopen(file.c_str(), "a");
 
-		if(fsource == NULL || ftarget == NULL) failure("Could not append the never claim to the promela file!\n");
-		else {
+		if(fsource == NULL || ftarget == NULL) {
+			printf("Could not append the never claim to the promela file!\n");
+			assert(false);
+		} else {
 			fputc('\n', ftarget);
+			fputs(("# 25 \""+ltl+"\" \n").c_str(), ftarget);
 			char buffer;
 			buffer = fgetc(fsource);
 			while(!feof(fsource)) {
@@ -39,7 +37,7 @@ int appendClaim(char* file, char* ltl, char* error) {
 			fclose(fsource);
 			fclose(ftarget);
 
-			if(!keepTempFiles) remove("__formula.tmp");
+			//if(!keepTempFiles) remove("__formula.tmp");
 			return 1;
 		}
 
@@ -47,6 +45,6 @@ int appendClaim(char* file, char* ltl, char* error) {
 		if(ftarget != NULL) fclose(ftarget);
 	}
 
-	if(!keepTempFiles) remove("__formula.tmp");
+	//if(!keepTempFiles) remove("__formula.tmp");
 	return 0;
 }

@@ -1,3 +1,17 @@
+#define readCommand (readMsg == commandMsg)
+#define readAlarm (readMsg == alarmMsg)
+#define readLevel (readMsg == levelMsg)
+#define userStart (uwants == start)
+#define userStop (uwants == stop)
+#define highWater (waterLevel == high)
+#define mediumWater (waterLevel == medium)
+#define lowWater (waterLevel == low)
+#define stateReady (pstate == ready)
+#define stateRunning (pstate == running)
+#define stateStopped (pstate == stopped)
+#define stateMethanestop (pstate == methanestop)
+#define stateLowstop (pstate == lowstop)
+
 mtype = {levelMsg, stop, methanestop, alarm, running, commandMsg, start, alarmMsg, high, low, stopped, medium, ready, lowstop}
 chan cCmd = [0] of {mtype};
 chan cAlarm = [0] of {mtype};
@@ -17,6 +31,7 @@ active proctype controller(){
 			cCmd?pcommand;
 			readMsg = commandMsg;
 		};
+		
 		if
 		::	pcommand == stop;
 			if
@@ -25,9 +40,9 @@ active proctype controller(){
 					pumpOn = false;
 				};
 			::	else;
-				skip;
 			fi;
 			pstate = stopped;
+			
 		::	pcommand == start;
 			if
 			::	atomic {
@@ -35,12 +50,10 @@ active proctype controller(){
 					pstate = ready;
 				};
 			::	else;
-				skip;
 			fi;
-		::	else;
-			assert((false));
 		fi;
-		cCmd!pstate;
+		cCmd!pstate; 
+	
 	::	atomic {
 			cAlarm?_;
 			readMsg = alarmMsg;
@@ -51,9 +64,9 @@ active proctype controller(){
 				pumpOn = false;
 			};
 		::	else;
-			skip;
 		fi;
 		pstate = methanestop;
+		
 	::	atomic {
 			cLevel?level;
 			readMsg = levelMsg;
@@ -70,12 +83,11 @@ active proctype controller(){
 						pstate = running;
 						pumpOn = true;
 					::	else;
-						skip;
 					fi;
 				};
 			::	else;
-				skip;
 			fi;
+			
 		::	level == low;
 			if
 			::	atomic {
@@ -84,10 +96,8 @@ active proctype controller(){
 					pstate = lowstop;
 				};
 			::	else;
-				skip;
 			fi;
 		::	level == medium;
-			skip;
 		fi;
 	od;
 }

@@ -14,6 +14,7 @@
 #include "y.tab.hpp"
 #include "lexer.h"
 #include "tvl.hpp"
+#include "ltl.hpp"
 
 #include "astToFsm.hpp"
 
@@ -150,6 +151,7 @@ int main(int argc, char *argv[]) {
 
 	if(!copyFile(argv[argc - 1], "__workingfile.tmp")) error("The fPromela file does not exist or is not readable!");
 
+	std::string path;
 	std::string ltlProp;
 	std::string tvlFile;
 	std::string tvlFilter;
@@ -159,6 +161,14 @@ int main(int argc, char *argv[]) {
 	int i, ps = 0, check = 0, exec = 0, fm = 0, ltl = 0;
 
 	tvl = new TVL();
+
+	std::string argv_0 = std::string(argv[0]);
+	path = argv_0.substr(0 , (argv_0.size() + 1) - sizeof("deadalux"));
+	
+	std::cout << path << std::endl;
+	
+	pmlFile = argv[argc - 1];
+	if(!copyFile(argv[argc - 1], "__workingfile.tmp")) { std::cout << "The fPromela file does not exist or is not readable!\n"; exit(1); }
 
 	// Read command-line arguments
 	for(int i = 1; i < argc-1; i++) {
@@ -244,12 +254,9 @@ int main(int argc, char *argv[]) {
 			i++;
 			if(i >= argc - 1) error("The -ltl option has to be followed by an LTL property.");
 			else {
-				assert(false);
 				ltlProp = argv[i];
-				char* errorMsg = (char*)malloc(1024 * sizeof(char));
-				if(!errorMsg) printf("Out of memory (creating string buffer).\n");
-				//if(!appendClaim("__workingfile.tmp", ltlProp, errorMsg)) error("The LTL formula '%s' could not be parsed, error message: \n --\n%s\n", ltlProp, errorMsg);
-				free(errorMsg);
+				std::string errorMsg;
+				if(!appendClaim("__workingfile.tmp", path, ltlProp, errorMsg)) error("The LTL formula '%s' could not be parsed, error message: \n --\n%s\n", ltlProp, errorMsg);
 			}
 
 		} else if(strcmp(argv[i], "-sim") == 0) {
@@ -282,7 +289,7 @@ int main(int argc, char *argv[]) {
 		if(!tvl->loadFeatureModel(tvlFile, tvlFilter)) error("Could not load the specified feature model file.");
 	} else if(!fm && /*!spinM* &&*/ !optimisedSpinMode) {
 		// Try to guess name of feature model file name
-		std::string tvlFile = std::string(argv[argc - 1]).replace(tvlFile.find(".pml"), 4, ".tvl");
+		std::string tvlFile = std::string(argv[argc - 1]).replace(pmlFile.find(".pml"), 4, ".tvl");
 		printf("tvl file = %s\n", tvlFile.c_str());
 		
 		if(!tvl->loadFeatureModel(tvlFile, tvlFilter) && !tvlFilter.empty()) error("The -filter option can only be used when a feature model is charged.");
@@ -294,8 +301,6 @@ int main(int argc, char *argv[]) {
 		error("Simulation checking and non stutter steps require a property file.");
 	}
 
-	if(!copyFile(argv[argc - 1], "__workingfile.tmp")) { std::cout << "The fPromela file does not exist or is not readable!\n"; exit(1); }
-
 	// Invoke cpp
 	if(system("cpp __workingfile.tmp __workingfile.tmp.cpp") != 0) { std::cout << "Could not run the c preprocessor (cpp).\n"; exit(1); }
 
@@ -305,6 +310,11 @@ int main(int argc, char *argv[]) {
 
 	if(yyparse(&globalSymTab, &program) != 0) { 
 		std::cout << "Syntax error; aborting..\n"; exit(1); 
+	}
+
+	if(yyin != nullptr) {
+		fclose(yyin);
+		yylex_destroy();
 	}
 
 	srand(time(nullptr));
@@ -326,6 +336,28 @@ int main(int argc, char *argv[]) {
 
 	ASTtoFSM* converter = new ASTtoFSM();
 	fsm* automata = converter->astToFsm(globalSymTab, program, tvl);
+	automata->orderAcceptingTransitions();
+
+	/*auto accept_init = automata->getNode(10);
+	assert(accept_init->getFlags() & fsmNode::N_ACCEPT);
+	accept_init = automata->getNode(14);
+	assert(accept_init->getFlags() & fsmNode::N_ACCEPT);
+
+	auto T0_S2 = automata->getNode(16);
+	assert(!(T0_S2->getFlags() & fsmNode::N_ACCEPT));
+	T0_S2 = automata->getNode(20);
+	assert(!(T0_S2->getFlags() & fsmNode::N_ACCEPT));
+
+	auto T0_S3 = automata->getNode(22);
+	assert(!(T0_S3->getFlags() & fsmNode::N_ACCEPT));
+	T0_S3 = automata->getNode(27);
+	assert(!(T0_S3->getFlags() & fsmNode::N_ACCEPT));
+
+	auto accept_all = automata->getNode(29);
+	assert(accept_all->getFlags() & fsmNode::N_ACCEPT);
+	accept_all = automata->getNode(30);
+	assert(accept_all->getFlags() & fsmNode::N_ACCEPT);*/
+
 	//std::ofstream graph;
 	//graph.open("fsm_graphvis");
 	//automata->printGraphVis(graph);
@@ -341,15 +373,18 @@ int main(int argc, char *argv[]) {
 		delete copy;
 	}*/
 
+	//launchExecution(automata, tvl);
+
 	/*for(int i = 0; i < NB_LASSO; ++i)
 		findLasso(automata, K);*/
 
 	//createStateSpaceBFS(automata, tvl);
 
-	ltlModelChecker mc;
-	mc.startNestedDFS(automata, tvl);
+	//ltlModelChecker* mc = new ltlModelChecker();
+	//mc->startNestedDFS(automata, tvl);
+	//delete mc;
 
-	//createStateSpaceDFS_RR(automata, tvl);
+	createStateSpaceDFS_RR(automata, tvl);
 
 	//createStateSpaceDFS(automata, tvl);
 
@@ -380,11 +415,6 @@ int main(int argc, char *argv[]) {
 	delete globalSymTab;
 
 	delete program;
-
-	if(yyin != nullptr) {
-		fclose(yyin);
-		yylex_destroy();
-	}
 	
 	exit(0);
 }

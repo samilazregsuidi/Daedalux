@@ -7,8 +7,11 @@ active proctype I (){
 	
 	do
 	:: atomic {
-		i = i + 1; 
-		a = a + 1;
+		if
+		:: i < 128 -> i = i + 1; 
+		:: a < 128 -> a = a + 1;
+		:: else;
+		fi;
 		}
 	od;	
 }
@@ -17,8 +20,11 @@ active proctype J (){
 	
 	do
 	:: atomic { 
-		j = j - 1; 
-		b = b - 1;
+		if
+		:: j > 0 -> j = j - 1; 
+		:: b > 0 -> b = b - 1;
+		:: else;
+		fi;
 		}
 	od;		
 }

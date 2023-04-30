@@ -28,6 +28,8 @@ public:
 
 	virtual void init(void) ;
 
+	virtual void reset(void) override;
+
 	virtual int operator = (const primitiveVariable& rvalue) ;
 
 	virtual int operator ++ (void) ;
@@ -43,6 +45,8 @@ public:
 	virtual bool operator != (const primitiveVariable& other) const ;
 
 	/****************************************************/
+
+	operator std::string(void) const override;
 
 	virtual void print(void) const override;
 

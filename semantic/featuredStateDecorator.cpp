@@ -18,6 +18,7 @@ featStateDecorator::featStateDecorator(state* wrappee, const ADD& diagram, const
 	: stateDecorator(wrappee)
 	, features(tvl->getMgr()->addOne())
 	, diagram(diagram)
+	, choices(tvl->getMgr()->addOne())
 	, tvl(tvl)
 {
 }
@@ -26,6 +27,7 @@ featStateDecorator::featStateDecorator(const featStateDecorator* other)
 	: stateDecorator(other)
 	, features(other->getFeatures())
 	, diagram(other->diagram)
+	, choices(other->choices)
 	, tvl(other->tvl)
 {}
 
@@ -121,6 +123,7 @@ state* featStateDecorator::apply(transition* trans) {
 	auto ftrans = dynamic_cast<featProgTransition*>(trans);
 	if(ftrans) {
 		features = features * ftrans->getFeatExpr() * diagram;
+		choices &= ftrans->getFeatExpr();
 	}
 
 	wrappee->origin = trans;

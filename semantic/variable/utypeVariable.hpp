@@ -31,6 +31,8 @@ public:
 
 	bool operator != (const primitiveVariable& other) const override;
 
+	operator std::string(void) const override;
+
 	void print(void) const override;
 
 	void printTexada(void) const override;

@@ -150,6 +150,14 @@ std::string stmntSeq::getTypeDescr(void) const {
 	return "Seq (E_STMNT_SEQ)";
 }
 
+void stmntSeq::acceptVisitor(ASTConstVisitor* visitor) const {
+	visitor->visit(this);
+}
+
+void stmntSeq::acceptVisitor(ASTVisitor* visitor) {
+	visitor->visit(this);
+}
+
 stmnt* stmntSeq::deepCopy(void) const {
 	stmntSeq* copy = new stmntSeq(*this);
 	copy->prev = copy;

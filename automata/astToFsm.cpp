@@ -15,7 +15,7 @@ ASTtoFSM::ASTtoFSM()
     , newNode(nullptr)
     , prev(nullptr)
     , fm(nullptr)
-    , hasOptFeatures(false)
+    , hasElseFeatures(false)
 {}
 
 ASTtoFSM::~ASTtoFSM() {
@@ -30,15 +30,18 @@ fsm* ASTtoFSM::astToFsm(const symTable* symTab, const stmnt* program, const TVL*
     
     program->acceptVisitor(this);
     //assert(current.size() == 1);
+
+    res->removeUselessTransitions();
+
     return res;
 }
 
-void ASTtoFSM::_connect(std::list<fsmEdge*>& edges, fsmNode* target){
-    for(auto edge : edges) {
+void ASTtoFSM::_connect(fsmNode* target){
+    for(auto edge : looseEnds) {
         assert(edge->getTargetNode() == nullptr);
         edge->setTargetNode(target);
     }
-    edges.clear();
+    looseEnds.clear();
 }
 
 void ASTtoFSM::_label(fsmNode* node){
@@ -51,7 +54,7 @@ fsmEdge* ASTtoFSM::_looseEnd(const stmnt* node, bool owner) {
     auto edge = current->createfsmEdge(node->getLineNb(), node, nullptr, owner);
 
     edge->setFeatures(looseFeatures);
-    //fm->printBool(looseFeatures);
+    fm->printBool(looseFeatures);
     looseFeatures = ADD();
 
     looseEnds.push_back(edge);
@@ -72,7 +75,7 @@ void ASTtoFSM::_toFsm(const stmnt* node) {
 
     _label(current);
     
-    _connect(looseEnds, current);
+    _connect(current);
 
     _looseEnd(node);
 
@@ -85,15 +88,15 @@ void ASTtoFSM::_toFsm(const stmnt* node) {
 
 void ASTtoFSM::visit(const stmntExpr* node)  {
 
-    auto toADD = new expToADD(fm);
+    auto toADD = expToADD(fm);
 
-    node->getChild()->acceptVisitor(toADD);
+    node->getChild()->acceptVisitor(&toADD);
     
-    if(toADD->isFeatureExpr()){
+    if(toADD.isFeatureExpr()){
         
-        looseFeatures = toADD->getFormula();
-        optFeatures.top() &= ~looseFeatures;
-        hasOptFeatures = true;
+        looseFeatures = toADD.getFormula();
+        elseFeatures &= ~looseFeatures;
+        hasElseFeatures = true;
 
     } else {
 
@@ -103,13 +106,11 @@ void ASTtoFSM::visit(const stmntExpr* node)  {
 
         _label(current);
         
-        _connect(looseEnds, current);
+        _connect(current);
 
         _looseEnd(node);
         
     }
-
-    delete toADD;
 
     auto next = node->getNext();
     if(next) {
@@ -138,34 +139,61 @@ void ASTtoFSM::visit(const stmntIf* node)  {
     if(!init) init = current;
 
     _label(current);
-    _connect(looseEnds, current);
+    _connect(current);
+    //_looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
 
-    optFeatures.push(fm->getMgr()->addOne());
+    //if looseFeatures then the if is a child of a featured if (if:: F :: if :: b == true ...)
+    //else a simple if or a featured if 
+    auto looseFeaturesSave = looseFeatures;
+    looseFeatures = ADD();
+
+    auto elseFeaturesSave = elseFeatures;
+    elseFeatures = fm->getMgr()->addOne();
+
+    auto hasElseFeaturesSave = hasElseFeatures;
+    hasElseFeatures = false;
 
     auto opt = node->getOpts();
     while(opt){
         //opt->getBlock()->getType() == astNode::E_STMNT_ATOMIC? dynamic_cast<stmntAtomic*>(opt->getBlock())->getBlock() : opt->getBlock();
+        
         auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), nullptr, true);
         looseEnds.push_back(trans);
-        
+        if(looseFeaturesSave)
+            trans->setFeatures(looseFeaturesSave);
+
+        //assert(!looseFeatures);
+        //looseFeatures = looseFeaturesSave;
+        //_looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
+
         opt->acceptVisitor(this);
 
-        //(nx, ex, nx+1), (nx+1, ex+1, 0) becomes (nx, ex+1, 0)
-        assert(trans->getTargetNode());
-        for(auto t : trans->getTargetNode()->getEdges()) {
-            t->setSourceNode(start);
-        }
-        res->deleteNode(trans->getTargetNode());
+        if(!looseFeatures){
+            //(nx, ex, nx+1), (nx+1, ex+1, 0) becomes (nx, ex+1, 0) 
+            //assert(trans->getTargetNode());
+            //for(auto t : trans->getTargetNode()->getEdges()) {
+            //    t->setSourceNode(start);
+            //}
+            //assert(trans->getTargetNode()->getEdges().size() == 1);
+            //res->deleteNode(trans->getTargetNode());
         
+        } else {
+            //trans->setFeatures(looseFeatures);
+        }
+
         flowLooseEnds.merge(looseEnds);
         looseEnds.clear();
 
         opt = opt->getNextOpt();
     }
 
-    looseEnds.merge(flowLooseEnds);
+    looseFeatures = looseFeaturesSave;
+    elseFeatures = elseFeaturesSave;
+    hasElseFeatures = hasElseFeaturesSave;
 
-    optFeatures.pop();
+    /******************************/
+
+    looseEnds.merge(flowLooseEnds);
 
     auto next = node->getNext();
     if(next) {
@@ -184,9 +212,18 @@ void ASTtoFSM::visit(const stmntDo* node)  {
 
 
     _label(current);
-    _connect(looseEnds, start);
+    _connect(start);
 
-    optFeatures.push(fm->getMgr()->addOne());
+    //if looseFeatures then the if is a child of a featured if (if:: F :: if :: b == true ...)
+    //else a simple if or a featured if 
+    auto looseFeaturesSave = looseFeatures;
+    looseFeatures = ADD();
+
+    auto elseFeaturesSave = elseFeatures;
+    elseFeatures = fm->getMgr()->addOne();
+
+    auto hasElseFeaturesSave = hasElseFeatures;
+    hasElseFeatures = false;
 
     auto opt = node->getOpts();
     while(opt){
@@ -199,6 +236,9 @@ void ASTtoFSM::visit(const stmntDo* node)  {
         assert(trans->getTargetNode());
         for(auto t : trans->getTargetNode()->getEdges()) {
             t->setSourceNode(start);
+            //set the right features for each opt of the featured child if
+            if(looseFeaturesSave && !looseFeatures)
+                t->setFeatures(looseFeaturesSave);
         }
         res->deleteNode(trans->getTargetNode());
         
@@ -211,15 +251,26 @@ void ASTtoFSM::visit(const stmntDo* node)  {
         opt = opt->getNextOpt();
     }
 
-    _connect(flowLooseEnds, start);
-    looseEnds.merge(flowLooseBreaks);
+    assert(looseEnds.size() == 0);
+    looseEnds = flowLooseEnds;
+    _connect(start);
 
-    optFeatures.pop();
+    //looseFeatures = looseFeaturesSave;
+    elseFeatures = elseFeaturesSave;
+    hasElseFeatures = hasElseFeaturesSave;
+
+    /******************************/
+
+    looseEnds.merge(flowLooseBreaks);
 
     auto next = node->getNext();
     if(next) {
         next->acceptVisitor(this);
     }
+}
+
+void ASTtoFSM::visit(const stmntSeq* node) {
+    node->getBlock()->acceptVisitor(this);
 }
 
 void ASTtoFSM::visit(const stmntBreak* node)  {
@@ -231,7 +282,7 @@ void ASTtoFSM::visit(const stmntBreak* node)  {
     
     _label(current);
 
-    _connect(looseEnds, current);
+    _connect(current);
 
     _looseBreak(node);
 
@@ -248,7 +299,7 @@ void ASTtoFSM::visit(const stmntGoto* node)  {
 
     if(!init) init = current;
 
-    _connect(looseEnds, current);
+    _connect(current);
 
     looseGotos[node->getLabel()].push_back(current->createfsmEdge(node->getLineNb(), node));
 
@@ -271,6 +322,8 @@ void ASTtoFSM::visit(const stmntLabel* node)  {
     labels.push_back(label);
 
     node->getLabelled()->acceptVisitor(this);
+
+    flags = 0;
 
     auto next = node->getNext();
     if(next) {
@@ -364,17 +417,17 @@ void ASTtoFSM::visit(const stmntElse* node) {
 
     _label(current);
     
-    _connect(looseEnds, current);
+    _connect(current);
 
-    if(hasOptFeatures) {
+    //if the if is featured, else features have been built, just apply
+    if(hasElseFeatures) {
+        //assert(!looseFeatures);
         auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
-        fm->printBool(optFeatures.top());
-        edge->setFeatures(optFeatures.top());
-        hasOptFeatures = false;
-    } 
-    else {
+        fm->printBool(elseFeatures);
+        edge->setFeatures(elseFeatures);
+        hasElseFeatures = false;
+    } else
         _looseEnd(node);
-    }
 
     auto next = node->getNext();
     if(next) {

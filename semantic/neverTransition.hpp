@@ -29,7 +29,7 @@ public:
 
 public:		//
 	const fsmEdge* const edge;			//  - The transition that can be fired
-	//ADD features;
+	//ADD features
 };
 
 #endif

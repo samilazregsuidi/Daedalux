@@ -8,12 +8,20 @@
 
 class stateToGraphViz : public stateVisitor {
 public:
+     enum In{
+        NONE,
+        PREFIX,
+        CYCLE_BEGIN,
+        CYCLE,
+        CYCLE_END
+    };
 
     stateToGraphViz(const fsm* automata);
 
     ~stateToGraphViz() override;
 
     void printGraphViz(state* s, int depth = 0); 
+    void setIn(In in);
 
     void visit(state* s) override;
 	void visit(process* s) override;
@@ -24,6 +32,7 @@ public:
 
 private:
     std::string _tab(void) const;
+    std::string _toInStrDescr(void) const;
 
 public:
     const fsm* automata;
@@ -32,6 +41,7 @@ public:
     size_t tab;
     int depth;
     ADD featToPrint;
+    In in;
 };
 
 #endif

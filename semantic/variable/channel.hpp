@@ -50,6 +50,8 @@ public:
 
 	byte getCapacity(void) const;
 
+	operator std::string(void) const override;
+
 	void print(void) const override;
 
 	void printTexada(void) const override;
@@ -57,16 +59,6 @@ public:
 private:
 	void len(byte newLen);
 };
-
-class channelField : public primitiveVariable {
-public:
-	channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex = 0, unsigned int index =  0);
-
-	channelField(const channelField* other);
-
-	variable* deepCopy(void) const override;
-};
-
 
 class CIDVar : public primitiveVariable {
 public:
@@ -79,6 +71,10 @@ public:
 	void setRefChannel(channel* newRef);
 
 	void assign(const variable* sc) override;
+
+	operator std::string(void) const override;
+
+	void print(void) const override;
 
 private:
 	channel* ref;

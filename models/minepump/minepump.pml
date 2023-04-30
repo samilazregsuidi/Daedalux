@@ -181,19 +181,19 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Macros used in the above properties:
  */
-#define readCommand (readMsg == commandMsg)
-#define readAlarm (readMsg == alarmMsg)
-#define readLevel (readMsg == levelMsg)
-#define userStart (uwants == start)
-#define userStop (uwants == stop)
-#define highWater (waterLevel == high)
-#define mediumWater (waterLevel == medium)
-#define lowWater (waterLevel == low)
-#define stateReady (pstate == ready)
-#define stateRunning (pstate == running)
-#define stateStopped (pstate == stopped)
-#define stateMethanestop (pstate == methanestop)
-#define stateLowstop (pstate == lowstop)
+#define readCommand (controller.readMsg == commandMsg)
+#define readAlarm (controller.readMsg == alarmMsg)
+#define readLevel (controller.readMsg == levelMsg)
+#define userStart (user.uwants == start)
+#define userStop (user.uwants == stop)
+#define highWater (watersensor.waterLevel == high)
+#define mediumWater (watersensor.waterLevel == medium)
+#define lowWater (watersensor.waterLevel == low)
+#define stateReady (controller.pstate == ready)
+#define stateRunning (controller.pstate == running)
+#define stateStopped (controller.pstate == stopped)
+#define stateMethanestop (controller.pstate == methanestop)
+#define stateLowstop (controller.pstate == lowstop)
 
 typedef features {
 	bool Start;
@@ -214,18 +214,13 @@ chan cAlarm = [0] of {mtype}; 	/* alarm                */
 chan cMethane = [0] of {mtype}; /* methanestop, ready   */
 chan cLevel = [0] of {mtype}; 	/* low, medium, high    */
 
-mtype pstate = stopped; 		/* ready, running, stopped, methanestop, lowstop */
-mtype readMsg = commandMsg; 		/* commandMsg, alarmMsg, levelMsg */
-
-bool pumpOn = false;
-bool methane = false;
-mtype waterLevel = medium;
-
-mtype uwants = stop; 			/* what the user wants */
-
 active proctype controller() {
+	mtype pstate = stopped; 		/* ready, running, stopped, methanestop, lowstop */
+	mtype readMsg = commandMsg; 		/* commandMsg, alarmMsg, levelMsg */
 	mtype pcommand = start;
 	mtype level = medium;
+	
+	bool pumpOn = false;
 	
 	do	::	atomic {
 				cCmd?pcommand;
@@ -237,10 +232,10 @@ active proctype controller() {
 										pstate == running;
 										pumpOn = false;
 									}
-								::	else -> skip;
+								::	else
 								fi;
 							pstate = stopped;
-						::	else -> skip;
+						::	else
 						fi;
 				::	pcommand == start;
 					if	::	f.Start;
@@ -248,11 +243,10 @@ active proctype controller() {
 										pstate != running;
 										pstate = ready;
 									};
-								::	else -> skip;
+								::	else
 								fi;
-						::	else -> skip;
+						::	else
 						fi;
-				::	else -> assert(false);
 				fi;
 			cCmd!pstate;
 			
@@ -265,10 +259,11 @@ active proctype controller() {
 								pstate == running;
 								pumpOn = false;
 							};
-						::	else -> skip;
+						::	else
 						fi;
-					pstate = methanestop;	
-				::	else -> skip;
+					pstate = methanestop;
+						
+				::	else
 				fi;
 			
 		::	atomic { 
@@ -288,17 +283,16 @@ active proctype controller() {
 												if	::	pstate == ready;
 														pstate = running;
 														pumpOn = true;
-													::	else -> skip;
+													::	else
 												fi;
 											};
 										::	else;
-											skip;
 											atomic {
 												pstate = running;
 												pumpOn = true;
 											};
 										fi;
-								::	else -> skip;
+								::	else
 								fi;
 							/* Here, with race condition: (only for testing)
 							if	::	pstate == ready  ||  pstate == lowstop;
@@ -318,7 +312,7 @@ active proctype controller() {
 								::	else -> skip;
 								fi;
 								*/
-						::	else -> skip;
+						::	else
 						fi;
 				::	level == low;
 					if	::	f.Low;
@@ -327,9 +321,9 @@ active proctype controller() {
 										pumpOn = false;
 										pstate = lowstop;
 									};
-								::	else -> skip;
+								::	else
 								fi;
-						::	else -> skip;
+						::	else
 						fi;
 				::	level == medium;
 					skip;
@@ -337,7 +331,10 @@ active proctype controller() {
 		od;
 }
 
+bool methane = false;
+
 active proctype user() {
+	mtype uwants = stop; 			/* what the user wants */
 	do	::	if	::	uwants = start;
 				::	uwants = stop;
 				fi;
@@ -354,6 +351,7 @@ active proctype methanealarm() {
 }
 
 active proctype methanesensor() {
+	
 	do	:: 	atomic {
 				cMethane?_;
 				if	::	methane;
@@ -366,6 +364,7 @@ active proctype methanesensor() {
 }
 
 active proctype watersensor() {
+	mtype waterLevel = medium;
 	do	:: 	atomic {
 				if	::	waterLevel == low ->
 						if	:: waterLevel = low;

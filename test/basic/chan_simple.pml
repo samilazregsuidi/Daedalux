@@ -1,12 +1,31 @@
-chan test = [0] of {byte}
+chan test = [0] of {bool}
 
 active proctype sender(){
-	byte b = 1;
+	bool b = true;
 	test!b;
+	atomic {
+		if
+		:: b -> b = false;
+		:: else;
+		fi;
+		assert(b == 1);
+	}
+	do
+	:: true;
+	od;
 }
 
 active proctype receiver(){
-	byte c;
+	byte c = false;
 	test?c;
-	assert(c == 1);
+	atomic {
+		if
+		:: c -> c = false;
+		:: else;
+		fi;
+		assert(c == 1);
+	}
+	do
+	:: true;
+	od;
 }

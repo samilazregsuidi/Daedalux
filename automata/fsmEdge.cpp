@@ -10,6 +10,7 @@
 #include "fsmNode.hpp"
 #include "symbols.hpp"
 #include "ast.hpp"
+#include "tvl.hpp"
 
 fsmEdge::fsmEdge(fsmNode* source, const astNode* expression, int lineNb, bool owner)
 	: parent(source->getParent())
@@ -107,4 +108,5 @@ const ADD& fsmEdge::getFeatures(void) const {
 
 void fsmEdge::setFeatures(const ADD& features) {
 	this->features = features;
+	std::cout << "setfd ["<< TVL::toString(features) << "](n"<< source->getLineNb() << ", e"<< lineNb << ", n-1)" << std::endl;
 }

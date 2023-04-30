@@ -5,14 +5,14 @@ stateDecorator::stateDecorator(state* wrappee)
 	: state(*wrappee)
 	, wrappee(wrappee)
 {
-	variable::clearVariables();
+	//variable::clearVariables();
 }
 
 stateDecorator::stateDecorator(const stateDecorator& s) 
 	: state(*s.wrappee)
 	, wrappee(s.wrappee)
 {
-	variable::clearVariables();
+	//variable::clearVariables();
 }
 
 stateDecorator::stateDecorator(const stateDecorator* other)
@@ -21,10 +21,13 @@ stateDecorator::stateDecorator(const stateDecorator* other)
 {
 	wrappee = other->wrappee->deepCopy();
 	
-	variable::clearVariables();
+	//variable::clearVariables();
 }
 
 stateDecorator::~stateDecorator() {
+	
+	variable::clearVariables();
+
 	wrappee->setParent(nullptr);
 	wrappee->origin = nullptr;
 	delete wrappee;
@@ -73,10 +76,16 @@ unsigned int stateDecorator::getVariableId(void) const {
 
 void stateDecorator::_addVariable(variable* var) {
 	wrappee->_addVariable(var);
+	//need copy for getTVariable for ex.
+	varList = wrappee->varList;
+	varMap = wrappee->varMap;
 }
 
 void stateDecorator::_rmVariable(const variable* var) {
 	wrappee->_rmVariable(var);
+	//need copy for getTVariable for ex.
+	varList = wrappee->varList;
+	varMap = wrappee->varMap;
 }
 
 bool stateDecorator::hasVariables(void) const {
@@ -85,6 +94,10 @@ bool stateDecorator::hasVariables(void) const {
 
 std::list<variable*> stateDecorator::getVariables(void) const {
 	return wrappee->getVariables();
+}
+
+stateDecorator::operator::std::string(void) const {
+	return wrappee->operator std::string();
 }
 
 void stateDecorator::print(void) const {

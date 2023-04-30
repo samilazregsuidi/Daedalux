@@ -36,7 +36,7 @@ public:
 	//void merge(fsm *child);
 	//void project(void);
 	//bool hasLooseFeatures(void) const;
-	//void orderAcceptTransitions(void);
+	
 	//void resolveVariables(symTabNode *globalSymTab, const mTypeNode *mTypes) const;
 	//unsigned int processVariables(symTabNode *global, const mTypeNode *mTypes, unsigned int offset, bool isGlobal) const;
 	//void printFsm(int level, const std::string &title) const;
@@ -44,6 +44,10 @@ public:
 	//symTabNode *getSymTab(void) const;
 	//fsmNode *getInitNode(void) const;
 	//void setInitNode(fsmNode *init);
+
+	void orderAcceptingTransitions(void);
+
+	void removeUselessTransitions(void);
 
 	const symTable* getGlobalSymTab(void) const;
 
@@ -56,6 +60,8 @@ public:
 	void deleteNode(fsmNode* node);
 	
 	void connect(fsmNode* begin, fsmNode* end);
+
+	fsmNode* getNode(unsigned int lineNb) const;
 
 	std::list<fsmNode *> getNodes(void) const;
 

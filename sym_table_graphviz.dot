@@ -1,17 +1,32 @@
 digraph symbol_table {
 	 rankdir = LR
-	system[ shape = record, label = "<f0> system | { <93824994280640> system|p1 : f.B1| 0 byte | line 9 } | { <93824994281936> system|p2 : f.B2| 0 byte | line 10 } | { <93824994283200> system|p3 : f.B3| 0 byte | line 11 }"]
+	system[ shape = record, label = "<f0> system"]
 
-	global[ shape = record, label = "<f0> global | { <93824994272992> int|_| 4 bytes | predef. } | { <93824994273264> int|_nr_pr| 4 bytes | predef. } | { <93824994273424> pid|_last| 1 byte | predef. } | { <93824994273584> bool|np_| 1 byte | predef. } | { <93824994273744> int|k| 4 bytes | predef. } | { <93824994278704> typedef|features| 0 byte | line 5 } | { <93824994279296> features|f| 3 bytes | line 7 } | { <93824994283568> byte|n| 1 byte | line 13 } | { <93824994283936> short|i| 2 bytes | line 14 } | { <93824994334144> proctype|foo| 0 byte | line 18 } | { <93824994365968> never|never| 0 byte | line 49 }"]
+	global[ shape = record, label = "<f0> global | { <93824994262736> int|_nr_pr| 4 bytes | predef. } | { <93824994264896> int|_| 4 bytes | predef. } | { <93824994302080> pid|_last| 1 byte | predef. } | { <93824994302240> bool|np_| 1 byte | predef. } | { <93824994302400> int|k| 4 bytes | predef. } | { <93824994308128> typedef|features| 0 byte | line 206 } | { <93824994308688> features|f| 7 bytes | line 208 } | { <93824994309072> mtypedef|mtype| 0 byte | line 210 } | { <93824994309200> cmtype|stop| 0 byte | line 210 } | { <93824994309536> cmtype|start| 0 byte | line 210 } | { <93824994309760> cmtype|alarm| 0 byte | line 210 } | { <93824994309984> cmtype|low| 0 byte | line 210 } | { <93824994310208> cmtype|medium| 0 byte | line 210 } | { <93824994310432> cmtype|high| 0 byte | line 210 } | { <93824994310656> cmtype|ready| 0 byte | line 210 } | { <93824994311120> cmtype|running| 0 byte | line 210 } | { <93824994311344> cmtype|stopped| 0 byte | line 210 } | { <93824994311568> cmtype|methanestop| 0 byte | line 210 } | { <93824994311792> cmtype|lowstop| 0 byte | line 210 } | { <93824994312016> cmtype|commandMsg| 0 byte | line 210 } | { <93824994312240> cmtype|alarmMsg| 0 byte | line 210 } | { <93824994312464> cmtype|levelMsg| 0 byte | line 210 } | { <93824994313168> chan|cCmd| 0 byte | line 212 } | { <93824994313696> chan|cAlarm| 0 byte | line 213 } | { <93824994364784> chan|cMethane| 0 byte | line 214 } | { <93824994365312> chan|cLevel| 0 byte | line 215 } | { <93824994411280> proctype|controller| 0 byte | line 218 } | { <93824994411904> bool|methane : false| 1 byte | line 289 } | { <93824994416336> proctype|methanealarm| 0 byte | line 292 } | { <93824994424400> proctype|methanesensor| 0 byte | line 300 } | { <93824994443440> proctype|watersensor| 0 byte | line 312 }"]
 
-	foo[ shape = record, label = "<f0> foo | { <93824994284608> pid|_pid| 1 byte | predef. }"]
+	controller[ shape = record, label = "<f0> controller | { <93824994366016> pid|_pid| 1 byte | predef. } | { <93824994366720> mtype|pstate : stopped| 1 byte | line 218 } | { <93824994367552> mtype|readMsg : commandMsg| 1 byte | line 219 } | { <93824994368464> mtype|pcommand : start| 1 byte | line 220 } | { <93824994369376> mtype|level : medium| 1 byte | line 221 } | { <93824994369872> bool|pumpOn : false| 1 byte | line 223 }"]
 
 
-	global:f0 -> foo:f0
+	global:f0 -> controller:f0
 
-	features[ shape = record, label = "{ <93824994278160> bool|B1| 1 byte | line 2 } | { <93824994278352> bool|B2| 1 byte | line 3 } | { <93824994278544> bool|B3| 1 byte | line 5 }"]
+	methanealarm[ shape = record, label = "<f0> methanealarm | { <93824994412544> pid|_pid| 1 byte | predef. }"]
 
-	global:93824994278704 -> features
+
+	global:f0 -> methanealarm:f0
+
+	methanesensor[ shape = record, label = "<f0> methanesensor | { <93824994417136> pid|_pid| 1 byte | predef. }"]
+
+
+	global:f0 -> methanesensor:f0
+
+	watersensor[ shape = record, label = "<f0> watersensor | { <93824994425200> pid|_pid| 1 byte | predef. } | { <93824994425984> mtype|waterLevel : medium| 1 byte | line 312 }"]
+
+
+	global:f0 -> watersensor:f0
+
+	features[ shape = record, label = "{ <93824994306816> bool|Start| 1 byte | line 199 } | { <93824994307008> bool|Stop| 1 byte | line 200 } | { <93824994307200> bool|MethaneAlarm| 1 byte | line 201 } | { <93824994307392> bool|MethaneQuery| 1 byte | line 202 } | { <93824994307584> bool|Low| 1 byte | line 203 } | { <93824994307776> bool|Normal| 1 byte | line 204 } | { <93824994307968> bool|High| 1 byte | line 206 }"]
+
+	global:93824994308128 -> features
 
 
 	system:f0 -> global:f0
