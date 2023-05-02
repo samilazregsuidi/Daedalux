@@ -77,6 +77,8 @@ std::list<transition*> never::executables(void) const {
 		}
 	}
 
+	//warning else didnt work
+
 	//assert(res.size() > 0);
 
 	return res;
@@ -159,9 +161,11 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_LE):
 			return (eval(binaryExpr->getLeftExpr(), flag) <= eval(binaryExpr->getRightExpr(), flag));
 
-		case(astNode::E_EXPR_EQ):
+		case(astNode::E_EXPR_EQ): {
+			//std::cout << eval(binaryExpr->getLeftExpr(), flag) << " == " << eval(binaryExpr->getRightExpr(), flag) << std::endl;
+			//auto sanity = (eval(binaryExpr->getLeftExpr(), flag) == eval(binaryExpr->getRightExpr(), flag));
 			return (eval(binaryExpr->getLeftExpr(), flag) == eval(binaryExpr->getRightExpr(), flag));
-
+		}
 		case(astNode::E_EXPR_NE):
 			return (eval(binaryExpr->getLeftExpr(), flag) != eval(binaryExpr->getRightExpr(), flag));
 

@@ -9,6 +9,8 @@ compTransition::compTransition(state* s, const std::list<transition*>& Ts)
 	: transition(s)
 {
 	add(Ts);
+	for(auto t : Ts)
+		lines.merge(t->lines);
 }
 
 compTransition::compTransition(const compTransition* other) 

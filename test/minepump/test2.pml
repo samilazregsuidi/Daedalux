@@ -209,42 +209,25 @@ features f;
 
 mtype = {stop, start, alarm, low, medium, high, ready, running, stopped, methanestop, lowstop, commandMsg, alarmMsg, levelMsg}
 
-chan cCmd = [0] of {mtype}; 	/* stop, start			*/
+
 chan cAlarm = [0] of {mtype}; 	/* alarm                */
-chan cMethane = [0] of {mtype}; /* methanestop, ready   */
-chan cLevel = [0] of {mtype}; 	/* low, medium, high    */
 
 active proctype controller() {
-	mtype pstate = stopped; 		/* ready, running, stopped, methanestop, lowstop */
-	mtype readMsg = commandMsg; 		/* commandMsg, alarmMsg, levelMsg */
-	mtype pcommand = start;
-	mtype level = medium;
+
+	mtype pstate;
 	
-	bool pumpOn = false;
-	
-	do	::	atomic { 
+	do	::	
 				cAlarm?_;
-				readMsg = alarmMsg;
-			};
-			if	::	f.MethaneAlarm;
-					if	::	atomic {
-								pstate == running;
-								pumpOn = false;
-							};
-						::	else
-						fi;
-					pstate = methanestop;
+				
+			if	::	f.MethaneAlarm -> pstate = methanestop;
 						
 				::	else
 				fi;
 		od;
 }
 
-bool methane = false;
-
 active proctype methanealarm() {
-	do	:: 	methane = true;
-			cAlarm!alarm;
-		::	methane = false;
+	do	:: 	cAlarm!stop;
+		::	skip
 		od;
 }

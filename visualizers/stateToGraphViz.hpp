@@ -41,6 +41,7 @@ public:
     size_t tab;
     int depth;
     ADD featToPrint;
+    ADD Rfeat;
     In in;
 };
 

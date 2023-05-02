@@ -111,6 +111,10 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 	//case symbol::T_UFEAT,
 	case symbol::T_UTYPE:	// Type of variable is a user type (basically, a case symbol::T_TDEF record is being used as the type): utype points to the type record
 	{
+		assert(res.size() == 0);
+		if(dynamic_cast<const utypeSymNode*>(sym)->getUType()->getName() == std::string("features"))
+			return res;
+
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
 			auto var = new utypeVar(dynamic_cast<const utypeSymNode*>(sym), i);
 

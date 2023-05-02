@@ -14,6 +14,10 @@ elementStack::element::element(state* s, unsigned int depth)
 {
 
 	Post = s->Post();
+	/*if(Post.size() == 0){
+		Post = s->Post();
+		//assert(false);
+	}*/
 }
 
 elementStack::element::~element() {

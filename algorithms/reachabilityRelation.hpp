@@ -30,19 +30,21 @@ public:
 private:
     class RState {
     public:
-        RState(unsigned long hash, dfs lastFoundIn)
-            : hash(hash)
+        RState(const state* s, dfs lastFoundIn)
+            : vId(s->getVariableId())
+            , hash(s->hash())
             , lastFoundIn(lastFoundIn)
         {
         }
         
-        RState(unsigned long hash, dfs lastFoundIn, const ADD& outerFeatures, const ADD& innerFeatures) 
-            : hash(hash)
+        /*RState(const state* s, dfs lastFoundIn, const ADD& outerFeatures, const ADD& innerFeatures) 
+            : vId(s->getVariableId())
+            , hash(s->hash())
+            , lastFoundIn(lastFoundIn)
             , outerFeatures(outerFeatures)
             , innerFeatures(innerFeatures)
-            , lastFoundIn(lastFoundIn)
         {
-        }
+        }*/
 
         ~RState() {
             for(auto subS : subStates) {
@@ -50,19 +52,21 @@ private:
             }
         }
 
-        RState* getSubHtState(unsigned long hash) {
+        RState* getSubHtState(const state* s) {
             for(auto htS : subStates)  {
-                if(htS->hash == hash)
+                if(htS->hash == s->hash() && s->getVariableId() == htS->vId)
                     return htS;
             }
             return nullptr;
         }
 
     public:
+        unsigned int vId;
         unsigned long hash;
+        dfs lastFoundIn;
         ADD outerFeatures;
         ADD innerFeatures;
-        dfs lastFoundIn;
+    
 
         std::list<RState*> subStates;
     };
@@ -71,6 +75,7 @@ private:
     public:
         std::string name;
         ADD productToVisit;
+        ADD productFail;
         bool allProductsFail;
     };
 
@@ -94,9 +99,11 @@ public:
 
     void addTraceViolation(state* loop);
 
-    bool isComplete(void) const;
+    bool isComplete(void);
 
     bool hasErrors(void) const;
+
+    ADD getFailedProducts(void) const;
 
 private:
     class stateToRState : public stateVisitor {
@@ -137,7 +144,7 @@ private:
 
     class updateVisitor : public stateVisitor {
     public:
-        updateVisitor(RState* rstate, state* s, dfs dfsIn, const TVL* tvl);
+        updateVisitor(reachabilityRelation* R, RState* rstate, state* s, dfs dfsIn, const TVL* tvl);
 
     private:
         void visit(state* s) override;
@@ -149,9 +156,9 @@ private:
     
     public:
         RState* current;
+        std::string nameComp;
+        reachabilityRelation* R;
         dfs dfsIn;
-
-        const TVL* tvl;
     };
 
     class compBuilder : public stateVisitor {
@@ -163,7 +170,7 @@ private:
         void visit(never* s) override;
         void visit(featStateDecorator* s) override;
     public:
-        std::map<std::string, component> compMap;
+        reachabilityRelation* R;
     };
 
     class violationsVisitor : public stateVisitor {
@@ -179,18 +186,15 @@ private:
         void visit(featStateDecorator* s) override;
     
     public:
-        std::map<std::string, component> compMap;
+        reachabilityRelation* R;
     };
-
-
-
 
 public:
     std::map<unsigned long, RState*> map; 
     dfs dfsIn;
     const TVL* tvl;
-    violationsVisitor violations;
     unsigned int nbErrors;
+    std::map<std::string, component*> compMap;
 };
 
 

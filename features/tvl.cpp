@@ -354,7 +354,7 @@ void TVL::printBool(void) const {
 std::string TVL::toString(const ADD& formula) {
 	std::string res;
 	if(!formula) res = "All";
-	//else if(isLogicZero(formula)) printf("None");
+	else if(formula.IsZero()) res = "None";
 	else if(formula.IsOne()) res = "All";
 	else {
 		formula.manager()->out = fopen("__printbool.tmp","w");
@@ -367,11 +367,10 @@ std::string TVL::toString(const ADD& formula) {
 		int i = 0;
 		byte nextliteral = 0;
 		byte nextminterm = 0;
-		printf("(");
 		while(c != EOF && fscanf(stream, "%c", &c) != EOF) {
 			if(c == '0') {
 				if(nextliteral) res += (" & !");
-				else if (nextminterm) res += ("|\n(!");
+				else if (nextminterm) res += ("|(!");
 				else res += "!";
 				feature = getFeatureIDName(i);
 				res += !feature.empty()? feature.c_str() : "_";
@@ -381,7 +380,7 @@ std::string TVL::toString(const ADD& formula) {
 			}
 			else if (c == '1') {
 				if(nextliteral) res += (" & ");
-				else if (nextminterm) res += ("|\n(");
+				else if (nextminterm) res += ("|(");
 				else res += "!";
 				feature = getFeatureIDName(i);
 				res += !feature.empty()? feature.c_str() : "_";
@@ -391,21 +390,16 @@ std::string TVL::toString(const ADD& formula) {
 			}
 			else if(c == '-'){
 				if(nextliteral) op = (" & ?");
-				else if (nextminterm) op = ("|\n(?");
+				else if (nextminterm) op = ("|(?");
 				else op = "";
 				feature = getFeatureIDName(i);
-				//printf("%s%s", op.c_str(), !feature.empty()? feature : "_");
+				//res += !feature.empty()? feature.c_str() : "_";
 				nextliteral = 1;
 				nextminterm = 0;
 				i++;
 			}
 			else if(c == ' ') {
-				//res += (": ");
-				while(c != '\n' && fscanf(stream, "%c", &c) != EOF) {
-					if(c != '\n') {
-						//res += c;
-					}
-				}
+				while(c != '\n' && fscanf(stream, "%c", &c) != EOF);
 				nextliteral = 0;
 				nextminterm = 1;
 				i = 0;

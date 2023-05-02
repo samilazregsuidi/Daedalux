@@ -65,7 +65,7 @@ void channel::send(const std::list<const variable*>& args) {
 	for(auto field : varList) {
 		
 		//field->print();
-		(*argIt)->print();
+		//(*argIt)->print();
 
 		*dynamic_cast<primitiveVariable*>(field) = *dynamic_cast<const primitiveVariable*>(*argIt++);
 
@@ -84,12 +84,13 @@ void channel::receive(const std::list<variable*>& rargs) {
 	for(auto field : varList) {
 		
 		auto rarg = (*rargIt);
-		rarg->print();
-		field->print();
+		//rarg->print();
+		//field->print();
 
-		*dynamic_cast<primitiveVariable*>(*rargIt++) = *dynamic_cast<primitiveVariable*>(field);
-
-		rarg->print();
+		if(rarg->getLocalName() != std::string("_")) {
+			*dynamic_cast<primitiveVariable*>(*rargIt++) = *dynamic_cast<primitiveVariable*>(field);
+		}
+		//rarg->print();
 	}
 
 	if(isRendezVous())

@@ -1,0 +1,22 @@
+A[MethaneQuery], A[MethaneAlarm] ((pstate{p1} == pstate{p2}) -> <>(pumpOn{p1} == pumpOn{p2}))
+
+The property check the inputs/output relations (clasic in HyperLTL)
+Here we check the correlation between the variable pstate that the sofwtare controller use to manage the pump actuator.
+The idea is that if at some point the controller state (i.e., pstate) are equals in both sub variants trace, then the actual pump activities should eventualy follow.
+That is not correct as there are infinite execution (infinite cycle) that violate the property.
+
+we found that the first violation is concerning (bor both traces) the variant :
+High & Low & Start & Stop & MethaneAlarm & MethaneQuery:
+
+This variant is present in p1 and p2.
+
+More precisely:
+pi_1, \pi_2 \in {High & Low & Start & Stop & MethaneAlarm & MethaneQuery} 
+violate the property but other variants for pi and p2 violate the property such as
+{High & Low & Start & Stop & !MethaneAlarm & MethaneQuery} etc.
+
+Future work could be to expend the logic.
+But also (for example) to be able to get, given a first set of variants, the set that that maximize/minimize
+the property violation. 
+
+1m5,695s / 2,956GB

@@ -24,7 +24,7 @@ fsmEdge::fsmEdge(fsmNode* source, const astNode* expression, int lineNb, bool ow
 	auto stmntCast = dynamic_cast<const stmnt*>(expression);
 	prob = stmntCast? stmntCast->getProb() : prob;
 
-	std::cout << "add (n"<< source->getLineNb() << ", e"<< lineNb << ", n-1)" << std::endl;
+	//std::cout << "add (n"<< source->getLineNb() << ", e"<< lineNb << ", n-1)" << std::endl;
 }
 
 /**
@@ -107,6 +107,7 @@ const ADD& fsmEdge::getFeatures(void) const {
 }
 
 void fsmEdge::setFeatures(const ADD& features) {
+	assert(features && !(features.IsOne()));
 	this->features = features;
-	std::cout << "setfd ["<< TVL::toString(features) << "](n"<< source->getLineNb() << ", e"<< lineNb << ", n-1)" << std::endl;
+	//std::cout << "setfd ["<< TVL::toString(features) << "](n"<< source->getLineNb() << ", e"<< lineNb << ", n-1)" << std::endl;
 }

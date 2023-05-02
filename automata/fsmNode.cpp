@@ -36,7 +36,8 @@ fsmNode::fsmNode(int flags, int lineNb, fsm* parent)
 	, flags(flags)
 	, lineNb(lineNb)
 {
-	std::cout << "create Node " << lineNb << std::endl;
+	flags |= N_ATOMIC;
+	//std::cout << "create Node " << lineNb << std::endl;
 }
 
 fsmNode::~fsmNode(void){
@@ -46,7 +47,7 @@ void fsmNode::addTransition(fsmEdge* trans) {
 	//assert(std::find(this->trans.begin(), this->trans.end(), trans) == this->trans.end());
 	this->trans.push_back(trans);
 
-	std::cout << "add (n"<< lineNb << ", e" << trans->getLineNb() << ", n" << (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << ")" << std::endl;
+	//std::cout << "add (n"<< lineNb << ", e" << trans->getLineNb() << ", n" << (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << ")" << std::endl;
 	assert(trans->getSourceNode() == this || trans->getSourceNode() == nullptr);
 }
 
@@ -54,7 +55,7 @@ void fsmNode::removeTransition(fsmEdge* trans) {
 	assert(std::find(this->trans.begin(), this->trans.end(), trans) != this->trans.end());
 	this->trans.remove(trans);
 
-	std::cout << "rm (n"<< lineNb << ", e" << trans->getLineNb() << ", n" << (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << ")" << std::endl;
+	//std::cout << "rm (n"<< lineNb << ", e" << trans->getLineNb() << ", n" << (trans->getTargetNode() ? trans->getTargetNode()->getLineNb() : -1) << ")" << std::endl;
 	assert(trans->getSourceNode() == this);
 }
 
@@ -66,7 +67,7 @@ void fsmNode::addInputTransition(fsmEdge* trans_in) {
 	assert(std::find(this->trans_in.begin(), this->trans_in.end(), trans_in) == this->trans_in.end());
 	this->trans_in.push_back(trans_in);
 
-	std::cout << "add (n"<< trans_in->getSourceNode()->getLineNb() << ", e" << trans_in->getLineNb() << ", n" << lineNb << ")" << std::endl;
+	//std::cout << "add (n"<< trans_in->getSourceNode()->getLineNb() << ", e" << trans_in->getLineNb() << ", n" << lineNb << ")" << std::endl;
 	assert(trans_in->getTargetNode() == this);
 }
 
@@ -74,7 +75,7 @@ void fsmNode::removeInputTransition(fsmEdge* trans_in) {
 	assert(std::find(this->trans_in.begin(), this->trans_in.end(), trans_in) != this->trans_in.end());
 	this->trans_in.remove(trans_in);
 
-	std::cout << "rm (n"<< trans_in->getSourceNode()->getLineNb() << ", e" << trans_in->getLineNb() << ", n" << lineNb << ")" << std::endl;
+	//std::cout << "rm (n"<< trans_in->getSourceNode()->getLineNb() << ", e" << trans_in->getLineNb() << ", n" << lineNb << ")" << std::endl;
 	assert(trans_in->getTargetNode() == this);
 }
 

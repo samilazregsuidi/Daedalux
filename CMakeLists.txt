@@ -26,8 +26,10 @@ add_compile_options(
 	-Wextra
 	-Wno-unused-parameter
 	-pedantic
+	#-O2
 	-ggdb
 	-g
+	
 	${ASAN}
 )
 add_link_options(

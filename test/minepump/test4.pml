@@ -214,70 +214,58 @@ chan cAlarm = [0] of {mtype}; 	/* alarm                */
 chan cMethane = [0] of {mtype}; /* methanestop, ready   */
 chan cLevel = [0] of {mtype}; 	/* low, medium, high    */
 
+mtype waterLevel = low;
+
 active proctype controller() {
-	mtype pstate = stopped; 		/* ready, running, stopped, methanestop, lowstop */
-	mtype readMsg = commandMsg; 		/* commandMsg, alarmMsg, levelMsg */
-	mtype pcommand = start;
-	mtype level = medium;
 	
-	bool pumpOn = false;
-	
-	do	::	atomic { 
-				cLevel?level;
-				readMsg = levelMsg;
-			};
-			if	::	level == high;
-					if	::	f.High;
+
+	do	::	 cLevel?_;
+			
+				
+
+			if	::	waterLevel == high;
+					if	::	f.High -> waterLevel = low
 							/* The same block with and without race condition.
 							   First, without race condition: */
-							if	::	pstate == ready  ||  pstate == lowstop;
-									
-									atomic {
-										pstate = running;
-										pumpOn = true;
-									};
-										
-								::	else
-								fi;
 				
 						::	else
 						fi;
-				::	level == low;
-					if	::	f.Low;
-							if	::	atomic {
-										pstate == running;
-										pumpOn = false;
-										pstate = lowstop;
-									};
-								::	else
-								fi;
+				::	waterLevel == low;
+					if	::	f.Low
+							
 						::	else
 						fi;
-				::	level == medium;
-					skip;
+				::	skip
 				fi;
+			
+			cLevel!waterLevel;
 		od;
 }
 
 active proctype watersensor() {
-	mtype waterLevel = medium;
+	
 	do	:: 	atomic {
-				if	::	waterLevel == low ->
-						if	:: waterLevel = low;
-							:: waterLevel = medium;
-							fi;
-					::	waterLevel == medium ->
-						if	:: waterLevel = low;
-							:: waterLevel = medium;
-							:: waterLevel = high;
-							fi;
-					::	waterLevel == high ->
-						if	:: waterLevel = medium;
-							:: waterLevel = high;
-							fi;
+				if	::	waterLevel = low;
+							
+					::	waterLevel = high;
+						
 					fi;
 				cLevel!waterLevel;
+				cLevel?_;
 			};
 		od;
 };
+
+never { /* FGwaterHigh */
+T0_init :    /* init */
+	if
+	:: (waterLevel == high) -> goto accept_S2
+	:: (1) -> goto T0_init
+	fi;
+accept_S2 :    /* 1 */
+	if
+	:: (waterLevel == high) -> goto accept_S2
+	:: else -> goto T0_init
+	fi;
+}
 

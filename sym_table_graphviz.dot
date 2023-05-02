@@ -1,32 +1,37 @@
 digraph symbol_table {
 	 rankdir = LR
-	system[ shape = record, label = "<f0> system"]
+	system[ shape = record, label = "<f0> system | { <94027330033664> system|p1 : !f.MethaneAlarm| 0 byte | line 200 } | { <94027330034928> system|p2 : f.MethaneQuery| 0 byte | line 201 }"]
 
-	global[ shape = record, label = "<f0> global | { <93824994262736> int|_nr_pr| 4 bytes | predef. } | { <93824994264896> int|_| 4 bytes | predef. } | { <93824994302080> pid|_last| 1 byte | predef. } | { <93824994302240> bool|np_| 1 byte | predef. } | { <93824994302400> int|k| 4 bytes | predef. } | { <93824994308128> typedef|features| 0 byte | line 206 } | { <93824994308688> features|f| 7 bytes | line 208 } | { <93824994309072> mtypedef|mtype| 0 byte | line 210 } | { <93824994309200> cmtype|stop| 0 byte | line 210 } | { <93824994309536> cmtype|start| 0 byte | line 210 } | { <93824994309760> cmtype|alarm| 0 byte | line 210 } | { <93824994309984> cmtype|low| 0 byte | line 210 } | { <93824994310208> cmtype|medium| 0 byte | line 210 } | { <93824994310432> cmtype|high| 0 byte | line 210 } | { <93824994310656> cmtype|ready| 0 byte | line 210 } | { <93824994311120> cmtype|running| 0 byte | line 210 } | { <93824994311344> cmtype|stopped| 0 byte | line 210 } | { <93824994311568> cmtype|methanestop| 0 byte | line 210 } | { <93824994311792> cmtype|lowstop| 0 byte | line 210 } | { <93824994312016> cmtype|commandMsg| 0 byte | line 210 } | { <93824994312240> cmtype|alarmMsg| 0 byte | line 210 } | { <93824994312464> cmtype|levelMsg| 0 byte | line 210 } | { <93824994313168> chan|cCmd| 0 byte | line 212 } | { <93824994313696> chan|cAlarm| 0 byte | line 213 } | { <93824994364784> chan|cMethane| 0 byte | line 214 } | { <93824994365312> chan|cLevel| 0 byte | line 215 } | { <93824994411280> proctype|controller| 0 byte | line 218 } | { <93824994411904> bool|methane : false| 1 byte | line 289 } | { <93824994416336> proctype|methanealarm| 0 byte | line 292 } | { <93824994424400> proctype|methanesensor| 0 byte | line 300 } | { <93824994443440> proctype|watersensor| 0 byte | line 312 }"]
+	global[ shape = record, label = "<f0> global | { <94027329986256> int|_nr_pr| 4 bytes | predef. } | { <94027329988416> int|_| 4 bytes | predef. } | { <94027330025600> pid|_last| 1 byte | predef. } | { <94027330025760> bool|np_| 1 byte | predef. } | { <94027330025920> int|k| 4 bytes | predef. } | { <94027330031648> typedef|features| 0 byte | line 196 } | { <94027330032208> features|f| 7 bytes | line 198 } | { <94027330035296> mtypedef|mtype| 0 byte | line 203 } | { <94027330035424> cmtype|stop| 0 byte | line 203 } | { <94027330035760> cmtype|start| 0 byte | line 203 } | { <94027330035984> cmtype|alarm| 0 byte | line 203 } | { <94027330036208> cmtype|low| 0 byte | line 203 } | { <94027330036432> cmtype|high| 0 byte | line 203 } | { <94027330036896> cmtype|ready| 0 byte | line 203 } | { <94027330037120> cmtype|running| 0 byte | line 203 } | { <94027330037344> cmtype|stopped| 0 byte | line 203 } | { <94027330087984> cmtype|methanestop| 0 byte | line 203 } | { <94027330088208> cmtype|lowstop| 0 byte | line 203 } | { <94027330088672> chan|cCmd| 0 byte | line 205 } | { <94027330089200> chan|cAlarm| 0 byte | line 206 } | { <94027330089728> chan|cMethane| 0 byte | line 207 } | { <94027330090256> chan|cLevel| 0 byte | line 208 } | { <94027330147712> proctype|controller| 0 byte | line 212 } | { <94027330153904> proctype|user| 0 byte | line 323 } | { <94027330154528> bool|methane : false| 1 byte | line 331 } | { <94027330158960> proctype|methanealarm| 0 byte | line 334 } | { <94027330167024> proctype|methanesensor| 0 byte | line 343 } | { <94027330172112> proctype|watersensor| 0 byte | line 355 } | { <94027330184992> never|never| 0 byte | line 373 }"]
 
-	controller[ shape = record, label = "<f0> controller | { <93824994366016> pid|_pid| 1 byte | predef. } | { <93824994366720> mtype|pstate : stopped| 1 byte | line 218 } | { <93824994367552> mtype|readMsg : commandMsg| 1 byte | line 219 } | { <93824994368464> mtype|pcommand : start| 1 byte | line 220 } | { <93824994369376> mtype|level : medium| 1 byte | line 221 } | { <93824994369872> bool|pumpOn : false| 1 byte | line 223 }"]
+	controller[ shape = record, label = "<f0> controller | { <94027330090960> pid|_pid| 1 byte | predef. } | { <94027330091776> mtype|pstate : stopped| 1 byte | line 212 } | { <94027330092608> mtype|pcommand : start| 1 byte | line 213 } | { <94027330093520> mtype|level : low| 1 byte | line 214 } | { <94027330094016> bool|pumpOn : false| 1 byte | line 216 }"]
 
 
 	global:f0 -> controller:f0
 
-	methanealarm[ shape = record, label = "<f0> methanealarm | { <93824994412544> pid|_pid| 1 byte | predef. }"]
+	user[ shape = record, label = "<f0> user | { <94027330148512> pid|_pid| 1 byte | predef. }"]
+
+
+	global:f0 -> user:f0
+
+	methanealarm[ shape = record, label = "<f0> methanealarm | { <94027330155168> pid|_pid| 1 byte | predef. }"]
 
 
 	global:f0 -> methanealarm:f0
 
-	methanesensor[ shape = record, label = "<f0> methanesensor | { <93824994417136> pid|_pid| 1 byte | predef. }"]
+	methanesensor[ shape = record, label = "<f0> methanesensor | { <94027330159760> pid|_pid| 1 byte | predef. }"]
 
 
 	global:f0 -> methanesensor:f0
 
-	watersensor[ shape = record, label = "<f0> watersensor | { <93824994425200> pid|_pid| 1 byte | predef. } | { <93824994425984> mtype|waterLevel : medium| 1 byte | line 312 }"]
+	watersensor[ shape = record, label = "<f0> watersensor | { <94027330167824> pid|_pid| 1 byte | predef. }"]
 
 
 	global:f0 -> watersensor:f0
 
-	features[ shape = record, label = "{ <93824994306816> bool|Start| 1 byte | line 199 } | { <93824994307008> bool|Stop| 1 byte | line 200 } | { <93824994307200> bool|MethaneAlarm| 1 byte | line 201 } | { <93824994307392> bool|MethaneQuery| 1 byte | line 202 } | { <93824994307584> bool|Low| 1 byte | line 203 } | { <93824994307776> bool|Normal| 1 byte | line 204 } | { <93824994307968> bool|High| 1 byte | line 206 }"]
+	features[ shape = record, label = "{ <94027330030336> bool|Start| 1 byte | line 189 } | { <94027330030528> bool|Stop| 1 byte | line 190 } | { <94027330030720> bool|MethaneAlarm| 1 byte | line 191 } | { <94027330030912> bool|MethaneQuery| 1 byte | line 192 } | { <94027330031104> bool|Low| 1 byte | line 193 } | { <94027330031296> bool|Normal| 1 byte | line 194 } | { <94027330031488> bool|High| 1 byte | line 196 }"]
 
-	global:93824994308128 -> features
+	global:94027330031648 -> features
 
 
 	system:f0 -> global:f0

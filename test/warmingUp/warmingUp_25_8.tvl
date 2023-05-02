@@ -1,0 +1,29 @@
+root WarmingUp {
+	group allOf {
+		opt B1,
+		opt B2,
+		opt B3,
+		opt B4,
+		opt B5,
+		opt B6,
+		opt B7,
+		opt B8,
+		opt B9,
+		opt B10,
+		opt B11,
+		opt B12,
+		opt B13,
+		opt B14,
+		opt B15,
+		opt B16,
+		opt B17,
+		opt B18,
+		opt B19,
+		opt B20,
+		opt B21,
+		opt B22,
+		opt B23,
+		opt B24,
+		opt B25
+	}
+}

@@ -29,6 +29,7 @@ featStateDecorator::featStateDecorator(const featStateDecorator* other)
 	, diagram(other->diagram)
 	, choices(other->choices)
 	, tvl(other->tvl)
+	, R(other->R)
 {}
 
 
@@ -93,7 +94,15 @@ std::list<transition*> featStateDecorator::executables(void) const {
 
 	for(auto candidate : candidates) {
 		auto featTrans = dynamic_cast<featProgTransition*>(candidate);
-		if(!featTrans || !(features * featTrans->getFeatExpr() * diagram).IsZero()) {
+		//if(featTrans) {
+			//printf("***********EXE STATE FEATURES***********\n");
+			//TVL::printBool(features);
+			//printf("***********EXE TRANS FEATURES***********\n");
+			//TVL::printBool(featTrans->getFeatExpr());
+			//printf("**********************\n")
+			//TVL::printBool(diagram);
+		//}
+		if(!featTrans || !(diagram & features & featTrans->getFeatExpr()).IsZero()) {
 			execs.push_back(candidate);
 		} else {
 			delete candidate;
@@ -122,8 +131,17 @@ state* featStateDecorator::apply(transition* trans) {
 
 	auto ftrans = dynamic_cast<featProgTransition*>(trans);
 	if(ftrans) {
-		features = features * ftrans->getFeatExpr() * diagram;
+		/*printf("***********APPLY STATE FEATURES***********\n");
+		TVL::printBool(features);
+		printf("***********APPLY TRANS FEATURES***********\n");
+		TVL::printBool(ftrans->getFeatExpr());
+		//printf("**********************\n")
+		//TVL::printBool(diagram);*/
+		features &= ftrans->getFeatExpr();
+		assert(!(features * diagram).IsZero());
 		choices &= ftrans->getFeatExpr();
+		//printf("***********APPLY RES***********\n");
+		//TVL::printBool(features);
 	}
 
 	wrappee->origin = trans;
@@ -155,20 +173,22 @@ byte featStateDecorator::compare(const state& s2, const ADD& featS2) const {
 	return compare(s2.hash(), featS2);
 }
 
+#include <iostream>
+
 byte featStateDecorator::compare(unsigned long s2Hash, const ADD& featS2) const {
 	byte res = wrappee->compare(s2Hash);
 	
 	if(res == STATES_DIFF)
 		return res;
-	
-	/*printf("implies \n");
-	tvl->printBool(features);
-	printf("\n\n");
 
-	tvl->printBool(featS2);
-	printf("\n\n");*/
+	/*std::cout << getLocalName() << " feat " << std::endl;
+	TVL::printBool(features);
+	std::cout << getLocalName() << " R " << std::endl;
+	TVL::printBool(featS2);
+	std::cout << (features & ~featS2).IsZero() << std::endl;*/
 
-	if(implies(features, featS2))
+	//if f(s) \ R(s) is empty
+	if((features & ~featS2).IsZero())
 		return STATES_SAME_S1_VISITED;
 
 	return STATES_SAME_S1_FRESH;

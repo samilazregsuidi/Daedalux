@@ -35,8 +35,8 @@ Final:  skip;
 never { // !( G( (p1.foo@Start && p2.foo@Start && p1.n==p2.n) -> F (p1.foo@Final && p2.foo@Final && p1.i>=p2.i) ) ) 
 T0_init :    // init 
 	if
-	:: (1) -> goto T0_init
 	:: (!p1.foo@Final && p1.n==p2.n && p2.foo@Start && p1.foo@Start) || (!p2.foo@Final && p1.n==p2.n && p2.foo@Start && p1.foo@Start) || (!(p1.i>=p2.i) && p1.n==p2.n && p2.foo@Start && p1.foo@Start) -> goto accept_S2
+	:: (1) -> goto T0_init
 	fi;
 accept_S2 :    // 1
 	if

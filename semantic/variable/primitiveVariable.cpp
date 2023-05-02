@@ -119,6 +119,7 @@ void primitiveVariable::setValue(int value) {
 	assert(value >= varSymNode::getLowerBound(varSym->getType()));
 	assert(value <= varSymNode::getUpperBound(varSym->getType()));
 	getPayload()->setValue(getOffset(), value, getType());
+	assert(getValue() == value);
 }
 	
 int primitiveVariable::getValue(void) const {

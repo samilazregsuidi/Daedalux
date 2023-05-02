@@ -31,7 +31,7 @@ fsm* ASTtoFSM::astToFsm(const symTable* symTab, const stmnt* program, const TVL*
     program->acceptVisitor(this);
     //assert(current.size() == 1);
 
-    res->removeUselessTransitions();
+    //res->removeUselessTransitions();
 
     return res;
 }
@@ -53,9 +53,12 @@ void ASTtoFSM::_label(fsmNode* node){
 fsmEdge* ASTtoFSM::_looseEnd(const stmnt* node, bool owner) {
     auto edge = current->createfsmEdge(node->getLineNb(), node, nullptr, owner);
 
-    edge->setFeatures(looseFeatures);
-    fm->printBool(looseFeatures);
-    looseFeatures = ADD();
+    if(looseFeatures) {
+        assert(!looseFeatures.IsOne());
+        edge->setFeatures(looseFeatures);
+        //fm->printBool(looseFeatures);
+        looseFeatures = ADD();
+    }
 
     looseEnds.push_back(edge);
     return edge;
@@ -95,6 +98,7 @@ void ASTtoFSM::visit(const stmntExpr* node)  {
     if(toADD.isFeatureExpr()){
         
         looseFeatures = toADD.getFormula();
+        assert(!looseFeatures || !(looseFeatures.IsOne()));
         elseFeatures &= ~looseFeatures;
         hasElseFeatures = true;
 
@@ -121,10 +125,6 @@ void ASTtoFSM::visit(const stmntExpr* node)  {
 void ASTtoFSM::visit(const stmntOpt* node)  {
 
     node->getBlock()->acceptVisitor(this);
-    auto next = node->getNext();
-    if(next) {
-        next->acceptVisitor(this);
-    }
 }
 
 void ASTtoFSM::visit(const stmntIf* node)  {
@@ -140,11 +140,20 @@ void ASTtoFSM::visit(const stmntIf* node)  {
 
     _label(current);
     _connect(current);
-    //_looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
 
     //if looseFeatures then the if is a child of a featured if (if:: F :: if :: b == true ...)
     //else a simple if or a featured if 
+    /*if(looseFeatures)
+        _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
+
+    start = res->createFsmNode(flags, node->getLineNb());
+    current = start;
+    _label(current);
+    _connect(current);*/
+
+    
     auto looseFeaturesSave = looseFeatures;
+    assert(!looseFeatures || !(looseFeatures.IsOne()));
     looseFeatures = ADD();
 
     auto elseFeaturesSave = elseFeatures;
@@ -159,16 +168,30 @@ void ASTtoFSM::visit(const stmntIf* node)  {
         
         auto trans = start->createfsmEdge(node->getLineNb(), new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), nullptr, true);
         looseEnds.push_back(trans);
-        if(looseFeaturesSave)
-            trans->setFeatures(looseFeaturesSave);
 
         //assert(!looseFeatures);
         //looseFeatures = looseFeaturesSave;
         //_looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
+        /*if(looseFeaturesSave)
+            trans->setFeatures(looseFeaturesSave);*/
 
         opt->acceptVisitor(this);
 
-        if(!looseFeatures){
+        if(looseFeatures) {
+            trans->setFeatures(looseFeatures);
+            looseFeatures = ADD();
+        }
+
+        //(nx, ex, nx+1), (nx+1, ex+1, 0) becomes (nx, ex+1, 0) 
+        if(!trans->getFeatures()) {
+            assert(trans->getTargetNode());
+            for(auto t : trans->getTargetNode()->getEdges()) {
+                t->setSourceNode(start);
+            }
+            res->deleteNode(trans->getTargetNode());
+        }
+
+        //if(!looseFeatures){
             //(nx, ex, nx+1), (nx+1, ex+1, 0) becomes (nx, ex+1, 0) 
             //assert(trans->getTargetNode());
             //for(auto t : trans->getTargetNode()->getEdges()) {
@@ -177,9 +200,9 @@ void ASTtoFSM::visit(const stmntIf* node)  {
             //assert(trans->getTargetNode()->getEdges().size() == 1);
             //res->deleteNode(trans->getTargetNode());
         
-        } else {
+        //} else {
             //trans->setFeatures(looseFeatures);
-        }
+        //}
 
         flowLooseEnds.merge(looseEnds);
         looseEnds.clear();
@@ -187,9 +210,21 @@ void ASTtoFSM::visit(const stmntIf* node)  {
         opt = opt->getNextOpt();
     }
 
-    looseFeatures = looseFeaturesSave;
-    elseFeatures = elseFeaturesSave;
-    hasElseFeatures = hasElseFeaturesSave;
+    //if the if is featured, else features have been built, just apply
+    if(hasElseFeatures) {
+        //assert(!looseFeatures);
+        for(auto edge : start->getEdges()) {
+            
+            if(edge->getExpression()->getType() == astNode::E_STMNT_ELSE) {
+                
+                edge->setExpression(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()));
+                edge->owner = true;
+                edge->setFeatures(elseFeatures);
+
+                //res->skip(tskip->getTargetNode());
+            }
+        }
+    }
 
     /******************************/
 
@@ -199,6 +234,10 @@ void ASTtoFSM::visit(const stmntIf* node)  {
     if(next) {
         next->acceptVisitor(this);
     }
+
+    looseFeatures = looseFeaturesSave;
+    elseFeatures = elseFeaturesSave;
+    hasElseFeatures = hasElseFeaturesSave;
 }
 
 void ASTtoFSM::visit(const stmntDo* node)  {
@@ -216,14 +255,15 @@ void ASTtoFSM::visit(const stmntDo* node)  {
 
     //if looseFeatures then the if is a child of a featured if (if:: F :: if :: b == true ...)
     //else a simple if or a featured if 
-    auto looseFeaturesSave = looseFeatures;
-    looseFeatures = ADD();
+    //auto looseFeaturesSave = looseFeatures;
+    //assert(!looseFeatures || !looseFeatures.IsOne());
+    //looseFeatures = ADD();
 
-    auto elseFeaturesSave = elseFeatures;
-    elseFeatures = fm->getMgr()->addOne();
+    //auto elseFeaturesSave = elseFeatures;
+    //elseFeatures = fm->getMgr()->addOne();
 
-    auto hasElseFeaturesSave = hasElseFeatures;
-    hasElseFeatures = false;
+    //auto hasElseFeaturesSave = hasElseFeatures;
+    //hasElseFeatures = false;
 
     auto opt = node->getOpts();
     while(opt){
@@ -233,12 +273,11 @@ void ASTtoFSM::visit(const stmntDo* node)  {
         
         opt->acceptVisitor(this);
 
+        assert(!looseFeatures);
+
         assert(trans->getTargetNode());
         for(auto t : trans->getTargetNode()->getEdges()) {
             t->setSourceNode(start);
-            //set the right features for each opt of the featured child if
-            if(looseFeaturesSave && !looseFeatures)
-                t->setFeatures(looseFeaturesSave);
         }
         res->deleteNode(trans->getTargetNode());
         
@@ -256,8 +295,8 @@ void ASTtoFSM::visit(const stmntDo* node)  {
     _connect(start);
 
     //looseFeatures = looseFeaturesSave;
-    elseFeatures = elseFeaturesSave;
-    hasElseFeatures = hasElseFeaturesSave;
+    //elseFeatures = elseFeaturesSave;
+    //hasElseFeatures = hasElseFeaturesSave;
 
     /******************************/
 
@@ -323,6 +362,7 @@ void ASTtoFSM::visit(const stmntLabel* node)  {
 
     node->getLabelled()->acceptVisitor(this);
 
+    //BUGGY (e.g., for atomic...)
     flags = 0;
 
     auto next = node->getNext();
@@ -418,15 +458,13 @@ void ASTtoFSM::visit(const stmntElse* node) {
     _label(current);
     
     _connect(current);
-
-    //if the if is featured, else features have been built, just apply
+    
     if(hasElseFeatures) {
-        //assert(!looseFeatures);
-        auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
-        fm->printBool(elseFeatures);
-        edge->setFeatures(elseFeatures);
-        hasElseFeatures = false;
-    } else
+        //auto edge = _looseEnd(new stmntExpr(new exprSkip(node->getLineNb()), node->getLineNb()), true);
+        //edge->setFeatures(elseFeatures);
+        //hasElseFeatures = false;
+        _looseEnd(node);
+    } else 
         _looseEnd(node);
 
     auto next = node->getNext();

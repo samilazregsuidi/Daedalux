@@ -162,6 +162,7 @@ public:
 	double prob;
 	const transition* origin;
 	mutable unsigned int errorMask;
+	std::string secret;
 };
 
 template<> struct std::hash<state*> {

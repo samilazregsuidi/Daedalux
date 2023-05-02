@@ -207,60 +207,27 @@ typedef features {
 
 features f;
 
-mtype = {stop, start, alarm, low, medium, high, ready, running, stopped, methanestop, lowstop, commandMsg, alarmMsg, levelMsg}
-
-chan cCmd = [0] of {mtype}; 	/* stop, start			*/
-chan cAlarm = [0] of {mtype}; 	/* alarm                */
-chan cMethane = [0] of {mtype}; /* methanestop, ready   */
-chan cLevel = [0] of {mtype}; 	/* low, medium, high    */
+mtype = {stop, start, ready, stopped}
 
 active proctype controller() {
-	mtype pstate = stopped; 		/* ready, running, stopped, methanestop, lowstop */
-	mtype readMsg = commandMsg; 		/* commandMsg, alarmMsg, levelMsg */
-	mtype pcommand = start;
-	mtype level = medium;
+	mtype pstate = ready; 		/* ready, running, stopped, methanestop, lowstop */
 	
-	bool pumpOn = false;
+	/*if 	:: 	f.MethaneAlarm -> pstate = stopped;
+	  	
+	  	:: 	else -> pstate = ready;
+	  	fi;*/
 	
-	do	::	atomic {
-				cCmd?pcommand;
-				readMsg = commandMsg; 
-			};
-			if	::	pcommand == stop;
-					if	::	f.Stop;
-							if	::	atomic {
-										pstate == running;
-										pumpOn = false;
-									}
-								::	else
-								fi;
-							pstate = stopped;
+	do	::	true ->
+					if	::	f.Stop -> pstate = stop;
 							
 						::	else
 						fi;
-				::	pcommand == start;
-					if	::	f.Start;
-							if	::	atomic {
-										pstate != running;
-										pstate = ready;
-									};
-								::	else
-								fi;
+						
+		::	true ->
+					if	::	f.Start -> pstate = ready;
+								
 						::	else
 						fi;
-				fi;
-			cCmd!pstate;
-			
-		od;
-}
-
-active proctype user() {
-	mtype uwants = stop; 			/* what the user wants */
-	do	::	if	::	uwants = start;
-				::	uwants = stop;
-				fi;
-			cCmd!uwants;
-			cCmd?_;			/* Sends back the state; ignore it */
 		od;
 }
 

@@ -20,6 +20,8 @@ neverTransition::neverTransition(never* proc, const fsmEdge* edge)
 	assert(edge);
 
 	prob = edge->getProbability();
+
+	lines.push_back(edge->getLineNb());
 }
 
 neverTransition::neverTransition(const neverTransition* other)

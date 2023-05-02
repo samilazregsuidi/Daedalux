@@ -62,7 +62,7 @@ mtypeVar::operator std::string(void) const {
 }
 
 void mtypeVar::print(void) const {
-	printf("%s", std::string(*this));
+	printf("%s", std::string(*this).c_str());
 }
 
 void mtypeVar::printTexada(void) const {

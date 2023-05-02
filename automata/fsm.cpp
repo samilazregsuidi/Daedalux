@@ -119,34 +119,70 @@ void fsm::orderAcceptingTransitions(void){
 }
 
 void fsm::removeUselessTransitions(void){
+	int featuredT = 0;
 	auto tcopy = trans;
 	for(auto t : tcopy) {
 		if(t->expression->getType() == astNode::E_STMNT_EXPR){
 			auto node = dynamic_cast<const stmntExpr*>(t->expression)->getChild();
-			if(node->getType() == astNode::E_EXPR_SKIP) {
-				auto src = t->getSourceNode();
-				auto target = t->getTargetNode();
-				if(target && target->getInputEdges().size() == 1) {	
-					//assert(!target || target->getInputEdges().size() == 1);
-					auto t_feat = t->getFeatures();
-					deleteTransition(t);
-					if(target && target->getEdges().size()) { 
-						for(auto nextT : target->getEdges()) {
-							nextT->setFeatures(t_feat? (nextT->getFeatures()? t->getFeatures() & nextT->getFeatures() : t_feat) : nextT->getFeatures());
-							nextT->setSourceNode(src);
-							src->addTransition(nextT);
+			if(node->getType() == astNode::E_EXPR_SKIP && t->features) {
+				//if(!t->features) {
+					auto src = t->getSourceNode();
+					auto target = t->getTargetNode();
+					if(target && target->getInputEdges().size() == 1) {	
+						//assert(!target || target->getInputEdges().size() == 1);
+						auto t_feat = t->getFeatures();
+						deleteTransition(t);
+						if(target && target->getEdges().size()) { 
+							for(auto nextT : target->getEdges()) {
+								nextT->setFeatures(t_feat? (nextT->getFeatures()? t->getFeatures() & nextT->getFeatures() : t_feat) : nextT->getFeatures());
+								nextT->setSourceNode(src);
+							}
 						}
 					}
-				}
+				//} /*else	{
+					//features skip
+					//featuredT++;
+					//TVL::printBool(t->features);
+				//}*/
 			}
 		}
 	}
-	/*auto ncopy = nodes;
-	for(auto node : ncopy)
-		if(node->getInputEdges().size() == 0) {
+	auto ncopy = nodes;
+	for(auto node : ncopy){
+
+		auto initNode = false;
+		for(auto start : inits) {
+			if(start.second == node){
+				initNode = true;
+				break;
+			}
+		}
+		
+		if(node->getInputEdges().size() == 0 && !initNode) {
 			nodes.remove(node);
 			delete node;
-		}*/
+		}
+	}
+}
+
+void fsm::skip(fsmNode* toSkip) {
+	assert(toSkip->getInputEdges().size() == 1);
+	auto inputEdge = *toSkip->getInputEdges().begin();
+	assert(inputEdge->getExpression()->getType() == astNode::E_STMNT_EXPR);
+	auto node = dynamic_cast<const stmntExpr*>(inputEdge->getExpression())->getChild();
+	assert(node->getType() == astNode::E_EXPR_SKIP);
+	
+	auto newSrc = inputEdge->getSourceNode();
+	for(auto newSrcTs : newSrc->getEdges()) {
+		assert(dynamic_cast<const stmntExpr*>(newSrcTs->getExpression())->getChild()->getType() == astNode::E_EXPR_SKIP);
+	}
+
+	deleteTransition(inputEdge);
+
+	assert(newSrc);
+	for(auto outputs : toSkip->getEdges()){
+		outputs->setSourceNode(newSrc);
+	}
 }
 
 void fsm::deleteNode(fsmNode* node) {

@@ -2,7 +2,8 @@
 
 #include "tvl.hpp"
 
-#define PRINT_LIMIT 200
+#define PRINT_LIMIT 512
+#define PRINT_SIZE_LIMIT 128
 
 stateToGraphViz::stateToGraphViz(const fsm* automata)
 	: automata(automata)
@@ -88,7 +89,7 @@ void stateToGraphViz::visit(process* s) {
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		
-		if(exprStr.size() > 32)
+		if(exprStr.size() > PRINT_SIZE_LIMIT)
 			exprStr = "...";
 
 		if(t->getTargetNode()) {
@@ -107,14 +108,14 @@ void stateToGraphViz::visit(progState* s) {
 	++tab;
 	file << _tab() << "style=filled;" << std::endl \
 	<<  _tab() << "color=lightgrey;" << std::endl \
-	<<  _tab() << "label = \" "<< s->getLocalName() << " : " << (featToPrint? TVL::toString(featToPrint) : "") << " \"; " << std::endl;
+	<<  _tab() << "label = \" "<< s->getLocalName() << " : " << (featToPrint? TVL::toString(featToPrint) : "") << (Rfeat? " || R :" + TVL::toString(Rfeat) : " || R : NONE") << " " << s->secret << " \"; " << std::endl;
 
 	file << " \"node" << s->getVariableId() << "\"[ " << std::endl \
 	<< _tab() << "label = \"";
 	auto primVars = s->getTVariables<primitiveVariable*>();
 	for(auto primVar : primVars) {
 		auto str = std::string(*primVar);
-		if(str.size() && str.size() < 64 && !(primVar->isHidden || primVar->isPredef))
+		if(str.size() && str.size() < 64 /*&& !(primVar->isHidden || primVar->isPredef)*/)
 			file << str << " | ";
 	}
 	file << "\"" << std::endl << _tab() << "shape = \"record\" "<< std::endl << "];" << std::endl;
@@ -152,7 +153,7 @@ void stateToGraphViz::visit(compState* s) {
 	++tab;
 	file <<  _tab() << "style=filled;" << std::endl \
 	<<  _tab() << "color=darkgrey;" << std::endl \
-	<<  _tab() << "label = \" "<< s->getLocalName() <<" : depth : "<< depth <<" | "<< _toInStrDescr() <<" \"; " <<  std::endl;
+	<<  _tab() << "label = \" "<< s->getLocalName() <<" : depth : "<< depth <<" | "<< _toInStrDescr() <<" "<< s->secret << "\"; "  <<  std::endl;
 
 	for(auto subS : s->getSubStates())
 		subS->accept(this);
@@ -196,7 +197,7 @@ void stateToGraphViz::visit(never* s) {
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		
-		if(exprStr.size() > 32)
+		if(exprStr.size() > PRINT_SIZE_LIMIT)
 			exprStr = "...";
 
 		if(t->getTargetNode()) {
@@ -211,7 +212,11 @@ void stateToGraphViz::visit(never* s) {
 }
 
 void stateToGraphViz::visit(featStateDecorator* s) {
-	featToPrint = s->choices;
+	//featToPrint = s->choices;
+	featToPrint = s->features;
+	Rfeat = s->R;
+	//assert(s->secret != std::string(""));
+	s->wrappee->secret = s->secret;
 	s->wrappee->accept(this);
 	featToPrint = ADD();
 }

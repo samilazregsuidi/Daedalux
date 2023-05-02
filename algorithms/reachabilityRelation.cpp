@@ -17,7 +17,8 @@ reachabilityRelation::reachabilityRelation()
 	: dfsIn(DFS_OUTER)
 	, tvl(nullptr)
 	, nbErrors(0)
-{}
+{
+}
 
 reachabilityRelation::~reachabilityRelation() {
 	for(auto elem : map)
@@ -27,8 +28,8 @@ reachabilityRelation::~reachabilityRelation() {
 void reachabilityRelation::init(state* init) {
 	update(init);
 	compBuilder build;
+	build.R = this;
 	init->accept(&build);
-	violations.compMap = build.compMap;
 }
 
 void reachabilityRelation::setDFS(dfs dfs) {
@@ -44,6 +45,7 @@ byte reachabilityRelation::getStatus(state* s) {
 		return v.res;
 
 	} else {
+		s->secret = "NEVER";
 		return STATES_S1_NEVER_VISITED;
 	}
 }
@@ -52,7 +54,7 @@ void reachabilityRelation::update(state* s_) {
 	auto s_Hash = s_->hash();
 	auto foundIt = map.find(s_Hash);
 	if(foundIt != map.end()) {
-		updateVisitor v = updateVisitor(foundIt->second, s_, dfsIn, tvl);
+		updateVisitor v = updateVisitor(this, foundIt->second, s_, dfsIn, tvl);
 
 	} else {
 		map[s_->hash()] = stateToRState(s_, dfsIn);
@@ -66,11 +68,15 @@ reachabilityRelation::dfs reachabilityRelation::lastFoundIn(state* s) const {
 }
 
 void reachabilityRelation::addTraceViolation(state* loop) {
+	violationsVisitor violations;
+	violations.R = this;
 	loop->accept(&violations);
 	++nbErrors;
 }
 
-bool reachabilityRelation::isComplete(void) const {
+bool reachabilityRelation::isComplete(void) {
+	violationsVisitor violations;
+	violations.R = this;
 	return violations.isViolationsComplete();
 }
 
@@ -78,12 +84,21 @@ bool reachabilityRelation::hasErrors(void) const {
 	return nbErrors > 0;
 }
 
+ADD reachabilityRelation::getFailedProducts(void) const {
+	assert(compMap.size() == 1);
+	for(auto comp : compMap) {
+		return comp.second->productFail;
+	}
+	assert(false);
+	return ADD();
+}
+
 /*******************************************/
 
-reachabilityRelation::updateVisitor::updateVisitor(RState* rstate, state* s, dfs dfsIn, const TVL* tvl) 
-	: current(rstate)
+reachabilityRelation::updateVisitor::updateVisitor(reachabilityRelation* R, RState* rstate, state* s, dfs dfsIn, const TVL* tvl) 
+	: R(R)
+	, current(rstate)
 	, dfsIn(dfsIn)
-	, tvl(tvl)
 {
 	s->accept(this);
 }
@@ -113,38 +128,50 @@ void reachabilityRelation::updateVisitor::visit(featStateDecorator* s) {
 		return;
 	}
 
+	/*nameComp = s->getLocalName();
+	assert(R->compMap.find(nameComp) != R->compMap.end());
+	auto cmp = R->compMap.find(nameComp)->second;
+	if((cmp->productToVisit & s->getFeatures()).IsZero()) {
+		comp = STATES_SAME_S1_VISITED;
+		return;
+	}*/
+
 	assert(comp == STATES_SAME_S1_FRESH);
 	
-	/*
-	printf("found a state fresher for \n");
-	s->print();
+	
+	/*printf("found a state fresher for \n");
+	s->print();*/
 
-	printf("feat : \n");
-	tvl->printBool(*feat);
-	printf("\n\n");
-	*/
+	/*printf("Rfeat : \n");
+	TVL::printBool(*feat);
+	printf("\n\n");*/
+
+	/*printf("sFeat : \n");
+	TVL::printBool(s->getFeatures());
+	printf("\n\n");*/
+	
 
 	auto negPrev = ~(*feat);
 
-	/*printf("neg : \n");
-	tvl->printBool(negPrev);
+	/*printf("negRFeat : \n");
+	TVL::printBool(negPrev);
 	printf("\n\n");*/
+
+	s->R = *feat;
 
 	*feat |= s->getFeatures();
 
-	/*printf("new feat : \n");
-	tvl->printBool(*feat);
-	printf("\n\n");*/
-
-	/*printf("s feat : \n");
-	tvl->printBool(s->getFeatures());
+	/*printf("newRFeat : \n");
+	TVL::printBool(*feat);
 	printf("\n\n");*/
 
 	s->constraint(negPrev);
 
-	/*printf("new s feat : \n");
-	tvl->printBool(s->getFeatures());
+	/*printf("newSFeat : \n");
+	TVL::printBool(s->getFeatures());
 	printf("\n\n");*/
+
+	assert(!feat->IsZero());
 }
 
 void reachabilityRelation::updateVisitor::visit(compState* s) {
@@ -155,15 +182,18 @@ void reachabilityRelation::updateVisitor::visit(compState* s) {
 	}
 
 	else if (comp == STATES_SAME_S1_VISITED) {
-	 	
+
+		current->lastFoundIn = dfsIn;
+
 		auto save = current;
 		for(auto s : s->getSubStates()) {
-			current = current->getSubHtState(s->hash());
+			current = current->getSubHtState(s);
 			assert(current);
 			current->lastFoundIn = dfsIn;
 			s->accept(this);
 			current = save;
 		}
+
 	} else {
 		assert(false);
 	}
@@ -183,17 +213,19 @@ void reachabilityRelation::compBuilder::visit(compState* s) {
 }
 
 void reachabilityRelation::compBuilder::visit(featStateDecorator* s) {
-	component newComp;
-	newComp.name = s->getLocalName();
-	newComp.productToVisit = s->getDiagram();
-	compMap[s->getLocalName()] = newComp;
+	component* newComp = new component();
+	newComp->name = s->getLocalName();
+	newComp->productToVisit = s->getDiagram();
+	newComp->productFail = TVL::getMgr()->addZero();
+	newComp->allProductsFail = false;
+	R->compMap[s->getLocalName()] = newComp;
 }
 
 /***********************************************************************/
 
 bool reachabilityRelation::violationsVisitor::isViolationsComplete(void) const {
-	for(auto comp : compMap)
-		if(!comp.second.allProductsFail)
+	for(auto comp : R->compMap)
+		if(!comp.second->allProductsFail)
 			return false;
 	return true;
 }
@@ -210,11 +242,21 @@ void reachabilityRelation::violationsVisitor::visit(compState* s) {
 }
 
 void reachabilityRelation::violationsVisitor::visit(featStateDecorator* s) {
-	auto comp = compMap[s->getLocalName()];
-	if(comp.allProductsFail)
+	auto comp = R->compMap[s->getLocalName()];
+	if(comp->allProductsFail)
 		return;
-	comp.productToVisit &= ~s->getFeatures();
-	comp.allProductsFail = !comp.productToVisit.IsZero();
+	comp->productToVisit &= ~s->getFeatures();
+	
+	//TVL::printBool(comp->productFail);	
+
+	assert(s->getFeatures() != TVL::getMgr()->addOne());
+	
+	comp->productFail |= s->getFeatures();
+	
+	//TVL::printBool(comp->productFail);	
+
+	comp->allProductsFail = comp->productToVisit.IsZero();
+	assert(!comp->allProductsFail || (s->getDiagram() & ~comp->productFail).IsZero());
 }
 
 /******************************************************/
@@ -236,17 +278,25 @@ void reachabilityRelation::getStatusVisitor::visit(featStateDecorator* s) {
 	auto feat = (dfsIn == DFS_OUTER)? &current->outerFeatures : &current->innerFeatures;
 
 	res = s->compare(current->hash, *feat);
-	if(res == STATES_DIFF || res == STATES_SAME_S1_VISITED) {
+	if(res == STATES_DIFF) {
+		s->secret = "DIFF";
+		return;
+	} else if (res == STATES_SAME_S1_VISITED) {
+		s->secret = "VISITED";
+		s->R = *feat;
 		return;
 	}
 
 	assert(res == STATES_SAME_S1_FRESH);
+	s->secret = "FRESH";
+	s->R = *feat;
 }
 
 void reachabilityRelation::getStatusVisitor::visit(compState* s) {
 	auto comp = s->compare(current->hash);
 	if(comp == STATES_DIFF) {
 		res = STATES_DIFF;
+		s->secret = "DIFF";
 		return;
 	}
 
@@ -254,7 +304,7 @@ void reachabilityRelation::getStatusVisitor::visit(compState* s) {
 	 	
 		auto save = current;
 		for(auto s : s->getSubStates()) {
-			current = current->getSubHtState(s->hash());
+			current = current->getSubHtState(s);
 			assert(current);
 			s->accept(this);
 			assert(res != STATES_DIFF);
@@ -264,6 +314,7 @@ void reachabilityRelation::getStatusVisitor::visit(compState* s) {
 			current = save;
 		}
 		res = comp;
+		s->secret = (res == STATES_SAME_S1_FRESH? "FRESH" : "VISITED");
 		return;
 	} else {
 		assert(false);
@@ -274,7 +325,7 @@ void reachabilityRelation::getStatusVisitor::visit(compState* s) {
 
 reachabilityRelation::stateToRState::stateToRState(state* s, dfs dfsIn) {
 	this->dfsIn = dfsIn;
-	res = new RState(s->hash(), this->dfsIn);
+	res = new RState(s, this->dfsIn);
 	s->accept(this);
 }
     
@@ -286,7 +337,7 @@ void reachabilityRelation::stateToRState::visit(never* s) {}
 void reachabilityRelation::stateToRState::visit(compState* s) {
 	auto save = res;
 	for(auto s : s->getSubStates()) {
-		RState* htS = new RState(s->hash(), dfsIn);
+		RState* htS = new RState(s, dfsIn);
 		res->subStates.push_back(htS);
 		res = htS;
 		s->accept(this);
@@ -295,8 +346,13 @@ void reachabilityRelation::stateToRState::visit(compState* s) {
 }
 
 void reachabilityRelation::stateToRState::visit(featStateDecorator* s) {
-	if(dfsIn == DFS_OUTER) 
+	if(dfsIn == DFS_OUTER) {
+		assert(s->getFeatures());
 		res->outerFeatures = s->getFeatures();
+		res->innerFeatures = TVL::getMgr()->addZero();
+	} else {
+		assert(false);
+	}
 }
 
 reachabilityRelation::stateToRState::operator RState*(void) const {
