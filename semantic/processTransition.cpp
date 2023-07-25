@@ -8,6 +8,8 @@
 #include <iterator>
 #include <iostream>
 
+#include <flowStmnt.hpp>
+
 processTransition::processTransition(process* proc, const fsmEdge* edge) 
 	: transition(proc)
 	, edge(edge)
@@ -17,8 +19,15 @@ processTransition::processTransition(process* proc, const fsmEdge* edge)
 	assert(edge);
 
 	prob = edge->getProbability();
+	assert(prob >= 0 && prob <= 1);
 
 	lines.push_back(edge->getLineNb());
+
+	auto expression = edge->getExpression();
+	if(expression->getType() == astNode::E_STMNT_ACTION) {
+		action = dynamic_cast<const stmntAction*>(expression)->getLabel();
+	}
+
 }
 
 processTransition::processTransition(const processTransition* other)

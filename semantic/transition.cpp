@@ -9,12 +9,31 @@
 #include <algorithm>
 #include <iostream>
 
-/*static*/ transition* transition::sample(const std::list<transition*>& transList) {
+/*static*/ transition* transition::sampleUniform(const std::list<transition*>& transList) {
 	if(transList.size() == 0)
 		return nullptr;
 	auto it = transList.begin();
 	std::advance(it, rand() % transList.size());
 	return *it;
+}
+
+/*static*/ transition* transition::sampleNonUniform(const std::list<transition*>& transList) {	
+	if(transList.size() == 0)
+		return nullptr;
+	double threshold = ((double)rand()) / RAND_MAX;
+	double acc = 0.0;
+	for(auto t : transList){
+		acc += t->prob;
+		if(threshold < acc)
+			return t;
+	}
+}
+
+/*static*/ transition* transition::select(const std::list<transition*>& transList, const std::string& action) {
+	for(auto t : transList)
+		if(t->action == action)
+			return t;
+	return nullptr;
 }
 
 /*static*/ void transition::erase(const std::list<transition*>& list) {
@@ -31,6 +50,7 @@ transition::transition(state* s)
 	: parent(nullptr)
 	, src(s)
 	, dst(nullptr)
+	, prob(1.)
 {
 	assert(s);
 }
@@ -41,6 +61,7 @@ transition::transition(const transition* other)
 	, dst(other->dst)
 	, prob(other->prob)
 	, lines(other->lines)
+	, action(other->action)
 {
 	assert(src);
 

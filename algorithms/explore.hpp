@@ -29,6 +29,7 @@ public:
 void printElementStack(const std::stack<elementStack::element*>& outerStack, const std::stack<elementStack::element*>& innerStack = std::stack<elementStack::element*>(), const state* loopBegin = nullptr);
 
 void launchExecution(const fsm* automata, const TVL* tvl = nullptr);
+int launchExecutionMarkovChain(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceBFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl = nullptr);

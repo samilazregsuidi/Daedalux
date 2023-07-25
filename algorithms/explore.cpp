@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <algorithm>
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include "state.hpp"
 #include "transition.hpp"
 #include "process.hpp"
@@ -19,7 +23,7 @@
 
 #define PRINT_STATE print
 
-#define B 100
+#define B 5
 
 stateToGraphViz* graphVis = nullptr;
 
@@ -33,7 +37,8 @@ void launchExecution(const fsm* automata, const TVL* tvl) {
 
 	graphVis->printGraphViz(current);
 
-	while(transition* trans = transition::sample(current->executables())){
+	while(transition* trans = transition::sampleUniform(current->executables())){
+		++i;
 		current->apply(trans);
 		//printf("--------------------------------------\n");
 		current->PRINT_STATE();
@@ -42,12 +47,92 @@ void launchExecution(const fsm* automata, const TVL* tvl) {
 		if(current->isAccepting())
 			printf("***** ACCEPTING STATE *****\n");
 
-		if(i > B){
+		if(i >= B){
 			break;
 		}
 		//add error status
 	}
 	printf("--\n");
+}
+
+void fireNonActionTransition(state* current){
+	transition* trans = nullptr;
+	while(true) {
+		auto transitions = current->executables();
+		trans = transition::sampleNonUniform(transitions);
+		if(trans->action == "")
+			current->apply(trans);
+		else
+			break;
+	}
+}
+
+int launchExecutionMarkovChain(const fsm* automata, const TVL* tvl) {
+	state* current = initState::createInitState(automata, tvl);
+	fireNonActionTransition(current);
+	unsigned long i = 0;
+	//printf("**********************************\n");
+	current->PRINT_STATE();
+
+	graphVis = new stateToGraphViz(automata);
+
+	graphVis->printGraphViz(current);
+
+	std::vector<std::string> scheduler;
+	
+	std::ifstream myfile;
+
+	myfile.open("mdp.sched");
+	
+	std::string myline;
+	
+	if ( myfile.is_open() ) {
+		while ( myfile ) { // equivalent to myfile.good()
+			std::getline (myfile, myline);
+			scheduler.push_back(myline);
+			std::cout << myline << '\n';
+		}
+	} else {
+		std::cout << "Couldn't open file\n";
+	}
+
+	transition* trans = nullptr;
+
+	do {
+
+		auto sVariable = current->getVariable("s");
+		int sValue = dynamic_cast<primitiveVariable*>(sVariable)->getValue();
+		std::string schedValue = scheduler[sValue]; 
+		
+		auto transitions = current->executables();
+		trans = transition::select(transitions, schedValue);
+		assert(trans->action != "");
+		current->apply(trans);
+
+		fireNonActionTransition(current);
+
+		//printf("--------------------------------------\n");
+		//if(i % 3 == 0) {
+		current->PRINT_STATE();
+		graphVis->printGraphViz(current);
+		//}
+
+		if(current->isAccepting()) {
+			std::cout << "accepting trace" << std::endl;
+			return 0;
+		}
+
+		++i;
+		if(i >= B){
+			break;
+		}
+		//add error status
+	} while(trans);
+
+	printf("--\n");
+
+	std::cout << "non accepting trace" << std::endl;
+	return 1;
 }
 
 #define K 3
@@ -72,7 +157,7 @@ void findLasso(const fsm* automata, const TVL* tvl, size_t k_steps) {
 			
 			hashSet.insert(current->hash());
 			
-			if((trans = transition::sample(current->executables()))) {
+			if((trans = transition::sampleUniform(current->executables()))) {
 				printf("..\n");
 				current->apply(trans);
 			} else 
@@ -257,7 +342,7 @@ void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl) {
 			auto status = R.getStatus(n);
 			R.update(n);
 
-			//graphVis->printGraphViz(n, depth);
+			graphVis->printGraphViz(n, depth);
 
 			
 
@@ -466,6 +551,8 @@ byte ltlModelChecker::outerDFS(elementStack& stackOuter) {
 						_nbStatesStops++;
 					
 					} else {
+
+						//graphVis->printGraphViz(s_, _depth);
 						
 						if(status == STATES_SAME_S1_FRESH) {
 
@@ -679,7 +766,8 @@ void printElementStack(const std::stack<elementStack::element*>& outerStack, con
 	unsigned int depth = 0;
 	graphVis->setIn(stateToGraphViz::PREFIX);
 	auto reverseStack = reverse(outerStack);
-	std::cout << "\n - Stack trace:\n";	
+	std::cout << "\n - Stack trace:\n";
+	bool inCycle = false;
 	while(!reverseStack.empty()) {
 		s = reverseStack.top()->s;
 		depth = reverseStack.top()->depth;
@@ -691,8 +779,15 @@ void printElementStack(const std::stack<elementStack::element*>& outerStack, con
 			graphVis->printGraphViz(s, depth);
 			graphVis->setIn(stateToGraphViz::CYCLE);
 			std::cout << "    -- Loop begin repeated in full:\n";
+			inCycle = true;
 			continue;
 		}
+
+		if(inCycle) {
+			s->print();
+			graphVis->printGraphViz(s, depth);
+		}
+
 		//s->print();
 		//graphVis->printGraphViz(s, depth);
 	}
@@ -706,7 +801,7 @@ void printElementStack(const std::stack<elementStack::element*>& outerStack, con
 	reverseStack = reverse(innerStack);
 	while(!reverseStack.empty()) {
 		auto top = reverseStack.top();
-		//top->s->print();
+		top->s->print();
 		graphVis->printGraphViz(top->s, top->depth);
 		reverseStack.pop();
 	}

@@ -1,0 +1,73 @@
+digraph finite_state_machine {
+	rankdir=LR
+	size="8,5" 
+
+	subgraph cluster_sys {
+		style=filled;
+		color=darkgrey;
+		label = " sys : depth : 0 |  "; 
+		subgraph cluster_ {
+			style=filled;
+			color=lightgrey;
+			label = "  :  || R : NONE  "; 
+ "node2"[ 
+			label = "0x0   :   sys.._                  = 0
+ | 0x4   :   sys.._nr_pr             = 0
+ | 0x8   :   sys.._last              = 0
+ | 0x9   :   sys..np_                = false
+ | 0xa   :   sys..k                  = 0
+ | 0xe   :   sys..s                  = 2
+ | "
+			shape = "record" 
+];
+			subgraph cluster_mdp {
+				style=filled;
+				color=white;
+				label = "mdp" ; 
+				93824994283673 [label = 6, shape = doublecircle, fixedsize = true]; 
+				s93824994283673 [shape = point];
+ "node9"[ 
+				label = ""
+				shape = "record" 
+];
+				93824994319497 [label = 19, shape = circle, color = red, fixedsize = true ];
+				93824994321753 [label = 27, shape = circle, fixedsize = true ];
+				93824994321529 [label = 21, shape = circle, fixedsize = true ];
+				93824994319097 [label = 8, shape = circle, fixedsize = true ];
+				93824994320361 [label = 15, shape = circle, fixedsize = true ];
+				93824994319929 [label = 10, shape = circle, fixedsize = true ];
+				s93824994283673 -> 93824994283673;
+				93824994283673 -> 93824994319097 [ label = "7 | s == 0; "];
+				93824994283673 -> 93824994319497 [color = red, fontcolor = red, label = "18 | s == 2; "];
+				93824994319097 -> 93824994319929 [ label = "9 | s0a0 :: "];
+				93824994319097 -> 93824994320361 [ label = "15 | s0a1 :: "];
+				93824994320361 -> 93824994283673 [ label = "15 | s = 2; "];
+				93824994319929 -> 93824994283673 [ label = " [0.500000] 11 | s = 0; "];
+				93824994319929 -> 93824994283673 [ label = " [0.500000] 12 | s = 2; "];
+				93824994319497 -> 93824994321529 [ label = "20 | s2a0 :: "];
+				93824994319497 -> 93824994321753 [ label = "26 | s2a1 :: "];
+				93824994321529 -> 93824994283673 [ label = " [0.400000] 22 | s = 0; "];
+				93824994321529 -> 93824994283673 [ label = " [0.600000] 23 | s = 2; "];
+				93824994321753 -> 93824994283673 [ label = " [0.700000] 29 | s = 0; "];
+				93824994321753 -> 93824994283673 [ label = " [0.300000] 30 | s = 1; "];
+
+			}
+		}
+		subgraph cluster_never {
+			style=filled;
+			color=white;
+			label = " never "; 
+			93824994319632 [label = 54, shape = doublecircle, color = red, fixedsize = true]; 
+			s93824994319632 [shape = point];
+			e [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white,  label = end];
+			93824994321232 [label = 60, shape = circle, fixedsize = true , style = filled, fillcolor = darkgrey];
+			s93824994319632 -> 93824994319632;
+			93824994321232 -> e [ label = "60 | ..."];
+			93824994319632 -> 93824994321232 [ label = "55 | ..."];
+			93824994319632 -> 93824994319632 [color = red, fontcolor = red, label = "56 | ..."];
+
+		}
+
+	}
+
+}

@@ -25,8 +25,8 @@ active proctype mdp(){
 			
 		:: s2a1 ::
 			if
-			:: [ 0.4 ] s = 2;
-			:: [ 0.3 ] s = 0;
+			//:: [ 0.4 ] s = 2;
+			:: [ 0.7 ] s = 0;
 			:: [ 0.3 ] s = 1;
 			fi;
 		fi;
@@ -49,12 +49,11 @@ active proctype mdp(){
 	od;
 }
 
-never { /* F(s_eq_2) */
+never { /* !(G(!s1)) */
 T0_init :    /* init */
-	skip;
 	if
-	:: (1) -> goto T0_init
-	:: (s == 0) -> goto accept_all
+	:: (s == 1) -> goto accept_all
+	:: (s != 1) -> goto T0_init
 	fi;
 accept_all :    /* 1 */
 	skip

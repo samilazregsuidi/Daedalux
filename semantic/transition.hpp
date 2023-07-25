@@ -7,6 +7,7 @@
 
 #include <list>
 #include <vector>
+#include <string>
 
 class state;
 
@@ -17,7 +18,11 @@ typedef unsigned char ubyte;
 
 class transition {
 public:
-	static transition* sample(const std::list<transition*>& transList); // Choose a transition and returns it.
+	static transition* sampleUniform(const std::list<transition*>& transList); // Choose a transition and returns it.
+
+	static transition* sampleNonUniform(const std::list<transition*>& transList); // Choose a transition and returns it.
+
+	static transition* select(const std::list<transition*>& transList, const std::string& action);
 	
 	static void destroyProcTransList(std::list<transition*> transList, byte process_or_direct);
 	
@@ -58,6 +63,7 @@ public:		//
 	double prob;
 	std::list<transition*> subTs; 
 	std::list<unsigned int> lines;
+	std::string action;
 };
 
 #endif

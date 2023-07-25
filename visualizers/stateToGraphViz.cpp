@@ -29,6 +29,10 @@ void stateToGraphViz::printGraphViz(state* s, int depth) {
 
 	file.open("trace/" + std::to_string(index++) + ".dot");
 
+	if(index == 137) {
+		printf("start debugging at node");
+	}
+
 	file.precision(3);
 
 	file << "digraph finite_state_machine {" << std::endl \
@@ -197,7 +201,7 @@ void stateToGraphViz::visit(never* s) {
 		std::replace(exprStr.begin(), exprStr.end(), '\"', ' ');
 		std::replace(exprStr.begin(), exprStr.end(), '\n', ' ');
 		
-		if(exprStr.size() > PRINT_SIZE_LIMIT)
+		if(exprStr.size() > 0)
 			exprStr = "...";
 
 		if(t->getTargetNode()) {

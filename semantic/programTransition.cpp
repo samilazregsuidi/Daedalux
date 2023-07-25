@@ -21,10 +21,13 @@ programTransition::programTransition(state* s, transition* procTrans, transition
 	add(response);
 
 	prob = procTrans->getProbability() * (response ? response->getProbability() : 1.0);
+	assert(prob >= 0 && prob <= 1);
 
 	lines.push_back(dynamic_cast<processTransition*>(procTrans)->getLineNb());
 	if(response)
 		lines.push_back(dynamic_cast<processTransition*>(response)->getLineNb());
+
+	action = procTrans->action;
 
 }
 

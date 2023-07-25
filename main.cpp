@@ -338,26 +338,6 @@ int main(int argc, char *argv[]) {
 	fsm* automata = converter->astToFsm(globalSymTab, program, tvl);
 	automata->orderAcceptingTransitions();
 
-	/*auto accept_init = automata->getNode(10);
-	assert(accept_init->getFlags() & fsmNode::N_ACCEPT);
-	accept_init = automata->getNode(14);
-	assert(accept_init->getFlags() & fsmNode::N_ACCEPT);
-
-	auto T0_S2 = automata->getNode(16);
-	assert(!(T0_S2->getFlags() & fsmNode::N_ACCEPT));
-	T0_S2 = automata->getNode(20);
-	assert(!(T0_S2->getFlags() & fsmNode::N_ACCEPT));
-
-	auto T0_S3 = automata->getNode(22);
-	assert(!(T0_S3->getFlags() & fsmNode::N_ACCEPT));
-	T0_S3 = automata->getNode(27);
-	assert(!(T0_S3->getFlags() & fsmNode::N_ACCEPT));
-
-	auto accept_all = automata->getNode(29);
-	assert(accept_all->getFlags() & fsmNode::N_ACCEPT);
-	accept_all = automata->getNode(30);
-	assert(accept_all->getFlags() & fsmNode::N_ACCEPT);*/
-
 	//std::ofstream graph;
 	//graph.open("fsm_graphvis");
 	//automata->printGraphVis(graph);
@@ -373,16 +353,23 @@ int main(int argc, char *argv[]) {
 		delete copy;
 	}*/
 
-	//launchExecution(automata, tvl);
+	int sum = 0;
+	int index = 0;
+	for(; index < 1; index++) {
+		sum += launchExecutionMarkovChain(automata, tvl);
+	}
+	std::cout << sum << std::endl; 
+	double avg = (float)sum / index;
+	std::cout << "proportion to satisfy the bltl property : " << avg << std::endl;
 
 	/*for(int i = 0; i < NB_LASSO; ++i)
 		findLasso(automata, K);*/
 
 	//createStateSpaceBFS(automata, tvl);
 
-	ltlModelChecker* mc = new ltlModelChecker();
-	mc->startNestedDFS(automata, tvl);
-	delete mc;
+	//ltlModelChecker* mc = new ltlModelChecker();
+	//mc->startNestedDFS(automata, tvl);
+	//delete mc;
 
 	//createStateSpaceDFS_RR(automata, tvl);
 
@@ -404,11 +391,14 @@ int main(int argc, char *argv[]) {
 	
 	//state* init = new state(globalSymTab, automata);
 
-	delete converter;
+	if(converter)
+		delete converter;
 
-	delete automata;
+	if(automata)
+		delete automata;
 
-	delete tvl;
+	if(tvl)
+		delete tvl;
 
 	TVL::deleteBoolFct();
 

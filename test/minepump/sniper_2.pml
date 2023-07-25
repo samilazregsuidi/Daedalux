@@ -198,7 +198,7 @@ typedef features {
 features f;
 
 system p1;
-system p2 = !f.MethaneQuery;
+system p2;
 
 mtype = {stop, start, alarm, low, medium, high, ready, running, stopped, methanestop, lowstop, commandMsg, alarmMsg, levelMsg}
 

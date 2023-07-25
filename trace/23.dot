@@ -1,0 +1,65 @@
+digraph finite_state_machine {
+	rankdir=LR
+	size="8,5" 
+
+	subgraph cluster_sys {
+		style=filled;
+		color=darkgrey;
+		label = " sys : depth : 0 |  "; 
+		subgraph cluster_ {
+			style=filled;
+			color=lightgrey;
+			label = "  :  || R : NONE  "; 
+ "node860"[ 
+			label = "0x0   :   sys.._                  = 0
+ | 0x4   :   sys.._nr_pr             = 0
+ | 0x8   :   sys.._last              = 0
+ | 0x9   :   sys..np_                = false
+ | 0xa   :   sys..k                  = 0
+ | 0xe   :   sys..s                  = 0
+ | "
+			shape = "record" 
+];
+			subgraph cluster_mdp {
+				style=filled;
+				color=white;
+				label = "mdp" ; 
+				94389124501347 [label = 6, shape = doublecircle, fixedsize = true]; 
+				s94389124501347 [shape = point];
+ "node867"[ 
+				label = ""
+				shape = "record" 
+];
+				94389124543235 [label = 18, shape = circle, fixedsize = true ];
+				94389124544019 [label = 19, shape = circle, fixedsize = true ];
+				94389124542051 [label = 8, shape = circle, fixedsize = true ];
+				94389124542883 [label = 10, shape = circle, color = red, fixedsize = true ];
+				s94389124501347 -> 94389124501347;
+				94389124543235 -> 94389124544019 [ label = "19 | s1a0 :: "];
+				94389124501347 -> 94389124542051 [ label = "7 | s == 0; "];
+				94389124501347 -> 94389124543235 [ label = "17 | s == 1; "];
+				94389124542051 -> 94389124542883 [color = red, fontcolor = red, label = "9 | s0a0 :: "];
+				94389124542883 -> 94389124501347 [ label = " [0.500000] 11 | s = 0; "];
+				94389124542883 -> 94389124501347 [ label = " [0.500000] 12 | s = 1; "];
+				94389124544019 -> 94389124501347 [ label = "19 | s = 1; "];
+
+			}
+		}
+		subgraph cluster_never {
+			style=filled;
+			color=white;
+			label = " never "; 
+			94389124541728 [label = 26, shape = doublecircle, color = red, fixedsize = true]; 
+			s94389124541728 [shape = point];
+			e [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white,  label = end];
+			94389124541024 [label = 32, shape = circle, fixedsize = true , style = filled, fillcolor = darkgrey];
+			s94389124541728 -> 94389124541728;
+			94389124541024 -> e [ label = "32 | ..."];
+			94389124541728 -> 94389124541024 [ label = "27 | ..."];
+			94389124541728 -> 94389124541728 [color = red, fontcolor = red, label = "28 | ..."];
+
+		}
+
+	}
+
+}

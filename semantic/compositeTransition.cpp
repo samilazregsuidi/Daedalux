@@ -9,8 +9,17 @@ compTransition::compTransition(state* s, const std::list<transition*>& Ts)
 	: transition(s)
 {
 	add(Ts);
-	for(auto t : Ts)
+	for(auto t : Ts) {
 		lines.merge(t->lines);
+		prob *= t->prob;
+		if(t->action != "") {
+			if(action == "")
+				action = t->action;
+			else
+				assert(action == t->action);
+		}
+	}
+	assert(prob >= 0 && prob <= 1);
 }
 
 compTransition::compTransition(const compTransition* other) 

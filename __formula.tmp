@@ -1,12 +1,90 @@
-never { /* !(!([]<> stateMethanestop)) */
+never { /* !(! ([]  ((  ([]<> readLevel) && ([]<> ! readLevel) ) -> [](((highWater && !methane && (stateReady || stateLowstop)) ) -> <>(pumpOn || methane)) ))) */
 T0_init:
 	if
-	:: (stateMethanestop) -> goto accept_S1
-	:: (1) -> goto T0_init
+	:: (1) -> goto T0_S2
+	:: (!readLevel) -> goto accept_S3
+	:: (readLevel) -> goto accept_S4
+	:: (!highWater) || (pumpOn) || (methane) || (!stateLowstop && !stateReady) -> goto accept_S5
+	:: (1) -> goto T1_S6
 	fi;
-accept_S1:
+T0_S2:
 	if
-	:: (stateMethanestop) -> goto accept_S1
-	:: (1) -> goto T0_init
+	:: (1) -> goto T0_S2
+	:: (1) -> goto T0_S7
+	:: (!readLevel) -> goto accept_S3
+	:: (!readLevel) -> goto T1_S8
+	:: (readLevel) -> goto accept_S4
+	:: (readLevel) -> goto T1_S9
+	fi;
+T0_S7:
+	if
+	:: (1) -> goto T0_S7
+	:: (methane) || (pumpOn) -> goto T0_S10
+	:: (!readLevel) -> goto T1_S8
+	:: (!readLevel && methane) || (!readLevel && pumpOn) -> goto accept_S17
+	:: (readLevel) -> goto T1_S9
+	:: (readLevel && methane) || (readLevel && pumpOn) -> goto accept_S18
+	fi;
+T0_S10:
+	if
+	:: (!highWater) || (pumpOn) || (methane) || (!stateLowstop && !stateReady) -> goto T0_S10
+	:: (1) -> goto T0_S7
+	:: (!readLevel && !highWater) || (!readLevel && pumpOn) || (!readLevel && methane) || (!readLevel && !stateLowstop && !stateReady) -> goto accept_S17
+	:: (!readLevel) -> goto T1_S8
+	:: (readLevel && !highWater) || (readLevel && pumpOn) || (readLevel && methane) || (readLevel && !stateLowstop && !stateReady) -> goto accept_S18
+	:: (readLevel) -> goto T1_S9
+	fi;
+accept_S17:
+	if
+	:: (!readLevel && !highWater) || (!readLevel && pumpOn) || (!readLevel && methane) || (!readLevel && !stateLowstop && !stateReady) -> goto accept_S17
+	:: (!readLevel) -> goto T1_S8
+	fi;
+accept_S18:
+	if
+	:: (readLevel && !highWater) || (readLevel && pumpOn) || (readLevel && methane) || (readLevel && !stateLowstop && !stateReady) -> goto accept_S18
+	:: (readLevel) -> goto T1_S9
+	fi;
+T1_S8:
+	if
+	:: (!readLevel) -> goto T1_S8
+	:: (!readLevel && methane) || (!readLevel && pumpOn) -> goto accept_S17
+	fi;
+T1_S9:
+	if
+	:: (readLevel) -> goto T1_S9
+	:: (readLevel && methane) || (readLevel && pumpOn) -> goto accept_S18
+	fi;
+accept_S3:
+	if
+	:: (!readLevel) -> goto accept_S3
+	:: (!readLevel) -> goto T1_S8
+	fi;
+accept_S4:
+	if
+	:: (readLevel) -> goto accept_S4
+	:: (readLevel) -> goto T1_S9
+	fi;
+T1_S6:
+	if
+	:: (1) -> goto T1_S7
+	:: (1) -> goto T1_S6
+	:: (methane) || (pumpOn) -> goto T0_S10
+	:: (methane) || (pumpOn) -> goto accept_S5
+	fi;
+T1_S7:
+	if
+	:: (1) -> goto T1_S7
+	:: (methane) || (pumpOn) -> goto T0_S10
+	:: (!readLevel) -> goto T1_S8
+	:: (!readLevel && methane) || (!readLevel && pumpOn) -> goto accept_S17
+	:: (readLevel) -> goto T1_S9
+	:: (readLevel && methane) || (readLevel && pumpOn) -> goto accept_S18
+	fi;
+accept_S5:
+	if
+	:: (!highWater) || (pumpOn) || (methane) || (!stateLowstop && !stateReady) -> goto T0_S10
+	:: (!highWater) || (pumpOn) || (methane) || (!stateLowstop && !stateReady) -> goto accept_S5
+	:: (1) -> goto T0_S7
+	:: (1) -> goto T1_S6
 	fi;
 }
