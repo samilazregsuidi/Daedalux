@@ -43,9 +43,15 @@ Sami fill this in.
 
 ## How to build
 
-What things you need to install the software and how to install them.
+```console
+foo@bar:~$ cd deadalux
+foo@bar:~$ mkdir build
+foo@bar:~$ cd build
+foo@bar:~$ cmake ../
+foo@bar:~$ cmake --build .
+```
 
-Sami fill this in.
+What things you need to install the software and how to install them.
 
 ### Dependencies
 
