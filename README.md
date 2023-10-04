@@ -51,7 +51,9 @@ Sami fill this in.
 
 Sami fill this in.
 
-- C++20
+- C++20 compiler
+- Flex & Bison
+- [CUDD library](https://github.com/ivmai/cudd)
 - CMake 3.16
 
 ## Future work
