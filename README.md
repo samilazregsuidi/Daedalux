@@ -49,3 +49,23 @@ Sami fill this in.
 
 ### Dependencies
 
+Sami fill this in.
+
+- C++20
+- CMake 3.16
+
+## Future work
+
+The following is a list of features that are planned to be implemented in the future.
+
+- [ ] Support for Timed Automata
+  - [ ] Extension of input language
+  - [ ] Extend the parser to support Timed Automata
+  - [ ] Model-checking of Timed Automata
+- [ ] Set up a CI pipeline (Github Actions)
+- [ ] Clean up the repository (remove unused files, etc.)
+  - [ ] Sami I think you should do this.
+    - [ ] Are all the mdp copy files needed?
+    - [ ] What about the traces folder?
+    - [ ] What about the tmp files?
+    - [ ] Alternatively, we could just add them to the .gitignore file.
