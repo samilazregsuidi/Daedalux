@@ -6,7 +6,7 @@
 FROM gcc:latest
 
 # Copy everyfile in the current directory to the image
-ADD . /usr/src/daedalux
+COPY . /usr/src/daedalux
 
 # Install any needed packages specified requirements
 
@@ -22,7 +22,7 @@ RUN tar -xvf cudd-3.0.0.tar.gz
 # Delete tar.gz file
 RUN rm cudd-3.0.0.tar.gz
 WORKDIR /usr/src/cudd-cudd-3.0.0
-RUN ./configure --enable-shared --enable-dddmp --enable-obj --enable-const --enable-arith --enable-epd --enable-cuddlib --enable-silent-rules --enable-verbose
+RUN ./configure --enable-shared --enable-dddmp --enable-obj --enable-const --enable-arith --enable-epd --enable-cuddlib --enable-silent-rules --enable-verbose --enable-cplusplus 
 RUN make
 RUN make check
 

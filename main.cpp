@@ -7,6 +7,7 @@
 #include <fstream>
 #include <time.h>
 #include <algorithm>
+#include <filesystem>
 
 #include "symbols.hpp"
 #include "ast.hpp"
@@ -35,17 +36,12 @@ TVL* tvl = nullptr;
  * Simply copies a file byte by byte; could be made more efficient.
  */
 int copyFile(const std::string& source, const std::string& target) {
-	std::ifstream src(source, std::ios::binary);
-	std::ofstream dst(target, std::ios::binary);
-	dst << src.rdbuf();
-	src.close();
-	dst.close();
+	if(std::filesystem::copy_file(source, target) != 0) return 0;
 	return 1;
 }
 
 
 #define NB_LASSO 1
-
 #define FULL_TRACE 2
 #define SIMPLE_TRACE 1
 #define NO_TRACE 0
