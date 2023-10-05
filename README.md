@@ -10,7 +10,6 @@ The model-checker consumes a product line written in Promela and outputs a
 
 The following example is a simple product line written in Promela. The product line has two features, B1 and B2. The product line is written in Promela and is saved in a file called "test.pml".
 
-
 ```promela
 typedef features {
     bool B1;
@@ -27,6 +26,8 @@ active proctype test (){
 ```
 
 The model-checker can be run by executing the following command in the terminal:
+
+
 
 Sami fill this in.
 
@@ -51,11 +52,45 @@ foo@bar:~$ cmake ../
 foo@bar:~$ cmake --build .
 ```
 
-What things you need to install the software and how to install them.
+Alternatively, you can build it using docker from the root directory of the project using the following command:
+
+```console
+foo@bar:~$ docker build -t deadalux .
+```
+
+After building the image you can run the model-checker using the following command:
+
+```console
+foo@bar:~$ docker run -it deadalux <path-to-promela-file> 
+```
+
+## How to run it
+
+Sami fill this in.
+
+After building the project, you can run the model-checker using the following command:
+
+```console
+foo@bar:~$ ./daedalux <path-to-promela-file> <parameters>
+```
+
+Note that the model-checker requires a Promela file as input. The model-checker also accepts the following parameters:
+
+Sami fill this in.
+
+- -h, --help: Prints the help message.
+- -v, --verbose: Prints the output of the model-checker.
+- -o, --output: Specifies the output file.
+
+For example, the following command runs the model-checker on the file "test.pml" and prints the output to the terminal:
+
+```console
+foo@bar:~$ ./daedalux test.pml -v
+```
 
 ### Dependencies
 
-Sami fill this in.
+What things you need to install the software and how to install them.
 
 - C++20 compiler
 - Flex & Bison
@@ -71,6 +106,7 @@ The following is a list of features that are planned to be implemented in the fu
   - [ ] Extend the parser to support Timed Automata
   - [ ] Model-checking of Timed Automata
 - [ ] Set up a CI pipeline (Github Actions)
+- [x] Build a docker image
 - [ ] Clean up the repository (remove unused files, etc.)
   - [ ] Sami I think you should do this.
     - [ ] Are all the mdp copy files needed?
