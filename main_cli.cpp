@@ -8,6 +8,7 @@
 #include <time.h>
 #include <algorithm>
 #include <filesystem>
+#include <CLI/CLI.hpp>
 
 #include "symbols.hpp"
 #include "ast.hpp"
@@ -57,11 +58,11 @@ byte fullDeadlockCheck = 0;
 byte sim = 0;
 byte stutterStep = 0;
 bool guided = 0;
-int sampling = 0;
-int ksteps = 0;
+unsigned int sampling = 0;
+unsigned int ksteps = 0;
 byte bfs = 0;
 long int limitExploration;
-int bound = 9999999;
+unsigned int bound = 9999999;
 
 
 // Profiler variables
@@ -80,152 +81,146 @@ void error(const char* msg, ...) {
 	vfprintf(stdout, msg, args);
 	va_end(args);
 	printf(	"\n --\n"
-			"Usage: ./daedalux [options] model.pml\n"
+			"Usage: ./provelines [options] model.pml\n"
 			"\n"
-			" Options for model checking:\n"
 			"  (none)   Does nothing.\n"
-			"  -check   Verifies the model.  When a problem (assert, deadlock or pro-\n"
-			"           perty violation) is found, an error trace (counterexample) is\n"
-			"           printed and execution stops. \n"
-			"  -exhaustive \n"
-			"           Determines also which products have *no* problems. The normal\n"
-			"           check will stop at the first problem,  and does not determine\n"
-			"           whether there are products that have no problems  (e.g. those\n"
-			"           that satisfy a property).\n"
-			"  -sampling    Search  by executions sampling.\n"
-			"  -ksteps	Bounded sampling to sample of lenght k.\n"
-			"  -bfs \n"
-			"           Performs a breadth-first search instead of a depth-first search.\n"
-			"  -fdlc    Search for trivially invalid end states (more costly).\n"
 			" Options for output control:\n"
 			"  (none)   Prints a full trace for every counterexample.\n"
-			"  -st      Only prints states when there are no changed variables.\n"
-			"  -nt      Does not print any traces, only information  about  violating\n"
-			"           (or satisfying) products.\n"
 			" Options for features and feature model:\n"
 			"  (none)   Will attempt to load a TVL feature model that is named as the\n"
 			"           .pml file but with extension .tvl\n"
-			"  -fm <file.tvl> \n"
-			"           Load the specified TVL file (only used in verification). This\n"
-			"           parameter can be omitted if the TVL file is named as the .pml\n"
-			"           file but with extension .tvl.\n" 
 			"  -fmdimacs <dimacsClauseFile.txt> <mappingFile.txt>\n"
 			"           As before, but load the dimacs of the feature model directly.\n"
-			"  -filter <expression> \n"
-			"           Limit the verification to a subset of the products  specified\n"
-			"           in the TVL file.  The TVL syntax has to be used for this.\n"
-			"  -spin    Treat features like normal variables (as SPIN would do).\n"
-			"  -enum    Iterate over every product of the product line.\n"
-			"  -ospin   Similar to -spin, but statements with a bad guard are removed\n"
-			"           from the  model before model checking.  The input is thus in-\n"
-			"           terpreted as fPromela (not exactly as SPIN would do). This is\n"
-			"           normally more efficient than -spin.\n"
-			" Options for debugging:\n"
-			"  -exec    Execute the model (does not print states, only model output).\n"
-			"  -l <integer> \n"
-			"           Stop when the given number of states were explored. (This op-\n"
-			"           tion can also be used for model checking.)\n"
-			"  -s       Parse and print static info (symbol table, FSMs, MTypes, ..).\n"
-			"  -t       Do not delete the generated temporary files.\n"
-			"\n"
 			" --\n");
 	exit(-1);
 }
 
-int main(int argc, char *argv[]) {
+int main_cli(int argc, char *argv[]) {
 
+	// Some basic validity checks
 	if(sizeof(int)   != 4)			{ std::cout << "Bad architecture: int type must be four bytes long.\n"; exit(1); }
 	if(sizeof(short) != 2)			{ std::cout << "Bad architecture: short type must be two bytes long.\n"; exit(1); }
 	if(sizeof(unsigned long) != 8)  { std::cout << "Bad architecture: long type must be two bytes long.\n"; exit(1); }
 	if(sizeof(double) != 8)  		{ std::cout << "Bad architecture: double type must be two bytes long.\n"; exit(1); }
 	if(sizeof(void*) != 8)  		{ std::cout << "Bad architecture: pointer type must be eight bytes long.\n"; exit(1); }
 
+	CLI::App app;
+
+	std::string pmlFile;
+	app.add_option("-m,--model", pmlFile, "Model to verify")
+	->required()
+	->check(CLI::ExistingFile);
+
+	// Options for model checking
+	app.add_flag("-exhaustive", exhaustive, "Determines also which products have *no* problems. The normal check will stop at the first problem,  and does not determine whether there are products that have no problems  (e.g. those that satisfy a property).");
+
+	bool check = false;
+	app.add_flag("-check", check, "Verifies the model.  When a problem (assert, deadlock or property violation) is found, an error trace (counterexample) is printed and execution stops.");
+
+	app.add_flag("-bfs", bfs, "Performs a breadth-first search instead of a depth-first search.");
+
+	app.add_option("-ksteps", ksteps, "Bounded sampling to sample of lenght k.")->check(CLI::PositiveNumber);
+
+	app.add_option("-sampling", sampling, "Sampling to sample of lenght k.")->check(CLI::PositiveNumber);
+
+	app.add_flag("-fdlc", fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
+
+	app.add_flag("-stutter", stutterStep, "Performs a stutter step search.");
+
+	// Output control
+	bool st = false;
+	app.add_flag("-st", st, "Only prints states when there are no changed variables.");
+
+	bool nt = false;
+	app.add_flag("-nt", nt, "Does not print any traces, only information  about  violating (or satisfying) products.");
+
+	// Options for features and feature model
+	std::string tvlFile;
+	app.add_option("-fm", tvlFile, 
+	"Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is named as the .pml file but with extension .tvl.")
+	->check(CLI::ExistingFile);
+
+	app.add_option("-fmdimacs", 
+	"Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is named as the .pml file but with extension .tvl.")
+	->check(CLI::ExistingFile);
+
+	app.add_flag("-enum", enum_, "Iterate over every product of the product line.");
+
+	std::string tvlFilter;
+	app.add_option("-filter", tvlFilter, "Limit the verification to a subset of the products  specified in the TVL file.  The TVL syntax has to be used for this.");
+
+	app.add_flag("-spin", spinMode, "Treat features like normal variables (as SPIN would do).");
+
+	app.add_flag("-ospin", optimisedSpinMode, "Similar to -spin, but statements with a bad guard are removed from the model before model checking.  The input is thus interpreted as fPromela (not exactly as SPIN would do). This is normally more efficient than -spin.");
+
+	// Options for debugging
+
+	bool exec = false;
+	app.add_flag("-exec", exec, "Execute the model (does not print states, only model output).");
+
+	unsigned int limitExploration = 0;
+	app.add_option("-l", limitExploration, "Stop when the given number of states were explored. (This option can also be used for model checking.)")
+	->check(CLI::PositiveNumber);
+
+	bool printStaticInfo = false;
+	app.add_flag("-s", printStaticInfo, "Prints static information about the model (symbol table, FSMs, MTypes, ..).");
+	app.add_flag("-t", keepTempFiles, "Do not delete the generated temporary files.");
+
+	bool no_trace = false;
+	app.add_flag("-nt", no_trace, "Do not print any traces, only information about violating (or satisfying) products.");
+
+	bool simple_trace = false;
+	app.add_flag("-st", simple_trace, "Only prints states when there are no changed variables.");
+
+	std::string propFile;
+	app.add_option("-props", propFile, "File containing the properties to check.")
+	->check(CLI::ExistingFile);
+
+
+
+	CLI11_PARSE(app, argc, argv);
+
+	// The variable promelaFile should have the fileExtension .pml
+	if(pmlFile.find(".pml") == std::string::npos) error("The model file must have the extension .pml.");
+
+	// The variable tvlFile should have the fileExtension .tvl
+	if(tvlFile.find(".tvl") == std::string::npos) error("The feature model file must have the extension .tvl.");
+
+	// Copy the model file to a temporary file
+	if(!copyFile(pmlFile, "__workingfile.tmp")) { std::cout << "The fPromela file does not exist or is not readable!\n"; exit(1); }
+
+
+	if(spinMode && optimisedSpinMode) error("The options -spin and -ospin cannot be used together.");
+	if(sampling > 0 && ksteps > 0) error("The options -sampling and -ksteps cannot be used together.");
+	if(check && exec) error("The options -check and -exec cannot be used together.");
+	if(check && enum_) error("The options -check and -enum cannot be used together.");
+
+
+	tvl = new TVL();
+
+	//tvl->loadFeatureModelDimacs(argv[i+1], argv[i+2]);
+
+
+
 	
 	/**********************************************************************************************************************************/
 
-	if(argc < 2) error("No fPromela file provided.");
-
-	if(!copyFile(argv[argc - 1], "__workingfile.tmp")) error("The fPromela file does not exist or is not readable!");
-
 	std::string path;
 	std::string ltlProp;
-	std::string tvlFile;
-	std::string tvlFilter;
-	std::string pmlFile;
-	std::string propFile;
 
-	int i, ps = 0, check = 0, exec = 0, fm = 0, ltl = 0;
+	int i, fm = 0, ltl = 0;
 
-	tvl = new TVL();
 
 	std::string argv_0 = std::string(argv[0]);
 	path = argv_0.substr(0 , (argv_0.size() + 1) - sizeof("deadalux"));
 	
 	std::cout << path << std::endl;
 	
-	pmlFile = argv[argc - 1];
-	if(!copyFile(argv[argc - 1], "__workingfile.tmp")) { std::cout << "The fPromela file does not exist or is not readable!\n"; exit(1); }
-
 	// Read command-line arguments
 	for(int i = 1; i < argc-1; i++) {
-		if(strcmp(argv[i],"-s") == 0) {
-			ps = 1;
-
-		} else if(strcmp(argv[i],"-check") == 0) {
-			check = 1;
-
-		} else if(strcmp(argv[i],"-exhaustive") == 0) {
-			exhaustive = 1;
-        
-        } else if(strcmp(argv[i],"-bfs") == 0) {
-			bfs = 1;
-
-		} else if(strcmp(argv[i],"-t") == 0) {
-			keepTempFiles = 1;
-
-		} else if(strcmp(argv[i],"-spin") == 0) {
-			if(optimisedSpinMode) error("The options -spin and -ospin cannot be used together.");
-			spinMode = 1;
-
-		} else if(strcmp(argv[i],"-enum") == 0) {
-			enum_ = 1;
-		
-		} else if(strcmp(argv[i],"-guided") == 0) {
+		if(strcmp(argv[i],"-guided") == 0) {
 			guided = 1;
-
-		} else if(strcmp(argv[i],"-ospin") == 0) {
-			if(spinMode) error("The options -spin and -ospin cannot be used together.");
-			optimisedSpinMode = 1;
-	    
-	    } else if(strcmp(argv[i],"-sampling") == 0) {
-            i++;
-            if (i >= argc - 1) error("The -sampling option has to be followed by an integer denoting the number of executions to sample.");
-            else sampling = atoi(argv[i]);
-            if (sampling < 1) error("In -sampling mode, the number of executions to sample must be greater than zero.");
-            
-        } else if(strcmp(argv[i],"-ksteps") == 0) {
-            i++;
-            if (i >= argc - 1) error("The -ksteps option has to be followed by an integer denoting the number of steps of samples.");
-            else ksteps = atoi(argv[i]);
-            if (ksteps < 1) error("In -steps mode, the number of steps of samples must be greater than zero.");
-
-		} else if(strcmp(argv[i],"-fdlc") == 0) {
-			fullDeadlockCheck = 1;
-
-		} else if(strcmp(argv[i],"-exec") == 0) {
-			exec = 1;
-
-		} else if(strcmp(argv[i],"-l") == 0) {
-			i++;
-			if(i >= argc - 1) error("The -l option has to be followed by an integer denoting the number of steps to execute.");
-			else limitExploration = atol(argv[i]);
-
-		} else if(strcmp(argv[i],"-filter") == 0) {
-			i++;
-			if(i >= argc - 1) error("The -filter option has to be followed by a TVL expression.");
-			else tvlFilter = argv[i];
-
-		} else if(strcmp(argv[i],"-fm") == 0) {
+		}else if(strcmp(argv[i],"-fm") == 0) {
 			if(fm) error("The options -fm and -fmdimacs cannot be used at the same time.");
 			fm = 1;
 			i++;
@@ -238,13 +233,6 @@ int main(int argc, char *argv[]) {
 			if(i+2 >= argc - 1) error("The -fmdimacs option has to be followed by the dimacs clause file and the dimacs mapping file.");
 			else tvl->loadFeatureModelDimacs(argv[i+1], argv[i+2]);
 			i += 2;
-
-		} else if(strcmp(argv[i],"-nt") == 0) {
-			trace = NO_TRACE;
-
-		} else if(strcmp(argv[i],"-st") == 0) {
-			if(trace != NO_TRACE) trace = SIMPLE_TRACE;
-
 		} else if(strcmp(argv[i],"-ltl") == 0) {
 			ltl = 1;
 			i++;
@@ -255,18 +243,11 @@ int main(int argc, char *argv[]) {
 				if(!appendClaim("__workingfile.tmp", path, ltlProp, errorMsg)) error("The LTL formula '%s' could not be parsed, error message: \n --\n%s\n", ltlProp, errorMsg);
 			}
 
-		} else if(strcmp(argv[i], "-sim") == 0) {
-			if(check) error("The options -check and -sim cannot be used at the same time.");
-			sim = 1;
-			i++;
-			pmlFile = argv[i];
+
 		} else if(strcmp(argv[i], "-props") == 0) {
 			i++;
 			propFile = argv[i];
-		} else if(strcmp(argv[i], "-stutter") == 0) {
-			stutterStep = 1;
-		}
-		else if(strcmp(argv[i], "-bound") == 0) {
+		}else if(strcmp(argv[i], "-bound") == 0) {
 			i++;
 			if(i >= argc - 1) error("The -ltl option has to be followed by an LTL property.");
 			bound = atoi(argv[i]);
@@ -313,41 +294,14 @@ int main(int argc, char *argv[]) {
 		yylex_destroy();
 	}
 
+	// Initialize srand
 	srand(time(nullptr));
 
-	//unsigned int index = program->assignMutables();
-	//std::cout << "NUMBER OF MUTABLE NODE " << index << "\n";
-
-	/*std::ofstream output;
-	output.open("mutants/original.pml");
-	output << "#include \"./Theory.prp\"\n";
-	output << stmnt::string(program);
-	output.close();*/
-
-	//std::ofstream output;
-	//output.open("output.pml");
-	//output << "#include \"./Theory.prp\"\n";
-	//output << stmnt::string(program);
-	//output.close();
-
 	ASTtoFSM* converter = new ASTtoFSM();
+	// Create the automata from the AST
 	fsm* automata = converter->astToFsm(globalSymTab, program, tvl);
 	automata->orderAcceptingTransitions();
 
-	//std::ofstream graph;
-	//graph.open("fsm_graphvis");
-	//automata->printGraphVis(graph);
-	//graph.close();
-
-	/*for(unsigned int i = 1; i <= index; i++) {
-		auto copy = program->deepCopy();
-		astNode::mutate(copy, i);
-		output.open("mutants/mutant_"+ std::to_string(i) + ".pml");
-		output << "#include \"./Theory.prp\"\n";
-		output << stmnt::string(copy);
-		output.close();
-		delete copy;
-	}*/
 
 	int sum = 0;
 	int index = 0;
@@ -386,6 +340,8 @@ int main(int argc, char *argv[]) {
 
 	
 	//state* init = new state(globalSymTab, automata);
+
+	//Clean up memory
 
 	if(converter)
 		delete converter;

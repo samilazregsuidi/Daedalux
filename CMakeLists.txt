@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(mutantgenerator LANGUAGES CXX)
+project(daedalux LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 #set(ASAN -fsanitize=address -fno-omit-frame-pointer -static-libasan)
@@ -36,7 +36,7 @@ add_link_options(
 	${ASAN}
 )
 
-add_executable(deadalux
+add_executable(daedalux
     main.cpp
 	./symbol/symbol.cpp
 	./symbol/symTable.cpp
@@ -126,7 +126,7 @@ add_executable(deadalux
     
 	)
 
-target_include_directories(deadalux
+target_include_directories(daedalux
     PUBLIC
     ./automata
     
@@ -165,14 +165,14 @@ target_include_directories(deadalux
 	)
 
 
-target_link_directories(deadalux
+target_link_directories(daedalux
 	PUBLIC
 
 	./libs/cudd/cplusplus/.libs
 	./libs/cudd/cudd/.libs
 	)
 
-target_link_libraries(deadalux libobj.a libcudd.a)
+target_link_libraries(daedalux libobj.a libcudd.a)
 
 
 

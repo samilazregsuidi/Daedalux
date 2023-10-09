@@ -6,34 +6,6 @@ A model-checker for checking product lines written in C++.
 
 The model-checker consumes a product line written in Promela and outputs a
 
-###  A simple example
-
-The following example is a simple product line written in Promela. The product line has two features, B1 and B2. The product line is written in Promela and is saved in a file called "test.pml".
-
-```promela
-typedef features {
-    bool B1;
-    bool B2	
-}
-
-features f;
-
-active proctype test (){
-    bool B1, B2;
-    if :: f.B1 -> B1 = true; :: else; fi;
-    if :: f.B2 -> B2 = true; :: else; fi;
-}
-```
-
-The model-checker can be run by executing the following command in the terminal:
-
-
-
-Sami fill this in.
-
-The output of the model-checker is a file called "test.pml.out". The file contains the following output:
-
-Sami fill this in.
 
 ## Documentation
 
@@ -66,27 +38,64 @@ foo@bar:~$ docker run -it deadalux <path-to-promela-file>
 
 ## How to run it
 
-Sami fill this in.
-
 After building the project, you can run the model-checker using the following command:
 
 ```console
-foo@bar:~$ ./daedalux <path-to-promela-file> <parameters>
+foo@bar:~$ ./daedalux <parameters> <path-to-promela-file> 
 ```
 
-Note that the model-checker requires a Promela file as input. The model-checker also accepts the following parameters:
+The parameters can be divided into the following categories:
+* Options for model-checking:
+  * -check: Model-check the product line until a property violation is found.
+  * -exhaustive: Exhaustively model-check the product line until all possible traces have been explored to determine which products are valid.
+  * -sample <number>: Search for a valid product by randomly exploring *n* traces of the product line.
+  * -ksample <number>: Bounded model-check the product line by exploring traces of length *n*.
+  * -bfs: Use breadth-first search to explore the product line instead of depth-first search.
+  * 
+* Options for features and feature model:
+  * -fm <path-to-feature-model>: Specify the path to the feature model tvl. This option can be omitted if the feature model has the same name as the promela file.
+* Options for output:
+  * -nt: Do not print the trace to the terminal.
+  * -st: Only prints states when there are no changed variables.
 
-Sami fill this in.
+* Options for debugging:
+  * -exec: Execute the model (does not print states, only model output).
+  * -l <number>:  Stop when the given number of states were explored.
+  * -s: Print static information (symbol table, FSMs, MTypes, ..) to the terminal.
+  * -t: Do not delete generated temporary files.
 
-- -h, --help: Prints the help message.
-- -v, --verbose: Prints the output of the model-checker.
-- -o, --output: Specifies the output file.
+A selection of Promela files can be found in the "test" folder in the root directory of the project.
+
+###  A simple example
+
+The following example is a simple product line written in Promela. The product line has two features, B1 and B2. The product line is written in Promela and is saved in a file called "test.pml".
+
+```promela
+typedef features {
+    bool B1;
+    bool B2	
+}
+
+features f;
+
+active proctype test (){
+    bool B1, B2;
+    if :: f.B1 -> B1 = true; :: else; fi;
+    if :: f.B2 -> B2 = true; :: else; fi;
+}
+```
+
+The model-checker can be run by executing the following command in the terminal:
 
 For example, the following command runs the model-checker on the file "test.pml" and prints the output to the terminal:
 
 ```console
-foo@bar:~$ ./daedalux test.pml -v
+foo@bar:~$ ./daedalux -check test.pml
 ```
+
+The output of the model-checker is a file called "test.pml.out". The file contains the following output:
+
+Sami fill this in.
 
 ### Dependencies
 
