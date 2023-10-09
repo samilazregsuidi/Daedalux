@@ -29,14 +29,6 @@
 *.pml
 *.dot
 CMakeCache.txt
-TODO.txt
-toy_mdp.txt
-sym_table.pdf
-splcbenchlark.old
-__workingfile.tmp.cpp
-cudd_info.txt
-mdp.sched
-fsm_graphvis
-warmingUp
+**/debugging
 LICENSE
 README.md
