@@ -1,44 +1,45 @@
-# GCC support can be specified at major, minor, or micro version
-# (e.g. 8, 8.2 or 8.2.0).
-# See https://hub.docker.com/r/library/gcc/ for all supported GCC
-# tags from Docker Hub.
-# See https://docs.docker.com/samples/library/gcc/ for more on how to use this image
-FROM gcc:latest
-
-# Copy everyfile in the current directory to the image
-COPY . /usr/src/daedalux
-
-# Install any needed packages specified requirements
-
-# Flex and Bison
-RUN apt-get update && apt-get install -y flex bison
-
-# CUDD
-RUN apt-get update && apt-get install -y wget
+# Stage 1: Build CUDD
+FROM gcc:latest as cudd-builder
 
 WORKDIR /usr/src
+RUN apt-get update && apt-get install -y wget
 RUN wget https://github.com/ivmai/cudd/archive/refs/tags/cudd-3.0.0.tar.gz
 RUN tar -xvf cudd-3.0.0.tar.gz
-# Delete tar.gz file
 RUN rm cudd-3.0.0.tar.gz
 WORKDIR /usr/src/cudd-cudd-3.0.0
 RUN ./configure --enable-shared --enable-dddmp --enable-obj --enable-const --enable-arith --enable-epd --enable-cuddlib --enable-silent-rules --enable-verbose --enable-cplusplus 
 RUN make
 RUN make check
 
-# CMAKE
+# Stage 2: Build your application
+FROM gcc:latest as app-builder
+
+# Copy everyfile in the current directory to the image
+COPY . /usr/src/daedalux
+
+WORKDIR /usr/src/daedalux
+
 RUN apt-get update && apt-get install -y cmake
 
-# # # These commands copy your files into the specified directory in the image
-# # # and set that as the working location
 WORKDIR /usr/src/daedalux/build
-# This command compiles your app using GCC, adjust for your source code
 RUN cmake ../
-RUN cmake --build . 
+RUN cmake --build .
 
-# # This command runs your application, comment out this line to compile only
-CMD ["./daedalux"] 
+# Stage 3: Final image
+FROM fedora:latest
 
+# Copy CUDD from the cudd-builder stage
+COPY --from=cudd-builder /usr/src/cudd-cudd-3.0.0 /usr/src/cudd-cudd-3.0.0
+
+# Copy your application from the app-builder stage
+COPY --from=app-builder /usr/src/daedalux/build/daedalux /usr/src/daedalux/build/
+
+# Set working directory
+WORKDIR /usr/src/daedalux/build
+
+# Set entry point or CMD as needed
+# CMD ["./daedalux"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+# Label the image
 LABEL Name=daedalux Version=0.0.1
-
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
