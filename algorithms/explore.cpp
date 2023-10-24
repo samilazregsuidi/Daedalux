@@ -82,6 +82,7 @@ int launchExecutionMarkovChain(const fsm* automata, const TVL* tvl) {
 	
 	std::ifstream myfile;
 
+    //Should this file be hard-coded?
 	myfile.open("mdp.sched");
 	
 	std::string myline;
@@ -146,39 +147,49 @@ void findLasso(const fsm* automata, const TVL* tvl, size_t k_steps) {
 	state* current = initState::createInitState(automata, tvl);
 	transition* trans = nullptr;
 
-	while(true) {
+    for (size_t i = 0; i < k_steps; ++i) {
+        // Print current state and visualize it
+        // printf("**********************************\n");
+        current->PRINT_STATE();
+        graphVis->printGraphViz(current);
 
-		//printf("**********************************\n");
-		current->PRINT_STATE();
-		graphVis->printGraphViz(current);
+        auto hash = current->hash();
 
-		auto hash = current->hash();
-		if(hashSet.find(hash) == hashSet.end() || i++ < k_steps) {
-			
-			hashSet.insert(current->hash());
-			
-			if((trans = transition::sampleUniform(current->executables()))) {
-				printf("..\n");
-				current->apply(trans);
-			} else 
-				break;
+        bool isNewState = (hashSet.find(hash) == hashSet.end());
 
-		} else break;
-		
-	}
+        if (isNewState) {
+            hashSet.insert(hash);
+
+            // Sample a uniform transition and apply it
+            trans = transition::sampleUniform(current->executables());
+
+            if (trans) {
+                printf("..\n");
+                current->apply(trans);
+            } else {
+                break; // No valid transition, exit the loop
+            }
+        } else {
+            break; // Detected a lasso, exit the loop
+        }
+    }
 		
 	printf("--\n");
 }
 
 #define D 1000
-
+/**
+ * This function prints the state space for a given finite state machine using breath-first search to the console.
+ * 
+ * @param automata A pointer to the finite state machine to create the state space for.
+ * @param tvl A pointer to the transition vector list for the finite state machine.
+ */
 void createStateSpaceBFS(const fsm* automata, const TVL* tvl) {
 	std::stack<elementStack::element*> st;
 	std::set<unsigned long> hm;
-	state* init = (initState::createInitState(automata, tvl));
+	state* init = initState::createInitState(automata, tvl);
 
 	graphVis = new stateToGraphViz(automata);
-
 	graphVis->printGraphViz(init);
 
 	int depth = 0;
@@ -214,8 +225,6 @@ void createStateSpaceBFS(const fsm* automata, const TVL* tvl) {
 				} else {
 					st.push(new elementStack::element(n, depth));
 					hm.insert(n->hash());
-					
-
 					graphVis->printGraphViz(n, depth);
 				}
 
@@ -233,7 +242,14 @@ void createStateSpaceBFS(const fsm* automata, const TVL* tvl) {
 	delete graphVis;
 }
 
+/**
+ * This function prints the state space for a given finite state machine using depth-first search to the console.
+ * 
+ * @param automata A pointer to the finite state machine to create the state space for.
+ * @param tvl A pointer to the transition vector list for the finite state machine.
+ */
 void createStateSpaceDFS(const fsm* automata, const TVL* tvl) {
+
 	std::stack<elementStack::element*> st;
 	std::set<unsigned long> hm;
 	state* init = (initState::createInitState(automata, tvl));
@@ -333,8 +349,6 @@ void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl) {
 			auto n = *current->Post.begin();
 			current->Post.pop_front();
 
-			
-
 			//printf("************* pick next state **************\n");
 			
 			//n->PRINT_STATE();
@@ -343,8 +357,6 @@ void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl) {
 			R.update(n);
 
 			graphVis->printGraphViz(n, depth);
-
-			
 
 			if(status == STATES_SAME_S1_VISITED) {
 				//printf("************* already visited state **************\n");

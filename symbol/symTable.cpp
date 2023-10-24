@@ -197,7 +197,6 @@ void symTable::acceptVisitor(symTabConstVisitor* visitor) const {
 }
 
 void symTable::printGraphViz(std::ofstream& file) const {
-
 	/*if(syms.empty())
 		return;*/
 
@@ -239,6 +238,4 @@ void symTable::printGraphViz(std::ofstream& file) const {
 	if(!prev) {
 		file << "}\n";
 	}
-
-
 }

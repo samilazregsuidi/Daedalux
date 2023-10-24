@@ -43,7 +43,6 @@ byte reachabilityRelation::getStatus(state* s) {
 		getStatusVisitor v = getStatusVisitor(foundIt->second, s, dfsIn);
 		assert(v.res != STATES_S1_NEVER_VISITED);
 		return v.res;
-
 	} else {
 		s->secret = "NEVER";
 		return STATES_S1_NEVER_VISITED;
@@ -55,7 +54,6 @@ void reachabilityRelation::update(state* s_) {
 	auto foundIt = map.find(s_Hash);
 	if(foundIt != map.end()) {
 		updateVisitor v = updateVisitor(this, foundIt->second, s_, dfsIn, tvl);
-
 	} else {
 		map[s_->hash()] = stateToRState(s_, dfsIn);
 	}
@@ -274,7 +272,6 @@ void reachabilityRelation::getStatusVisitor::visit(never* s) { res = s->compare(
 void reachabilityRelation::getStatusVisitor::visit(progState* s) { res = s->compare(current->hash); }
 
 void reachabilityRelation::getStatusVisitor::visit(featStateDecorator* s) {
-	
 	auto feat = (dfsIn == DFS_OUTER)? &current->outerFeatures : &current->innerFeatures;
 
 	res = s->compare(current->hash, *feat);

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <iostream>
+#include <filesystem>
 
 #include "tvl.hpp"
 #include "expToADD.hpp"
@@ -10,7 +11,6 @@
 #include "constExpr.hpp"
 #include "expr.hpp"
 
-extern int copyFile(const std::string& source, const std::string& target);
 
 Cudd* TVL::mgr = nullptr;
 int TVL::maxId = 0;
@@ -61,8 +61,7 @@ bool TVL::loadFeatureModel(const std::string& filename, const std::string& filte
 	try {
 		tvl.open(filename);
 
-		if(copyFile(filename, "__workingfile.tvl")) {
-		
+		if(std::filesystem::copy_file(filename, "__workingfile.tvl") == 0){
 			if(!filter.empty())
 				filterFeatureModel("__workingfile.tvl", filter);
 

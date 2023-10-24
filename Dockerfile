@@ -25,17 +25,52 @@ WORKDIR /usr/src/daedalux/build
 RUN cmake ../
 RUN cmake --build .
 
-# Stage 3: Final image
+# Stage 3: SPIN build
+FROM gcc:latest as spin-builder
+
+# Install SPIN
+RUN apt-get update 
+RUN apt-get install build-essential
+
+# Download SPIN
+WORKDIR /usr/src/spin
+RUN wget https://github.com/nimble-code/Spin/archive/refs/tags/version-6.5.2.tar.gz
+RUN tar -xvf version-6.5.2.tar.gz
+
+# Build SPIN
+WORKDIR /usr/src/spin/Spin-version-6.5.2/Src
+RUN apt-get install byacc flex -y
+RUN make
+
+# Stage 4: Final image
 FROM fedora:latest
+
+# Install Python 3.0
+RUN dnf install -y python3
+# Install Pip
+RUN dnf install -y python3-pip
+# Install Java
+RUN dnf install -y java-11-openjdk-devel
+# Install CPP
+RUN dnf install -y gcc-c++
+
+# Copy SPIN from the spin-builder stage
+COPY --from=spin-builder /usr/src/spin/Spin-version-6.5.2/Src/spin /usr/bin/spin
 
 # Copy CUDD from the cudd-builder stage
 COPY --from=cudd-builder /usr/src/cudd-cudd-3.0.0 /usr/src/cudd-cudd-3.0.0
 
+# Copy the models
+COPY --from=app-builder /usr/src/daedalux/models /usr/src/daedalux/models
+
+# Copy the python scripts
+COPY --from=app-builder /usr/src/daedalux/test_scripts /usr/src/daedalux/python_scripts
+
 # Copy your application from the app-builder stage
-COPY --from=app-builder /usr/src/daedalux/build/daedalux /usr/src/daedalux/build/
+COPY --from=app-builder /usr/src/daedalux/build/daedalux /usr/src/daedalux/
 
 # Set working directory
-WORKDIR /usr/src/daedalux/build
+WORKDIR /usr/src/daedalux
 
 # Set entry point or CMD as needed
 # CMD ["./daedalux"]

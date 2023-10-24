@@ -150,28 +150,3 @@ symbol::operator std::string(void) const
 void symbol::printGraphViz(std::ofstream& file) const {
 	file << "{ <" << getID() << "> " << getTypeName() << "|" << getName() << "| " << getSizeOf() << " "<< ((getTypeSize() > 1)? "bytes" : "byte") <<" | "<< (getLineNb()!=0 ? "line " + std::to_string(getLineNb()) : "predef.") << " }";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

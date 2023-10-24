@@ -18,4 +18,3 @@
 #include "featuredStateDecorator.hpp"
 #include "never.hpp"
 #include "state.hpp"
-

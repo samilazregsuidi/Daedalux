@@ -52,6 +52,7 @@ transition::transition(state* s)
 	, dst(nullptr)
 	, prob(1.)
 {
+	assert(prob >= 0 && prob <= 1);
 	assert(s);
 }
 
@@ -64,6 +65,7 @@ transition::transition(const transition* other)
 	, action(other->action)
 {
 	assert(src);
+	assert(prob >= 0 && prob <= 1);
 
 	for(auto t : other->subTs) {
 		add(t->deepCopy());

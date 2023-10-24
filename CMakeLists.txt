@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 project(daedalux LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 #set(ASAN -fsanitize=address -fno-omit-frame-pointer -static-libasan)
+# enable_testing()
+
+# add_subdirectory(tests)
 
 set(Parser "y.tab.cpp")
 set(Lexer "lex.yy.cpp")
@@ -37,7 +40,14 @@ add_link_options(
 )
 
 add_executable(daedalux
-    main.cpp
+    # main.cpp
+	main_cli.cpp
+
+	./cli/CLI11.hpp
+	./cli/modelchecking_subcommand.cpp
+	./cli/mutant_subcommand.cpp
+	./cli/promela_loader.cpp
+
 	./symbol/symbol.cpp
 	./symbol/symTable.cpp
 	./symbol/typedef/ptypeSymNode.cpp
@@ -86,6 +96,8 @@ add_executable(daedalux
 	./semantic/stateDecorator.cpp
 	./semantic/programState.cpp
 	./semantic/featuredStateDecorator.cpp
+	# ./semantic/timedStateDecorator.cpp
+
 	./semantic/compositeState.cpp
 	./semantic/thread.cpp
 	./semantic/process.cpp
@@ -105,6 +117,7 @@ add_executable(daedalux
 	./semantic/processTransition.cpp
 	./semantic/compositeTransition.cpp
 	./semantic/featuredProgramTransition.cpp
+	# ./semantic/timedProgramTransition.cpp
 	./semantic/neverTransition.cpp
 	./semantic/deleteTransVisitor.cpp
 	./semantic/initState.cpp
@@ -119,6 +132,7 @@ add_executable(daedalux
 	./algorithms/explore.cpp
 	./algorithms/elementStack.cpp
 	./algorithms/reachabilityRelation.cpp
+
 	
 	./visualizers/stateToGraphViz.cpp
 	
@@ -129,6 +143,8 @@ add_executable(daedalux
 target_include_directories(daedalux
     PUBLIC
     ./automata
+
+	./cli
     
     ./symbol
     ./symbol/typedef

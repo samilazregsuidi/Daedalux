@@ -63,16 +63,18 @@ void astNode::eraseChild(const std::string& node, astNode* child) {
 }
 
 astNode* astNode::detachChild(const std::string& node) {
-	if (children.find(node) == children.end())
-		return nullptr;
-	
-	auto res = children.find(node)->second;
-	children.erase(node);
-	return res;
+	auto child = getChild(node);
+	if(child) {
+		children.erase(node);
+	}
+	return child;
 }
 
 astNode* astNode::getChild(const std::string& node) const {
-	return children.find(node) != children.end() ? children.find(node)->second : nullptr;
+	auto it = children.find(node);
+	if (it == children.end()) 
+		return nullptr;
+	return it->second;
 }
 
 std::list<astNode*> astNode::getChildren(void) const {
@@ -119,12 +121,12 @@ unsigned int astNode::getMId(void) const {
 	return mId;
 }
 
-bool astNode::hasMutations(void) const {
-	auto mutations = getMutations();
-	bool res = mutations.size() > 0;
-	for(auto it : mutations)
-		delete it;
-	return res;
+bool astNode::hasMutations() const {
+    auto mutations = getMutations();
+    for (auto it : mutations) {
+        delete it;
+    }
+    return !mutations.empty();
 }
 
 int astNode::tab_lvl = 0;

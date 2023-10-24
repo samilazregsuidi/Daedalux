@@ -33,7 +33,7 @@ public:
 		V_INT,
 		V_UNSGN, 	// not supported yet
 		V_MTYPE,
-		V_CLOCK ,	// dense time clock
+		V_CLOCK ,	// dense time clock - supports RT?
 		V_MTYPE_DEF,
 		V_CMTYPE,
 
