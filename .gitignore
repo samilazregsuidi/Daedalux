@@ -6,3 +6,11 @@ cmake_install.cmake
 Makefile
 .vscode/
 deadalux
+**/_spin_nvr.tmp
+**/pan.b
+**/pan.c
+**/pan.h
+**/pan.m
+**/pan.p
+**/pan.t
+**/.DS_Store
