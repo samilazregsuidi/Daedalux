@@ -7,7 +7,7 @@
 
 /// Collection of all options of Subcommand A.
 struct MutantsOptions {
-    int number_of_mutants;
+    unsigned int number_of_mutants;
 	std::string input_file;
 	std::string property_file;
 };

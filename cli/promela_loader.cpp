@@ -2,7 +2,12 @@
 
 namespace fs = std::filesystem;
 
-void load_promela_file(std::string file_name, symTable *&globalSymTab, stmnt *&program){
+promela_loader::promela_loader(){
+	this->globalSymTab = nullptr;
+	this->program = nullptr;
+}
+
+fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
 	// The variable promelaFile should have the fileExtension .pml
 	if (file_name.find(".pml") == std::string::npos){
 		std::cerr << "The model file must have the extension .pml." << std::endl;
@@ -35,7 +40,7 @@ void load_promela_file(std::string file_name, symTable *&globalSymTab, stmnt *&p
 	}
 	init_lex();
 	
-	if (yyparse(&globalSymTab, &program) != 0)
+	if (yyparse(&this->globalSymTab, &this->program) != 0)
 	{
 		std::cerr << "Syntax error; aborting." << std::endl;
 		exit(1);
@@ -46,4 +51,9 @@ void load_promela_file(std::string file_name, symTable *&globalSymTab, stmnt *&p
 		fclose(yyin);
 		yylex_destroy();
 	}
+
+	ASTtoFSM *converter = new ASTtoFSM();
+	// Create the automata from the AST
+	fsm *automata = converter->astToFsm(globalSymTab, program, tvl);
+	return automata;
 }

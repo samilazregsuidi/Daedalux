@@ -112,14 +112,14 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 		}
 	}
 
-	load_promela_file(opt.input_file, globalSymTab, program);
+	// Load promela file
+	promela_loader *loader = new promela_loader();
+	fsm *automata = loader->load_promela_file(opt.input_file, tvl);
+	delete loader;
 
 	// Initialize srand
 	srand(time(nullptr));
 
-	ASTtoFSM *converter = new ASTtoFSM();
-	// Create the automata from the AST
-	fsm *automata = converter->astToFsm(globalSymTab, program, tvl);
 	automata->orderAcceptingTransitions();
 
 	int sum = 0;
@@ -156,8 +156,6 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	symtable.close();
 
 	// Clean up memory
-	if (converter)
-		delete converter;
 	if (automata)
 		delete automata;
 	if (tvl)

@@ -9,7 +9,7 @@ void setup_subcommand_mutations(CLI::App &app)
 
 	app.add_option("-f, --file", opt->input_file, "Promela file to mutate")->check(CLI::ExistingFile)->required();
 	app.add_option("-p, --property", opt->property_file, "Property file to mutate")->check(CLI::ExistingFile)->required();
-	app.add_option("-n, --nb_mutants", opt->number_of_mutants, "Number of mutants to generate")->required();
+	app.add_option("-n, --nb_mutants", opt->number_of_mutants, "Number of mutants to generate")->check(CLI::PositiveNumber)->required();
 
 	// Set the run function as callback to be called when this subcommand is issued.
 	sub->callback([opt]()
@@ -19,12 +19,11 @@ void setup_subcommand_mutations(CLI::App &app)
 void generate_mutants(MutantsOptions const &opt)
 {
 	std::cout << "Generating " << opt.number_of_mutants << " mutants from " << opt.input_file << " and " << opt.property_file << std::endl;
-	// Other global variables from main
-	symTable *globalSymTab = nullptr;
-	stmnt *program = nullptr;
 
 	// Load promela file
-	load_promela_file(opt.input_file, globalSymTab, program);
+	promela_loader *loader = new promela_loader();
+	loader->load_promela_file(opt.input_file, nullptr);
+	stmnt *program = loader->get_program();
 
 	unsigned int index = program->assignMutables();
 	std::cout << "NUMBER OF MUTABLE NODES " << index << std::endl;
@@ -69,8 +68,5 @@ void generate_mutants(MutantsOptions const &opt)
 	}
 
 	std::cout << "Generated " << opt.number_of_mutants * index << " mutants" << std::endl;
-
-	// Delete program and symbol table
-	delete program;
-	delete globalSymTab;
+	delete loader;
 }
