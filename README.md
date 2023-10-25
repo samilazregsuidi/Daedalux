@@ -51,13 +51,21 @@ The parameters can be divided into the following categories:
   * -sample <number>: Search for a valid product by randomly exploring *n* traces of the product line.
   * -ksample <number>: Bounded model-check the product line by exploring traces of length *n*.
   * -bfs: Use breadth-first search to explore the product line instead of depth-first search.
+  * -ltl:
+  * -multiltl:
+* Options for simulation:
   * 
 * Options for features and feature model:
-  * -fm <path-to-feature-model>: Specify the path to the feature model tvl. This option can be omitted if the feature model has the same name as the promela file.
+  * -fm <path-to-feature-model>: Specify the path to the feature model TVL. This option can be omitted if the feature model has the same name as the promela file.
+  * -filter <expression>: Limit the verification to a subset of the products specified in the TVL file. The TVL syntax has to be used for this.
 * Options for output:
   * -nt: Do not print the trace to the terminal.
   * -st: Only prints states when there are no changed variables.
-
+* Options for formal mutation testing:
+  * -generate:
+  * -simulate:
+  * -original:
+  * -mutant:   
 * Options for debugging:
   * -exec: Execute the model (does not print states, only model output).
   * -l <number>:  Stop when the given number of states were explored.
