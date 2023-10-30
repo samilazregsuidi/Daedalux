@@ -113,6 +113,8 @@ public:
 
 	virtual void printTexada(void) const;
 
+	virtual void printDaikon(std::ostream& out) const;
+
 	virtual void printHexadecimal(void) const;
 
 	/************************************************************/

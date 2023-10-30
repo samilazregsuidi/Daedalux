@@ -135,6 +135,8 @@ add_executable(daedalux
 
 	
 	./visualizers/stateToGraphViz.cpp
+	./visualizers/trace.cpp
+	./visualizers/traceReport.cpp
 	
 	./logic/ltl.cpp
     

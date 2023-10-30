@@ -180,6 +180,8 @@ void channel::printTexada(void) const {
 
 }
 
+void channel::printDaikon(std::ostream &out) const {}
+
 /**************************************************************************************************/
 
 /*channelField::channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)

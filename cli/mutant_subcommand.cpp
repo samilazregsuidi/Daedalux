@@ -9,7 +9,7 @@ void setup_subcommand_mutations(CLI::App &app)
 
 	app.add_option("-f, --file", opt->input_file, "Promela file to mutate")->check(CLI::ExistingFile)->required();
 	app.add_option("-p, --property", opt->property_file, "Property file to mutate")->check(CLI::ExistingFile)->required();
-	app.add_option("-n, --nb_mutants", opt->number_of_mutants, "Number of mutants to generate")->check(CLI::PositiveNumber)->required();
+	app.add_option("-n, --no_mutants", opt->number_of_mutants, "Number of mutants to generate")->check(CLI::Range(1, 200))->required();
 
 	// Set the run function as callback to be called when this subcommand is issued.
 	sub->callback([opt]()
@@ -69,4 +69,44 @@ void generate_mutants(MutantsOptions const &opt)
 
 	std::cout << "Generated " << opt.number_of_mutants * index << " mutants" << std::endl;
 	delete loader;
+}
+
+bool fileExists(const std::string& filename) {
+    std::ifstream file(filename);
+    return file.good(); // Returns true if the file exists, false otherwise.
+}
+
+void generateMutantTraces(std::string original, std::string mutant_file){
+	// Assert that both files exist before generating traces
+	assert(fileExists(mutant_file));
+	assert(fileExists(original));
+
+	// Load promela files
+	promela_loader *loader_mutant = new promela_loader();
+	auto fsm_mutant = loader_mutant->load_promela_file(mutant_file, nullptr);
+	delete loader_mutant;
+	promela_loader *loader_original = new promela_loader();
+	auto fsm_original = loader_original->load_promela_file(original, nullptr);
+	delete loader_original;
+
+	// Generate traces
+	traceReport report = generateTraces(fsm_original, fsm_mutant);
+
+	// Write traces to file
+	std::ofstream negative_output;
+	std::ofstream positive_output;
+	negative_output.open(mutant_file.substr(0, mutant_file.find_last_of(".")) + "_negative.traces");
+	positive_output.open(mutant_file.substr(0, mutant_file.find_last_of(".")) + "_positive.traces");
+	report.print(positive_output, negative_output);
+	negative_output.close();
+	positive_output.close();
+
+	std::cout << "Generated traces" << std::endl;
+
+
+	// Clean up memory
+	if (fsm_mutant)
+		delete fsm_mutant;
+	if (fsm_original)
+		delete fsm_original;
 }

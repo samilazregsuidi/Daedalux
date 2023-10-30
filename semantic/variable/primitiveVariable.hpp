@@ -52,6 +52,8 @@ public:
 
 	virtual void printTexada(void) const override;
 
+	virtual void printDaikon(std::ostream &out) const override;
+
 protected:
 	const varSymNode* const varSym;
 	unsigned int index;

@@ -45,8 +45,14 @@ void boolVar::printTexada(void) const {
 	if(varSym->isPredefined())
 		return;
 
-	if(getValue() == 1)
-		printf("%s = true\n", getFullName().c_str());
-	else
-		printf("%s = false\n", getFullName().c_str());
+	auto val = getValue() ? "true" : "false";
+	printf("%s = %s\n", getFullName().c_str(), val);
+}
+
+void boolVar::printDaikon(std::ostream &out) const {
+	if(varSym->isPredefined())
+		return;
+
+	auto val = getValue() ? "true" : "false";
+	out << getFullName() + " = " + val << std::endl;
 }

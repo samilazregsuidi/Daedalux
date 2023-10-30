@@ -56,6 +56,14 @@ public:
 
 	virtual void accept(transitionVisitor* visitor) = 0;
 
+	// friend bool operator== (const transition& t1, const transition& t2) {
+	// 	return t1.src->compare(t2.src->hash()) && t1.dst->compare(t2.dst->hash()) && t1.prob == t2.prob && t1.action == t2.action;
+	// }
+
+	// friend bool operator!= (const transition& t1, const transition& t2) {
+	// 	return !(t1 == t2);
+	// }
+
 public:		//
 	transition* parent;
 	state* src;

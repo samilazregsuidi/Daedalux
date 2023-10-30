@@ -1,3 +1,22 @@
+# Stage 4: Build Daikon
+FROM amazoncorretto:latest as daikon-builder
+
+# Install wget
+# RUN yum install -y wget
+# # Install Make
+# RUN yum install -y make
+# # Install tar
+# RUN yum install -y tar
+
+# WORKDIR /usr/src/daikon
+# RUN wget http://plse.cs.washington.edu/daikon/download/daikon-5.8.18.tar.gz
+# RUN tar -xvf daikon-5.8.18.tar.gz
+# # Add DAIKONDIR to ENV
+# RUN EXPORT DAIKONDIR=/usr/src/daikon/daikon-5.8.18
+# RUN source $DAIKONDIR/scripts/daikon.bashrc
+# # Build Daikon
+# RUN make -C daikon-5.8.18 rebuild-everything
+
 # Stage 1: Build CUDD
 FROM gcc:latest as cudd-builder
 
@@ -42,7 +61,7 @@ WORKDIR /usr/src/spin/Spin-version-6.5.2/Src
 RUN apt-get install byacc flex -y
 RUN make
 
-# Stage 4: Final image
+# Stage 5: Final image
 FROM fedora:latest
 
 # Install Python 3.0
@@ -65,6 +84,9 @@ COPY --from=app-builder /usr/src/daedalux/models /usr/src/daedalux/models
 
 # Copy the python scripts
 COPY --from=app-builder /usr/src/daedalux/test_scripts /usr/src/daedalux/python_scripts
+
+# Copy the daikon jar
+# COPY -from=daikon-builder /usr/src/daikon/daikon-5.8.18/daikon.jar /usr/src/daedalux/
 
 # Copy your application from the app-builder stage
 COPY --from=app-builder /usr/src/daedalux/build/daedalux /usr/src/daedalux/

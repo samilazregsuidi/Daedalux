@@ -154,9 +154,9 @@ public:
 
 	virtual byte compare(unsigned long s2Hash) const;
 
-	//virtual void printGraphViz(unsigned long i) const = 0;
-
 	virtual void accept(stateVisitor* visitor);
+
+	// virtual void printDaikon(std::ostream& out) const;
 
 public:
 	double prob;

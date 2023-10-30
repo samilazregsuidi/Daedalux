@@ -12,7 +12,6 @@
 #include "tvl.hpp"
 #include "ltl.hpp"
 
-#include "astToFsm.hpp"
 #include "semantic.hpp"
 #include "explore.hpp"
 

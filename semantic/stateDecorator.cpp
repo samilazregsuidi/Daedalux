@@ -108,6 +108,10 @@ void stateDecorator::printTexada(void) const {
 	wrappee->printTexada();
 }
 
+void stateDecorator::printDaikon(std::ostream& out) const {
+	wrappee->printDaikon(out);
+}
+
 void stateDecorator::printHexadecimal(void) const {
 	wrappee->printHexadecimal();
 }

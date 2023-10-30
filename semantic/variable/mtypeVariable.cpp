@@ -78,6 +78,19 @@ void mtypeVar::printTexada(void) const {
 	}
 }
 
+void mtypeVar::printDaikon(std::ostream &out) const {
+	if(varSym->isPredefined())
+		return;
+	auto value = getValue();
+	if(value) {
+		auto def = dynamic_cast<const mtypeSymNode*>(varSym)->getMTypeDef();
+		auto mtypestr = def->getCmtypeSymNodeName(value);
+		out << getFullName() + " = " + mtypestr << std::endl;
+	} else {
+		out << getFullName() + " = nil" << std::endl;
+	}
+}
+
 /******************************************************************************************************/
 
 cmtypeVar::cmtypeVar(const cmtypeSymNode* sym) 
@@ -130,6 +143,9 @@ void cmtypeVar::print(void) const {
 }
 
 void cmtypeVar::printTexada(void) const {
+}
+
+void cmtypeVar::printDaikon(std::ostream &out) const {
 }
 
 /******************************************************************************************************/

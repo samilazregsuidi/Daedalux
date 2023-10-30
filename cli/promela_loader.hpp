@@ -23,7 +23,7 @@ class promela_loader {
             delete program;
         }
         
-        fsm* load_promela_file(std::string file_name, const TVL *tvl);
+        fsm* load_promela_file(std::string file_name, const TVL *tvl = nullptr);
 
         symTable *get_globalSymTab() const { return globalSymTab; }
         stmnt *get_program() const { return program; }

@@ -63,6 +63,8 @@ public:
 
 	void printTexada(void) const override;
 
+	void printDaikon(std::ostream& out) const override;
+
 	void printHexadecimal(void) const override;
 
 	/************************************************************/

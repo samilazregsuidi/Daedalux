@@ -110,6 +110,11 @@ void compState::printTexada(void) const {
 	printf("..\n");
 }
 
+void compState::printDaikon(std::ostream &out) const {
+	variable::printDaikon(out);
+	out << " .." << std::endl;
+}
+
 /*void compState::printGraphViz(unsigned long i) const {
 	auto subStates = getTVariables<state*>();
 	for(auto s : subStates)

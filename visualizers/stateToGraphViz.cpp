@@ -13,10 +13,7 @@ stateToGraphViz::stateToGraphViz(const fsm* automata)
 {}
 
 std::string stateToGraphViz::_tab(void) const {
-	std::string res = "";
-	for(size_t i = 0; i < tab; ++i)
-		res += "\t";
-	return res;
+	return std::string(tab, '\t');
 }
 
 stateToGraphViz::~stateToGraphViz() {}

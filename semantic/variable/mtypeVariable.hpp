@@ -28,6 +28,8 @@ public:
 	void print(void) const override;
 
 	void printTexada(void) const override;
+
+	void printDaikon(std::ostream &out) const override;
 };
 
 class cmtypeSymNode;
@@ -59,6 +61,8 @@ public:
 	void print(void) const override;
 
 	void printTexada(void) const override;
+
+	void printDaikon(std::ostream &out) const override;
 };
 
 #endif

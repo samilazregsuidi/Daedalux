@@ -160,6 +160,18 @@ void primitiveVariable::printTexada(void) const {
 	variable::printTexada();
 }
 
+// TODO: printDaikon
+void primitiveVariable::printDaikon(std::ostream &out) const {
+	assert(getPayload());
+	if(varSym->isPredefined())
+		return;
+
+	auto value = getPayload()->getValue(getOffset(), getType());
+	out << getFullName() + " = " + std::to_string(value) << std::endl;
+
+	variable::printDaikon(out);
+}
+
 /*************************************************************************************************/
 
 constVar::constVar(int value, variable::Type type, int lineNb)

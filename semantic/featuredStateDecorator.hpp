@@ -10,9 +10,9 @@ class TVL;
 // State
 class featStateDecorator : public stateDecorator {
 public:
-
-	featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
-
+	// Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl); 
+	
 	featStateDecorator(const featStateDecorator* other);
 
 	state* deepCopy(void) const override;

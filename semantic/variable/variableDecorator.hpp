@@ -64,6 +64,8 @@ public:
 
 	virtual void printTexada(void) const override;
 
+	virtual void printDaikon(std::ostream &out) const override;
+
 	virtual void printHexadecimal(void) const override;
 
 	/************************************************************/
