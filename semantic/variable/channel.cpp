@@ -180,7 +180,7 @@ void channel::printTexada(void) const {
 
 }
 
-void channel::printDaikon(std::ostream &out) const {}
+void channel::printCSV(std::ostream &out) const {}
 
 /**************************************************************************************************/
 

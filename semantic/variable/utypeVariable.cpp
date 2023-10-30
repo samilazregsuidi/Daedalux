@@ -68,6 +68,6 @@ void utypeVar::printTexada(void) const {
 	variable::printTexada();
 }
 
-void utypeVar::printDaikon(std::ostream& out) const {
-	variable::printDaikon(out);
+void utypeVar::printCSV(std::ostream& out) const {
+	variable::printCSV(out);
 }

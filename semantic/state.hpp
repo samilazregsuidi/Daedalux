@@ -156,7 +156,7 @@ public:
 
 	virtual void accept(stateVisitor* visitor);
 
-	// virtual void printDaikon(std::ostream& out) const;
+	// virtual void printCSV(std::ostream& out) const;
 
 public:
 	double prob;

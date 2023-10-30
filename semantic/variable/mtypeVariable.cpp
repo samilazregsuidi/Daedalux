@@ -78,7 +78,7 @@ void mtypeVar::printTexada(void) const {
 	}
 }
 
-void mtypeVar::printDaikon(std::ostream &out) const {
+void mtypeVar::printCSV(std::ostream &out) const {
 	if(varSym->isPredefined())
 		return;
 	auto value = getValue();
@@ -145,7 +145,7 @@ void cmtypeVar::print(void) const {
 void cmtypeVar::printTexada(void) const {
 }
 
-void cmtypeVar::printDaikon(std::ostream &out) const {
+void cmtypeVar::printCSV(std::ostream &out) const {
 }
 
 /******************************************************************************************************/

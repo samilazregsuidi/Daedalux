@@ -34,7 +34,6 @@ state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 	auto compS = new compState("sys");
 
 	if(sysTable && sysTable->getSymbols().size() > 1) {
-		
 		for(auto sys : sysTable->getSymbols()) {
 			assert(sys->getType() == symbol::T_SYS);
 			compS->addState(initState::createProgState(automata, sys->getName(), tvl, dynamic_cast<const sysSymNode*>(sys)));

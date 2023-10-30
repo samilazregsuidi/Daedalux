@@ -110,8 +110,8 @@ void compState::printTexada(void) const {
 	printf("..\n");
 }
 
-void compState::printDaikon(std::ostream &out) const {
-	variable::printDaikon(out);
+void compState::printCSV(std::ostream &out) const {
+	variable::printCSV(out);
 	out << " .." << std::endl;
 }
 

@@ -109,8 +109,8 @@ void variableDecorator::printTexada(void) const {
 	wrappee->printTexada();
 }
 
-void variableDecorator::printDaikon(std::ostream &out) const {
-	wrappee->printDaikon(out);
+void variableDecorator::printCSV(std::ostream &out) const {
+	wrappee->printCSV(out);
 }
 
 void variableDecorator::printHexadecimal(void) const {

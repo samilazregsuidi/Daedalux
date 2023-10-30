@@ -49,7 +49,7 @@ void boolVar::printTexada(void) const {
 	printf("%s = %s\n", getFullName().c_str(), val);
 }
 
-void boolVar::printDaikon(std::ostream &out) const {
+void boolVar::printCSV(std::ostream &out) const {
 	if(varSym->isPredefined())
 		return;
 

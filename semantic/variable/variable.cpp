@@ -264,9 +264,9 @@ void variable::printTexada(void) const {
 		var->printTexada();
 }
 
-void variable::printDaikon(std::ostream &out) const {
+void variable::printCSV(std::ostream &out) const {
 	for(auto var : varList)
-		var->printDaikon(out);
+		var->printCSV(out);
 }
 
 void variable::printHexadecimal(void) const {

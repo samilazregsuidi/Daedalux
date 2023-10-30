@@ -160,8 +160,8 @@ void primitiveVariable::printTexada(void) const {
 	variable::printTexada();
 }
 
-// TODO: printDaikon
-void primitiveVariable::printDaikon(std::ostream &out) const {
+// TODO: printCSV
+void primitiveVariable::printCSV(std::ostream &out) const {
 	assert(getPayload());
 	if(varSym->isPredefined())
 		return;
@@ -169,7 +169,7 @@ void primitiveVariable::printDaikon(std::ostream &out) const {
 	auto value = getPayload()->getValue(getOffset(), getType());
 	out << getFullName() + " = " + std::to_string(value) << std::endl;
 
-	variable::printDaikon(out);
+	variable::printCSV(out);
 }
 
 /*************************************************************************************************/

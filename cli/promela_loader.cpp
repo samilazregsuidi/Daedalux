@@ -19,7 +19,6 @@ fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
 
 	try {
         fs::copy(sourcePath, destinationPath, fs::copy_options::overwrite_existing);
-        std::cout << "File copied successfully." << std::endl;
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Error: " << e.what() << std::endl;
 		std::cerr << "The fPromela file does not exist or is not readable!" << std::endl;
