@@ -17,6 +17,9 @@ class fsmEdge
 
 public:
 	fsmEdge(fsmNode *source, const astNode *expression, int lineNb, bool owner = false);
+	fsmEdge(fsmNode *source, fsmNode *target, const astNode *expression, int lineNb, bool owner = false);
+	fsmEdge(fsmNode *source, fsmNode *target, const astNode *expression, ADD features, double prob, int lineNb, bool owner = false);
+
 	~fsmEdge();
 	fsmNode* setTargetNode(fsmNode *target);
 	fsmNode* setSourceNode(fsmNode *source);
@@ -27,7 +30,7 @@ public:
 	const ADD& getFeatures(void) const;
 	void setFeatures(const ADD& features);
 	
-	bool project(const ADD& features);
+	// bool project(const ADD& features);
 	//getExpr?
 	
 	const astNode *getExpression(void) const;

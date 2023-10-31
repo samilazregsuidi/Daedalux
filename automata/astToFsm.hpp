@@ -65,7 +65,9 @@ private:
 	fsmEdge* _looseEnd(const stmnt* node, bool owner = false);
 	fsmEdge* _looseBreak(const stmnt* node);
 
-	void _toFsm(const stmnt* node);
+	void _toFsm(const stmnt* node, bool label = true, bool connect = true, bool looseEnd = true, bool looseBreak = false);
+	void _toFsmNode(const stmnt* node, bool label = true, bool connect = true, bool looseEnd = true, bool looseBreak = false);
+	void _visitNext(const stmnt* node);
 
 private:
 	unsigned int flags;

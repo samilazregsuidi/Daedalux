@@ -115,6 +115,8 @@ public:
 
 	virtual void printCSV(std::ostream& out) const;
 
+	virtual void printCSVHeader(std::ostream& out) const;
+
 	virtual void printHexadecimal(void) const;
 
 	/************************************************************/

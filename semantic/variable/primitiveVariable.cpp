@@ -161,15 +161,26 @@ void primitiveVariable::printTexada(void) const {
 }
 
 // TODO: printCSV
+
+void primitiveVariable::printCSVHeader(std::ostream &out) const {
+	assert(getPayload());
+	if(varSym->isPredefined())
+		return;
+
+	out << getFullName() + ",";
+	variable::printCSVHeader(out);
+}
+
 void primitiveVariable::printCSV(std::ostream &out) const {
 	assert(getPayload());
 	if(varSym->isPredefined())
 		return;
 
 	auto value = getPayload()->getValue(getOffset(), getType());
-	out << getFullName() + " = " + std::to_string(value) << std::endl;
+	out << std::to_string(value) + ",";
 
 	variable::printCSV(out);
+
 }
 
 /*************************************************************************************************/

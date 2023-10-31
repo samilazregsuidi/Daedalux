@@ -58,6 +58,8 @@ public:
 
 	void printCSV(std::ostream &out) const override;
 
+	void printCSVHeader(std::ostream &out) const override;
+
 private:
 	void len(byte newLen);
 };

@@ -113,6 +113,10 @@ void variableDecorator::printCSV(std::ostream &out) const {
 	wrappee->printCSV(out);
 }
 
+void variableDecorator::printCSVHeader(std::ostream &out) const {
+	wrappee->printCSVHeader(out);
+}
+
 void variableDecorator::printHexadecimal(void) const {
 	wrappee->printHexadecimal();
 }

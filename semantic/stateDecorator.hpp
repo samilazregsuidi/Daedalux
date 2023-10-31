@@ -65,6 +65,8 @@ public:
 
 	void printCSV(std::ostream& out) const override;
 
+	void printCSVHeader(std::ostream& out) const override;
+
 	void printHexadecimal(void) const override;
 
 	/************************************************************/

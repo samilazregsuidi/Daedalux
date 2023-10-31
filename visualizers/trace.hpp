@@ -46,6 +46,8 @@ public:
 
   void printCSV(std::ostream & out) const
   {
+    auto start = this->states.front();
+    start->printCSVHeader(out);
     for (auto st : this->states) {
       st->printCSV(out);
     }

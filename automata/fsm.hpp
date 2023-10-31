@@ -8,7 +8,7 @@
 #include <string>
 
 #include <fstream>
-
+#include <functional>
 #include "cuddObj.hh"
 
 class symTable;
@@ -77,6 +77,8 @@ public:
 
 	std::list<fsmEdge*> getEndTransitions(fsmNode* from) const;
 
+	std::list<fsmEdge*> findTransitions(fsmNode * from, std::function<bool(fsmEdge *)> edgePredicate) const;
+
 	bool isFeatured(void) const;
 
 	const ADD& getFeatureDiagram(void) const;
@@ -88,6 +90,8 @@ public:
 	std::map<std::string, fsmNode*> getInitNodes() const;
 	
 	fsmNode* getFsmWithName(const std::string& name) const;
+
+	fsm* project(const std::list<std::string>& vars) const;
 
 	void printGraphVis(std::ofstream& file) const;
 

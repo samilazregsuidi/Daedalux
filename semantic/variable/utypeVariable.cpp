@@ -71,3 +71,7 @@ void utypeVar::printTexada(void) const {
 void utypeVar::printCSV(std::ostream& out) const {
 	variable::printCSV(out);
 }
+
+void utypeVar::printCSVHeader(std::ostream& out) const {
+	variable::printCSVHeader(out);
+}

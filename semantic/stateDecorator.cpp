@@ -112,6 +112,10 @@ void stateDecorator::printCSV(std::ostream& out) const {
 	wrappee->printCSV(out);
 }
 
+void stateDecorator::printCSVHeader(std::ostream& out) const {
+	wrappee->printCSVHeader(out);
+}
+
 void stateDecorator::printHexadecimal(void) const {
 	wrappee->printHexadecimal();
 }

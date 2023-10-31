@@ -269,6 +269,11 @@ void variable::printCSV(std::ostream &out) const {
 		var->printCSV(out);
 }
 
+void variable::printCSVHeader(std::ostream &out) const {
+	for(auto var : varList)
+		var->printCSVHeader(out);
+}
+
 void variable::printHexadecimal(void) const {
 	payLoad->printHexadecimal(getOffset(), getSizeOf());
 }

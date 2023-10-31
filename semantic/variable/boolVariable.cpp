@@ -49,10 +49,15 @@ void boolVar::printTexada(void) const {
 	printf("%s = %s\n", getFullName().c_str(), val);
 }
 
+void boolVar::printCSVHeader(std::ostream &out) const {
+	if(varSym->isPredefined())
+		return;
+	out << getFullName() << ",";
+}
+
 void boolVar::printCSV(std::ostream &out) const {
 	if(varSym->isPredefined())
 		return;
-
 	auto val = getValue() ? "true" : "false";
-	out << getFullName() + " = " + val << std::endl;
+	out << val << ",";
 }

@@ -30,6 +30,9 @@ public:
 	void printTexada(void) const override;
 
 	void printCSV(std::ostream &out) const override;
+
+	void printCSVHeader(std::ostream &out) const override;
+
 };
 
 class cmtypeSymNode;
@@ -63,6 +66,8 @@ public:
 	void printTexada(void) const override;
 
 	void printCSV(std::ostream &out) const override;
+
+	void printCSVHeader(std::ostream &out) const override;
 };
 
 #endif

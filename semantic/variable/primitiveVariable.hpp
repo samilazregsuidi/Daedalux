@@ -54,6 +54,8 @@ public:
 
 	virtual void printCSV(std::ostream &out) const override;
 
+	virtual void printCSVHeader(std::ostream &out) const override;
+
 protected:
 	const varSymNode* const varSym;
 	unsigned int index;

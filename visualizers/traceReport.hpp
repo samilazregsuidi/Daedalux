@@ -37,12 +37,12 @@ public:
         this->badTraces.insert(t);
     }
 
-    void print(std::ostream& goodTraceFile, std::ostream& badTraceFile) const {
+    void printCSV(std::ostream& goodTraceFile, std::ostream& badTraceFile) const {
         for (const auto& t : this->goodTraces) {
-            t.print(goodTraceFile);
+            t.printCSV(goodTraceFile);
         }
         for (const auto& t : this->badTraces) {
-            t.print(badTraceFile);
+            t.printCSV(badTraceFile);
         }
     }
 };

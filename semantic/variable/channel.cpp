@@ -182,6 +182,9 @@ void channel::printTexada(void) const {
 
 void channel::printCSV(std::ostream &out) const {}
 
+void channel::printCSVHeader(std::ostream &out) const {}
+
+
 /**************************************************************************************************/
 
 /*channelField::channelField(const varSymNode* sym, unsigned int fieldNumber, unsigned int messageIndex, unsigned int index)
