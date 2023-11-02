@@ -83,7 +83,7 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
 
   while (current_trace->size() < trace_length) {
     // Check if the two nodes are the same if they have the same prefix
-    if (same_prefix && current_state_original->compare(current_state_mutant->hash())) {
+    if (same_prefix && current_state_original->compare(*current_state_mutant)) {
       trans_original = current_state_original->executables();
       trans_mutant = current_state_mutant->executables();
 

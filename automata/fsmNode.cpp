@@ -22,6 +22,7 @@ fsmEdge* fsmNode::createfsmEdge(int lineNb, const astNode* expression, fsmNode* 
 	this->trans.push_back(newTrans);
 	parent->addTransition(newTrans);
 	return newTrans;
+	
 }
 
 /**

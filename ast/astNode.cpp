@@ -84,6 +84,19 @@ std::list<astNode*> astNode::getChildren(void) const {
 	return res;
 }
 
+bool astNode::operator==(const astNode* other) const {
+	if(type != other->type)
+		return false;
+	for(auto child : children) {
+		auto child2 = other->children.find(child.first);
+		if(child2 == other->children.end())
+			return false;
+		if(!(*child.second == child2->second))
+			return false;
+	}
+	return true;
+}
+
 std::vector<astNode*> astNode::getMutations(void) const{
 	assert(false);
 	return std::vector<astNode*>();

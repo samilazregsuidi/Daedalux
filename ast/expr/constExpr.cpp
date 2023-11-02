@@ -32,6 +32,11 @@ exprConst::operator std::string() const {
     return std::to_string(constant);
 }
 
+bool exprConst::operator==(const astNode* other) const {
+    auto cast = dynamic_cast<const exprConst*>(other);
+    return cast != nullptr && constant == cast->constant;
+}
+
 std::string exprConst::getTypeDescr(void) const {
     return "Constant (E_EXPR_CONST)";
 }

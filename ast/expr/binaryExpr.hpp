@@ -15,6 +15,8 @@ public:
 
 	symbol::Type getExprType(void) const;
 
+	bool operator==(const exprBinary* other) const; 
+
 protected:
 	exprBinary(Type type, expr* left, expr* right, int lineNb);
 

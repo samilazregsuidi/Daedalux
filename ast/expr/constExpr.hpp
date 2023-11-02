@@ -17,6 +17,8 @@ public:
 
 	operator std::string() const override;
 
+	bool operator==(const astNode* other) const override;
+
 	std::string getTypeDescr(void) const override;
 
 	symbol::Type getExprType(void) const override;

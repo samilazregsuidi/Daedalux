@@ -291,6 +291,8 @@ public:
 
 	virtual operator std::string() const = 0;
 
+	virtual bool operator==(const astNode* other) const;
+
 	//virtual void accept(ASTConstVisitor* visitor) const = 0;
 
 	//virtual void accept(ASTVisitor* visitor) = 0;

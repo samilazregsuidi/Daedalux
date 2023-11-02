@@ -35,6 +35,10 @@ symbol::Type exprBinary::getExprType(void) const {
     return expr::getExprType(getLeftExpr(), getRightExpr());
 }
 
+bool exprBinary::operator==(const exprBinary* other) const {
+    return other != nullptr && type == other->type && *getLeftExpr() == other->getLeftExpr() && *getRightExpr() == other->getRightExpr();
+}
+
 unsigned int exprBinary::assignMutables(const Mask& mask, unsigned int id) {
     if(mask.isPresent(type)) {
         id = getLeftExpr()->assignMutables(mask, id);
