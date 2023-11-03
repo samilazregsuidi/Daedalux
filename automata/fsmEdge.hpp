@@ -40,13 +40,15 @@ public:
 	fsmNode *getTargetNode(void) const;
 
 	operator std::string(void) const;
+	bool operator==(const fsmEdge& other) const;
+
 
 public:
 	fsm* parent;
 	int lineNb;
 	ADD features;
 	fsmNode *source;
-	const astNode *expression;
+	const astNode * expression;
 	fsmNode *target;
 	double prob;
 	bool owner;

@@ -143,6 +143,34 @@ fsmNode::operator std::string(void) const {
 	return res;
 }
 
+bool fsmNode::operator==(const fsmNode& other) const {
+	for(auto t : trans) {
+		bool found = false;
+		for(auto o : other.trans) {
+			if(*t == *o) {
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			return false; 
+	}
+
+	for(auto t : trans_in) {
+		bool found = false;
+		for(auto o : other.trans_in) {
+			if(*t == *o) {
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			return false; 
+	}
+	
+	return true;
+}
+
 unsigned long fsmNode::getID(void) const {
 	unsigned long id = (unsigned long)this;
 	return id;

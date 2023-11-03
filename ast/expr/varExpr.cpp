@@ -47,6 +47,12 @@ void exprVarRefName::setIndex(expr* index) {
 	eraseChild("index", index);
 }
 
+bool exprVarRefName::operator==(const astNode* other) const {
+	auto cast = dynamic_cast<const exprVarRefName*>(other);
+	assert(symName != "");
+	return cast != nullptr && symName == cast->symName;
+}
+
 exprVarRefName::operator std::string() const {
 	return symName + (getIndex() ? "[" + std::string(*getIndex()) + "]" : "");
 }

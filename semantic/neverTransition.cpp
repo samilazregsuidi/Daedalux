@@ -50,3 +50,8 @@ const fsmEdge* neverTransition::getEdge(void) const {
 void neverTransition::accept(transitionVisitor* visitor) {
 	visitor->visit(this);
 }
+
+bool neverTransition::operator==(const transition* other) const {
+	auto cast = dynamic_cast<const neverTransition*>(other);
+	return cast && *edge == *cast->edge;
+}

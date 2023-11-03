@@ -25,6 +25,8 @@ public:
 
 	void accept(transitionVisitor* visitor) override;
 
+	bool operator==(const transition* other) const override;
+
 };
 
 #endif

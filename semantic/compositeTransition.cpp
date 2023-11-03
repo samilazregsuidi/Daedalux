@@ -38,3 +38,21 @@ transition* compTransition::deepCopy(void) const {
 void compTransition::accept(transitionVisitor* visitor) {
 	visitor->visit(this);
 }
+
+bool compTransition::operator==(const transition* other) const {
+	if(!other)
+		return false;
+
+	for(auto t : subTs){
+		bool found = false;
+		for(auto o : other->subTs){
+			if(*t == o){
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			return false;
+	}
+	return true;
+}

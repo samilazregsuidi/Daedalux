@@ -33,6 +33,8 @@ public:
 
 	void accept(transitionVisitor* visitor) override;
 
+	bool operator==(const transition* other) const override;
+
 public:		//
 	const fsmEdge* const edge;			//  - The transition that can be fired
 };

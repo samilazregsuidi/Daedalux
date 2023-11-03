@@ -72,6 +72,8 @@ public:
 	
 	operator std::string(void) const;
 
+	bool operator==(const fsmNode& other) const;
+
 	unsigned long getID(void) const;
 
 	void orderAcceptingTransitions(void);

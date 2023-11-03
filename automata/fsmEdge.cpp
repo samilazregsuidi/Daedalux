@@ -92,6 +92,8 @@ double fsmEdge::getProbability(void) const { return prob; }
 
 fsmEdge::operator std::string(void) const { return expression ? std::string(*expression) : ""; }
 
+bool fsmEdge::operator==(const fsmEdge& other) const { return *expression == other.expression; }
+
 bool fsmEdge::hasFeatures(void) const { return features.getNode() != nullptr; }
 
 const ADD & fsmEdge::getFeatures(void) const { return features; }

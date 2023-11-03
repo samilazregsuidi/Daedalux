@@ -69,9 +69,9 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
   state * current_state_original = initState::createInitState(original, tvl);
   state * current_state_mutant = initState::createInitState(mutant, tvl);
   // Lists to store the transitions of the two automatas
-  std::list<transition *> trans_original = std::list<transition *>();
-  std::list<transition *> trans_mutant = std::list<transition *>();
-  std::list<transition *> different_trans = std::list<transition *>();
+  auto trans_original = std::list<transition *>();
+  auto trans_mutant = std::list<transition *>();
+  auto different_trans = std::list<transition *>();
 
   // Create a list of visited states
   trace * current_trace = new trace();
@@ -90,8 +90,14 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
       different_trans.clear();
       // Iterate through trans_mutant and check if each transition is in trans_original
       for (auto mutant_transition : trans_mutant) {
-        if (std::find(trans_original.begin(), trans_original.end(), mutant_transition) == trans_original.end()) {
-          different_trans.push_back(mutant_transition);
+        bool found = false;
+        for(auto original_transition : trans_original) {
+          if (*mutant_transition == original_transition) {
+            found = true;
+            continue;
+          }
+          if(!found)
+            different_trans.push_back(mutant_transition);
         }
       }
 
@@ -114,7 +120,7 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
       }
     }
     else {
-      // Fire a random transition the trace is guaranteed to be different
+      // Fire a random transition as the trace is guaranteed to be different
       current_trans = transition::sampleUniform(current_state_mutant->executables());
       current_state_mutant->apply(current_trans);
     }

@@ -35,6 +35,8 @@ public:
 
 	operator std::string() const override;
 
+	bool operator==(const astNode* other) const override;
+
 	std::string getTypeDescr(void) const override;
 
 	expr* deepCopy(void) const override;

@@ -59,3 +59,8 @@ transition* processTransition::deepCopy(void) const {
 void processTransition::accept(transitionVisitor* visitor) {
 	visitor->visit(this);
 }
+
+bool processTransition::operator==(const transition* other) const {
+	auto cast = dynamic_cast<const processTransition*>(other);
+	return cast && *edge == *cast->edge;
+}
