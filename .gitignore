@@ -5,7 +5,6 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 .vscode/
-deadalux
 **/_spin_nvr.tmp
 **/pan.b
 **/pan.c
@@ -14,3 +13,4 @@ deadalux
 **/pan.p
 **/pan.t
 **/.DS_Store
+daedalux
