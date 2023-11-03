@@ -11,7 +11,7 @@
 #include "compositeState.hpp"
 
 #include "processTransition.hpp"
-#include "featuredProgramTransition.hpp"
+#include "featuredTransition.hpp"
 
 #include "symbols.hpp"
 
@@ -237,7 +237,7 @@ transition* initState::createTransition(const fsmEdge* edge, state* s, process* 
 	}
 	
 	if(edge->hasFeatures()){
-		res = new featProgTransition(s, procTrans, edge->getFeatures(), response);
+		res = new featTransition(s, rdvTrans, edge->getFeatures());
 	} else {
 		res = new programTransition(s, procTrans, response);
 	}

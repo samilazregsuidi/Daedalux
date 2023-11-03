@@ -1,5 +1,5 @@
 #include "featuredStateDecorator.hpp"
-#include "featuredProgramTransition.hpp"
+#include "featuredTransition.hpp"
 
 //bad coupling!
 #include "tvl.hpp"
@@ -93,7 +93,7 @@ std::list<transition*> featStateDecorator::executables(void) const {
 	std::list<transition*> execs;
 
 	for(auto candidate : candidates) {
-		auto featTrans = dynamic_cast<featProgTransition*>(candidate);
+		auto featTrans = dynamic_cast<featTransition*>(candidate);
 		//if(featTrans) {
 			//printf("***********EXE STATE FEATURES***********\n");
 			//TVL::printBool(features);
@@ -129,7 +129,7 @@ state* featStateDecorator::apply(transition* trans) {
 
 	assert(features);
 
-	auto ftrans = dynamic_cast<featProgTransition*>(trans);
+	auto ftrans = dynamic_cast<featTransition*>(trans);
 	if(ftrans) {
 		/*printf("***********APPLY STATE FEATURES***********\n");
 		TVL::printBool(features);

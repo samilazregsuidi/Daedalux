@@ -1,5 +1,5 @@
-#ifndef PROGRAM_TRANSITION_H
-#define PROGRAM_TRANSITION_H
+#ifndef RENDEZ_VOUS_TRANSITION_H
+#define RENDEZ_VOUS_TRANSITION_H
 
 /*
  * Execution of FSMs
@@ -10,13 +10,13 @@
 //#include "cuddObj.hh"
 
 // ProcessTransitions are returned by the executables() function
-class programTransition : public transition {
+class rendezVousTransition : public transition {
 public:
-	programTransition(state* s, transition* procTrans, transition* response = nullptr);
+	rendezVousTransition(state* s, transition* procTrans, transition* response = nullptr);
 
-	programTransition(const programTransition* other);
+	rendezVousTransition(const rendezVousTransition* other);
 
-	~programTransition() override;
+	~rendezVousTransition() override;
 	
 	transition* getProcTrans(void) const;
 
@@ -25,6 +25,8 @@ public:
 	transition* deepCopy(void) const override;
 
 	void accept(transitionVisitor* visitor) override;
+
+	bool operator==(const transition* other) const override;
 
 public:		//
 	transition* procTrans;

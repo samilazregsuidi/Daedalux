@@ -1,4 +1,4 @@
-#include "programTransition.hpp"
+#include "rendezVousTransition.hpp"
 #include "processTransition.hpp"
 #include "transitionVisitor.hpp"
 
@@ -9,7 +9,7 @@
 #include <iterator>
 #include <iostream>
 
-programTransition::programTransition(state* s, transition* procTrans, transition* response) 
+rendezVousTransition::rendezVousTransition(state* s, transition* procTrans, transition* response) 
 	: transition(s)
 	, procTrans(procTrans)
 	, response(response)
@@ -31,7 +31,7 @@ programTransition::programTransition(state* s, transition* procTrans, transition
 
 }
 
-programTransition::programTransition(const programTransition* other)
+rendezVousTransition::rendezVousTransition(const rendezVousTransition* other)
 	: transition(other)
 	, procTrans(nullptr)
 	, response(nullptr)
@@ -42,21 +42,26 @@ programTransition::programTransition(const programTransition* other)
 		response = *it;
 }
 
-programTransition::~programTransition() {
+rendezVousTransition::~rendezVousTransition() {
 }
 
-transition* programTransition::getProcTrans(void) const {
+transition* rendezVousTransition::getProcTrans(void) const {
 	return procTrans;
 }
 
-transition* programTransition::getResponse(void) const {
+transition* rendezVousTransition::getResponse(void) const {
 	return response;
 }
 
-transition* programTransition::deepCopy(void) const {
-	return new programTransition(this);
+transition* rendezVousTransition::deepCopy(void) const {
+	return new rendezVousTransition(this);
 }
 
-void programTransition::accept(transitionVisitor* visitor) {
+void rendezVousTransition::accept(transitionVisitor* visitor) {
 	visitor->visit(this);
+}
+
+bool rendezVousTransition::operator==(const transition* other) const {
+	auto cast = dynamic_cast<const rendezVousTransition*>(other);
+	return *procTrans == cast->procTrans && *response == cast->response;
 }
