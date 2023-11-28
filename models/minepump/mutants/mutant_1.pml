@@ -1,4 +1,4 @@
-#include "./ltl.inc"
+#include "../ltl.inc"
 mtype = {levelMsg, stop, methanestop, alarm, running, commandMsg, start, alarmMsg, high, low, stopped, medium, ready, lowstop}
 chan cCmd = [0] of {mtype};
 chan cAlarm = [0] of {mtype};
@@ -16,7 +16,7 @@ active proctype controller(){
 	do
 	::	atomic {
 			cCmd?pcommand;
-			readMsg = low;
+			readMsg = commandMsg;
 		};
 		if
 		::	pcommand == stop;

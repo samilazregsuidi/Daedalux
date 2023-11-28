@@ -1,46 +1,17 @@
-#define readCommand (controller.readMsg == commandMsg)
-#define readAlarm (controller.readMsg == alarmMsg)
-#define readLevel (controller.readMsg == levelMsg)
-#define userStart (user.uwants == start)
-#define userStop (user.uwants == stop)
-#define highWater (watersensor.waterLevel == high)
-#define mediumWater (watersensor.waterLevel == medium)
-#define lowWater (watersensor.waterLevel == low)
-#define stateReady (controller.pstate == ready)
-#define stateRunning (controller.pstate == running)
-#define stateStopped (controller.pstate == stopped)
-#define stateMethanestop (controller.pstate == methanestop)
-#define stateLowstop (controller.pstate == lowstop)
-
-mtype = {/*1*/	levelMsg, 
-	/*2*/	stop, 
-	/*3*/	methanestop, 
-	/*4*/	alarm, 
-	/*5*/	running, 
-	/*6*/	commandMsg, 
-	/*7*/	start, 
-	/*8*/	alarmMsg, 
-	/*9*/	high, 
-	/*10*/	medium, 
-	/*11*/	low, 
-	/*12*/	stopped, 
-	/*13*/	ready, 
-	/*14*/	lowstop}
-
+mtype = {levelMsg, stop, methanestop, alarm, running, commandMsg, start, alarmMsg, high, low, stopped, medium, ready, lowstop}
 chan cCmd = [0] of {mtype};
 chan cAlarm = [0] of {mtype};
 chan cMethane = [0] of {mtype};
 chan cLevel = [0] of {mtype};
-
+mtype pstate = stopped;
+mtype readMsg = commandMsg;
 bool pumpOn = false;
-
+bool methane = false;
+mtype waterLevel = medium;
+mtype uwants = stop;
 active proctype controller(){
 	mtype pcommand = start;
 	mtype level = medium;
-	
-	mtype pstate = stopped;
-	mtype readMsg = commandMsg;
-	
 	do
 	::	atomic {
 			cCmd?pcommand;
@@ -54,7 +25,7 @@ active proctype controller(){
 					pumpOn = false;
 				};
 			::	else;
-				
+				skip;
 			fi;
 			pstate = stopped;
 		::	pcommand == start;
@@ -64,9 +35,10 @@ active proctype controller(){
 					pstate = ready;
 				};
 			::	else;
-				
+				skip;
 			fi;
-	
+		::	else;
+			assert((false));
 		fi;
 		cCmd!pstate;
 	::	atomic {
@@ -79,10 +51,9 @@ active proctype controller(){
 				pumpOn = false;
 			};
 		::	else;
-			
+			skip;
 		fi;
 		pstate = methanestop;
-		
 	::	atomic {
 			cLevel?level;
 			readMsg = levelMsg;
@@ -113,15 +84,14 @@ active proctype controller(){
 					pstate = lowstop;
 				};
 			::	else;
-				
+				skip;
 			fi;
-		::	skip;
-			
+		::	level == medium;
+			skip;
 		fi;
 	od;
 }
 active proctype user(){
-	mtype uwants = stop;
 	do
 	::	if
 		::	uwants = start;
@@ -131,14 +101,10 @@ active proctype user(){
 		cCmd?_;
 	od;
 }
-
-bool methane = false;
-
 active proctype methanealarm(){
 	do
 	::	methane = true;
 		cAlarm!alarm;
-		
 	::	methane = false;
 	od;
 }
@@ -156,26 +122,24 @@ active proctype methanesensor(){
 	od;
 }
 active proctype watersensor(){
-	mtype waterLevel = medium;
-
 	do
 	::	atomic {
 			if
 			::	waterLevel == low;
 				if
-				::	skip
+				::	waterLevel = low;
 				::	waterLevel = medium;
 				fi;
 			::	waterLevel == medium;
 				if
 				::	waterLevel = low;
-				::	skip
+				::	waterLevel = medium;
 				::	waterLevel = high;
 				fi;
 			::	waterLevel == high;
 				if
 				::	waterLevel = medium;
-				::	skip
+				::	waterLevel = high;
 				fi;
 			fi;
 			cLevel!waterLevel;

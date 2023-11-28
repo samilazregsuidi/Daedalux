@@ -1,32 +1,32 @@
-# Stage 0 : Fetch daikon
-FROM amazoncorretto:latest as daikon-fetcher
+# # Stage 0 : Fetch daikon
+# FROM amazoncorretto:latest as daikon-fetcher
 
-# Install wget
-RUN yum install -y wget tar gzip
+# # Install wget
+# RUN yum install -y wget tar gzip
 
-WORKDIR /usr/src/daikon
-RUN wget http://plse.cs.washington.edu/daikon/download/daikon-5.8.18.tar.gz
-RUN tar zxf daikon-5.8.18.tar.gz
+# WORKDIR /usr/src/daikon
+# RUN wget http://plse.cs.washington.edu/daikon/download/daikon-5.8.18.tar.gz
+# RUN tar zxf daikon-5.8.18.tar.gz
 
-# Stage 1: Build Daikon
-FROM amazoncorretto:latest as daikon-builder
+# # Stage 1: Build Daikon
+# FROM amazoncorretto:latest as daikon-builder
 
-# Install build tools
-RUN yum install -y make git graphviz netpbm-progs texlive texinfo ctags perl zlib1g-dev gcc
-# Install aclocal
-RUN yum install -y automake autoconf libtool zlib-devel binutils-devel
+# # Install build tools
+# RUN yum install -y make git graphviz netpbm-progs texlive texinfo ctags perl zlib1g-dev gcc
+# # Install aclocal
+# RUN yum install -y automake autoconf libtool zlib-devel binutils-devel
 
-# Copy daikon from the daikon-fetcher stage
-WORKDIR /usr/src/daikon
-COPY --from=daikon-fetcher /usr/src/daikon/daikon-5.8.18 /usr/src/daikon/daikon-5.8.18
-# Add DAIKONDIR to ENV
-ENV DAIKONDIR=/usr/src/daikon/daikon-5.8.18
-# RUN source $DAIKONDIR/scripts/daikon.bashrc
-# Build Daikon
-RUN make -C daikon-5.8.18 rebuild-everything
+# # Copy daikon from the daikon-fetcher stage
+# WORKDIR /usr/src/daikon
+# COPY --from=daikon-fetcher /usr/src/daikon/daikon-5.8.18 /usr/src/daikon/daikon-5.8.18
+# # Add DAIKONDIR to ENV
+# ENV DAIKONDIR=/usr/src/daikon/daikon-5.8.18
+# # RUN source $DAIKONDIR/scripts/daikon.bashrc
+# # Build Daikon
+# RUN make -C daikon-5.8.18 rebuild-everything
 
-# Update perl 
-RUN yum update -y perl
+# # Update perl 
+# RUN yum update -y perl
 # # Install perl modules
 # RUN yum install -y perl-CPAN
 # # Install cpanm
@@ -66,7 +66,7 @@ RUN apt-get update && apt-get install -y cmake
 
 # Build Daedalux
 WORKDIR /usr/src/daedalux/build
-RUN cmake ../
+RUN cmake ..
 RUN cmake --build .
 
 # Stage 3: SPIN build
@@ -87,7 +87,7 @@ RUN apt-get install byacc flex -y
 RUN make
 
 # Stage 5: Final image
-FROM fedora:latest
+FROM fedora:latest as final
 
 # Install Python 3.0
 RUN dnf install -y python3
@@ -111,10 +111,10 @@ COPY ./models /usr/src/daedalux/models
 COPY --from=app-builder /usr/src/daedalux/test_scripts /usr/src/daedalux/python_scripts
 
 # Copy the daikon jar
-COPY --from=daikon-builder /usr/src/daikon/daikon-5.8.18/daikon.jar /usr/src/daedalux
+# COPY --from=daikon-builder /usr/src/daikon/daikon-5.8.18/daikon.jar /usr/src/daedalux
 
 # Copy your application from the app-builder stage
-COPY --from=app-builder /usr/src/daedalux/build/daedalux /usr/src/daedalux/
+COPY --from=app-builder /usr/src/daedalux/build/ /usr/src/daedalux/
 
 # Set working directory
 WORKDIR /usr/src/daedalux
@@ -125,3 +125,9 @@ ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 # Label the image
 LABEL Name=daedalux Version=0.0.1
+
+
+# Stage 5: Test image
+# FROM final as test
+
+# CMD [ "" ]
