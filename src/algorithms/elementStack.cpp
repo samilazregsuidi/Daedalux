@@ -27,7 +27,21 @@ elementStack::element::~element() {
 		delete p;
 }
 
+elementStack::elementStack()
+	: stackElem(), setElem() {}
+
+elementStack::~elementStack() {
+	while(!stackElem.empty()){
+		auto t = stackElem.top();
+		stackElem.pop();
+		delete t;
+	}
+}
+
 void elementStack::push(state* s, int depth) {
+	// if(stackElem == nullptr){
+	// 	stackElem = new std::stack<element*>();
+	// }
 	stackElem.push(new element(s, depth));
 	setElem.insert(s->hash());
 }
@@ -43,6 +57,9 @@ void elementStack::pop(void) {
 }
 
 elementStack::element* elementStack::top(void) const {
+	// if(stackElem == nullptr){
+	// 	stackElem = new std::stack<element*>();
+	// }
 	return stackElem.top();
 }
 
@@ -55,5 +72,8 @@ bool elementStack::isIn(const element& elem) const {
 }
 
 bool elementStack::empty(void) const {
+	// if(stackElem == nullptr){
+	// 	stackElem = new std::stack<element*>();
+	// }
 	return stackElem.empty();
 }

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "../src/symbol/symTable.hpp"
-#include "../src/symbol/symbol.hpp"
-#include "../src/symbol/vardef/intSymNode.hpp"
-#include "../src/symbol/vardef/pidSymNode.hpp"
-#include "../src/symbol/vardef/boolSymNode.hpp"
+#include "../../src/symbol/symTable.hpp"
+#include "../../src/symbol/symbol.hpp"
+#include "../../src/symbol/vardef/intSymNode.hpp"
+#include "../../src/symbol/vardef/pidSymNode.hpp"
+#include "../../src/symbol/vardef/boolSymNode.hpp"
 
 class SymTableTestFixture : public ::testing::Test {
 protected:

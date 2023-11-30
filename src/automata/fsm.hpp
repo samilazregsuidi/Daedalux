@@ -59,8 +59,6 @@ public:
 	
 	void deleteNode(fsmNode* node);
 	
-	void connect(fsmNode* begin, fsmNode* end);
-
 	void skip(fsmNode* toSkip);
 
 	fsmNode* getNode(unsigned int lineNb) const;

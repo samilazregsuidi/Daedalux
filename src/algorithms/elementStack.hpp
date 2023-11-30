@@ -22,7 +22,10 @@ public:
         unsigned int depth;
     };
 
-public:
+    elementStack();
+    //destructeur
+    ~elementStack();
+
     void push(state* s, int depth = 0);
 
     void pop(void);
@@ -35,7 +38,6 @@ public:
     
     bool empty(void) const;
 
-public:
     std::stack<element*> stackElem;
     std::set<unsigned long> setElem;
 };

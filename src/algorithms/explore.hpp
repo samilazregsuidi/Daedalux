@@ -34,7 +34,7 @@ int launchExecutionMarkovChain(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceBFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl = nullptr);
-trace generateNegativeTraces(const fsm *original, const fsm *mutant, const size_t k = 200, const TVL *tvl = nullptr);
+trace* generateNegativeTraces(const fsm *original, const fsm *mutant, const size_t k = 200, const TVL *tvl = nullptr);
 traceReport generateTraces(const fsm *original, const fsm *mutant, const size_t no_traces = 20, const size_t len_traces = 200, const TVL *tvl = nullptr);
 
 

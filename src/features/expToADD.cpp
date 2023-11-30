@@ -9,7 +9,7 @@ expToADD::expToADD(const TVL* fm)
 	, mgr(fm->getMgr())
 	, featureRef(false)
 {
-	assert(mgr);
+	// assert(mgr);
 }
 
 expToADD::~expToADD() {

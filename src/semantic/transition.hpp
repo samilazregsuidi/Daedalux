@@ -66,7 +66,7 @@ public:
 	// 	return !(t1 == t2);
 	// }
 
-public:		//
+public:
 	transition* parent;
 	state* src;
 	state* dst;

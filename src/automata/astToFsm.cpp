@@ -17,14 +17,14 @@ ASTtoFSM::~ASTtoFSM() {}
 
 fsm * ASTtoFSM::astToFsm(const symTable * symTab, const stmnt * program, const TVL * fm)
 {
-  res = new fsm(symTab, fm->getFeatureModelClauses());
+  std::cout << "AST to FSM" << std::endl;
+  ADD fmClauses = fm ? fm->getFeatureModelClauses() : ADD();
+  res = new fsm(symTab, fmClauses);
+  std::cout << "create fsm" << std::endl;
 
   this->fm = fm;
 
   program->acceptVisitor(this);
-  // assert(current.size() == 1);
-
-  // res->removeUselessTransitions();
 
   return res;
 }

@@ -17,9 +17,6 @@ include(CTest)
 # List your test source files
 set(TEST_SOURCES
     test_main.cpp
-    # test_elementStack.cpp
-    # test_intSymNode.cpp
-    # test_symTable.cpp
     # Add more test files as needed
 )
 

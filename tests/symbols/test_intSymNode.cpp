@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/symbol/vardef/intSymNode.hpp"
+#include "../../src/symbol/vardef/intSymNode.hpp"
 
 class IntSymNodeTestFixture : public ::testing::Test {
 protected:

@@ -63,7 +63,7 @@ void launchExecution(const fsm * automata, const TVL * tvl)
 // * 	k - The length of the run
 // * 	tvl - The feature model
 // *
-trace generateNegativeTraces(const fsm * original, const fsm * mutant, const size_t trace_length, const TVL * tvl)
+trace * generateNegativeTraces(const fsm * original, const fsm * mutant, const size_t trace_length, const TVL * tvl)
 {
   // Create the initial state for both automatas
   state * current_state_original = initState::createInitState(original, tvl);
@@ -132,7 +132,7 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
   if (same_prefix)
     std::cout << "A trace in the mutant that not can be found in the original automata was not found" << std::endl;
 
-  return *current_trace;
+  return current_trace;
 }
 
 traceReport generateTraces(const fsm * original, const fsm * mutant, const size_t no_traces, size_t len_traces, const TVL * tvl)

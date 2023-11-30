@@ -25,6 +25,9 @@ fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
 		exit(1);
     }
 
+	std::cout << "File copied to temporary file." << std::endl;
+
+
 	if (system("cpp __workingfile.tmp __workingfile.tmp.cpp") != 0)
 	{
 		std::cerr << "Could not run the c preprocessor (cpp)." << std::endl;
@@ -50,9 +53,11 @@ fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
 		fclose(yyin);
 		yylex_destroy();
 	}
-
+	
 	ASTtoFSM *converter = new ASTtoFSM();
 	// Create the automata from the AST
 	fsm *automata = converter->astToFsm(globalSymTab, program, tvl);
+	
+	delete converter;
 	return automata;
 }

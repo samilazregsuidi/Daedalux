@@ -43,7 +43,12 @@ add_link_options(
 
 # Create a library from the source files
 add_library(daedalux_lib STATIC
-symbol/symbol.cpp
+	cli/CLI11.hpp
+	cli/modelchecking_subcommand.cpp
+	cli/mutant_subcommand.cpp
+	cli/promela_loader.cpp
+
+	symbol/symbol.cpp
 	symbol/symTable.cpp
 	symbol/typedef/ptypeSymNode.cpp
 	symbol/typedef/tdefSymNode.cpp
@@ -170,6 +175,14 @@ target_include_directories(daedalux_lib
 	${CMAKE_CURRENT_BINARY_DIR}
 )
 
+
+target_link_directories(daedalux_lib
+	PUBLIC
+	libs/cudd/cplusplus/.libs
+	libs/cudd/cudd/.libs
+	)
+
+target_link_libraries(daedalux_lib libobj.a libcudd.a)
 
 
 add_executable(daedalux
