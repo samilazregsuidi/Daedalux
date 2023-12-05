@@ -40,9 +40,9 @@ public:
 
 	virtual int operator -- (int) ;
 
-	virtual bool operator == (const primitiveVariable& other) const ;
+	bool operator == (const variable* other) const override;
 
-	virtual bool operator != (const primitiveVariable& other) const ;
+	bool operator != (const variable* other) const override ;
 
 	/****************************************************/
 

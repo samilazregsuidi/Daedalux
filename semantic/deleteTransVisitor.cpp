@@ -2,8 +2,8 @@
 
 #include "transition.hpp"
 #include "compositeTransition.hpp"
-#include "programTransition.hpp"
-#include "featuredProgramTransition.hpp"
+#include "rendezVousTransition.hpp"
+#include "featuredTransition.hpp"
 #include "processTransition.hpp"
 #include "neverTransition.hpp"
 
@@ -26,17 +26,15 @@ void delTransitionVisitor::visit(compTransition* t) {
 	table.insert(t);
 }
 
-void delTransitionVisitor::visit(programTransition* t) {
-	t->procTrans->accept(this);
+void delTransitionVisitor::visit(rendezVousTransition* t) {
+	t->question->accept(this);
 	if(t->response)
 		t->response->accept(this);
 	table.insert(t);
 }
 
-void delTransitionVisitor::visit(featProgTransition* t) {
-	t->procTrans->accept(this);
-	if(t->response)
-		t->response->accept(this);
+void delTransitionVisitor::visit(featTransition* t) {
+	t->wrappee->accept(this);
 	table.insert(t);
 }
 

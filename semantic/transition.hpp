@@ -42,7 +42,7 @@ public:
 
 	double getProbability(void) const;
 	
-	virtual transition* deepCopy(void) const = 0;
+	virtual transition* deepCopy(void) const;
 
 	void add(transition* t);
 
@@ -54,9 +54,9 @@ public:
 
 	void detach(const std::list<transition*>& Ts);
 
-	virtual void accept(transitionVisitor* visitor) = 0;
+	virtual void accept(transitionVisitor* visitor);
 
-	virtual bool operator==(const transition* other) const = 0;
+	virtual bool operator==(const transition* other) const;
 
 	// friend bool operator== (const transition& t1, const transition& t2) {
 	// 	return t1.src->compare(t2.src->hash()) && t1.dst->compare(t2.dst->hash()) && t1.prob == t2.prob && t1.action == t2.action;

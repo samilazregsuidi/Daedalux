@@ -11,8 +11,8 @@ public:
 	void deleteVisited(void);
 	void visit(transition* t) override;
 	void visit(compTransition* t) override;
-	void visit(programTransition* t) override;
-	void visit(featProgTransition* t) override;
+	void visit(rendezVousTransition* t) override;
+	void visit(featTransition* t) override;
 	void visit(processTransition* t) override;
 	void visit(neverTransition* t) override;
 

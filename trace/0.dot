@@ -16,67 +16,39 @@ digraph finite_state_machine {
  | 0x8   :   sys.._last              = 0
  | 0x9   :   sys..np_                = false
  | 0xa   :   sys..k                  = 0
- | 0xe   :   sys..s                  = 0
  | "
 			shape = "record" 
 ];
-			subgraph cluster_mdp {
+			subgraph cluster_test {
 				style=filled;
 				color=white;
-				label = "mdp" ; 
-				93824994283673 [label = 6, shape = doublecircle, fixedsize = true]; 
-				s93824994283673 [shape = point];
- "node9"[ 
-				label = ""
+				label = "test" ; 
+				93824994930200 [label = 6, shape = doublecircle, color = red, fixedsize = true]; 
+				s93824994930200 [shape = point];
+ "node8"[ 
+				label = "0x17  :   sys..test.a             = 0
+ | 0x18  :   sys..test.b             = 0
+ | 0x19  :   sys..test.temp          = 0
+ | 0x1a  :   sys..test.fire          = true
+ | "
 				shape = "record" 
 ];
-				93824994321897 [label = 35, shape = circle, fixedsize = true ];
-				93824994323321 [label = 44, shape = circle, fixedsize = true ];
-				93824994323097 [label = 37, shape = circle, fixedsize = true ];
-				93824994319497 [label = 19, shape = circle, fixedsize = true ];
-				93824994321753 [label = 27, shape = circle, fixedsize = true ];
-				93824994321529 [label = 21, shape = circle, fixedsize = true ];
-				93824994319097 [label = 8, shape = circle, color = red, fixedsize = true ];
-				93824994320361 [label = 15, shape = circle, fixedsize = true ];
-				93824994319929 [label = 10, shape = circle, fixedsize = true ];
-				s93824994283673 -> 93824994283673;
-				93824994321897 -> 93824994323097 [ label = "36 | s1a0 :: "];
-				93824994283673 -> 93824994319097 [color = red, fontcolor = red, label = "7 | s == 0; "];
-				93824994283673 -> 93824994319497 [ label = "18 | s == 2; "];
-				93824994319097 -> 93824994319929 [ label = "9 | s0a0 :: "];
-				93824994319097 -> 93824994320361 [ label = "15 | s0a1 :: "];
-				93824994320361 -> 93824994283673 [ label = "15 | s = 2; "];
-				93824994319929 -> 93824994283673 [ label = " [0.500000] 11 | s = 0; "];
-				93824994319929 -> 93824994283673 [ label = " [0.500000] 12 | s = 2; "];
-				93824994283673 -> 93824994321897 [ label = "34 | s == 1; "];
-				93824994319497 -> 93824994321529 [ label = "20 | s2a0 :: "];
-				93824994319497 -> 93824994321753 [ label = "26 | s2a1 :: "];
-				93824994321529 -> 93824994283673 [ label = " [0.400000] 22 | s = 0; "];
-				93824994321529 -> 93824994283673 [ label = " [0.600000] 23 | s = 2; "];
-				93824994321753 -> 93824994283673 [ label = " [0.700000] 29 | s = 0; "];
-				93824994321753 -> 93824994283673 [ label = " [0.300000] 30 | s = 1; "];
-				93824994321897 -> 93824994323321 [ label = "43 | s1a1 :: "];
-				93824994323097 -> 93824994283673 [ label = " [0.100000] 38 | s = 1; "];
-				93824994323097 -> 93824994283673 [ label = " [0.700000] 39 | s = 0; "];
-				93824994323097 -> 93824994283673 [ label = " [0.200000] 40 | s = 2; "];
-				93824994323321 -> 93824994283673 [ label = " [0.950000] 45 | s = 1; "];
-				93824994323321 -> 93824994283673 [ label = " [0.050000] 46 | s = 2; "];
+				93824994962584 [label = 13, shape = circle, fixedsize = true ];
+				93824994961544 [label = 9, shape = circle, fixedsize = true ];
+				93824994961832 [label = 10, shape = circle, fixedsize = true ];
+				93824994962120 [label = 11, shape = circle, fixedsize = true ];
+				93824994961112 [label = 8, shape = circle, fixedsize = true ];
+				s93824994930200 -> 93824994930200;
+				93824994930200 -> 93824994961112 [ label = "7 | fire = true; "];
+				93824994961112 -> 93824994930200 [ label = "8 | skip; "];
+				93824994930200 -> 93824994961544 [ label = "8 | fire; "];
+				93824994961544 -> 93824994961832 [ label = "9 | temp = a; "];
+				93824994961832 -> 93824994962120 [ label = "10 | a = b; "];
+				93824994962120 -> 93824994930200 [ label = "11 | b = temp; "];
+				93824994930200 -> 93824994962584 [ label = "13 | else; "];
+				93824994962584 -> 93824994930200 [ label = "13 | skip; "];
 
 			}
-		}
-		subgraph cluster_never {
-			style=filled;
-			color=white;
-			label = " never "; 
-			93824994322384 [label = 54, shape = doublecircle, color = red, fixedsize = true]; 
-			s93824994322384 [shape = point];
-			e [shape = doublecircle, fixedsize = true, style = filled, fillcolor = black, fontcolor = white,  label = end];
-			93824994318768 [label = 60, shape = circle, fixedsize = true , style = filled, fillcolor = darkgrey];
-			s93824994322384 -> 93824994322384;
-			93824994318768 -> e [ label = "60 | ..."];
-			93824994322384 -> 93824994318768 [ label = "55 | ..."];
-			93824994322384 -> 93824994322384 [color = red, fontcolor = red, label = "56 | ..."];
-
 		}
 
 	}

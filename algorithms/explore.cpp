@@ -66,7 +66,10 @@ void launchExecution(const fsm * automata, const TVL * tvl)
 trace generateNegativeTraces(const fsm * original, const fsm * mutant, const size_t trace_length, const TVL * tvl)
 {
   // Create the initial state for both automatas
+  graphVis = new stateToGraphViz(original);
   state * current_state_original = initState::createInitState(original, tvl);
+  graphVis->printGraphViz(current_state_original);
+  
   state * current_state_mutant = initState::createInitState(mutant, tvl);
   // Lists to store the transitions of the two automatas
   auto trans_original = std::list<transition *>();
@@ -83,7 +86,7 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
 
   while (current_trace->size() < trace_length) {
     // Check if the two nodes are the same if they have the same prefix
-    if (same_prefix && current_state_original->compare(*current_state_mutant)) {
+    if (same_prefix && *current_state_original == current_state_mutant) {
       trans_original = current_state_original->executables();
       trans_mutant = current_state_mutant->executables();
 
@@ -96,9 +99,9 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
             found = true;
             continue;
           }
-          if(!found)
-            different_trans.push_back(mutant_transition);
         }
+        if(!found)
+          different_trans.push_back(mutant_transition);
       }
 
       // If mutant can fire a transition that the original automata cannot fire
@@ -123,6 +126,7 @@ trace generateNegativeTraces(const fsm * original, const fsm * mutant, const siz
       // Fire a random transition as the trace is guaranteed to be different
       current_trans = transition::sampleUniform(current_state_mutant->executables());
       current_state_mutant->apply(current_trans);
+      same_prefix = false;
     }
 
     // Add the state and transition to the trace

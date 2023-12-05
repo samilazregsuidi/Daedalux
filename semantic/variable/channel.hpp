@@ -18,7 +18,7 @@ public:
 
 	size_t getSizeOf(void) const override;
 
-	int operator = (const primitiveVariable& rvalue) override;
+	/*int operator = (const primitiveVariable& rvalue) override;
 
 	int operator ++ (void) override;
 
@@ -26,11 +26,11 @@ public:
 
 	int operator ++ (int) override;
 
-	int operator -- (int) override;
+	int operator -- (int) override;*/
 
-	bool operator == (const primitiveVariable& other) const override;
+	bool operator == (const variable* other) const override;
 
-	bool operator != (const primitiveVariable& other) const override;
+	bool operator != (const variable* other) const override;
 
 	void send(const std::list<const variable*>& args);
 

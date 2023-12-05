@@ -106,12 +106,15 @@ int primitiveVariable::operator -- (int) {
 	return temp;
 }
 
-bool primitiveVariable::operator == (const primitiveVariable& other) const {
-	return getValue() == other.getValue();
+bool primitiveVariable::operator == (const variable* other) const {
+	auto cast = dynamic_cast<const primitiveVariable*>(other);
+	if(!cast)
+		return false;
+	return getValue() == cast->getValue();
 }
 
-bool primitiveVariable::operator != (const primitiveVariable& other) const {
-	return getValue() == other.getValue();
+bool primitiveVariable::operator != (const variable* other) const {
+	return !(*this == other);
 }
 
 void primitiveVariable::setValue(int value) {

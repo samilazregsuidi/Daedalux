@@ -82,7 +82,7 @@ transition::~transition(){
 	if(parent)
 		parent->detach(this);
 
-	assert(subTs.empty());
+	//assert(subTs.empty());
 }
 
 void transition::add(transition* t) {
@@ -119,4 +119,27 @@ void transition::detach(const std::list<transition*>& Ts) {
 
 double transition::getProbability(void) const {
 	return prob;
+}
+
+transition* transition::deepCopy(void) const {
+	return new transition(this);
+}
+
+void transition::accept(transitionVisitor* visitor) {
+	visitor->visit(this);
+}
+
+bool transition::operator==(const transition* other) const {
+	for(auto t : subTs) {
+		bool found = false;
+		for(auto t_ : other->subTs) {
+			if(*t == t_) {
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			return false;
+	}
+	return true;
 }

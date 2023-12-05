@@ -5,7 +5,6 @@
 
 #include "thread.hpp"
 #include "transition.hpp"
-#include "programTransition.hpp"
 #include "programState.hpp"
 
 #include "payload.hpp"
@@ -227,6 +226,18 @@ bool thread::endstate(void) const {
 
 std::string thread::getName(void) const {
 	return variable::getLocalName();
+}
+
+bool thread::operator == (const variable* other) const {
+	auto res = variable::operator==(other);
+	if(!res)
+		return false;
+	auto cast = dynamic_cast<const thread*>(other);
+	return *getFsmNodePointer() == *cast->getFsmNodePointer();
+}
+
+bool thread::operator != (const variable* other) const {
+	return !(*this == other);
 }
 
 void thread::printGraphViz(unsigned long i) const {

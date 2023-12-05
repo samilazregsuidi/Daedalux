@@ -17,7 +17,7 @@ ASTtoFSM::~ASTtoFSM() {}
 
 fsm * ASTtoFSM::astToFsm(const symTable * symTab, const stmnt * program, const TVL * fm)
 {
-  res = new fsm(symTab, fm->getFeatureModelClauses());
+  res = new fsm(symTab, fm? fm->getFeatureModelClauses() : ADD());
 
   this->fm = fm;
 
@@ -122,18 +122,24 @@ void ASTtoFSM::_toFsm(const stmnt * node, bool label, bool connect, bool looseEn
 
 void ASTtoFSM::visit(const stmntExpr * node)
 {
-  auto toADD = expToADD(fm);
 
-  node->getChild()->acceptVisitor(&toADD);
+  if(fm) {
+    auto toADD = expToADD(fm);
 
-  if (toADD.isFeatureExpr()) {
-    looseFeatures = toADD.getFormula();
-    assert(!looseFeatures || !(looseFeatures.IsOne()));
-    elseFeatures &= ~looseFeatures;
-    hasElseFeatures = true;
-    _visitNext(node);
-  }
-  else {
+    node->getChild()->acceptVisitor(&toADD);
+
+    if (toADD.isFeatureExpr()) {
+      looseFeatures = toADD.getFormula();
+      assert(!looseFeatures || !(looseFeatures.IsOne()));
+      elseFeatures &= ~looseFeatures;
+      hasElseFeatures = true;
+      _visitNext(node);
+    }
+    else {
+      _toFsm(node);
+    }
+
+  } else {
     _toFsm(node);
   }
 }
@@ -160,7 +166,7 @@ void ASTtoFSM::visit(const stmntIf * node)
   looseFeatures = ADD();
 
   auto elseFeaturesSave = elseFeatures;
-  elseFeatures = fm->getMgr()->addOne();
+  elseFeatures = fm? fm->getMgr()->addOne() : ADD();
 
   auto hasElseFeaturesSave = hasElseFeatures;
   hasElseFeatures = false;

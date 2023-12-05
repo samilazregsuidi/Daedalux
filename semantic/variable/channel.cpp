@@ -137,35 +137,12 @@ byte channel::getCapacity(void) const {
 	return dynamic_cast<const chanSymNode*>(varSym)->getCapacity();
 }
 
-int channel::operator = (const primitiveVariable& rvalue) {
-	rvalue;
-	assert(false);
+bool channel::operator == (const variable* other) const {
+	return variable::operator==(other);
 }
 
-int channel::operator ++ (void) {
-	assert(false);
-}
-
-int channel::operator -- (void) {
-	assert(false);
-}
-
-int channel::operator ++ (int) {
-	assert(false);
-}
-
-int channel::operator -- (int) {
-	assert(false);
-}
-
-bool channel::operator == (const primitiveVariable& other) const {
-	other;
-	assert(false);
-}
-
-bool channel::operator != (const primitiveVariable& other) const {
-	other;
-	assert(false);
+bool channel::operator != (const variable* other) const {
+	return variable::operator!=(other);
 }
 
 channel::operator std::string(void) const {

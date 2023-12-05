@@ -7,7 +7,7 @@
 #include "process.hpp"
 #include "transition.hpp"
 #include "compositeTransition.hpp"
-#include "programTransition.hpp"
+#include "rendezVousTransition.hpp"
 #include "processTransition.hpp"
 #include "neverTransition.hpp"
 #include "variable.hpp"

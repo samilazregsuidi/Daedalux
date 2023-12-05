@@ -113,10 +113,10 @@ add_executable(daedalux
 	
 	./semantic/payload.cpp
 	./semantic/transition.cpp
-	./semantic/programTransition.cpp
+	./semantic/rendezVousTransition.cpp
 	./semantic/processTransition.cpp
 	./semantic/compositeTransition.cpp
-	./semantic/featuredProgramTransition.cpp
+	./semantic/featuredTransition.cpp
 	# ./semantic/timedProgramTransition.cpp
 	./semantic/neverTransition.cpp
 	./semantic/deleteTransVisitor.cpp

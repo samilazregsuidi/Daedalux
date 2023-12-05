@@ -113,9 +113,8 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	}
 
 	// Load promela file
-	promela_loader *loader = new promela_loader();
-	fsm *automata = loader->load_promela_file(opt.input_file, tvl);
-	delete loader;
+	promela_loader loader(opt.input_file, tvl);
+	fsm *automata = loader.getAutomata();
 
 	// Initialize srand
 	srand(time(nullptr));

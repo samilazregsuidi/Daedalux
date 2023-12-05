@@ -27,9 +27,9 @@ public:
 
 	int operator -- (int) override;
 
-	bool operator == (const primitiveVariable& other) const override;
+	bool operator == (const variable* other) const override;
 
-	bool operator != (const primitiveVariable& other) const override;
+	bool operator != (const variable* other) const override;
 
 	operator std::string(void) const override;
 

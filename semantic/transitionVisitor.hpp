@@ -3,8 +3,8 @@
 
 class transition;
 class compTransition;
-class programTransition;
-class featProgTransition;
+class rendezVousTransition;
+class featTransition;
 class processTransition;
 class neverTransition;
 
@@ -14,8 +14,8 @@ public:
 
 	virtual void visit(transition* s) = 0;
 	virtual void visit(compTransition* s) = 0;
-	virtual void visit(programTransition* s) = 0;
-	virtual void visit(featProgTransition* s) = 0;
+	virtual void visit(rendezVousTransition* s) = 0;
+	virtual void visit(featTransition* s) = 0;
 	virtual void visit(processTransition* state) = 0;
 	virtual void visit(neverTransition* s) = 0;
 };

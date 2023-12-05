@@ -5,25 +5,35 @@ void setup_subcommand_mutations(CLI::App & app)
 
   // Create the option and subcommand objects.
   auto opt = std::make_shared<MutantsOptions>();
-  auto sub = app.add_subcommand("mutants", "Generate mutants from a Promela file");
+  auto sub = app.add_subcommand("gen-mutants", "Generate mutants from a Promela file");
 
-  app.add_option("-f, --file", opt->input_file, "Promela file to mutate")->check(CLI::ExistingFile)->required();
-  app.add_option("-p, --property", opt->property_file, "Property file to mutate")->check(CLI::ExistingFile)->required();
-  app.add_option("-n, --no_mutants", opt->number_of_mutants, "Number of mutants to generate")
+  sub->add_option("-f, --file", opt->input_file, "Promela file to mutate")->check(CLI::ExistingFile)->required();
+  sub->add_option("-p, --property", opt->property_file, "Property file to mutate")->check(CLI::ExistingFile)->required();
+  sub->add_option("-n, --nb_mutants", opt->number_of_mutants, "Number of mutants to generate")
       ->check(CLI::Range(1, 200))
       ->required();
 
   // Set the run function as callback to be called when this subcommand is issued.
   sub->callback([opt]() { generate_mutants(*opt); });
+
+  auto genTopt = std::make_shared<GenTracesOptions>();
+
+  sub = app.add_subcommand("gen-traces", "Generate positives and negatives traces from an original and a mutant file");
+  sub->add_option("-o, --original", genTopt->original_file, "Original promela file to explore")->check(CLI::ExistingFile)->required();
+  sub->add_option("-m, --mutant", genTopt->mutant_file, "Mutant promela file to explore")->check(CLI::ExistingFile)->required();
+  sub->add_option("-l, --l_traces", genTopt->traces_length, "Length of traces")->required();
+  sub->add_option("-n, --nb_traces", genTopt->nb_traces, "Number of traces to generate")->required();
+
+  sub->callback([genTopt]() { generateMutantTraces(genTopt->original_file, genTopt->mutant_file, genTopt->traces_length, genTopt->nb_traces); });
+
 }
 
-void generate_mutants(MutantsOptions const & opt)
+void generate_mutants(const MutantsOptions & opt)
 {
   std::cout << "Generating " << opt.number_of_mutants << " mutants from " << opt.input_file << std::endl;
   // Load promela file
-  promela_loader * loader = new promela_loader();
-  loader->load_promela_file(opt.input_file, nullptr);
-  stmnt * program = loader->get_program();
+  promela_loader loader(opt.input_file, nullptr);
+  stmnt * program = loader.getProgram();
 
   unsigned int index = program->assignMutables();
   std::cout << "NUMBER OF MUTABLE NODES " << index << std::endl;
@@ -63,10 +73,6 @@ void generate_mutants(MutantsOptions const & opt)
   }
 
   std::cout << "Generated " << opt.number_of_mutants * index << " mutants" << std::endl;
-  delete loader;
-
-  // Generate traces for mutants
-  generateMutantTraces(opt.input_file, mutant_folder + "/mutant_1.pml");
 }
 
 bool fileExists(const std::string & filename)
@@ -75,22 +81,22 @@ bool fileExists(const std::string & filename)
   return file.good(); // Returns true if the file exists, false otherwise.
 }
 
-void generateMutantTraces(std::string original, std::string mutant_file)
+void generateMutantTraces(const std::string& original_file, const std::string& mutant_file, size_t traces_length, unsigned int number_of_traces)
 {
   // Assert that both files exist before generating traces
   assert(fileExists(mutant_file));
-  assert(fileExists(original));
+  assert(fileExists(original_file));
 
   // Load promela files
-  promela_loader * loader_mutant = new promela_loader();
-  auto fsm_mutant = loader_mutant->load_promela_file(mutant_file, nullptr);
-  delete loader_mutant;
-  promela_loader * loader_original = new promela_loader();
-  auto fsm_original = loader_original->load_promela_file(original, nullptr);
-  delete loader_original;
+  promela_loader loader_mutant(mutant_file);
+  auto fsm_mutant = loader_mutant.getAutomata();
+
+  promela_loader loader_original = promela_loader(original_file);
+  auto fsm_original = loader_original.getAutomata();
+
 
   // Generate traces
-  traceReport report = generateTraces(fsm_original, fsm_mutant);
+  traceReport report = generateTraces(fsm_original, fsm_mutant, traces_length, number_of_traces);
 
   // Write traces to file
   std::ofstream negative_output;
@@ -114,11 +120,10 @@ void generateMutantTraces(std::string original, std::string mutant_file)
  * @param original: original promela file
  * @param number_of_mutants: number of mutants to generate
  */
-fsm generateFeaturedMutants(std::string original, unsigned int number_of_mutants)
+fsm generateFeaturedMutants(const std::string& original_file, unsigned int number_of_mutants)
 {
-  promela_loader * loader_original = new promela_loader();
-  auto fsm_original = loader_original->load_promela_file(original, nullptr);
-  delete loader_original;
+  promela_loader loader_original(original_file);
+  auto fsm_original = loader_original.getAutomata();
 
   // Generate mutants
   for (unsigned int j = 0; j < number_of_mutants; j++) {

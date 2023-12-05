@@ -15,7 +15,7 @@ private:
 
 public:
     traceReport();
-    traceReport(std::unordered_set<trace> goodTraces, std::unordered_set<trace> badTraces);
+    traceReport(const std::unordered_set<trace>& goodTraces, const std::unordered_set<trace>& badTraces);
     ~traceReport();
 
     std::unordered_set<trace> getGoodTraces() const { return this->goodTraces; }

@@ -53,13 +53,16 @@ bool variableDecorator::isGlobal(void) const {
 	return wrappee->isGlobal();
 }
 
-/*bool variableDecorator::operator == (const variable& other) const {
-	return getValue() == other.getValue();
+bool variableDecorator::operator == (const variable* other) const {
+	auto cast = dynamic_cast<const variableDecorator*>(other);
+	if(cast)
+		return *wrappee == cast->wrappee;
+	return *wrappee == other;
 }
 
-bool variableDecorator::operator != (const variable& other) const {
-	return getValue() == other.getValue();
-}*/
+bool variableDecorator::operator != (const variable* other) const {
+	return !(*this == other);
+}
 
 void variableDecorator::setParent(variable* parent) {
 	wrappee->setParent(parent);

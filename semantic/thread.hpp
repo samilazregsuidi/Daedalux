@@ -87,6 +87,10 @@ public:
 
 	channel* getChannel(const expr* varExpr) const;
 
+	bool operator == (const variable* other) const override;
+
+	bool operator != (const variable* other) const override;
+
 	/*template <typename T> T* getTVar(const expr* varExpr, const thread* proc) const {
 		return dynamic_cast<T*>(getVariable(varExpr));
 	}*/
