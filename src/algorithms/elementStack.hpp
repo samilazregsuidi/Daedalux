@@ -3,6 +3,7 @@
 
 #include <stack>
 #include <list>
+#include <memory>
 
 #include "state.hpp"
 
@@ -12,25 +13,25 @@ public:
 
         element(void);
         
-        element(state* s, unsigned int depth = 0);
+        element(std::shared_ptr<state> s, unsigned int depth = 0);
 
-        ~element();
+        ~element() = default;
 
-        state* s;
-        std::list<state*> Post;
+        std::shared_ptr<state> s;
+        std::list<std::shared_ptr<state>> Post;
         bool init;
         unsigned int depth;
     };
 
-    elementStack();
-    //destructeur
-    ~elementStack();
+    elementStack() = default; //constructors
+    //destructors
+    ~elementStack() = default;
 
-    void push(state* s, int depth = 0);
+    void push(std::shared_ptr<state> s, int depth = 0);
 
     void pop(void);
     
-    element* top(void) const;
+    std::shared_ptr<element> top(void) const;
     
     bool isIn(const element& elem) const;
     
@@ -38,7 +39,7 @@ public:
     
     bool empty(void) const;
 
-    std::stack<element*> stackElem;
+    std::stack<std::shared_ptr<element>> stackElem;
     std::set<unsigned long> setElem;
 };
 

@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <memory>
 // #include <gmock/gmock.h>
 #include "../src/cli/promela_loader.cpp"
 
@@ -7,15 +8,15 @@ class PromelaLoaderTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Common setup code that will be called before each test
-        loader = new promela_loader();
+        loader = std::make_unique<promela_loader>();
+
     }
 
     void TearDown() override {
         // Common teardown code that will be called after each test
-        delete loader;
     }
 
-    promela_loader * loader;
+    std::unique_ptr<promela_loader> loader;
 };
 
 // // Test case for loading a valid Promela file

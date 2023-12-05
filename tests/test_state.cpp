@@ -5,16 +5,16 @@ class StateTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Common setup code for all tests goes here
+        s = std::make_unique<compState>("testState");
     }
 
     void TearDown() override {
         // Common teardown code for all tests goes here
     }
+    std::unique_ptr<state> s;
 };
 
 TEST_F(StateTest, DefaultConstructor) {
-    auto s = new compState("testState");
-    
     EXPECT_EQ(variable::Type::V_COMP_S, s->getType());
     EXPECT_EQ("testState", s->getFullName());
     EXPECT_EQ(1.0, s->getProbability());
@@ -23,8 +23,6 @@ TEST_F(StateTest, DefaultConstructor) {
     EXPECT_TRUE(s->executables().empty());
     EXPECT_TRUE(s->hasDeadlock());
     EXPECT_EQ(0u, s->getErrorMask());
-
-    delete s;
 }
 
 TEST_F(StateTest, CopyConstructor) {

@@ -1,24 +1,33 @@
 #include "traceReport.hpp"
 
-traceReport::traceReport() : goodTraces(std::unordered_set<trace*>()), badTraces(std::unordered_set<trace*>()) {}
+const std::unordered_set<std::shared_ptr<trace>>& traceReport::getGoodTraces() const { return goodTraces; }
+const std::unordered_set<std::shared_ptr<trace>>& traceReport::getBadTraces() const { return badTraces; }
 
-traceReport::traceReport(std::unordered_set<trace*> goodTraces, std::unordered_set<trace*> badTraces)
-    : goodTraces(goodTraces), badTraces(badTraces)
-{
-  // Assert that the two sets of traces are disjoint.
-  for (const auto & goodTrace : goodTraces) {
-    for (const auto & badTrace : badTraces) {
-      assert(goodTrace != badTrace);
+void traceReport::addGoodTrace(std::shared_ptr<trace> t) {
+    // Ensure that the trace is not in the bad traces.
+    if (badTraces.find(t) == badTraces.end()) {
+        goodTraces.insert(std::move(t));
+    } else {
+        // Handle the case where the trace is in the bad traces.
+        // You may want to throw an exception or log an error.
     }
-  }
 }
 
-traceReport::~traceReport() {
-  // Delete all of the traces in the good and bad traces.
-  for (const auto & goodTrace : goodTraces) {
-    delete goodTrace;
-  }
-  for (const auto & badTrace : badTraces) {
-    delete badTrace;
-  }
+void traceReport::addBadTrace(std::shared_ptr<trace> t) {
+    // Ensure that the trace is not in the good traces.
+    if (goodTraces.find(t) == goodTraces.end()) {
+        badTraces.insert(std::move(t));
+    } else {
+        // Handle the case where the trace is in the good traces.
+        // You may want to throw an exception or log an error.
+    }
+}
+
+void traceReport::printCSV(std::ostream& goodTraceFile, std::ostream& badTraceFile) const {
+    for (const auto& t : this->goodTraces) {
+        t->printCSV(goodTraceFile);
+    }
+    for (const auto& t : this->badTraces) {
+        t->printCSV(badTraceFile);
+    }
 }

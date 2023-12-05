@@ -1,22 +1,23 @@
 #include <gtest/gtest.h>
 #include <sstream>
+#include <memory>
 
 #include "../../src/visualizers/traceReport.hpp"
 #include "../../src/visualizers/trace.hpp"
 #include "../../src/semantic/compositeState.hpp"
 #include "../../src/semantic/compositeTransition.hpp"
 
+
 class TraceReportTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Common setup code that will be called before each test
-        report = new traceReport();
+        report = std::make_unique<traceReport>();
     }
     void TearDown() override {
         // Common teardown code that will be called after each test
-        delete report;
     }
-    traceReport* report;
+    std::unique_ptr<traceReport> report;
 };
 
 // Test the addBadTrace and getBadTraces methods
@@ -24,14 +25,14 @@ TEST_F(TraceReportTest, Test) {
     ASSERT_TRUE(true);
 }
 
-
 // Test the addBadTrace and getBadTraces methods
 TEST_F(TraceReportTest, AddBadTraceAndGetBadTraces) {
     std::list<transition*> transList = std::list<transition*>();
-    auto state = new compState("test_variable");
-    transition* t = new compTransition(state, transList);
-    trace *t1 = new trace();
-    trace *t2 = new trace();
+    std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+    std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
+
+    std::shared_ptr<trace> t1 = std::make_shared<trace>();
+    std::shared_ptr<trace> t2 = std::make_shared<trace>();
 
     t1->addTransition(t);
     t2->addState(state);
@@ -39,7 +40,7 @@ TEST_F(TraceReportTest, AddBadTraceAndGetBadTraces) {
     report->addBadTrace(t1);
     report->addBadTrace(t2);
 
-    std::unordered_set<trace*> badTraces = report->getBadTraces();
+    auto badTraces = report->getBadTraces();
 
     ASSERT_EQ(badTraces.size(), 2);
     // ASSERT_TRUE(badTraces.count(t1) > 0);
@@ -49,10 +50,11 @@ TEST_F(TraceReportTest, AddBadTraceAndGetBadTraces) {
 // Test the addGoodTrace and getGoodTraces methods
 TEST_F(TraceReportTest, AddGoodTraceAndGetGoodTraces) {
     std::list<transition*> transList = std::list<transition*>();
-    auto state = new compState("test_variable");
-    transition* t = new compTransition(state, transList);
-    trace* t1 = new trace();
-    trace* t2 = new trace();
+    std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+    std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
+
+    std::shared_ptr<trace> t1 = std::make_shared<trace>();
+    std::shared_ptr<trace> t2 = std::make_shared<trace>();
 
     t1->addTransition(t);
     t2->addState(state);
@@ -60,7 +62,7 @@ TEST_F(TraceReportTest, AddGoodTraceAndGetGoodTraces) {
     report->addGoodTrace(t1);
     report->addGoodTrace(t2);
 
-    std::unordered_set<trace*> goodTraces = report->getGoodTraces();
+    auto goodTraces = report->getGoodTraces();
 
     ASSERT_EQ(goodTraces.size(), 2);
     ASSERT_TRUE(goodTraces.count(t1) > 0);
@@ -77,13 +79,13 @@ TEST_F(TraceReportTest, AddGoodTraceAndGetGoodTraces) {
 //     report->addGoodTrace(t1);
 //     report->addBadTrace(t2);
 
-//     std::ostringstream goodTraceStream;
-//     std::ostringstream badTraceStream;
+//     ostringstream goodTraceStream;
+//     ostringstream badTraceStream;
 
 //     report->printCSV(goodTraceStream, badTraceStream);
 
-//     std::string expectedGoodTraceCSV = "Trace 1\n";
-//     std::string expectedBadTraceCSV = "Trace 2\n";
+//     string expectedGoodTraceCSV = "Trace 1\n";
+//     string expectedBadTraceCSV = "Trace 2\n";
 
 //     ASSERT_EQ(goodTraceStream.str(), expectedGoodTraceCSV);
 //     ASSERT_EQ(badTraceStream.str(), expectedBadTraceCSV);

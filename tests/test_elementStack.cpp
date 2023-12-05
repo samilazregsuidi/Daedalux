@@ -1,4 +1,7 @@
 #include "gtest/gtest.h"
+#include <iostream>
+#include <memory>
+
 #include "../src/algorithms/elementStack.hpp"
 #include "../src/semantic/compositeState.hpp"
 
@@ -19,57 +22,54 @@ protected:
 
 // Test the push and top functions
 TEST_F(ElementStackTest, PushAndTop) {
-    auto initialState = new compState("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
+    std::cout << "initialState: " << initialState->getFullName() << std::endl;
     s->push(initialState, 0);
-
+    std::cout << "top: " << s->top()->s->getFullName() << std::endl;
     ASSERT_FALSE(s->empty());
 
-    // elementStack::element* topElement = s->top();
-    // ASSERT_TRUE(topElement != nullptr);
-    // ASSERT_TRUE(topElement->init);
-    // ASSERT_EQ(topElement->depth, 0);
-    // ASSERT_EQ(topElement->s, initialState);
-
-    // // Cleanup
-    // s->pop();
-    delete initialState;
-}
-
-// Test the pop function
-TEST_F(ElementStackTest, Pop) {
-    auto initialState = new compState("init_state");
-
-    s->push(initialState, 0);
-    ASSERT_FALSE(s->empty());
-
-    // s->pop();
-    // ASSERT_TRUE(s->empty());
-    // ASSERT_EQ(s->top(), nullptr);
+    auto topElement = s->top();
+    ASSERT_TRUE(topElement != nullptr);
+    ASSERT_TRUE(topElement->init);
+    ASSERT_EQ(topElement->depth, 0);
+    ASSERT_EQ(topElement->s, initialState);
 
     // Cleanup
+    s->pop();
 }
 
 // Test the isIn function
 TEST_F(ElementStackTest, IsIn) {
-    auto initialState = new compState("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
 
     s->push(initialState, 0);
     ASSERT_TRUE(s->isIn(initialState->hash()));
 
     // Cleanup
     s->pop();
-    delete initialState;
 }
 
 // Test the empty function
 TEST_F(ElementStackTest, Empty) {
     ASSERT_TRUE(s->empty());
 
-    auto initialState = new compState("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
     s->push(initialState, 0);
     ASSERT_FALSE(s->empty());
 
     // Cleanup
     s->pop();
-    delete initialState;
 }
+
+// Test the pop function
+TEST_F(ElementStackTest, Pop) {
+    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
+    std::cout << "initialState: " << initialState->getFullName() << std::endl;
+    s->push(initialState, 0);
+    ASSERT_FALSE(s->empty());
+
+    s->pop();
+    ASSERT_TRUE(s->empty());
+    ASSERT_EQ(s->top(), nullptr);
+}
+

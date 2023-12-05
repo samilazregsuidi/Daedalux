@@ -1,48 +1,42 @@
 #include "elementStack.hpp"
 
 #include "state.hpp"
+#include <iostream>
 
 elementStack::element::element(void)
 	: s(nullptr)
 	, init(false)
 {}
     
-elementStack::element::element(state* s, unsigned int depth)
+elementStack::element::element(std::shared_ptr<state> s, unsigned int depth)
 	: s(s)
 	, init(true)
 	, depth(depth)
 {
-
-	Post = s->Post();
+	std::list<std::shared_ptr<state>> sPost_;
+	for (auto & p : s->Post()) {
+		std::shared_ptr<state> postState(p);
+		sPost_.push_back(postState);
+	}
+	Post = sPost_;
 	/*if(Post.size() == 0){
 		Post = s->Post();
 		//assert(false);
 	}*/
 }
 
-elementStack::element::~element() {
-	if(s)
-		delete s;
-	for(auto p : Post)
-		delete p;
-}
+// elementStack::element::~element() {
+// 	if(s)
+// 		delete s;
+// 	for(auto p : Post)
+// 		delete p;
+// }
 
-elementStack::elementStack()
-	: stackElem(), setElem() {}
 
-elementStack::~elementStack() {
-	while(!stackElem.empty()){
-		auto t = stackElem.top();
-		stackElem.pop();
-		delete t;
-	}
-}
-
-void elementStack::push(state* s, int depth) {
-	// if(stackElem == nullptr){
-	// 	stackElem = new std::stack<element*>();
-	// }
-	stackElem.push(new element(s, depth));
+void elementStack::push(std::shared_ptr<state> s, int depth){
+	std::shared_ptr<element> elem(new element(s, depth));
+	stackElem.push(elem);
+	unsigned long hash = s->hash();
 	setElem.insert(s->hash());
 }
     
@@ -52,14 +46,11 @@ void elementStack::pop(void) {
 	
 	stackElem.pop();
 	setElem.erase(hash);
-
-	delete t;
 }
 
-elementStack::element* elementStack::top(void) const {
-	// if(stackElem == nullptr){
-	// 	stackElem = new std::stack<element*>();
-	// }
+std::shared_ptr<elementStack::element> elementStack::top(void) const {
+	if (stackElem.empty())
+		return nullptr;
 	return stackElem.top();
 }
 
@@ -67,13 +58,10 @@ bool elementStack::isIn(unsigned long elem) const {
 	return setElem.find(elem) != setElem.end();
 }
 
-bool elementStack::isIn(const element& elem) const {
+bool elementStack::isIn(const elementStack::element& elem) const {
 	return isIn(elem.s->hash());
 }
 
 bool elementStack::empty(void) const {
-	// if(stackElem == nullptr){
-	// 	stackElem = new std::stack<element*>();
-	// }
 	return stackElem.empty();
 }

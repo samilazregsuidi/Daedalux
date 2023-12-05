@@ -18,10 +18,7 @@ extern void init_lex();
 class promela_loader {
     public:
         promela_loader();
-        ~promela_loader(){
-            delete globalSymTab;
-            delete program;
-        }
+        ~promela_loader() = default; // No need for explicit destructor
         
         fsm* load_promela_file(std::string file_name, const TVL *tvl = nullptr);
 

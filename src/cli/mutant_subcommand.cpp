@@ -21,7 +21,7 @@ void generate_mutants(MutantsOptions const & opt)
 {
   std::cout << "Generating " << opt.number_of_mutants << " mutants from " << opt.input_file << std::endl;
   // Load promela file
-  promela_loader * loader = new promela_loader();
+  auto loader = std::make_unique<promela_loader>();
   loader->load_promela_file(opt.input_file, nullptr);
   stmnt * program = loader->get_program();
 
@@ -63,8 +63,6 @@ void generate_mutants(MutantsOptions const & opt)
   }
 
   std::cout << "Generated " << opt.number_of_mutants * index << " mutants" << std::endl;
-  delete loader;
-
   // Generate traces for mutants
   generateMutantTraces(opt.input_file, mutant_folder + "/mutant_1.pml");
 }
@@ -81,33 +79,29 @@ void generateMutantTraces(std::string original, std::string mutant_file)
   assert(fileExists(mutant_file));
   assert(fileExists(original));
 
-  // Load promela files
-  promela_loader * loader_mutant = new promela_loader();
-  auto fsm_mutant = loader_mutant->load_promela_file(mutant_file, nullptr);
-  delete loader_mutant;
-  promela_loader * loader_original = new promela_loader();
-  auto fsm_original = loader_original->load_promela_file(original, nullptr);
-  delete loader_original;
+  // Load promela files using smart pointers
+  std::unique_ptr<promela_loader> loader_mutant = std::make_unique<promela_loader>();
+  std::shared_ptr<fsm> fsm_mutant = std::make_shared<fsm>(*loader_mutant->load_promela_file(mutant_file, nullptr));
+
+  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>();
+  std::shared_ptr<fsm> fsm_original = std::make_shared<fsm>(*loader_original->load_promela_file(original, nullptr));
 
   // Generate traces
-  traceReport report = generateTraces(fsm_original, fsm_mutant);
+  std::unique_ptr<traceReport> report = generateTraces(fsm_original, fsm_mutant);
 
   // Write traces to file
   std::ofstream negative_output;
   std::ofstream positive_output;
   negative_output.open(mutant_file.substr(0, mutant_file.find_last_of(".")) + "_negative.csv");
   positive_output.open(mutant_file.substr(0, mutant_file.find_last_of(".")) + "_positive.csv");
-  report.printCSV(positive_output, negative_output);
+
+  report->printCSV(positive_output, negative_output);
   negative_output.close();
   positive_output.close();
 
   std::cout << "Generated traces" << std::endl;
 
-  // Clean up memory
-  if (fsm_mutant)
-    delete fsm_mutant;
-  if (fsm_original)
-    delete fsm_original;
+  // Memory cleanup is automatic with smart pointers
 }
 
 /* Generate featured mutant models from a promela file
@@ -116,14 +110,12 @@ void generateMutantTraces(std::string original, std::string mutant_file)
  */
 fsm generateFeaturedMutants(std::string original, unsigned int number_of_mutants)
 {
-  promela_loader * loader_original = new promela_loader();
+  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>();
   auto fsm_original = loader_original->load_promela_file(original, nullptr);
-  delete loader_original;
 
   // Generate mutants
   for (unsigned int j = 0; j < number_of_mutants; j++) {
     // Generate mutant by mutating the original program and writing it to a file
-
   }
 }
 
@@ -135,26 +127,27 @@ void analyzeMutants(fsm feature_mutant_model, std::vector<std::string> propertie
 {
   // Initally, all mutants are surviving mutants
   auto killed_mutants = std::vector<std::string>();
-  auto surviving_mutants = std::vector<std::string>();	
+  auto surviving_mutants = std::vector<std::string>();
   // Check whether the mutants are killed by the properties
   for (auto property : properties) {
-	std::cout << "Checking property " << property << std::endl;
-	// Check whether the property kills the mutant
-	// TODO implement - not sure how to do this yet 
-	bool killed = false;
-	if (killed) {
-	  std::cout << "Property kills mutant" << std::endl;
-	  // Move mutant from surviving to killed mutants
-	  //killed_mutants.push_back(property);
-	  //surviving_mutants.erase(std::remove(surviving_mutants.begin(), surviving_mutants.end(), property), surviving_mutants.end());
-	} else {
-		std::cout << "Property does not kill mutant" << std::endl;	
-	}
+    std::cout << "Checking property " << property << std::endl;
+    // Check whether the property kills the mutant
+    // TODO implement - not sure how to do this yet
+    bool killed = false;
+    if (killed) {
+      std::cout << "Property kills mutant" << std::endl;
+      // Move mutant from surviving to killed mutants
+      // killed_mutants.push_back(property);
+      // surviving_mutants.erase(std::remove(surviving_mutants.begin(), surviving_mutants.end(), property),
+      // surviving_mutants.end());
+    }
+    else {
+      std::cout << "Property does not kill mutant" << std::endl;
+    }
   }
 
-  // Shrink the feature model to only surviving mutants by removing all transitions with a featured expression that is not in the surviving mutants
-
+  // Shrink the feature model to only surviving mutants by removing all transitions with a featured expression that is not in
+  // the surviving mutants
 
   // Save killed mutants to file
-
 }

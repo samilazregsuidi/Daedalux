@@ -291,7 +291,7 @@ payload* variable::getPayload(void) const {
 }
 
 unsigned long variable::hash(void) const {
-	return payLoad->hash(getOffset(), getSizeOf());
+	return payLoad ? payLoad->hash(getOffset(), getSizeOf()) : 0;
 }
 
 size_t variable::getOffset(void) const {

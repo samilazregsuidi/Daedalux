@@ -27,15 +27,16 @@ public:
     reachabilityRelation R;
 };
 
-void printElementStack(const std::stack<elementStack::element*>& outerStack, const std::stack<elementStack::element*>& innerStack = std::stack<elementStack::element*>(), const state* loopBegin = nullptr);
+void printElementStack(const std::stack<std::shared_ptr<elementStack::element>>& outerStack, 
+                        const std::stack<std::shared_ptr<elementStack::element>>& innerStack = std::stack<std::shared_ptr<elementStack::element>>(), const state* loopBegin = nullptr);
 
 void launchExecution(const fsm* automata, const TVL* tvl = nullptr);
 int launchExecutionMarkovChain(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceBFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl = nullptr);
-trace* generateNegativeTraces(const fsm *original, const fsm *mutant, const size_t k = 200, const TVL *tvl = nullptr);
-traceReport generateTraces(const fsm *original, const fsm *mutant, const size_t no_traces = 20, const size_t len_traces = 200, const TVL *tvl = nullptr);
+std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant, const size_t k = 200, const TVL *tvl = nullptr);
+std::unique_ptr<traceReport> generateTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant, const size_t no_traces = 20, const size_t len_traces = 200, const TVL *tvl = nullptr);
 
 
 #endif

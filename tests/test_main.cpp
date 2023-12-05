@@ -15,14 +15,17 @@
 
 #include "vizualizers/test_trace.cpp"
 #include "vizualizers/test_traceReport.cpp"
+#include "vizualizers/test_stateToGraphViz.cpp"
+
 
 // #include "test_transition.cpp"
 #include "test_state.cpp"
 
-// #include "test_elementStack.cpp"
+#include "test_elementStack.cpp"
 
-#include "test_promela_loader.cpp"
+// #include "test_promela_loader.cpp"
 
+#include "integration_tests/test_dfs.cpp"
 
 int main(int argc, char **argv) {
     // Initialize Google Test framework

@@ -1,6 +1,7 @@
 #ifndef REACHABILITY_RELATION_H
 #define REACHABILITY_RELATION_H
 
+#include <memory>
 #include <stack>
 #include <list>
 
@@ -30,12 +31,12 @@ public:
 private:
     class RState {
     public:
-        RState(const state* s, dfs lastFoundIn)
+        RState(const state* s, 
+                dfs lastFoundIn)
             : vId(s->getVariableId())
             , hash(s->hash())
             , lastFoundIn(lastFoundIn)
-        {
-        }
+        {}
         
         /*RState(const state* s, dfs lastFoundIn, const ADD& outerFeatures, const ADD& innerFeatures) 
             : vId(s->getVariableId())

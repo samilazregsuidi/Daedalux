@@ -1,20 +1,22 @@
 #include <gtest/gtest.h>
+
+#include <memory>   // std::unique_ptr
 #include "../src/automata/fsm.hpp"
 
 #include "../src/automata/fsmEdge.cpp"
+
 
 class FsmEdgeTest : public ::testing::Test {
 protected:
     void SetUp() override {
         symTable* table = new symTable("global", nullptr);
-        myFSM = new fsm(table, ADD());
+        myFSM = std::make_unique<fsm>(table, ADD());
     }
 
     void TearDown() override {
-        delete myFSM;
     }
 
-    fsm* myFSM;
+    std::unique_ptr<fsm> myFSM;
 };
 
 TEST_F(FsmEdgeTest, ConstructorTest) {
@@ -24,7 +26,7 @@ TEST_F(FsmEdgeTest, ConstructorTest) {
     int lineNb = 1;
     bool owner = true;
 
-    fsmEdge* edge = new fsmEdge(sourceNode, targetNode, nullptr, lineNb, owner);
+    std::unique_ptr<fsmEdge> edge = std::make_unique<fsmEdge>(sourceNode, targetNode, nullptr, lineNb, owner);
 
     EXPECT_EQ(edge->parent, sourceNode->getParent());
     EXPECT_EQ(edge->getSourceNode(), sourceNode);
@@ -32,9 +34,6 @@ TEST_F(FsmEdgeTest, ConstructorTest) {
     EXPECT_EQ(edge->getLineNb(), lineNb);
     EXPECT_EQ(edge->getProbability(), 1.0);
     EXPECT_EQ(edge->owner, owner);
-
-    // Cleanup
-    delete edge;
 }
 
 TEST_F(FsmEdgeTest, ChangeTargetTest) {
@@ -46,8 +45,8 @@ TEST_F(FsmEdgeTest, ChangeTargetTest) {
     int lineNb = 1;
     bool owner = true;
 
-    fsmEdge* edge = new fsmEdge(sourceNode, targetNode, nullptr, lineNb, owner);
-    targetNode->addInputTransition(edge);
+    std::unique_ptr<fsmEdge> edge = std::make_unique<fsmEdge>(sourceNode, targetNode, nullptr, lineNb, owner);
+    targetNode->addInputTransition(edge.get());
 
     EXPECT_EQ(edge->parent, sourceNode->getParent());
     EXPECT_EQ(edge->getSourceNode(), sourceNode);
@@ -59,9 +58,6 @@ TEST_F(FsmEdgeTest, ChangeTargetTest) {
     // Change the target node
     edge->setTargetNode(targetNodeAlternative);
     EXPECT_EQ(edge->getTargetNode(), targetNodeAlternative);
-
-    // Cleanup
-    delete edge;
 }
 
 TEST_F(FsmEdgeTest, ChangeSourceTest) {
@@ -73,9 +69,9 @@ TEST_F(FsmEdgeTest, ChangeSourceTest) {
     int lineNb = 1;
     bool owner = true;
 
-    fsmEdge* edge = new fsmEdge(sourceNode, targetNode, nullptr, lineNb, owner);
-    targetNode->addInputTransition(edge);
-    sourceNode->addTransition(edge);
+    std::unique_ptr<fsmEdge> edge = std::make_unique<fsmEdge>(sourceNode, targetNode, nullptr, lineNb, owner);
+    targetNode->addInputTransition(edge.get());
+    sourceNode->addTransition(edge.get());
 
     EXPECT_EQ(edge->parent, sourceNode->getParent());
     EXPECT_EQ(edge->getSourceNode(), sourceNode);
@@ -87,7 +83,4 @@ TEST_F(FsmEdgeTest, ChangeSourceTest) {
     // Change the target node
     edge->setSourceNode(sourceNodeAlternative);
     EXPECT_EQ(edge->getSourceNode(), sourceNodeAlternative);
-
-    // Cleanup
-    delete edge;
 }
