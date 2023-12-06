@@ -432,8 +432,8 @@ Apply:
 		s->lastStepPid = proc->getPid();
 	}
 
-	origin = trans;
-	trans->dst = this;
+	//origin = trans;
+	//trans->dst = this;
 
 	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
 

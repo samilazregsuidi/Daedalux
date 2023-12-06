@@ -32,11 +32,11 @@ public:
 
 	virtual int operator ++ (int) = 0;
 
-	virtual int operator -- (int) = 0;
+	virtual int operator -- (int) = 0;*/
 
-	virtual bool operator == (const variable& other) const = 0;
+	bool operator == (const variable* other) const override = 0;
 
-	virtual bool operator != (const variable& other) const = 0;*/
+	bool operator != (const variable* other) const override = 0;
 
 	/****************************************************/
 

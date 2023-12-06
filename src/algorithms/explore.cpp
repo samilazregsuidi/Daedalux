@@ -5,7 +5,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <memory> // Include for smart pointers
 #include <string>
 
 #include "process.hpp"
@@ -23,7 +22,7 @@
 
 #define B 5
 
-std::unique_ptr<stateToGraphViz> graphVis = nullptr;
+stateToGraphViz * graphVis = nullptr;
 
 void launchExecution(const fsm * automata, const TVL * tvl)
 {
@@ -32,7 +31,7 @@ void launchExecution(const fsm * automata, const TVL * tvl)
   // printf("**********************************\n");
   current->PRINT_STATE();
 
-  graphVis = std::make_unique<stateToGraphViz>(automata);
+  graphVis = new stateToGraphViz(automata);
 
   graphVis->printGraphViz(current);
 
@@ -64,19 +63,18 @@ void launchExecution(const fsm * automata, const TVL * tvl)
 // * 	k - The length of the run
 // * 	tvl - The feature model
 // *
-std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
-                                              const size_t trace_length, const TVL * tvl)
+trace generateNegativeTraces(const fsm * original, const fsm * mutant, const size_t trace_length, const TVL * tvl)
 {
   // Create the initial state for both automatas
-  std::shared_ptr<state> current_state_original(initState::createInitState(original.get(), tvl));
-  std::shared_ptr<state> current_state_mutant(initState::createInitState(mutant.get(), tvl));
+  state * current_state_original = initState::createInitState(original, tvl);
+  state * current_state_mutant = initState::createInitState(mutant, tvl);
   // Lists to store the transitions of the two automatas
-  std::list<transition *> trans_original = std::list<transition *>();
-  std::list<transition *> trans_mutant = std::list<transition *>();
-  std::list<transition *> different_trans = std::list<transition *>();
+  auto trans_original = std::list<transition *>();
+  auto trans_mutant = std::list<transition *>();
+  auto different_trans = std::list<transition *>();
 
   // Create a list of visited states
-  std::unique_ptr<trace> current_trace = std::make_unique<trace>();
+  trace * current_trace = new trace();
   current_trace->addState(current_state_mutant);
   transition * current_trans = nullptr;
 
@@ -93,12 +91,12 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
       // Iterate through trans_mutant and check if each transition is in trans_original
       for (auto mutant_transition : trans_mutant) {
         bool found = false;
-        for (auto original_transition : trans_original) {
+        for(auto original_transition : trans_original) {
           if (*mutant_transition == original_transition) {
             found = true;
             continue;
           }
-          if (!found)
+          if(!found)
             different_trans.push_back(mutant_transition);
         }
       }
@@ -106,7 +104,7 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
       // If mutant can fire a transition that the original automata cannot fire
       if (!different_trans.empty()) {
         // Fire the transition
-        auto trans = different_trans.front();
+        current_trans = different_trans.front();
         // Apply the transition to the mutant automaton
         current_state_mutant->apply(current_trans);
         // The prefix is no longer the same
@@ -128,23 +126,21 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
     }
 
     // Add the state and transition to the trace
-    std::shared_ptr<transition> trans(current_trans);
-    current_trace->addTransition(trans);
+    current_trace->addTransition(current_trans);
     current_trace->addState(current_state_mutant);
   }
   if (same_prefix)
     std::cout << "A trace in the mutant that not can be found in the original automata was not found" << std::endl;
 
-  return current_trace;
+  return *current_trace;
 }
 
-std::unique_ptr<traceReport> generateTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
-                                            const size_t no_traces, size_t len_traces, const TVL * tvl)
+traceReport generateTraces(const fsm * original, const fsm * mutant, const size_t no_traces, size_t len_traces, const TVL * tvl)
 {
-  std::unique_ptr<traceReport> traces = std::make_unique<traceReport>();
+  traceReport traces = traceReport();
   for (size_t i = 0; i < no_traces; ++i) {
-    traces->addBadTrace(generateNegativeTraces(original, mutant, len_traces, tvl));
-    traces->addGoodTrace(generateNegativeTraces(mutant, original, len_traces, tvl));
+    traces.addBadTrace(generateNegativeTraces(original, mutant, len_traces, tvl));
+    traces.addGoodTrace(generateNegativeTraces(mutant, original, len_traces, tvl));
   }
   return traces;
 }
@@ -170,7 +166,7 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
   // printf("**********************************\n");
   current->PRINT_STATE();
 
-  graphVis = std::make_unique<stateToGraphViz>(automata);
+  graphVis = new stateToGraphViz(automata);
 
   graphVis->printGraphViz(current);
 
@@ -283,23 +279,23 @@ void findLasso(const fsm * automata, const TVL * tvl, size_t k_steps)
  */
 void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
 {
-  elementStack st;
+  std::stack<elementStack::element *> st;
   std::set<unsigned long> hm;
-  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
+  state * init = initState::createInitState(automata, tvl);
 
-  graphVis = std::make_unique<stateToGraphViz>(automata);
-  graphVis->printGraphViz(init.get());
+  graphVis = new stateToGraphViz(automata);
+  graphVis->printGraphViz(init);
 
   int depth = 0;
 
-  st.push(init);
+  st.push(new elementStack::element(init));
   hm.insert(init->hash());
 
   unsigned long i = 0;
 
   while (!st.empty()) {
 
-    auto current = st.top();
+    auto & current = st.top();
     i++;
 
     printf("****************** current state ****************\n");
@@ -308,7 +304,7 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
     depth = current->depth;
 
     auto nexts = current->s->Post();
-    // delete current;
+    delete current;
 
     if (nexts.size() > 0) {
       printf("************* next possible states **************\n");
@@ -322,8 +318,7 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
           delete n;
         }
         else {
-          std::shared_ptr<state> nState(n);
-          st.push(nState, depth);
+          st.push(new elementStack::element(n, depth));
           hm.insert(n->hash());
           graphVis->printGraphViz(n, depth);
         }
@@ -340,7 +335,7 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
 
   printf("number of states : %ld\n", i);
 
-  graphVis.reset();
+  delete graphVis;
 }
 
 /**
@@ -351,32 +346,28 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
 void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
 {
 
-  elementStack st;
+  std::stack<elementStack::element *> st;
   std::set<unsigned long> hm;
-  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
+  state * init = (initState::createInitState(automata, tvl));
 
-  graphVis = std::make_unique<stateToGraphViz>(automata);
+  graphVis = new stateToGraphViz(automata);
 
   int depth = 0;
 
-  st.push(init, depth);
+  st.push(new elementStack::element(init));
   hm.insert(init->hash());
 
   unsigned long i = 0;
 
   while (!st.empty()) {
+
     auto current = st.top();
 
     printf("****************** current state ****************\n");
     current->s->PRINT_STATE();
 
     if (!current->init) {
-      std::list<std::shared_ptr<state>> sPost_;
-      for (auto & s : current->s->Post()) {
-        std::shared_ptr<state> postState(s);
-        sPost_.push_back(postState);
-      }
-      current->Post = sPost_;
+      current->Post = current->s->Post();
       current->init = true;
     }
 
@@ -391,22 +382,22 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
 
       if (hm.find(n->hash()) != hm.end()) {
         printf("************* already visited state **************\n");
-        // delete n;
+        delete n;
       }
       else {
-        st.push(n, depth);
+        st.push(new elementStack::element(n, depth));
         hm.insert(n->hash());
         ++depth;
         i++;
 
-        graphVis->printGraphViz(n.get(), depth);
+        graphVis->printGraphViz(n, depth);
       }
 
       printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
     }
     else {
       printf("************* end state **************\n");
-      // delete current;
+      delete current;
       st.pop();
       --depth;
     }
@@ -414,27 +405,27 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
 
   printf("number of states : %ld\n", i);
 
-  graphVis.reset();
+  delete graphVis;
 }
 
 void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
 {
-  elementStack st;
-  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
+  std::stack<elementStack::element *> st;
+  state * init = (initState::createInitState(automata, tvl));
 
   reachabilityRelation R;
   R.tvl = tvl;
 
-  graphVis = std::make_unique<stateToGraphViz>(automata);
+  graphVis = new stateToGraphViz(automata);
 
   int depth = 0;
 
-  R.getStatus(init.get());
-  R.init(init.get());
+  R.getStatus(init);
+  R.init(init);
 
-  st.push(init, depth);
+  st.push(new elementStack::element(init));
 
-  graphVis->printGraphViz(init.get(), depth);
+  graphVis->printGraphViz(init, depth);
 
   unsigned long i = 0;
 
@@ -446,12 +437,7 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
     // current->s->PRINT_STATE();
 
     if (!current->init) {
-      std::list<std::shared_ptr<state>> sPost_;
-      for (auto & s : current->s->Post()) {
-        std::shared_ptr<state> postState(s);
-        sPost_.push_back(postState);
-      }
-      current->Post = sPost_;
+      current->Post = current->s->Post();
       assert(current->Post.size() > 0);
       current->init = true;
     }
@@ -465,19 +451,19 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
 
       // n->PRINT_STATE();
 
-      auto status = R.getStatus(n.get());
-      R.update(n.get());
+      auto status = R.getStatus(n);
+      R.update(n);
 
-      graphVis->printGraphViz(n.get(), depth);
+      graphVis->printGraphViz(n, depth);
 
       if (status == STATES_SAME_S1_VISITED) {
         // printf("************* already visited state **************\n");
         // graphVis->printGraphViz(n, depth);
 
-        // delete n;
+        delete n;
       }
       else if (STATES_S1_NEVER_VISITED || STATES_SAME_S1_FRESH) {
-        st.push(n, depth);
+        st.push(new elementStack::element(n, depth));
 
         // graphVis->printGraphViz(n, depth);
 
@@ -494,7 +480,7 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
     }
     else {
       // printf("************* end state **************\n");
-      // delete current;
+      delete current;
       st.pop();
       --depth;
     }
@@ -502,7 +488,7 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
 
   printf("number of states : %ld\n", i);
 
-  graphVis.reset();
+  delete graphVis;
 }
 
 // static 		unsigned int _nbErrors = 0;				// Total number of encountered problems
@@ -523,9 +509,10 @@ void ltlModelChecker::startNestedDFS(const fsm * automata, const TVL * tvl)
   printf("[startNestedDFS]\n");
 
   // Create initial state
-  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
+  state * init = (initState::createInitState(automata, tvl));
 
-  graphVis = std::make_unique<stateToGraphViz>(automata);
+  graphVis = new stateToGraphViz(automata);
+
   // graphVis->printGraphViz(init, _depth);
 
   // init->print();
@@ -573,7 +560,7 @@ void ltlModelChecker::startNestedDFS(const fsm * automata, const TVL * tvl)
     printf("\n");
   }
 
-  graphVis.reset();
+  delete graphVis;
 }
 
 int i = 0;
@@ -583,8 +570,8 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
 
   byte exhaustive = 0;
 
-  R.getStatus(stackOuter.top()->s.get());
-  R.init(stackOuter.top()->s.get());
+  R.getStatus(stackOuter.top()->s);
+  R.init(stackOuter.top()->s);
 
   // graphVis->printGraphViz(stackOuter.top()->s);
 
@@ -616,7 +603,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
       printf("Safety property violated %lu.\n", s_hash);
       printElementStack(stackOuter.stackElem);
 
-      R.addTraceViolation(current->s.get());
+      R.addTraceViolation(current->s);
 
       stackOuter.pop();
 
@@ -659,21 +646,21 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
         if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
           printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
 
-          R.addTraceViolation(current->s.get());
+          R.addTraceViolation(current->s);
 
-          // delete s_;
+          delete s_;
           s_ = nullptr;
         }
         else {
 
           // get the status before update!
-          auto status = R.getStatus(s_.get());
+          auto status = R.getStatus(s_);
           // graphVis->printGraphViz(s_, _depth);
 
           if (status == STATES_SAME_S1_VISITED) {
             // printf("         - state %lu already visited.\n", s_hash);
             // s_->print();
-            // delete s_;
+            delete s_;
 
             _nbStatesStops++;
           }
@@ -699,7 +686,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
               // printf("         - state fresh %lu, pushing on stack.\n", s_hash);
             }
 
-            R.update(s_.get());
+            R.update(s_);
             // assert(R.getStatus(s_) != status);
 
             _depth++;
@@ -721,8 +708,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
 
           // printf("    +-> found accepting state %lu, starting inner...\n", s_hash);
           elementStack stackInner;
-          std::shared_ptr<state> s_(current->s->deepCopy());
-          stackInner.push(s_, _depth);
+          stackInner.push(current->s->deepCopy(), _depth);
 
           // error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
           R.setDFS(reachabilityRelation::DFS_INNER);
@@ -811,26 +797,26 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
         }
 
         stackInner.push(s_, _depth + 1);
-        printElementStack(stackOuter.stackElem, stackInner.stackElem, s_.get());
+        printElementStack(stackOuter.stackElem, stackInner.stackElem, s_);
         stackInner.pop();
 
-        R.addTraceViolation(current->s.get());
+        R.addTraceViolation(current->s);
       }
       else {
 
         // get the status before update!
-        auto status = R.getStatus(s_.get());
+        auto status = R.getStatus(s_);
 
         // graphVis->printGraphViz(s_, _depth);
 
-        auto lastFoundIn = R.lastFoundIn(s_.get());
+        auto lastFoundIn = R.lastFoundIn(s_);
         // update put to inner if outer
-        R.update(s_.get());
-        assert(R.lastFoundIn(s_.get()) == reachabilityRelation::DFS_INNER);
+        R.update(s_);
+        assert(R.lastFoundIn(s_) == reachabilityRelation::DFS_INNER);
 
         if (status == STATES_SAME_S1_VISITED) {
           // printf("         - inner state %lu already visited.\n", s_hash);
-          // delete s_;
+          delete s_;
 
           _nbStatesStops++;
         }
@@ -856,7 +842,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
         }
         else {
 
-          printElementStack(stackOuter.stackElem, stackInner.stackElem, s_.get());
+          printElementStack(stackOuter.stackElem, stackInner.stackElem, s_);
           printf("Bug! The above state was found during the inner DFS but not during the outer! Aborting.\n");
           assert(false);
         }
@@ -877,9 +863,9 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
   return R.hasErrors();
 }
 
-std::stack<std::shared_ptr<elementStack::element>> reverse(const std::stack<std::shared_ptr<elementStack::element>> & stack)
+std::stack<elementStack::element *> reverse(const std::stack<elementStack::element *> & stack)
 {
-  std::stack<std::shared_ptr<elementStack::element>> reversed = std::stack<std::shared_ptr<elementStack::element>>();
+  std::stack<elementStack::element *> reversed;
   auto copy = stack;
   while (!copy.empty()) {
     reversed.push(copy.top());
@@ -888,8 +874,8 @@ std::stack<std::shared_ptr<elementStack::element>> reverse(const std::stack<std:
   return reversed;
 }
 
-void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> & outerStack,
-                       const std::stack<std::shared_ptr<elementStack::element>> & innerStack, const state * loopBegin)
+void printElementStack(const std::stack<elementStack::element *> & outerStack,
+                       const std::stack<elementStack::element *> & innerStack, const state * loopBegin)
 {
   state * s = nullptr;
   unsigned int depth = 0;
@@ -898,7 +884,7 @@ void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> 
   std::cout << "\n - Stack trace:\n";
   bool inCycle = false;
   while (!reverseStack.empty()) {
-    s = reverseStack.top()->s.get();
+    s = reverseStack.top()->s;
     depth = reverseStack.top()->depth;
     reverseStack.pop();
     if (loopBegin && loopBegin->hash() == s->hash()) {
@@ -931,7 +917,7 @@ void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> 
   while (!reverseStack.empty()) {
     auto top = reverseStack.top();
     top->s->print();
-    graphVis->printGraphViz(top->s.get(), top->depth);
+    graphVis->printGraphViz(top->s, top->depth);
     reverseStack.pop();
   }
   std::cout << "\n\n ****\n";

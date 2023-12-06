@@ -40,14 +40,13 @@ int utypeVar::operator -- (int) {
 	assert(false);
 }
 
-bool utypeVar::operator == (const primitiveVariable& other) const {
-	other;
-	assert(false);
+//need to call variable::operator==(const variable* other)
+bool utypeVar::operator == (const variable* other) const {
+	return variable::operator==(other);
 }
 
-bool utypeVar::operator != (const primitiveVariable& other) const {
-	other;
-	assert(false);
+bool utypeVar::operator != (const variable* other) const {
+	return variable::operator!=(other);
 }
 
 variable* utypeVar::deepCopy(void) const {

@@ -192,13 +192,20 @@ void variable::init(void) {
 	
 }
 
-/*bool variable::operator == (const variable& other) const {
-	return getValue() == other.getValue();
+bool variable::operator == (const variable* other) const {
+	for(auto v : varMap) {
+		auto it = other->varMap.find(v.first);
+		if(it == other->varMap.end())
+			return false;
+		if(*v.second != it->second)
+			return false;
+	}
+	return true;
 }
 
-bool variable::operator != (const variable& other) const {
-	return getValue() == other.getValue();
-}*/
+bool variable::operator != (const variable* other) const {
+	return !(*this == other);
+}
 
 void variable::setParent(variable* parent) {
 	this->parent = parent;

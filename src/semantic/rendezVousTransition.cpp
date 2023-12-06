@@ -9,35 +9,35 @@
 #include <iterator>
 #include <iostream>
 
-rendezVousTransition::rendezVousTransition(state* s, transition* procTrans, transition* response) 
+rendezVousTransition::rendezVousTransition(state* s, transition* question, transition* response) 
 	: transition(s)
-	, procTrans(procTrans)
+	, question(question)
 	, response(response)
 {
 	assert(s);
-	assert(procTrans);
+	assert(question);
 
-	add(procTrans);
+	add(question);
 	add(response);
 
-	prob = procTrans->getProbability() * (response ? response->getProbability() : 1.0);
+	prob = question->getProbability() * (response ? response->getProbability() : 1.0);
 	assert(prob >= 0 && prob <= 1);
 
-	lines.push_back(dynamic_cast<processTransition*>(procTrans)->getLineNb());
+	lines.push_back(dynamic_cast<processTransition*>(question)->getLineNb());
 	if(response)
 		lines.push_back(dynamic_cast<processTransition*>(response)->getLineNb());
 
-	action = procTrans->action;
+	action = question->action;
 
 }
 
 rendezVousTransition::rendezVousTransition(const rendezVousTransition* other)
 	: transition(other)
-	, procTrans(nullptr)
+	, question(nullptr)
 	, response(nullptr)
 {
 	auto it = subTs.begin();
-	procTrans = *it;
+	question = *it;
 	if(++it != subTs.end())
 		response = *it;
 }
@@ -45,8 +45,8 @@ rendezVousTransition::rendezVousTransition(const rendezVousTransition* other)
 rendezVousTransition::~rendezVousTransition() {
 }
 
-transition* rendezVousTransition::getProcTrans(void) const {
-	return procTrans;
+transition* rendezVousTransition::getQuestion(void) const {
+	return question;
 }
 
 transition* rendezVousTransition::getResponse(void) const {
@@ -63,5 +63,5 @@ void rendezVousTransition::accept(transitionVisitor* visitor) {
 
 bool rendezVousTransition::operator==(const transition* other) const {
 	auto cast = dynamic_cast<const rendezVousTransition*>(other);
-	return *procTrans == cast->procTrans && *response == cast->response;
+	return *question == cast->question && *response == cast->response;
 }

@@ -11,6 +11,7 @@
 #include "compositeState.hpp"
 
 #include "processTransition.hpp"
+#include "rendezVousTransition.hpp"
 #include "featuredTransition.hpp"
 #include "rendezVousTransition.hpp"
 
@@ -228,20 +229,13 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 
 transition* initState::createTransition(const fsmEdge* edge, state* s, process* proc, transition* response) {
 	
-	transition* res = nullptr;
+	transition* res = new processTransition(proc, edge);
 
-	auto procTrans = new processTransition(proc, edge);
-	if(response) {
-		auto castedResponse = dynamic_cast<rendezVousTransition*>(response);
-		assert(castedResponse && !castedResponse->response);
-		response = castedResponse->procTrans;
-	}
-	// Sami check this
-	if(edge->hasFeatures()){
-		res = new featTransition(s, procTrans, edge->getFeatures());
-	} else {
-		res = new rendezVousTransition(s, procTrans, response);
-	}
+	if(response)
+		res = new rendezVousTransition(s, res, response);	
+	
+	if(edge->hasFeatures())
+		res = new featTransition(s, res, edge->getFeatures());
 	
 	return res;
 }

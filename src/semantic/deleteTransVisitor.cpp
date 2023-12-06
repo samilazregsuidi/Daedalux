@@ -27,17 +27,15 @@ void delTransitionVisitor::visit(compTransition* t) {
 }
 
 void delTransitionVisitor::visit(rendezVousTransition* t) {
-	t->procTrans->accept(this);
+	t->question->accept(this);
 	if(t->response)
 		t->response->accept(this);
 	table.insert(t);
 }
 
 void delTransitionVisitor::visit(featTransition* t) {
-	//TODO: check if this is correct
-	for(auto sT : t->subTs)
-		sT->accept(this);
-	table.insert(t);		
+	t->wrappee->accept(this);
+	table.insert(t);
 }
 
 void delTransitionVisitor::visit(processTransition* t) {

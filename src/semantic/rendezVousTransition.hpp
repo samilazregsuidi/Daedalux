@@ -18,7 +18,7 @@ public:
 
 	~rendezVousTransition() override;
 	
-	transition* getProcTrans(void) const;
+	transition* getQuestion(void) const;
 
 	transition* getResponse(void) const;
 
@@ -29,7 +29,7 @@ public:
 	bool operator==(const transition* other) const override;
 
 public:		//
-	transition* procTrans;
+	transition* question;
 	transition* response;
 };
 

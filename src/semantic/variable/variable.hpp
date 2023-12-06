@@ -83,9 +83,11 @@ public:
 
 	virtual int operator -- (int) = 0;
 
-	virtual bool operator == (const variable& other) const = 0;
+	*/
 
-	virtual bool operator != (const variable& other) const = 0;*/
+	virtual bool operator == (const variable* other) const;
+
+	virtual bool operator != (const variable* other) const;
 
 	/****************************************************/
 

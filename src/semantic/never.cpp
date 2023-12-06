@@ -342,8 +342,8 @@ Apply:
 	// Proceed in automaton
 	setFsmNodePointer(edge->getTargetNode());
 
-	origin = trans;
-	trans->dst = this;
+	//origin = trans;
+	//trans->dst = this;
 
 	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const neverTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
 

@@ -17,15 +17,16 @@ extern void init_lex();
 
 class promela_loader {
     public:
-        promela_loader();
-        ~promela_loader() = default; // No need for explicit destructor
-        
-        fsm* load_promela_file(std::string file_name, const TVL *tvl = nullptr);
+        promela_loader(std::string file_name, const TVL *tvl = nullptr);
 
-        symTable *get_globalSymTab() const { return globalSymTab; }
-        stmnt *get_program() const { return program; }
+        fsm* getAutomata(void) const { return automata; }
+
+        symTable* getSymTable(void) const { return globalSymTab; }
+
+        stmnt* getProgram(void) const { return program; }
 
     private:
-        symTable *globalSymTab = nullptr;
-        stmnt *program = nullptr;
+        fsm* automata;
+        symTable* globalSymTab;
+        stmnt* program;
 };

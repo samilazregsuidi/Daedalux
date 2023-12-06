@@ -206,16 +206,16 @@ state* compState::apply(transition* trans) {
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 	assert(compTrans);
 
-	for(auto trans : compTrans->subTs) {
+	for(auto t : compTrans->subTs) {
 		//std::cout << trans->src->getLocalName() << std::endl;
-		auto s = getSubState(trans->src->getLocalName());
+		auto s = getSubState(t->src->getLocalName());
 		assert(s);
-		s->apply(trans);
+		s->apply(t);
 	}
 
-	prob *= trans->prob;
-	origin = trans;
-	trans->dst = this;
+	//prob *= trans->prob;
+	//origin = trans;
+	//trans->dst = this;
 
 	return this;
 }

@@ -373,7 +373,12 @@ std::list<transition*> progState::executables(void) const {
 		//assert(std::fabs([=](){ double resProb = 0.0; for(auto t : Ts) resProb += t->prob; return resProb; }() - (Ts.size() ? 1.0 : 0.0)) < std::numeric_limits<double>::epsilon());
 		/*for(auto t : Ts)
 			t->prob /= getProcs().size();*/
-		execs.merge(Ts);
+		
+		for(auto t : Ts) {
+			auto pT = new transition(const_cast<progState*>(this));
+			pT->subTs.push_back(t);
+			execs.push_back(pT);
+		}
 	}
 
 	//assert(std::fabs([=](){ double resProb = 0.0; for(auto t : execs) resProb += t->prob; return resProb; }() - (execs.size() ? 1.0 : 0.0)) < std::numeric_limits<double>::epsilon());
@@ -409,32 +414,52 @@ std::list<transition*> progState::executables(void) const {
  * that evaluated to false.
  */
 state* progState::apply(transition* trans) {
-	
-	const rendezVousTransition* progTrans = dynamic_cast<const rendezVousTransition*>(trans);
-	assert(progTrans);
-	process* proc = dynamic_cast<processTransition*>(progTrans->getProcTrans())->getProc();
-	assert(proc);
-	//warning if "different" procs have the same pid i.e., dynamic proc creation
+	assert(trans->subTs.size());
+	trans = *trans->subTs.begin();
 
-	auto _pid = proc->getPid();
+	auto rdvTrans = dynamic_cast<const rendezVousTransition*>(trans);
+	if(rdvTrans) {
+		process* proc = dynamic_cast<processTransition*>(rdvTrans->getQuestion())->getProc();
+		assert(proc);
+		//warning if "different" procs have the same pid i.e., dynamic proc creation
+		//not sure about that
 
-	proc = getProc(proc->getPid());
-	assert(proc);
+		auto _pid = proc->getPid();
 
-	proc->apply(progTrans->getProcTrans());
+		proc = getProc(proc->getPid());
+		assert(proc);
 
-	auto response = dynamic_cast<processTransition*>(progTrans->getResponse());
-	if(response) {
-		auto responseProc = getProc(response->getProc()->getPid());
-		responseProc->apply(response);
+		proc->apply(rdvTrans->getQuestion());
+
+		auto response = dynamic_cast<processTransition*>(rdvTrans->getResponse());
+		if(response) {
+			auto responseProc = getProc(response->getProc()->getPid());
+			responseProc->apply(response);
+		}
+
+	} else {
+
+		auto procTrans = dynamic_cast<processTransition*>(trans); 
+		assert(procTrans);
+		process* proc = procTrans->getProc();
+		assert(proc);
+		//warning if "different" procs have the same pid i.e., dynamic proc creation
+		//not sure about that
+
+		auto _pid = proc->getPid();
+
+		proc = getProc(proc->getPid());
+		assert(proc);
+
+		proc->apply(procTrans);
 	}
 
 	assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);
 
-	prob *= trans->prob;
+	//prob *= trans->prob;
 
-	origin = trans;
-	trans->dst = this;
+	//origin = trans;
+	//trans->dst = this;
 
 	return this;
 }

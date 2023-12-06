@@ -14,7 +14,14 @@ struct MutantsOptions {
 	std::string property_file;
 };
 
+struct GenTracesOptions {
+	std::string original_file;
+	std::string mutant_file;
+	size_t traces_length;
+	unsigned int nb_traces;
+};
+
 // Function declarations.
 void setup_subcommand_mutations(CLI::App &app);
-void generate_mutants(MutantsOptions const &opt);
-void generateMutantTraces(std::string original, std::string mutant_file);
+void generate_mutants(const MutantsOptions& opt);
+void generateMutantTraces(const std::string& original, const std::string& mutant_file, size_t traces_length, unsigned int traces_number);

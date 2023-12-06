@@ -2,12 +2,11 @@
 
 namespace fs = std::filesystem;
 
-promela_loader::promela_loader(){
-	this->globalSymTab = nullptr;
-	this->program = nullptr;
-}
-
-fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
+promela_loader::promela_loader(std::string file_name, const TVL *tvl)
+	: automata(nullptr)
+	, globalSymTab(nullptr)
+	, program(nullptr)
+{
 	// The variable promelaFile should have the fileExtension .pml
 	if (file_name.find(".pml") == std::string::npos){
 		std::cerr << "The model file must have the extension .pml." << std::endl;
@@ -41,7 +40,7 @@ fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
 		exit(1);
 	}
 	init_lex();
-	
+
 	if (yyparse(&this->globalSymTab, &this->program) != 0)
 	{
 		std::cerr << "Syntax error; aborting." << std::endl;
@@ -53,11 +52,19 @@ fsm* promela_loader::load_promela_file(std::string file_name, const TVL *tvl){
 		fclose(yyin);
 		yylex_destroy();
 	}
+
 	
+	while(globalSymTab->prevSymTab()) 
+		globalSymTab = globalSymTab->prevSymTab();
+
 	ASTtoFSM *converter = new ASTtoFSM();
 	// Create the automata from the AST
-	fsm *automata = converter->astToFsm(globalSymTab, program, tvl);
+	automata = converter->astToFsm(globalSymTab, program, tvl);
+
 	
-	delete converter;
-	return automata;
+
+	std::ofstream graph;
+	graph.open("fsm_graphvis");
+	automata->printGraphVis(graph);
+	graph.close();
 }
