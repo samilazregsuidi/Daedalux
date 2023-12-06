@@ -3,14 +3,15 @@
 
 TEST(ADDUtilsTests, impliesTest) {
     // Test case 1: a implies b
-    ADD a = ADD();
-    ADD b = ADD();
-    bool result1 = implies(a, b);
+    Cudd mgr(0,0);
+    BDD x = mgr.bddVar();
+    BDD y = mgr.bddVar();
+    BDD f = x * y;
+    BDD g = y + !x;
+         
+    bool result1 = f <= g;
     EXPECT_TRUE(result1);
 
-    // Test case 2: a does not imply b
-    ADD c = ADD(); // initialize ADD c
-    ADD d = ADD(); // initialize ADD d
-    bool result2 = implies(c, d);
-    EXPECT_FALSE(result2);
+    bool result2 = implies(f.Add(), g.Add());
+    EXPECT_TRUE(result2);
 }

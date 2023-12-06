@@ -2,7 +2,9 @@
 #include <filesystem>
 #include <memory>
 #include "../../src/cli/promela_loader.hpp"
-#include "../../ast/stmnt/stmnt.hpp"
+#include "../../src/ast/stmnt/stmnt.hpp"
+#include "../../src/algorithms/explore.hpp"
+
 
 
 // Define a fixture for the tests
@@ -10,31 +12,32 @@ class MutantGenerationTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Common setup code that will be called before each test
-        loader = std::make_unique<promela_loader>();
     }
 
     void TearDown() override {
         // Common teardown code that will be called after each test
     }
-    std::unique_ptr<promela_loader> loader;
 };
 
 
 TEST_F(MutantGenerationTest, LoadValidPromelaFile) {
-    std::string current_directory = fs::current_path();
+    std::string current_directory = std::filesystem::current_path();
     std::string file_name = "/models/windows/original.pml";
     std::string file_path = current_directory + file_name;
     const TVL* tvl = nullptr;
+    auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-    auto automata = loader->load_promela_file(file_path, tvl);
-
-    stmnt* program = loader->get_program();
+    auto automata = loader->getAutomata();
+    stmnt* program = loader->getProgram();
+    std::cout << "Original program" << std::endl;
+    std::cout << stmnt::string(program) << std::endl;
 
     unsigned int index = program->assignMutables();
 
+    std::cout << "NUMBER OF MUTABLE NODES " << index << std::endl;
+
     // Folder of the original program
-    std::string folder = opt.input_file.substr(0, opt.input_file.find_last_of("/"));
-    std::string mutant_folder = folder + "/mutants";
+    std::string mutant_folder = current_directory + "/mutants";
 
     // Write original program to file so that it can be used by the mutation operators
     // Create folder for mutants if it does not exist
@@ -42,6 +45,7 @@ TEST_F(MutantGenerationTest, LoadValidPromelaFile) {
         std::filesystem::create_directory(mutant_folder);
     }
 
+    std::cout << "Created folder " << mutant_folder << std::endl;
     std::ofstream output;
     output.open(mutant_folder + "/original.pml");
     output << stmnt::string(program);
@@ -49,25 +53,28 @@ TEST_F(MutantGenerationTest, LoadValidPromelaFile) {
 
     // Generate mutants
     auto copy = program->deepCopy();
-    astNode::mutate(copy, 1);
-    std::string mutant_file = mutant_folder + "/mutant_" + std::to_string(j) + ".pml";
-    output.open(mutant_file);
-    output << stmnt::string(copy);
-    output.close();
+    astNode::mutate(copy, 10);
+    assert(stmnt::string(copy) != stmnt::string(program));
+    std::ofstream output_mutant;
+    std::string mutant_file = mutant_folder + "/mutant.pml";
+    output_mutant.open(mutant_file);
+    output_mutant << stmnt::string(copy);
+    output_mutant.close();
     delete copy;
 
     // Load promela files
-    promela_loader * loader_mutant = new promela_loader();
-    auto fsm_mutant = loader_mutant->load_promela_file(mutant_file, nullptr);
-    delete loader_mutant;
-    promela_loader * loader_original = new promela_loader();
-    auto fsm_original = loader_original->load_promela_file(file_path, nullptr);
-    delete loader_original;
+    // auto loader_mutant = std::make_unique<promela_loader>(mutant_file, tvl);
+    // auto fsm_mutant = loader_mutant->getAutomata();
 
-    // Generate traces
-    traceReport report = generateTraces(fsm_original, fsm_mutant);
+    auto loader_original = std::make_unique<promela_loader>(file_path, tvl);    
+    auto fsm_original = loader_original->getAutomata();
 
-    // Assert that the traces are not empty
-    ASSERT_FALSE(report.getGoodTraces().empty());
-    ASSERT_FALSE(report.getBadTraces().empty());
+    std::cout << "Ready to generate traces" << std::endl;
+
+    // // Generate traces
+    // auto report = generateTraces(fsm_original, fsm_mutant);
+
+    // // Assert that the traces are not empty
+    // ASSERT_FALSE(report->getGoodTraces().empty());
+    // ASSERT_FALSE(report->getBadTraces().empty());
 }

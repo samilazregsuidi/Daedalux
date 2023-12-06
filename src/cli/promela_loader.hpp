@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <memory>
 
 #include "symbols.hpp"
 #include "ast.hpp"
@@ -19,14 +20,17 @@ class promela_loader {
     public:
         promela_loader(std::string file_name, const TVL *tvl = nullptr);
 
-        fsm* getAutomata(void) const { return automata; }
+        ~promela_loader() = default;
 
-        symTable* getSymTable(void) const { return globalSymTab; }
+        std::shared_ptr<fsm> getAutomata(void) const { return automata; }
 
-        stmnt* getProgram(void) const { return program; }
+        symTable * getSymTable(void) const { return globalSymTab; }
+
+        stmnt * getProgram(void) const { return program; }
 
     private:
-        fsm* automata;
+
         symTable* globalSymTab;
         stmnt* program;
+        std::shared_ptr<fsm> automata;
 };

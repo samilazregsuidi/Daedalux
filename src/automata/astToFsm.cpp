@@ -18,7 +18,6 @@ ASTtoFSM::~ASTtoFSM() {}
 fsm * ASTtoFSM::astToFsm(const symTable * symTab, const stmnt * program, const TVL * fm)
 {
   res = new fsm(symTab, fm? fm->getFeatureModelClauses() : ADD());
-
   this->fm = fm;
 
   program->acceptVisitor(this);

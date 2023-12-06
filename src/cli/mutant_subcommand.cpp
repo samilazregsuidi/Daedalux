@@ -32,9 +32,8 @@ void generate_mutants(const MutantsOptions & opt)
 {
   std::cout << "Generating " << opt.number_of_mutants << " mutants from " << opt.input_file << std::endl;
   // Load promela file
-  auto loader = std::make_unique<promela_loader>();
-  loader->load_promela_file(opt.input_file, nullptr);
-  stmnt * program = loader->get_program();
+  auto loader = std::make_unique<promela_loader>(opt.input_file, nullptr);
+  stmnt * program = loader->getProgram();
 
   unsigned int index = program->assignMutables();
   std::cout << "NUMBER OF MUTABLE NODES " << index << std::endl;
@@ -75,7 +74,7 @@ void generate_mutants(const MutantsOptions & opt)
 
   std::cout << "Generated " << opt.number_of_mutants * index << " mutants" << std::endl;
   // Generate traces for mutants
-  generateMutantTraces(opt.input_file, mutant_folder + "/mutant_1.pml");
+  generateMutantTraces(opt.input_file, mutant_folder + "/mutant_1.pml", 100, 100);
 }
 
 bool fileExists(const std::string & filename)
@@ -91,11 +90,12 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
   assert(fileExists(original_file));
 
   // Load promela files using smart pointers
-  std::unique_ptr<promela_loader> loader_mutant = std::make_unique<promela_loader>();
-  std::shared_ptr<fsm> fsm_mutant = std::make_shared<fsm>(*loader_mutant->load_promela_file(mutant_file, nullptr));
+  std::unique_ptr<promela_loader> loader_mutant = std::make_unique<promela_loader>(mutant_file, nullptr);
 
-  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>();
-  std::shared_ptr<fsm> fsm_original = std::make_shared<fsm>(*loader_original->load_promela_file(original, nullptr));
+  std::shared_ptr<fsm> fsm_mutant = loader_mutant->getAutomata();
+
+  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>(original_file, nullptr);
+  auto fsm_original = loader_original->getAutomata();
 
   // Generate traces
   std::unique_ptr<traceReport> report = generateTraces(fsm_original, fsm_mutant);
@@ -121,8 +121,8 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
  */
 fsm generateFeaturedMutants(const std::string& original_file, unsigned int number_of_mutants)
 {
-  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>();
-  auto fsm_original = loader_original->load_promela_file(original, nullptr);
+  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>(original_file, nullptr);
+  auto fsm_original(loader_original->getAutomata());
 
   // Generate mutants
   for (unsigned int j = 0; j < number_of_mutants; j++) {

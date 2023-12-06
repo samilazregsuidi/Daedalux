@@ -65,7 +65,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 		exit(1);
 	}
 	
-	TVL* tvl = new TVL();
+	std::unique_ptr<TVL> tvl;
 
 	if (!opt.tvl_files.first.empty() && !opt.tvl_files.second.empty())
 	{
@@ -113,8 +113,8 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	}
 
 	// Load promela file
-	promela_loader loader(opt.input_file, tvl);
-	fsm *automata = loader.getAutomata();
+	auto loader = std::make_unique<promela_loader>(opt.input_file, tvl.get());
+	auto automata = loader->getAutomata();
 
 	// Initialize srand
 	srand(time(nullptr));
@@ -125,7 +125,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	int index = 0;
 	for (; index < 1; index++)
 	{
-		sum += launchExecutionMarkovChain(automata, tvl);
+		sum += launchExecutionMarkovChain(automata.get(), tvl.get());
 	}
 	std::cout << sum << std::endl;
 	double avg = (float)sum / index;
@@ -155,10 +155,8 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	symtable.close();
 
 	// Clean up memory
-	if (automata)
-		delete automata;
-	if (tvl)
-		delete tvl;
+	// if (tvl)
+	// 	delete tvl;
 
 	TVL::deleteBoolFct();
 

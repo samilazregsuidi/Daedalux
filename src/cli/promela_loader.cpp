@@ -1,7 +1,6 @@
 #include "promela_loader.hpp"
 
-namespace fs = std::filesystem;
-
+ 
 promela_loader::promela_loader(std::string file_name, const TVL *tvl)
 	: automata(nullptr)
 	, globalSymTab(nullptr)
@@ -15,7 +14,6 @@ promela_loader::promela_loader(std::string file_name, const TVL *tvl)
 	// Copy the model file to a temporary file
 	fs::path sourcePath = file_name;
 	fs::path destinationPath = "__workingfile.tmp";
-
 	try {
         fs::copy(sourcePath, destinationPath, fs::copy_options::overwrite_existing);
     } catch (const fs::filesystem_error& e) {
@@ -23,19 +21,13 @@ promela_loader::promela_loader(std::string file_name, const TVL *tvl)
 		std::cerr << "The fPromela file does not exist or is not readable!" << std::endl;
 		exit(1);
     }
-
-	std::cout << "File copied to temporary file." << std::endl;
-
-
 	if (system("cpp __workingfile.tmp __workingfile.tmp.cpp") != 0)
-	{
 		std::cerr << "Could not run the c preprocessor (cpp)." << std::endl;
 		exit(1);
 	}
 
 	yyin = fopen("__workingfile.tmp.cpp", "r");
 	if (yyin == nullptr)
-	{
 		std::cerr << "Could not open temporary working file (" << file_name << ")." << std::endl;
 		exit(1);
 	}
@@ -52,16 +44,14 @@ promela_loader::promela_loader(std::string file_name, const TVL *tvl)
 		fclose(yyin);
 		yylex_destroy();
 	}
-
 	
 	while(globalSymTab->prevSymTab()) 
 		globalSymTab = globalSymTab->prevSymTab();
 
-	ASTtoFSM *converter = new ASTtoFSM();
+	// Create the converter
+	std::unique_ptr<ASTtoFSM> converter = std::make_unique<ASTtoFSM>();
 	// Create the automata from the AST
-	automata = converter->astToFsm(globalSymTab, program, tvl);
-
-	
+	automata = std::make_shared<fsm>(*converter->astToFsm(globalSymTab, program, tvl));
 
 	std::ofstream graph;
 	graph.open("fsm_graphvis");

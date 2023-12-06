@@ -11,7 +11,7 @@
 #include "test_fsmEdge.cpp"
 #include "test_fsmNode.cpp"
 
-// #include "test_ADDutils.cpp"
+#include "test_ADDutils.cpp"
 
 #include "vizualizers/test_trace.cpp"
 #include "vizualizers/test_traceReport.cpp"
@@ -24,6 +24,8 @@
 #include "test_elementStack.cpp"
 
 // #include "test_promela_loader.cpp"
+
+#include "integration_tests/test_mutantgeneration.cpp"
 
 #include "integration_tests/test_dfs.cpp"
 
