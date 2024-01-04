@@ -17,7 +17,7 @@ Sami fill this in.
 ## How to build
 
 ```console
-foo@bar:~$ cd deadalux
+foo@bar:~$ cd daedalux
 foo@bar:~$ mkdir build
 foo@bar:~$ cd build
 foo@bar:~$ cmake ../
@@ -27,7 +27,7 @@ foo@bar:~$ cmake --build .
 Alternatively, you can build it using docker from the root directory of the project using the following command:
 
 ```console
-foo@bar:~$ docker build -t deadalux .
+foo@bar:~$ docker build -t daedalux.
 ```
 
 After building the image you can run the model-checker using the following command:
@@ -49,23 +49,16 @@ The parameters can be divided into the following categories:
   * -check: Model-check the product line until a property violation is found.
   * -exhaustive: Exhaustively model-check the product line until all possible traces have been explored to determine which products are valid.
   * -sample <number>: Search for a valid product by randomly exploring *n* traces of the product line.
-  * -ksample <number>: Bounded model-check the product line by exploring traces of length *n*.
-[//]  * -bfs: Use breadth-first search to explore the product line instead of depth-first search.
-  * -ltl:
-  * -multiltl:
-* Options for simulation:
-  * 
+  * -ksteps <number>: Bounded model-check the product line by exploring traces of length *n*.
+  * -ltl <string>: LTL property to verify.
+  * -ltlFile <path> File containing LTL properties to verify.
+  * -multiLtl <string>: multiLTL property to verify.
+  * -multiLtlFile <path>: File containing multiLTL properties to verify.
 * Options for features and feature model:
-  * -fm <path-to-feature-model>: Specify the path to the feature model TVL. This option can be omitted if the feature model has the same name as the promela file.
-  * -filter <expression>: Limit the verification to a subset of the products specified in the TVL file. The TVL syntax has to be used for this.
+  * -fm <path>: Specify the path to the feature model TVL. This option can be omitted if the feature model has the same name as the promela file.
 * Options for output:
   * -nt: Do not print the trace to the terminal.
   * -st: Only prints states when there are no changed variables.
-* Options for formal mutation testing:
-  * -generate:
-  * -simulate:
-  * -original:
-  * -mutant:   
 * Options for debugging:
   * -exec: Execute the model (does not print states, only model output).
   * -l <number>:  Stop when the given number of states were explored.
@@ -76,34 +69,244 @@ A selection of Promela files can be found in the "test" folder in the root direc
 
 ###  A simple example
 
-The following example is a simple product line written in Promela. The product line has two features, B1 and B2. The product line is written in Promela and is saved in a file called "test.pml".
+The following example is a simple product line written in Promela. The product line has one feature, Alarm that stop the motor of something dangerous occurs. The product line is written in Promela and is saved in a file called "example.pml".
 
 ```promela
 typedef features {
-    bool B1;
-    bool B2	
+    bool Alarm;
 }
 
-features f;
+bool safe = true;
+bool danger, danger = false;
 
-active proctype test (){
-    bool B1, B2;
-    if :: f.B1 -> B1 = true; :: else; fi;
-    if :: f.B2 -> B2 = true; :: else; fi;
-}
+active proctype Motor() {
+    do
+    :: safe ->
+        if :: skip;
+           :: safe = false; danger = true fi;
+    :: danger ->
+        gd :: Alarm -> danger = false; 
+                       stopped = true;
+           :: else -> skip; dg;
+    :: stopped
+        if :: skip;
+           :: stopped = false; safe = true; 
+        fi; od}
 ```
 
 The model-checker can be run by executing the following command in the terminal:
 
-For example, the following command runs the model-checker on the file "test.pml" and prints the output to the terminal:
+For example, the following command runs the model-checker on the file "example.pml" and prints the output to the terminal:
 
 ```console
-foo@bar:~$ ./daedalux -check test.pml
+foo@bar:~$ ./daedalux check --exhaustive -ltl '[](danger-><>stopped)' example.pml
 ```
 
-The output of the model-checker is a file called "test.pml.out". The file contains the following output:
+The output of the model-checker is a file called "example.pml.out". The file contains the following output:
 
-Sami fill this in.
+
+```console
+./lib/ltl2ba/ltl2ba -f "!([](danger-><>stopped))" > __formula.tmp
+Checking LTL property [](danger-><>stopped)..
+[startNestedDFS]
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 1
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL11
+    --
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 1
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL13
+    --
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 1
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL11
+    --
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL14
+    --
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL11
+    --
+   features                            = All
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL16
+    --
+   features                            = (Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL17
+    --
+   features                            = (Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 1
+   pid 00, Motor                       @ NL11
+    --
+   features                            = (!Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL18
+    --
+   features                            = (!Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL11
+    --
+   features                            = (!Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL16
+    --
+Property violated [explored 8 states, re-explored 0].
+ - Products by which it is violated (as feature expression):
+   (!Alarm)
+
+ - Stack trace:
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 1
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL11
+    --
+   features                            = All
+   pid 00, Motor                       @ NL13
+    --
+   features                            = All
+   globals.safe                        = 0
+   pid 00, Motor                       @ NL14
+    --
+   features                            = All
+   globals.danger                      = 1
+   pid 00, Motor                       @ NL11
+    --
+    -- Loop beings here --
+    --
+   features                            = All
+   never                               @ NL32  (accepting)
+   pid 00, Motor                       @ NL16
+    --
+    -- Loop begin repeated in full:
+   features                            = All
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL16
+    --
+   features                            = (!Alarm)
+   pid 00, Motor                       @ NL18
+    --
+   features                            = (!Alarm)
+   pid 00, Motor                       @ NL11
+    --
+   features                            = (!Alarm)
+    --
+   features                            = (!Alarm)
+   pid 00, Motor                       @ NL16
+    --
+    -- Final state repeated in full:
+   features                            = (!Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL16
+    --
+
+
+ ****
+
+   features                            = All
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 1
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL16
+    --
+   features                            = (Alarm)
+   never                               @ NL32  (accepting)
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL17
+    --
+   features                            = (Alarm)
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL17
+    --
+   features                            = (Alarm)
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 1
+   pid 00, Motor                       @ NL11
+    --
+   features                            = (Alarm)
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 1
+   pid 00, Motor                       @ NL20
+    --
+   features                            = (Alarm)
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 1
+   pid 00, Motor                       @ NL11
+    --
+   features                            = (Alarm)
+   never                               @ NL27 
+   globals.safe                        = 0
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL21
+    --
+   features                            = (Alarm)
+   never                               @ NL27 
+   globals.safe                        = 1
+   globals.danger                      = 0
+   globals.stopped                     = 0
+   pid 00, Motor                       @ NL11
+    --
+
+Exhaustive search finished  [explored 13 states, re-explored 0].
+ -  One problem found covering the following products (others are ok):
+(!Alarm)
+```
 
 ### Dependencies
 
