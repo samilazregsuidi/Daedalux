@@ -50,7 +50,7 @@ The parameters can be divided into the following categories:
   * -exhaustive: Exhaustively model-check the product line until all possible traces have been explored to determine which products are valid.
   * -sample <number>: Search for a valid product by randomly exploring *n* traces of the product line.
   * -ksample <number>: Bounded model-check the product line by exploring traces of length *n*.
-  * -bfs: Use breadth-first search to explore the product line instead of depth-first search.
+[//]  * -bfs: Use breadth-first search to explore the product line instead of depth-first search.
   * -ltl:
   * -multiltl:
 * Options for simulation:
