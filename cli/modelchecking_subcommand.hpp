@@ -19,33 +19,25 @@
 struct ModelCheckingOptions {
 	std::string input_file;
 	std::string tvl_file;
-	std::string propFile;
-	std::string tvlFilter;
+	std::string ltl;
+	std::string ltlPropFile;
+	std::string multiLtl;
+	std::string multiLtlPropFile;
 
 	bool exhaustive;
 	bool check;
 	bool fullDeadlockCheck;
 
 	bool sim;
-	bool enum_;
 	bool exec;
-
-	bool bfs;
-	bool stutterSteps;
 
 	bool printInfo;
 	bool keepTempFiles;
 	bool noTraces;
 
-	bool spinMode;
-	bool optimisedSpinMode;
-
 	unsigned int ksteps;
-	unsigned int bound;
 	unsigned int sampleSize;
 	unsigned int limitExploration;
-
-	std::pair<std::string, std::string> tvl_files = std::make_pair("", "");
 };
 
 // Function declarations.

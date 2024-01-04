@@ -4,7 +4,7 @@ void setup_subcommand_modelchecking(CLI::App &app)
 {
 	// Create the option and subcommand objects.
 	auto opt = std::make_shared<ModelCheckingOptions>();
-	auto sub = app.add_subcommand("modelchecking", "Model checking of a fPromela file");
+	auto sub = app.add_subcommand("check", "Model checking of a fPromela file");
 
 	sub->add_option("-m, --model", opt->input_file, "Model to verify")
 		->required()
@@ -12,36 +12,35 @@ void setup_subcommand_modelchecking(CLI::App &app)
 
 	// Options for model checking
 	sub->add_flag("-e, --exhaustive", opt->exhaustive, "Determines also which products have *no* problems. The normal check will stop at the first problem,  and does not determine whether there are products that have no problems  (e.g. those that satisfy a property).");
-	sub->add_flag("-d, --fdlc", opt->fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
+	
+	sub->add_option("-ltl", opt->ltl, "LTL property to verify");
+	sub->add_option("-multiLtl", opt->multiLtl, "MultiLTL property to verify");
+	
+	//sub->add_flag("-d, --fdlc", opt->fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
 
-	sub->add_flag("-c, --check", opt->check, "Verifies the model.  When a problem (assert, deadlock or property violation) is found, an error trace (counterexample) is printed and execution stops.");
-	sub->add_flag("--bfs", opt->bfs, "Performs a breadth-first search instead of a depth-first search.");
+	sub->add_flag("-v, --verify", opt->check, "Verifies the model.  When a problem (assert, deadlock or property violation) is found, an error trace (counterexample) is printed and execution stops.");
+	//sub->add_flag("--bfs", opt->bfs, "Performs a breadth-first search instead of a depth-first search.");
 	sub->add_option("--ksteps", opt->ksteps, "Bounded sampling to sample of lenght k.")->check(CLI::PositiveNumber);
-	sub->add_option("-b, --bound", opt->bound, "Bounded sampling to sample of lenght k.")->check(CLI::PositiveNumber);
-	sub->add_option("-s, --sampling", opt->sampleSize, "Sampling to sample of lenght k.")->check(CLI::PositiveNumber);
-	sub->add_flag("--stutter", opt->stutterSteps, "Performs a stutter step search.");
+	sub->add_option("-s, --sampling", opt->sampleSize, "Number of samples.")->check(CLI::PositiveNumber);
+	//sub->add_flag("--stutter", opt->stutterSteps, "Performs a stutter step search.");
 
 	// Options for simulation
 	sub->add_flag("--sim", opt->sim, "Simulates the model.  When a problem (assert, deadlock or property violation) is found, an error trace (counterexample) is printed and execution stops.");
-	sub->add_flag("--enum", opt->enum_, "Iterate over every product of the product line.");
+	//sub->add_flag("--enum", opt->enum_, "Iterate over every product of the product line.");
 	sub->add_flag("--exec", opt->exec, "Executes the model.  When a problem (assert, deadlock or property violation) is found, an error trace (counterexample) is printed and execution stops.");
-
-	sub->add_flag("--spin", opt->spinMode, "Treat features like normal variables (as SPIN would do).");
-	sub->add_flag("--ospin", opt->optimisedSpinMode, "Similar to -spin, but statements with a bad guard are removed from the model before model checking.  The input is thus interpreted as fPromela (not exactly as SPIN would do). This is normally more efficient than -spin.");
-
-	sub->add_option("-l, --limitExploration", opt->limitExploration, "Stop when the given number of states were explored. (This option can also be used for model checking.)")
-		->check(CLI::PositiveNumber);
 
 	sub->add_option("-f, --featuremodel", opt->tvl_file,
 				   "Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is named as the .pml file but with extension .tvl.")
 		->check(CLI::ExistingFile);
 
-	sub->add_option("--props", opt->propFile, "File containing the properties to check.")
+	sub->add_option("--ltlFile", opt->ltlPropFile, "File containing the LTL properties to verify.")
 		->check(CLI::ExistingFile);
 
-	sub->add_option("--filter", opt->tvlFilter, "Limit the verification to a subset of the products  specified in the TVL file.  The TVL syntax has to be used for this.");
+	sub->add_option("--multiLtlFile", opt->multiLtlPropFile, "File containing the multiLTL properties to verify.")
+		->check(CLI::ExistingFile);
 
-	sub->add_option("--fmdimacs", opt->tvl_files, "As before, but load the dimacs of the feature model directly.");
+	//sub->add_option("--filter", opt->tvlFilter, "Limit the verification to a subset of the products  specified in the TVL file.  The TVL syntax has to be used for this.");
+	//sub->add_option("--fmdimacs", opt->tvl_files, "As before, but load the dimacs of the feature model directly.");
 
 	// Output control options
 	sub->add_flag("--nt", opt->noTraces, "Does not print any traces, only information  about  violating (or satisfying) products.");
@@ -67,45 +66,27 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	
 	TVL* tvl = new TVL();
 
-	if (!opt.tvl_files.first.empty() && !opt.tvl_files.second.empty())
-	{
-		tvl->loadFeatureModelDimacs(opt.tvl_files.first, opt.tvl_files.second);
-	}
-
 	// Some basic validity checks
-	if (opt.tvl_file.empty() && !opt.tvlFilter.empty())
-	{
-		std::cout << "The -filter option cannot be used with the -fmdimacs option, only with -fm." << std::endl;
-		exit(1);
-	}
 	if (!opt.tvl_file.empty())
 	{
-		if (!tvl->loadFeatureModel(opt.tvl_file, opt.tvlFilter)){
+		if (!tvl->loadFeatureModel(opt.tvl_file, "")){
 			std::cout << "Could not load the specified feature model file." << std::endl;
 			exit(1);
 		}
 	}
-	else if (opt.tvl_file.empty() && !opt.optimisedSpinMode)
+	else if (opt.tvl_file.empty())
 	{
 		// Try to guess name of feature model file name
 		std::string tvlFile = std::string(opt.input_file).replace(opt.input_file.find(".pml"), 4, ".tvl");
 		printf("tvl file = %s\n", tvlFile.c_str());
 
-		if (!tvl->loadFeatureModel(tvlFile, opt.tvlFilter) && !opt.tvlFilter.empty())
+		if (!tvl->loadFeatureModel(tvlFile, ""))
 		{
 			std::cout << "The -filter option can only be used when a feature model is charged." << std::endl;
 			exit(1);
 		}
-		else
-		{
-			if (!opt.tvl_file.empty() && (opt.spinMode || opt.optimisedSpinMode) && !opt.tvlFilter.empty())
-			{
-				std::cout << "The -filter option can only be used when a feature model is charged." << std::endl;
-				exit(1);
-			}
-		}
 
-		if (opt.propFile.empty() && (opt.sim || opt.stutterSteps))
+		if (opt.ltlPropFile.empty() && (opt.sim))
 		{
 			std::cout << "Simulation checking and non stutter steps require a property file." << std::endl;
 			exit(1);
@@ -170,11 +151,17 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 bool verify_modelchecking_options(ModelCheckingOptions const &opt)
 {
 	bool valid = true;
-	if (opt.spinMode && opt.optimisedSpinMode)
-	{
-		std::cout << "The options -spin and -ospin cannot be used together." << std::endl;
-		valid = false;
+	if(!opt.check) {
+		if(opt.ltl.empty() && opt.ltlPropFile.empty()){
+			if(opt.multiLtl.empty() && opt.multiLtlPropFile.empty()){
+				std::cout << "No properties to verify have been specified" << std::endl;
+				valid = false;
+			}
+		} 
+	} else {
+		valid = !(opt.ltl.empty() && opt.ltlPropFile.empty() && opt.multiLtl.empty() && opt.multiLtlPropFile.empty());
 	}
+
 	if (opt.sampleSize > 0 && opt.ksteps > 0)
 	{
 		std::cout << "The options -sampling and -ksteps cannot be used together." << std::endl;
@@ -183,16 +170,6 @@ bool verify_modelchecking_options(ModelCheckingOptions const &opt)
 	if (opt.check && opt.exec)
 	{
 		std::cout << "The options -check and -exec cannot be used together." << std::endl;
-		valid = false;
-	}
-	if (opt.check && opt.enum_)
-	{
-		std::cout << "The options -check and -enum cannot be used together." << std::endl;
-		valid = false;
-	}
-	if (opt.check && !opt.propFile.empty())
-	{
-		std::cout << "The -check option cannot be used with the -props option." << std::endl;
 		valid = false;
 	}
 	if (opt.tvl_file.find(".tvl") == std::string::npos)
