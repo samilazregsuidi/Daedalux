@@ -99,97 +99,15 @@ The model-checker can be run by executing the following command in the terminal:
 For example, the following command runs the model-checker on the file "example.pml" and prints the output to the terminal:
 
 ```console
-foo@bar:~$ ./daedalux check --exhaustive -ltl '[](danger-><>stopped)' example.pml
+foo@bar:~$ ./daedalux check -ltl '[](danger-><>stopped)' example.pml
 ```
 
 The output of the model-checker is a file called "example.pml.out". The file contains the following output:
-
 
 ```console
 ./lib/ltl2ba/ltl2ba -f "!([](danger-><>stopped))" > __formula.tmp
 Checking LTL property [](danger-><>stopped)..
 [startNestedDFS]
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 1
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL11
-    --
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 1
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL13
-    --
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 1
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL11
-    --
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL14
-    --
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL11
-    --
-   features                            = All
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL16
-    --
-   features                            = (Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL17
-    --
-   features                            = (Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 1
-   pid 00, Motor                       @ NL11
-    --
-   features                            = (!Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL18
-    --
-   features                            = (!Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL11
-    --
-   features                            = (!Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL16
-    --
-Property violated [explored 8 states, re-explored 0].
- - Products by which it is violated (as feature expression):
-   (!Alarm)
-
  - Stack trace:
    features                            = All
    never                               @ NL27 
@@ -243,70 +161,12 @@ Property violated [explored 8 states, re-explored 0].
    pid 00, Motor                       @ NL16
     --
 
-
- ****
-
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL16
-    --
-   features                            = (Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL17
-    --
-   features                            = (Alarm)
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL17
-    --
-   features                            = (Alarm)
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 1
-   pid 00, Motor                       @ NL11
-    --
-   features                            = (Alarm)
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 1
-   pid 00, Motor                       @ NL20
-    --
-   features                            = (Alarm)
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 1
-   pid 00, Motor                       @ NL11
-    --
-   features                            = (Alarm)
-   never                               @ NL27 
-   globals.safe                        = 0
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL21
-    --
-   features                            = (Alarm)
-   never                               @ NL27 
-   globals.safe                        = 1
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL11
-    --
-
 Exhaustive search finished  [explored 13 states, re-explored 0].
  -  One problem found covering the following products (others are ok):
 (!Alarm)
 ```
+This output shows that Daedalux found one trace that violates the LTL property. This trace counterexample belongs to the product without the Alarm feature. The other product (the one with the Alarm) satisfies the property.
+Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. Features is a state variable, where pid 00, Motor is a process location variable. Others are globals.
 
 ### Dependencies
 
