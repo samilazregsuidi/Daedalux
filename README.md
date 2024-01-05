@@ -157,7 +157,7 @@ Exhaustive search finished  [explored 13 states, re-explored 0].
 (!Alarm)
 ```
 This output shows that Daedalux found one trace that violates the LTL property. This trace counterexample belongs to the product without the Alarm feature. The other product (the one with the Alarm) satisfies the property.
-Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. *features* is a boolean function variable, where *pid 00, Motor* is a process location variable. Others are global booleans.
+Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. *features* is a boolean function variable, where *pid 00, Motor* and *never* are thread location variable. Others are global booleans.
 
 ### Dependencies
 
