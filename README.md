@@ -97,7 +97,6 @@ foo@bar:~$ ./daedalux check -ltl '[](danger-><>stopped)' example.pml
 The output of the model-checker is a file called "example.pml.out". The file contains the following output:
 
 ```console
-./lib/ltl2ba/ltl2ba -f "!([](danger-><>stopped))" > __formula.tmp
 Checking LTL property [](danger-><>stopped)..
 [startNestedDFS]
  - Stack trace:
