@@ -6,14 +6,6 @@ A model-checker for checking product lines written in C++.
 
 The model-checker consumes a product line written in Promela and outputs a
 
-
-## Documentation
-
-Maybe add the articles here?
-
-Sami fill this in.
-
-
 ## How to build
 
 ```console
@@ -166,7 +158,7 @@ Exhaustive search finished  [explored 13 states, re-explored 0].
 (!Alarm)
 ```
 This output shows that Daedalux found one trace that violates the LTL property. This trace counterexample belongs to the product without the Alarm feature. The other product (the one with the Alarm) satisfies the property.
-Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. Features is a state variable, where pid 00, Motor is a process location variable. Others are globals.
+Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. *features* is a boolean function variable, where *pid 00, Motor* is a process location variable. Others are global booleans.
 
 ### Dependencies
 
