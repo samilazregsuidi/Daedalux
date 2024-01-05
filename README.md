@@ -107,20 +107,16 @@ Checking LTL property [](danger-><>stopped)..
    globals.stopped                     = 0
    pid 00, Motor                       @ NL11
     --
-   features                            = All
    pid 00, Motor                       @ NL13
     --
-   features                            = All
    globals.safe                        = 0
    pid 00, Motor                       @ NL14
     --
-   features                            = All
    globals.danger                      = 1
    pid 00, Motor                       @ NL11
     --
     -- Loop beings here --
     --
-   features                            = All
    never                               @ NL32  (accepting)
    pid 00, Motor                       @ NL16
     --
@@ -135,12 +131,8 @@ Checking LTL property [](danger-><>stopped)..
    features                            = (!Alarm)
    pid 00, Motor                       @ NL18
     --
-   features                            = (!Alarm)
    pid 00, Motor                       @ NL11
     --
-   features                            = (!Alarm)
-    --
-   features                            = (!Alarm)
    pid 00, Motor                       @ NL16
     --
     -- Final state repeated in full:
@@ -157,7 +149,7 @@ Exhaustive search finished  [explored 13 states, re-explored 0].
 (!Alarm)
 ```
 This output shows that Daedalux found one trace that violates the LTL property. This trace counterexample belongs to the product without the Alarm feature. The other product (the one with the Alarm) satisfies the property.
-Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. *features* is a boolean function variable, where *pid 00, Motor* and *never* are thread location variable. Others are global booleans.
+Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. *features* is a boolean function variable, where *pid 00, Motor* and *never* are thread location variables. Others are global booleans.
 
 ### Dependencies
 
