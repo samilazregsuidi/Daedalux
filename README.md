@@ -69,7 +69,7 @@ typedef features {
 }
 
 bool safe = true;
-bool danger, danger = false;
+bool danger, stopped = false;
 
 active proctype Motor() {
     do
