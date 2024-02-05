@@ -64,3 +64,8 @@ bool processTransition::operator==(const transition* other) const {
 	auto cast = dynamic_cast<const processTransition*>(other);
 	return cast && *edge == *cast->edge;
 }
+
+float processTransition::similarity(const transition* other) const {
+	auto cast = dynamic_cast<const processTransition*>(other);
+	return cast ? edge->similarity(cast->edge) : 0;
+}

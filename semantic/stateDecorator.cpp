@@ -172,8 +172,8 @@ std::list<transition*> stateDecorator::executables(void) const {
 	return wrappee->executables();
 }
 
-state* stateDecorator::apply(transition* trans) {
-	return wrappee->apply(trans);
+void stateDecorator::apply(transition* trans) {
+	wrappee->apply(trans);
 }
 
 bool stateDecorator::nullstate(void) const {

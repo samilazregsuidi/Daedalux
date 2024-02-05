@@ -70,7 +70,7 @@ public:
 
 	// Applying statements
 
-	state* apply(transition* trans) override;
+	void apply(transition* trans) override;
 	
 	//state* applyNever(const transition* trans);
 

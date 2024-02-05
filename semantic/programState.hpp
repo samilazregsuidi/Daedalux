@@ -102,7 +102,7 @@ public:
 
 	// Applying statements
 
-	state* apply(transition* trans) override;
+	void apply(transition* trans) override;
 	
 	process* getProc(int pid) const; // Returns the stateMask with pid 'pid'.
 

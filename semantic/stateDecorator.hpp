@@ -115,7 +115,7 @@ public:
 
 	std::list<transition*> executables(void) const override;
 
-	state* apply(transition* trans) override;
+	void apply(transition* trans) override;
 
 	bool nullstate(void) const override;
 

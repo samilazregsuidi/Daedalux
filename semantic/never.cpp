@@ -232,7 +232,7 @@ int never::eval(const astNode* node, byte flag) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-state* never::apply(transition* trans) {
+void never::apply(transition* trans) {
 	assert(dynamic_cast<const neverTransition*>(trans));
 	const never* proc = dynamic_cast<const neverTransition*>(trans)->getNeverClaim();
 	const fsmEdge* edge =  dynamic_cast<const neverTransition*>(trans)->getEdge();
@@ -346,8 +346,6 @@ Apply:
 	//trans->dst = this;
 
 	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const neverTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
-
-	return this;
 }
 
 

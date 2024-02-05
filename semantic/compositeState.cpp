@@ -199,7 +199,7 @@ std::list<transition*> compState::executables(void) const {
  * that evaluated to false.
  */
 
-state* compState::apply(transition* trans) {
+void compState::apply(transition* trans) {
 	
 	//assert(origin == nullptr);
 
@@ -216,8 +216,6 @@ state* compState::apply(transition* trans) {
 	//prob *= trans->prob;
 	//origin = trans;
 	//trans->dst = this;
-
-	return this;
 }
 
 bool compState::nullstate(void) const {

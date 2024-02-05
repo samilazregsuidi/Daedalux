@@ -35,6 +35,8 @@ public:
 
 	bool operator==(const transition* other) const override;
 
+	float similarity(const transition* other) const override;
+
 public:		//
 	const fsmEdge* const edge;			//  - The transition that can be fired
 };

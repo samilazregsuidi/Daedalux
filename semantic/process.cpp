@@ -175,7 +175,7 @@ std::list<transition*> process::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-state* process::apply(transition* trans) {
+void process::apply(transition* trans) {
 	const process* proc = dynamic_cast<const processTransition*>(trans)->getProc();
 	const fsmEdge* edge =  dynamic_cast<const processTransition*>(trans)->getEdge();
 
@@ -436,8 +436,6 @@ Apply:
 	//trans->dst = this;
 
 	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
-
-	return s;
 }
 
 int process::eval(const fsmEdge* edge, byte flag) const {

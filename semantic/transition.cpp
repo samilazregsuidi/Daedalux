@@ -143,3 +143,13 @@ bool transition::operator==(const transition* other) const {
 	}
 	return true;
 }
+
+float transition::similarity(const transition* other) const {
+	float sim = 0;
+	for(auto t : subTs) {
+		for(auto t_ : other->subTs) {
+			sim += t->similarity(t_);
+		}
+	}
+	return sim / (subTs.size() * other->subTs.size());
+}

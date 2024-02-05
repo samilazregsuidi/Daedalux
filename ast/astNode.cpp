@@ -2,6 +2,7 @@
 #include <string>
 #include <stack>
 #include <vector>
+#include <algorithm>
 
 #include "astNode.hpp"
 #include "symbol.hpp"
@@ -14,6 +15,53 @@
 #include <iostream>
 
 /**
+ * Split a string into a vector of strings.
+*/
+
+std::vector<std::string> split(const std::string &s)
+{
+	std::vector<std::string> result;
+	size_t start = 0;
+	size_t end = s.find(" ");
+	while (end != std::string::npos)
+	{
+		result.push_back(s.substr(start, end - start));
+		start = end + std::string(" ").length();
+		end = s.find(" ", start);
+	}
+	result.push_back(s.substr(start, end));
+	return result;
+}
+
+/**
+ * Compute the intersection of two vectors of strings.
+ 
+*/
+
+std::vector<std::string> intersection(const std::vector<std::string> &v1, const std::vector<std::string> &v2)
+{
+	std::vector<std::string> v3;
+
+	std::set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(v3));
+
+	return v3;
+}
+
+
+/**
+ * Compute the Jaccard distance between two vectors of strings.
+*/
+
+float jaccard_distance(const std::vector<std::string> &v1, const std::vector<std::string> &v2)
+{
+	std::vector<std::string> v3 = intersection(v1, v2);
+
+	float jaccard = (float)v3.size() / (float)(v1.size() + v2.size() - v3.size());
+
+	return jaccard;
+}
+
+/**
  * Just creates a node with the given values.
  */
 astNode::astNode(Type type, int lineNb)
@@ -22,11 +70,18 @@ astNode::astNode(Type type, int lineNb)
 	, mId(0)
 {}
 
+/**
+ * destructor
+ */
+
 astNode::~astNode() {
 	for(auto n : children)
 		delete n.second;
 }
 
+/**
+ * copy all the children of the given node
+*/
 void astNode::copyChildren(const astNode& node){
 	children.clear();
 	for(auto n : node.children)
@@ -84,7 +139,7 @@ std::list<astNode*> astNode::getChildren(void) const {
 	return res;
 }
 
-bool astNode::operator==(const astNode* other) const {
+/*bool astNode::operator==(const astNode* other) const {
 	if(type != other->type)
 		return false;
 	for(auto child : children) {
@@ -95,6 +150,19 @@ bool astNode::operator==(const astNode* other) const {
 			return false;
 	}
 	return true;
+}*/
+
+bool astNode::operator==(const astNode* other) const {
+	if(type != other->type)
+		return false;
+	return jaccard_distance(split(std::string(*this)), split(std::string(*other))) == 1;
+}
+
+float astNode::similarity(const astNode* other) const {
+	auto s = split(std::string(*this));
+	auto o = split(std::string(*other));
+	
+	return jaccard_distance(s, o);
 }
 
 std::vector<astNode*> astNode::getMutations(void) const{

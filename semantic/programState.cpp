@@ -413,7 +413,7 @@ std::list<transition*> progState::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-state* progState::apply(transition* trans) {
+void progState::apply(transition* trans) {
 	
 	assert(trans->subTs.size());
 	trans = *trans->subTs.begin();
@@ -461,8 +461,6 @@ state* progState::apply(transition* trans) {
 
 	//origin = trans;
 	//trans->dst = this;
-
-	return this;
 }
 
 /*const ADD& progState::getFeatures(void) const {

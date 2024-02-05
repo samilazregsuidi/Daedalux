@@ -123,7 +123,7 @@ std::list<transition*> featStateDecorator::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-state* featStateDecorator::apply(transition* trans) {
+void featStateDecorator::apply(transition* trans) {
 	
 	wrappee->apply(trans);
 
@@ -147,8 +147,6 @@ state* featStateDecorator::apply(transition* trans) {
 	wrappee->origin = trans;
 	origin = trans;
 	trans->dst = this;
-
-	return this;
 }
 
 bool featStateDecorator::constraint(const ADD& cst) {

@@ -101,9 +101,9 @@ public:
 
 	// Applying statements
 
-	virtual state* apply(transition* trans) = 0;
+	virtual void apply(transition* trans) = 0;
 
-	virtual state* applyRepeated(const std::list<transition*>& transList);
+	virtual void applyRepeated(const std::list<transition*>& transList);
 	
 	static state* apply(const state* s, transition* t);
 

@@ -94,6 +94,8 @@ fsmEdge::operator std::string(void) const { return expression ? std::string(*exp
 
 bool fsmEdge::operator==(const fsmEdge& other) const { return *expression == other.expression; }
 
+float fsmEdge::similarity(const fsmEdge& other) const { return expression->similarity(other.expression); }
+
 bool fsmEdge::hasFeatures(void) const { return features.getNode() != nullptr; }
 
 const ADD & fsmEdge::getFeatures(void) const { return features; }

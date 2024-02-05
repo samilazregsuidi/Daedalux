@@ -171,11 +171,11 @@ bool fsmNode::operator==(const fsmNode& other) const {
 	return true;
 }
 
+
 unsigned long fsmNode::getID(void) const {
 	unsigned long id = (unsigned long)this;
 	return id;
 }
-
 /*
 void fsmNode::printFsmNode(ptList printed, int level) {
 	printed = listAdd(printed, this);

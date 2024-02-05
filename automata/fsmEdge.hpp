@@ -41,6 +41,7 @@ public:
 
 	operator std::string(void) const;
 	bool operator==(const fsmEdge& other) const;
+	float similarity(const fsmEdge& other) const;
 
 
 public:

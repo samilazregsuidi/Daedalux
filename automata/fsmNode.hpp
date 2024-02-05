@@ -74,6 +74,8 @@ public:
 
 	bool operator==(const fsmNode& other) const;
 
+	float similarity(const fsmNode& other) const;
+
 	unsigned long getID(void) const;
 
 	void orderAcceptingTransitions(void);
