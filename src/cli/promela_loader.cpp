@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <sstream>
+
 
 namespace fs = std::filesystem;
 
@@ -31,6 +33,7 @@ promela_loader::promela_loader(std::string file_name, const TVL *tvl)
 		exit(1);
 	}
 	// Read the original file
+
 	auto fileStream = std::make_shared<std::ifstream>(sourcePath);
 	if (!fileStream->is_open()) {
 		std::cerr << "The fPromela file does not exist or is not readable!" << std::endl;
@@ -38,7 +41,7 @@ promela_loader::promela_loader(std::string file_name, const TVL *tvl)
 	}
 	std::stringstream buffer;
 	buffer << fileStream->rdbuf();
-	
+
 	// Open the temporary file
 	yyin = fopen("__workingfile.tmp.cpp", "r");
 	if (yyin == nullptr){
