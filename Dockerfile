@@ -120,7 +120,7 @@ COPY --from=app-builder /usr/src/daedalux/build/ /usr/src/daedalux/
 WORKDIR /usr/src/daedalux
 
 # Set entry point or CMD as needed
-CMD ["./daedalux"]
+# CMD ["./daedalux"]
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 # Label the image
