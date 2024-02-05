@@ -10,6 +10,10 @@
 
 #include <flowStmnt.hpp>
 
+/**
+ * @brief Construct a new process Transition::process Transition object
+*/
+
 processTransition::processTransition(process* proc, const fsmEdge* edge) 
 	: transition(proc)
 	, edge(edge)
@@ -30,15 +34,35 @@ processTransition::processTransition(process* proc, const fsmEdge* edge)
 
 }
 
+/**
+ * @brief Construct a new process Transition::process Transition object
+ * 
+ * @param other 
+
+*/
+
 processTransition::processTransition(const processTransition* other)
 	: transition(other)
 	, edge(other->edge)
 {
 }
 
+/**
+ * @brief Destroy the process Transition::process Transition object
+ * 
+
+*/
+
 processTransition::~processTransition() 
 {
 }
+
+/**
+ * @brief Get the Proc object
+ * 
+ * @return process* 
+
+*/
 
 process* processTransition::getProc(void) const {
 	return dynamic_cast<process*>(src);
@@ -63,4 +87,9 @@ void processTransition::accept(transitionVisitor* visitor) {
 bool processTransition::operator==(const transition* other) const {
 	auto cast = dynamic_cast<const processTransition*>(other);
 	return cast && *edge == *cast->edge;
+}
+
+float processTransition::similarity(const transition* other) const {
+	auto cast = dynamic_cast<const processTransition*>(other);
+	return cast ? edge->similarity(*cast->edge) : 0;
 }

@@ -14,3 +14,8 @@ Makefile
 **/pan.t
 **/.DS_Store
 daedalux
+__workingfile.tmp
+__workingfile.tmp.cpp
+fsm
+fsm_graphvis
+models/minepump/minepump (copy).pml
