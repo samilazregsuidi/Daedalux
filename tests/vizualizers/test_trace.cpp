@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include "../../src/visualizers/trace.hpp"
-#include "../../src/semantic/compositeState.hpp"
-#include "../../src/semantic/compositeTransition.hpp"
+#include "../../src/visualizer/trace.hpp"
+#include "../../src/core/semantic/variable/state/compositeState.hpp"
+#include "../../src/core/semantic/variable/transition/compositeTransition.hpp"
 
 class TraceTest : public ::testing::Test {
 protected:

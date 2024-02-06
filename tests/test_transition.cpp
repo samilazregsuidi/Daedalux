@@ -2,8 +2,8 @@
 #include <list>
 #include <cstdlib>
 #include <memory>
-#include "../src/semantic/compositeState.hpp"
-#include "../src/semantic/compositeTransition.hpp"
+#include "../src/core/semantic/variable/state/compositeState.hpp"
+#include "../src/core/semantic/variable/transition/compositeTransition.hpp"
 
 class TransitionTest : public ::testing::Test {
 protected:

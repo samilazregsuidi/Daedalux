@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/symbol/vardef/bitSymNode.hpp"
+#include "../../src/promela/symbol/vardef/bitSymNode.hpp"
 
 class BitSymNodeTest : public ::testing::Test {
 protected:

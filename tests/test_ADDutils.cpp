@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/features/ADDutils.cpp"
+#include "../src/feature/ADDutils.cpp"
 
 TEST(ADDUtilsTests, impliesTest) {
     // Test case 1: a implies b

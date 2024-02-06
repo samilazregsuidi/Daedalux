@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include "../src/cli/promela_loader.cpp"
+#include "../src/promela/parser/promela_loader.hpp"
 
 // Define a fixture for the tests
 class PromelaLoaderTest : public ::testing::Test {

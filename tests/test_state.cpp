@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/semantic/compositeState.hpp"
+#include "../src/core/semantic/variable/state/compositeState.hpp"
 
 class StateTest : public ::testing::Test {
 protected:

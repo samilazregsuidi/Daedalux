@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/symbol/logic/temporalSymNode.hpp"
+#include "../../src/promela/symbol/logic/temporalSymNode.hpp"
 
 class SymNodeTest : public ::testing::Test {
 protected:

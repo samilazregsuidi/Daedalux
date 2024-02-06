@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <memory>
-#include "../../src/cli/promela_loader.hpp"
-#include "../../src/ast/stmnt/stmnt.hpp"
-#include "../../src/algorithms/explore.hpp"
+#include "../../src/promela/parser/promela_loader.hpp"
+#include "../../src/core/ast/stmnt/stmnt.hpp"
+#include "../../src/algorithm/explore.hpp"
 
 
 

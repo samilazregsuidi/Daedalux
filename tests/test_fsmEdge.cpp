@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <memory>   // std::unique_ptr
-#include "../src/automata/fsm.hpp"
-
-#include "../src/automata/fsmEdge.cpp"
+#include "../src/core/automata/fsm.hpp"
+#include "../src/core/automata/fsmEdge.cpp"
 
 
 class FsmEdgeTest : public ::testing::Test {

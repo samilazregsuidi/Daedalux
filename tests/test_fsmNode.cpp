@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/automata/fsmNode.cpp"
+#include "../src/core/automata/fsmNode.cpp"
 
 class FsmNodeTest : public ::testing::Test {
 protected:

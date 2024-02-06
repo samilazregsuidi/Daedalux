@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../../src/symbol/vardef/varSymNode.cpp"
+#include "../../src/promela/symbol/vardef/varSymNode.cpp"
 
 class VarSymNodeTest : public ::testing::Test {
 protected:

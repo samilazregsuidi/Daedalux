@@ -2,10 +2,10 @@
 #include <sstream>
 #include <memory>
 
-#include "../../src/visualizers/traceReport.hpp"
-#include "../../src/visualizers/trace.hpp"
-#include "../../src/semantic/compositeState.hpp"
-#include "../../src/semantic/compositeTransition.hpp"
+#include "../../src/visualizer/traceReport.hpp"
+#include "../../src/visualizer/trace.hpp"
+#include "../../src/core/semantic/variable/state/compositeState.hpp"
+#include "../../src/core/semantic/variable/transition/compositeTransition.hpp"
 
 
 class TraceReportTest : public ::testing::Test {

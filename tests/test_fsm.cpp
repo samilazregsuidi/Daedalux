@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "../src/automata/fsm.hpp"
-#include "../src/symbol/symTable.hpp"
-#include "../src/automata/fsmEdge.hpp"
-#include "../src/automata/fsmNode.hpp"
+#include "../src/core/automata/fsm.hpp"
+#include "../src/core/symbol/symTable.hpp"
+#include "../src/core/automata/fsmEdge.hpp"
+#include "../src/core/automata/fsmNode.hpp"
 #include "cuddObj.hh"
 
 

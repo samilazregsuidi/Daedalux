@@ -2,8 +2,8 @@
 #include <iostream>
 #include <memory>
 
-#include "../src/algorithms/elementStack.hpp"
-#include "../src/semantic/compositeState.hpp"
+#include "../src/algorithm/elementStack.hpp"
+#include "../../src/core/semantic/variable/state/compositeState.hpp"
 
 // Test fixture for the elementStack class
 class ElementStackTest : public ::testing::Test {
