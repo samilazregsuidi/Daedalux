@@ -13,6 +13,7 @@
 
 #include "test_ADDutils.cpp"
 
+// VIZUALIZER - TESTS
 #include "vizualizers/test_trace.cpp"
 #include "vizualizers/test_traceReport.cpp"
 #include "vizualizers/test_stateToGraphViz.cpp"
@@ -25,9 +26,11 @@
 
 // #include "test_promela_loader.cpp"
 
+// INTEGRATION TESTS
 #include "integration_tests/test_mutantgeneration.cpp"
-
 #include "integration_tests/test_dfs.cpp"
+#include "integration_tests/test_most_similar_trans.cpp"
+
 
 int main(int argc, char **argv) {
     // Initialize Google Test framework

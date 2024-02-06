@@ -83,12 +83,6 @@ public:
 
 	virtual std::list<transition*> executables(void) const = 0;
 
-	//virtual std::list<transition*> executables(state* subState) const;
-
-	//virtual std::list<transition*> executables(const std::string& subStateName) const;
-
-	//virtual std::map<state*, std::list<transition*>> executablesMap(void) const;
-
 	virtual std::list<transition*> transitions(void) const = 0;
 
 	virtual bool hasDeadlock(void) const;

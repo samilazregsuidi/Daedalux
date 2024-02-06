@@ -23,7 +23,6 @@ public:
     byte outerDFS(elementStack& stackOuter);
     byte innerDFS(elementStack& stackInner, const elementStack& stackOuter);
 
-public:
     reachabilityRelation R;
 };
 
@@ -37,6 +36,9 @@ void createStateSpaceBFS(const fsm* automata, const TVL* tvl = nullptr);
 void createStateSpaceDFS_RR(const fsm* automata, const TVL* tvl = nullptr);
 std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant, const size_t k = 200, const TVL *tvl = nullptr);
 std::unique_ptr<traceReport> generateTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant, const size_t no_traces = 20, const size_t len_traces = 200, const TVL *tvl = nullptr);
+
+transition * most_similar_transition(const std::list<transition *> transitions, const transition * current);
+std::list<state *> distinct_states(const std::list<state *> & states_original, const std::list<state *> & states_mutant);
 
 
 #endif

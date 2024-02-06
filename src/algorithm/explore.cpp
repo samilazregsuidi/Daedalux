@@ -1,22 +1,15 @@
 #include "explore.hpp"
-
 #include <algorithm>
-#include <stdio.h>
-
 #include <fstream>
 #include <iostream>
+#include <stdio.h>
 #include <string>
 
-#include "process.hpp"
-#include "transition.hpp"
-
 #include "initState.hpp"
-
-// bad coupling?
-
+#include "process.hpp"
 #include "semantic.hpp"
-
 #include "stateToGraphViz.hpp"
+#include "transition.hpp"
 
 #define PRINT_STATE print
 
@@ -30,9 +23,7 @@ void launchExecution(const fsm * automata, const TVL * tvl)
   unsigned long i = 0;
   // printf("**********************************\n");
   current->PRINT_STATE();
-
   graphVis = new stateToGraphViz(automata);
-
   graphVis->printGraphViz(current);
 
   while (transition * trans = transition::sampleUniform(current->executables())) {
@@ -53,6 +44,39 @@ void launchExecution(const fsm * automata, const TVL * tvl)
   printf("--\n");
 }
 
+transition * most_similar_transition(const std::list<transition *> transitions, const transition * current)
+{
+  transition * most_similar = nullptr;
+  double max_similarity = 0;
+  for (auto t : transitions) {
+    double similarity = t->similarity(current);
+    if (similarity > max_similarity) {
+      max_similarity = similarity;
+      most_similar = t;
+    }
+  }
+  return most_similar;
+}
+
+std::list<state *> distinct_states(const std::list<state *> & states_original, const std::list<state *> & states_mutant)
+{
+  std::list<state *> distinct;
+  for (auto & s : states_original) {
+    bool found = false;
+    for (auto & d : states_mutant) {
+      if (s->compare(*d)) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      distinct.push_back(s);
+    }
+  }
+  return distinct;
+}
+
+
 //**
 // * This function consumes two automatas - the original automata and the mutant automata.
 // * It then create a run of length k of the mutant automata that cannot be created by the original automata.
@@ -63,72 +87,70 @@ void launchExecution(const fsm * automata, const TVL * tvl)
 // * 	k - The length of the run
 // * 	tvl - The feature model
 // *
-std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant, const size_t trace_length, const TVL * tvl)
+std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
+                                              const size_t trace_length, const TVL * tvl)
 {
   // Create the initial state for both automatas
-  state * current_state_original = initState::createInitState(original.get(), tvl);
-  state * current_state_mutant = initState::createInitState(mutant.get(), tvl);
+  auto current_state_original = initState::createInitState(original.get(), tvl);
+  auto current_state_mutant = initState::createInitState(mutant.get(), tvl);
   // Lists to store the transitions of the two automatas
-  auto trans_original = std::list<transition *>();
-  auto trans_mutant = std::list<transition *>();
-  auto different_trans = std::list<transition *>();
+  auto post_states_original = std::list<state *>();
+  auto post_states_mutant = std::list<state *>();
+  auto different_states = std::list<state *>();
 
-  // Create a list of visited states
+  // Variables to store the current transition
+  transition * current_trans_original = nullptr;
+  transition * current_trans_mutant = nullptr;
+
+  // Create a trace holding the visited states and transitions
   std::unique_ptr<trace> current_trace = std::make_unique<trace>();
   std::shared_ptr<state> current_state_mutant_copy(current_state_mutant);
   current_trace->addState(current_state_mutant_copy);
-  transition * current_trans = nullptr;
 
-  // Keep track if the run of the two automatas have the same prefix
+  // Keep track if the run of the two automatas have the same prefix - the default is true as the initial states are the same
   bool same_prefix = true;
 
   while (current_trace->size() < trace_length) {
     // Check if the two nodes are the same if they have the same prefix
     if (same_prefix && current_state_original->compare(*current_state_mutant)) {
-      trans_original = current_state_original->executables();
-      trans_mutant = current_state_mutant->executables();
-
-      different_trans.clear();
-      // Iterate through trans_mutant and check if each transition is in trans_original
-      for (auto mutant_transition : trans_mutant) {
-        bool found = false;
-        for(auto original_transition : trans_original) {
-          if (*mutant_transition == original_transition) {
-            found = true;
-            continue;
-          }
-          if(!found)
-            different_trans.push_back(mutant_transition);
-        }
-      }
-
-      // If mutant can fire a transition that the original automata cannot fire
-      if (!different_trans.empty()) {
+      post_states_original = current_state_original->Post();
+      post_states_mutant = current_state_mutant->Post();
+      different_states = distinct_states(post_states_original, post_states_mutant);
+      // If the mutant automata has a state that the original automata does not have - go to that state
+      if (!different_states.empty()) {
         // Fire the transition
-        current_trans = different_trans.front();
-        // Apply the transition to the mutant automaton
-        current_state_mutant->apply(current_trans);
+        auto next_state = different_states.front();
+        // Move to the next state
+        current_trans_mutant = next_state->getOrigin()->deepCopy();
+        current_state_mutant->apply(current_trans_mutant);
         // The prefix is no longer the same
         same_prefix = false;
+        // Find the most similar transition to the fired transition in the original automata
+        auto most_similar_trans = most_similar_transition(current_state_original->executables(), current_trans_mutant);
+        // Apply the transition to the original automata
+        current_state_original->apply(most_similar_trans);
+        current_trans_original = most_similar_trans;
       }
       else {
-        // We could not find a transition that the mutant automata can fire but the original automata cannot fire
+        // We could not find a different state in the mutant automata - take a random transition for both automata
         // Take the same transition as the original automata
-        current_trans = trans_original.front();
+        // Not sure if this is the best approach / if it is correct
+        auto next_state_original = post_states_original.front();
+        auto next_state_mutant = post_states_mutant.front();
         // Apply the transition to both automata
-        current_state_mutant->apply(current_trans);
-        current_state_original->apply(current_trans);
+        current_state_mutant->apply(next_state_mutant->getOrigin()->deepCopy());
+        current_state_original->apply(next_state_original->getOrigin()->deepCopy());
       }
     }
     else {
       // Fire a random transition as the trace is guaranteed to be different
-      current_trans = transition::sampleUniform(current_state_mutant->executables());
-      current_state_mutant->apply(current_trans);
+      current_trans_mutant = transition::sampleUniform(current_state_mutant->executables());
+      current_state_mutant->apply(current_trans_mutant);
     }
 
     // Add the state and transition to the trace
     std::shared_ptr<state> curent_state_mutant_copy(current_state_mutant);
-    std::shared_ptr<transition> current_trans_copy(current_trans);
+    std::shared_ptr<transition> current_trans_copy(current_trans_mutant);
     current_trace->addTransition(current_trans_copy);
     current_trace->addState(curent_state_mutant_copy);
   }
@@ -138,16 +160,55 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
   return current_trace;
 }
 
+std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
+{
+  // Create the initial state for both automatas
+  auto current_state = initState::createInitState(automata.get(), tvl);
+  // Lists to store the transitions of the two automatas
+  auto post_states = std::list<state *>();
+
+  // Create a trace holding the visited states and transitions
+  std::unique_ptr<trace> current_trace = std::make_unique<trace>();
+  std::shared_ptr<state> current_state_copy(current_state);
+  current_trace->addState(current_state_copy);
+
+  while (current_trace->size() < trace_length) {
+    post_states = current_state->Post();
+    std::cout << "Choose a transition to fire of the following transitions" << std::endl;
+    int index = 0;
+    for (auto & p : post_states) {
+      std::shared_ptr<state> postState(p);
+      std::cout << index << " : " << postState->hash() << std::endl;
+      index++;
+    }
+    int choice;
+    std::cin >> choice;
+    if (choice < 0 || choice >= post_states.size()) {
+      std::cout << "Invalid choice - firing the first transition" << std::endl;
+      choice = 0;
+    }
+    auto next_state = post_states.front();
+    auto trans = next_state->getOrigin()->deepCopy();
+    current_state->apply(trans);
+    std::shared_ptr<state> curent_state_copy(current_state);
+    std::shared_ptr<transition> current_trans_copy(trans);
+    current_trace->addTransition(current_trans_copy);
+    current_trace->addState(curent_state_copy);
+  }
+  return current_trace ;
+}
+
 /***
- * This function consumes two automatas - the original automata and the mutant automata to generate traces that cannot be generated by the original automata.
- * The function returns the traces as a traceReport containing both good and bad traces.
+ * This function consumes two automatas - the original automata and the mutant automata to generate traces that cannot be
+ * generated by the original automata. The function returns the traces as a traceReport containing both good and bad traces.
  * Parameters:
  *   original - The original automata
  *   mutant - The mutant automata
  *   no_traces - The number of traces to generate
  *   len_traces - The length of the traces
-*/
-std::unique_ptr<traceReport> generateTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant, const size_t no_traces, size_t len_traces, const TVL * tvl)
+ */
+std::unique_ptr<traceReport> generateTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
+                                            const size_t no_traces, size_t len_traces, const TVL * tvl)
 {
   std::unique_ptr<traceReport> traces = std::make_unique<traceReport>();
   for (size_t i = 0; i < no_traces; ++i) {
@@ -243,29 +304,28 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
 
 #define K 3
 
+/**
+ * This function tries to find a lasso in the state space of a given finite state machine using a random walk.
+ * @param automata A pointer to the finite state machine to create the state space for.
+ * @param tvl A pointer to the transition vector list for the finite state machine.
+ * @param k_steps The number of steps to take in the random walk.
+ */
 void findLasso(const fsm * automata, const TVL * tvl, size_t k_steps)
 {
   std::set<unsigned long> hashSet;
-
   state * current = initState::createInitState(automata, tvl);
   transition * trans = nullptr;
-
   for (size_t i = 0; i < k_steps; ++i) {
     // Print current state and visualize it
     // printf("**********************************\n");
     current->PRINT_STATE();
     graphVis->printGraphViz(current);
-
     auto hash = current->hash();
-
     bool isNewState = (hashSet.find(hash) == hashSet.end());
-
     if (isNewState) {
       hashSet.insert(hash);
-
       // Sample a uniform transition and apply it
       trans = transition::sampleUniform(current->executables());
-
       if (trans) {
         printf("..\n");
         current->apply(trans);
@@ -278,7 +338,6 @@ void findLasso(const fsm * automata, const TVL * tvl, size_t k_steps)
       break; // Detected a lasso, exit the loop
     }
   }
-
   printf("--\n");
 }
 
@@ -420,17 +479,15 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
   }
 
   printf("number of states : %ld\n", i);
-
   delete graphVis;
 }
 
 void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
 {
-  elementStack st;  
+  elementStack st;
   reachabilityRelation R;
   R.tvl = tvl;
   std::shared_ptr<state> init(initState::createInitState(automata, tvl));
-
   graphVis = new stateToGraphViz(automata);
 
   int depth = 0;
@@ -661,7 +718,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
         // s_->print();
 
         if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-          printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
+          printf("Assertion at line %d violated", *s_->getOrigin() ->lines.begin());
 
           R.addTraceViolation(current->s.get());
 
@@ -890,8 +947,8 @@ std::stack<std::shared_ptr<elementStack::element>> reverse(const std::stack<std:
   return reversed;
 }
 
-void printElementStack(const std::stack<std::shared_ptr<elementStack::element>>& outerStack, 
-                        const std::stack<std::shared_ptr<elementStack::element>>& innerStack, const state* loopBegin)
+void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> & outerStack,
+                       const std::stack<std::shared_ptr<elementStack::element>> & innerStack, const state * loopBegin)
 {
   state * s = nullptr;
   unsigned int depth = 0;
