@@ -94,3 +94,66 @@ TEST_F(PromelaLoaderTest, LoadValidPromelaFile2) {
     auto initialStates = automata->getInitNodes();
     EXPECT_EQ(initialStates.size(), 1);
 }
+
+// Test case for loading a valid Promela file
+TEST_F(PromelaLoaderTest, LoadMinePumpPromelaFile) {
+
+    std::string current_directory = fs::current_path();
+    std::string file_name = "/models/minepump/original.pml";
+    std::string file_path = current_directory + file_name;
+    const TVL* tvl = nullptr;
+    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+
+    auto automata = loader->getAutomata();
+
+    int numNodes = automata->getNodes().size();
+    int numTransitions = automata->getTransitions().size();
+
+    EXPECT_EQ(automata->getNodes().size(), 46);
+    EXPECT_EQ(automata->getTransitions().size(), 67);
+
+    auto initialStates = automata->getInitNodes();
+    EXPECT_EQ(initialStates.size(), 5);
+}
+
+// Test case for loading Windows Promela file
+TEST_F(PromelaLoaderTest, LoadWindowsPromelaFile) {
+
+    std::string current_directory = fs::current_path();
+    std::string file_name = "/models/windows/original.pml";
+    std::string file_path = current_directory + file_name;
+    const TVL* tvl = nullptr;
+    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+
+    auto automata = loader->getAutomata();
+
+    int numNodes = automata->getNodes().size();
+    int numTransitions = automata->getTransitions().size();
+
+    EXPECT_EQ(automata->getNodes().size(), 35);
+    EXPECT_EQ(automata->getTransitions().size(), 46);
+
+    auto initialStates = automata->getInitNodes();
+    EXPECT_EQ(initialStates.size(), 2);
+}
+
+// Test case for loading Elevator Promela file
+// TEST_F(PromelaLoaderTest, LoadElevatorPromelaFile) {
+
+//     std::string current_directory = fs::current_path();
+//     std::string file_name = "/models/elevator/elevator.pml";
+//     std::string file_path = current_directory + file_name;
+//     const TVL* tvl = nullptr;
+//     auto loader = std::make_unique<promela_loader>(file_path, tvl);
+
+//     auto automata = loader->getAutomata();
+
+//     int numNodes = automata->getNodes().size();
+//     int numTransitions = automata->getTransitions().size();
+
+//     EXPECT_EQ(automata->getNodes().size(), 46);
+//     EXPECT_EQ(automata->getTransitions().size(), 67);
+
+//     auto initialStates = automata->getInitNodes();
+//     EXPECT_EQ(initialStates.size(), 5);
+// }

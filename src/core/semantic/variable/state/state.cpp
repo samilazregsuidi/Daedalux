@@ -68,7 +68,6 @@ std::list<state*> state::Post(void) const {
 			this->errorMask |= ERR_DEADLOCK;
 		transition::erase(neverTs);
 	}
-
 	return res;
 }
 
@@ -84,14 +83,14 @@ void state::applyRepeated(const std::list<transition*>& transList) {
 		this->apply(t);
 }
 
-/*static*/ state* state::apply(const state* s, transition* t) {
+state* state::apply(const state* s, transition* t) {
 	auto copy = s->deepCopy();
 	assert(copy->getOrigin() == nullptr);
 	//printf("copy print\n");
 	//copy->print();
+	// Apply the transition to the copy
 	assert(copy);
-	assert(s->hash() == copy->hash());
-	//printf("s hash %lu and copy hash %lu\n", s->hash(), copy->hash());
+	assert(s->hash() == copy->hash()); // The copy should have the same hash as the original
 	copy->apply(t);
 	assert(copy->getOrigin() == t);
 	return copy;

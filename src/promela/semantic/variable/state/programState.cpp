@@ -414,7 +414,6 @@ std::list<transition*> progState::executables(void) const {
  * that evaluated to false.
  */
 void progState::apply(transition* trans) {
-	
 	assert(trans->subTs.size());
 	trans = *trans->subTs.begin();
 
@@ -459,6 +458,7 @@ void progState::apply(transition* trans) {
 
 	//prob *= trans->prob;
 
+	//TODO: check if the following is necessary
 	//origin = trans;
 	//trans->dst = this;
 }

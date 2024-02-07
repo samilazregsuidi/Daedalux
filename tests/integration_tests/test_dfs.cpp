@@ -9,7 +9,7 @@ protected:
   {
     // Common setup code that will be called before each test
     symTable * table = new symTable("global", nullptr);
-    myFSM = new fsm(table, ADD());
+    myFSM = std::make_unique<fsm>(table, ADD());
     fsmNode * node1 = myFSM->createFsmNode(0, 1);
     fsmNode * node2 = myFSM->createFsmNode(1, 2);
     fsmNode * node3 = myFSM->createFsmNode(2, 3);
@@ -35,11 +35,19 @@ protected:
   void TearDown() override
   {
     // Common teardown code that will be called after each test
-    delete myFSM;
   }
 
-  fsm * myFSM;
+  std::unique_ptr<fsm> myFSM;
 };
 
 // Test case for the explore function
-TEST_F(ExploreTest, Explore) { launchExecution(myFSM); }
+TEST_F(ExploreTest, Explore)
+{
+  launchExecution(myFSM.get());
+  // Check that the FSM has been explored
+  EXPECT_EQ(myFSM->getNodes().size(), 3);
+  EXPECT_EQ(myFSM->getTransitions().size(), 3);
+  EXPECT_EQ(myFSM->getNode(1)->getEdges().size(), 2);
+  EXPECT_EQ(myFSM->getNode(2)->getEdges().size(), 1);
+  EXPECT_EQ(myFSM->getNode(3)->getEdges().size(), 0);
+}

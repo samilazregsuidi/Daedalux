@@ -20,17 +20,18 @@ protected:
 };
 
 
-TEST_F(MutantGenerationTest, LoadValidPromelaFile) {
+TEST_F(MutantGenerationTest, GenerateMutant) {
     std::string current_directory = std::filesystem::current_path();
     std::string file_name = "/models/windows/original.pml";
     std::string file_path = current_directory + file_name;
-    // const TVL* tvl = nullptr;
+    const TVL* tvl = nullptr;
     // auto loader = std::make_unique<promela_loader>(file_path, tvl);
+    // auto original = loader->getAutomata().get();
 
-    // auto automata = loader->getAutomata();
     // stmnt* program = loader->getProgram();
     // std::cout << "Original program" << std::endl;
     // std::cout << stmnt::string(program) << std::endl;
+
 
     // unsigned int index = program->assignMutables();
 
