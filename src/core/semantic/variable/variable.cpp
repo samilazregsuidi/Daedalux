@@ -301,6 +301,17 @@ unsigned long variable::hash(void) const {
 	return payLoad ? payLoad->hash(getOffset(), getSizeOf()) : 0;
 }
 
+float variable::delta(const variable* v2) const {
+	float res = 0;
+	if(v2 == nullptr)
+		return 1;
+
+	for(auto var : varList)
+		res += var->delta(v2->getVariable(var->getLocalName()));
+
+	return res / varList.size();
+}
+
 size_t variable::getOffset(void) const {
 	return parent? offset + parent->getOffset() : offset;
 }

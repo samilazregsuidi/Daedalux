@@ -77,6 +77,8 @@ void channel::send(const std::list<const variable*>& args) {
 		len(len()+1);
 }
 
+//TODO : Make it work for a dynamic channel, add stack management
+
 void channel::receive(const std::list<variable*>& rargs) {
 
 	auto rargIt = rargs.begin();

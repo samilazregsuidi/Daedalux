@@ -146,6 +146,7 @@ void featStateDecorator::apply(transition* trans) {
 
 	wrappee->origin = trans;
 	origin = trans;
+	assert(trans->dst == nullptr);
 	trans->dst = this;
 }
 

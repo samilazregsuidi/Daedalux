@@ -133,6 +133,8 @@ public:
 
 	byte compare(const state& s2) const override;
 
+	float delta(const variable* s2) const override;
+
 	std::list<transition*> transitions(void) const override;
 
 	void accept(stateVisitor* visitor) override;

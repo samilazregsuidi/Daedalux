@@ -32,6 +32,7 @@ public:
 
 	bool operator != (const variable* other) const override;
 
+
 	void send(const std::list<const variable*>& args);
 
 	void reset(void);

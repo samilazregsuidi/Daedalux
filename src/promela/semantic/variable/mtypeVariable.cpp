@@ -29,6 +29,14 @@ int mtypeVar::operator++(int) { assert(false); }
 
 int mtypeVar::operator--(int) { assert(false); }
 
+float mtypeVar::delta(const variable * other) const
+{
+  auto otherVar = dynamic_cast<const mtypeVar *>(other);
+  if (!otherVar)
+    return 1;
+  return (getValue() != otherVar->getValue()) ? 1 : 0;
+}
+
 variable * mtypeVar::deepCopy(void) const
 {
   mtypeVar * copy = new mtypeVar(*this);

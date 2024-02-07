@@ -244,3 +244,12 @@ bool thread::operator != (const variable* other) const {
 void thread::printGraphViz(unsigned long i) const {
 	
 }
+
+float thread::delta(const variable* s2) const {
+	auto cast = dynamic_cast<const thread*>(s2);
+	auto delta = variable::delta(s2) * 0.5;
+	auto deltaProcess = 1 / (std::abs(getFsmNodePointer()->getLineNb() - cast->getFsmNodePointer()->getLineNb())  + 1);
+	delta += deltaProcess * 0.5;
+	assert(delta >= 0 && delta <= 1);
+	return delta;
+}

@@ -432,8 +432,11 @@ Apply:
 		s->lastStepPid = proc->getPid();
 	}
 
-	//origin = trans;
-	//trans->dst = this;
+	//TODO : compute the prob
+
+	origin = trans;
+	assert(trans->dst == nullptr);
+	trans->dst = this;
 
 	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;
 }

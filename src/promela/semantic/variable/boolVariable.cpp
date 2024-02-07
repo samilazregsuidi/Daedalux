@@ -27,6 +27,13 @@ int boolVar::operator -- (int) {
 	assert(false);
 }
 
+float boolVar::delta(const variable* other) const {
+	auto otherVar = dynamic_cast<const boolVar*>(other);
+	if(!otherVar)
+		return 1;
+	return (getValue() != otherVar->getValue()) ? 1 : 0;
+}
+
 boolVar::operator std::string(void) const {
 
 	char buffer[128];

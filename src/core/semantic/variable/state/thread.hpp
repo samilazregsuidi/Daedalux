@@ -99,6 +99,8 @@ public:
 	
 	//byte compare(const state& s2) const override;
 
+	float delta(const variable* v2) const override;
+
 public:
 	const seqSymNode* symType;
 	unsigned int index;
