@@ -23,8 +23,7 @@
 #include "test_state.cpp"
 
 #include "test_elementStack.cpp"
-
-// #include "test_promela_loader.cpp"
+#include "test_promela_loader.cpp"
 
 // INTEGRATION TESTS
 #include "integration_tests/test_mutantgeneration.cpp"

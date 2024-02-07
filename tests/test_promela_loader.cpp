@@ -2,6 +2,8 @@
 #include <memory>
 #include "../src/promela/parser/promela_loader.hpp"
 
+namespace fs = std::filesystem;
+
 // Define a fixture for the tests
 class PromelaLoaderTest : public ::testing::Test {
 protected:
@@ -51,20 +53,44 @@ TEST_F(PromelaLoaderTest, LoadInvalidPromelaFile) {
     EXPECT_EXIT(std::make_unique<promela_loader>(file_name, tvl), ::testing::ExitedWithCode(1), "The model file must have the extension .pml.");
 }
 
-// Test case for loading an invalid Promela file
-TEST_F(PromelaLoaderTest, LoadValidPromelaFile) {
+// Test case for loading a valid Promela file
+TEST_F(PromelaLoaderTest, LoadValidPromelaFile1) {
 
     std::string current_directory = fs::current_path();
-    std::string file_name = "/models/windows/original.pml";
+    std::string file_name = "/test_files/basic/flows.pml";
     std::string file_path = current_directory + file_name;
     const TVL* tvl = nullptr;
     auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
     auto automata = loader->getAutomata();
 
-    // EXPECT_EQ(automata->getNodes().size(), 7);
-    // EXPECT_EQ(automata->getTransitions().size(), 8);
-    // EXPECT_EQ(automata->getInitNodes(), automata->getNodes()[0]);
-    // EXPECT_EQ(automata->getNodes()[0]->getEdges().size(), 2);
-    // EXPECT_EQ(automata->getNodes()[1]->getEdges().size(), 2);
+    int numNodes = automata->getNodes().size();
+    int numTransitions = automata->getTransitions().size();
+
+    EXPECT_EQ(automata->getNodes().size(), 9);
+    EXPECT_EQ(automata->getTransitions().size(), 16);
+
+    auto initialStates = automata->getInitNodes();
+    EXPECT_EQ(initialStates.size(), 2);
+}
+
+// Test case for loading a valid Promela file
+TEST_F(PromelaLoaderTest, LoadValidPromelaFile2) {
+
+    std::string current_directory = fs::current_path();
+    std::string file_name = "/test_files/basic/array.pml";
+    std::string file_path = current_directory + file_name;
+    const TVL* tvl = nullptr;
+    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+
+    auto automata = loader->getAutomata();
+
+    int numNodes = automata->getNodes().size();
+    int numTransitions = automata->getTransitions().size();
+
+    EXPECT_EQ(automata->getNodes().size(), 5);
+    EXPECT_EQ(automata->getTransitions().size(), 6);
+
+    auto initialStates = automata->getInitNodes();
+    EXPECT_EQ(initialStates.size(), 1);
 }

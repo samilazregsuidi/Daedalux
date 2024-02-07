@@ -107,6 +107,9 @@ COPY --from=cudd-builder /usr/src/cudd-cudd-3.0.0 /usr/src/cudd-cudd-3.0.0
 # Copy the models into the image
 COPY ./models /usr/src/daedalux/models
 
+# Copy the test_files into the image
+COPY ./test_files /usr/src/daedalux/test_files
+
 # Copy the python scripts
 COPY --from=app-builder /usr/src/daedalux/test_scripts /usr/src/daedalux/python_scripts
 
