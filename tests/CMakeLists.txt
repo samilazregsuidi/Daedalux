@@ -14,6 +14,9 @@ FetchContent_MakeAvailable(googletest)
 # Include the CTest module to enable testing
 include(CTest)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../test_files DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 # List your test source files
 set(TEST_SOURCES
     test_main.cpp
