@@ -186,6 +186,8 @@ public:
 
 	virtual unsigned long hash(void) const;
 
+	virtual float delta(const variable* v2) const;
+
 	/*********************************************************/
 
 	static Type getVarType(symbol::Type type);

@@ -112,8 +112,7 @@ add_library(daedalux_lib STATIC
 	promela/ast/expr/constExpr.cpp
 	promela/ast/expr/argExpr.cpp
 	promela/ast/expr/temporalExpr.cpp	
-
-	promela/semantic/variable/state/programState.cpp		
+	
 	promela/semantic/variable/primitiveVariable.cpp
 	promela/semantic/variable/utypeVariable.cpp
 	promela/semantic/variable/boolVariable.cpp
@@ -121,8 +120,10 @@ add_library(daedalux_lib STATIC
 	promela/semantic/variable/channel.cpp
 	promela/semantic/variable/state/process.cpp
 	promela/semantic/variable/state/never.cpp
+	promela/semantic/variable/state/programState.cpp	
 	promela/semantic/variable/transition/neverTransition.cpp	
 	promela/semantic/variable/transition/processTransition.cpp
+	promela/semantic/variable/transition/progTransition.cpp
 
 	promela/parser/${Parser}
 	promela/parser/${Lexer}
@@ -288,7 +289,6 @@ add_executable(daedalux
 	promela/ast/expr/argExpr.cpp
 	promela/ast/expr/temporalExpr.cpp	
 	
-	promela/semantic/variable/state/programState.cpp		
 	promela/semantic/variable/primitiveVariable.cpp
 	promela/semantic/variable/utypeVariable.cpp
 	promela/semantic/variable/boolVariable.cpp
@@ -296,8 +296,10 @@ add_executable(daedalux
 	promela/semantic/variable/channel.cpp
 	promela/semantic/variable/state/process.cpp
 	promela/semantic/variable/state/never.cpp
+	promela/semantic/variable/state/programState.cpp	
 	promela/semantic/variable/transition/neverTransition.cpp	
 	promela/semantic/variable/transition/processTransition.cpp
+	promela/semantic/variable/transition/progTransition.cpp
 
 	promela/parser/${Parser}
 	promela/parser/${Lexer}

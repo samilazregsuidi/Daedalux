@@ -16,6 +16,7 @@
 #include "payload.hpp"
 
 #include "rendezVousTransition.hpp"
+#include "progTransition.hpp"
 #include "processTransition.hpp"
 
 #include "neverTransition.hpp"
@@ -436,6 +437,7 @@ void progState::apply(transition* trans) {
 			auto responseProc = getProc(response->getProc()->getPid());
 			responseProc->apply(response);
 		}
+		prob *= trans->prob;
 
 	} else {
 
@@ -452,15 +454,16 @@ void progState::apply(transition* trans) {
 		assert(proc);
 
 		proc->apply(procTrans);
+
+		trans = new progTransition(this, procTrans);
+		prob *= trans->prob;
 	}
 
 	assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);
 
-	//prob *= trans->prob;
-
-	//TODO: check if the following is necessary
-	//origin = trans;
-	//trans->dst = this;
+	origin = trans;
+	assert(trans->dst == nullptr);
+	trans->dst = this;
 }
 
 /*const ADD& progState::getFeatures(void) const {

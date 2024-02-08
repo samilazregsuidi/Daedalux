@@ -213,9 +213,10 @@ void compState::apply(transition* trans) {
 		s->apply(t);
 	}
 
-	//prob *= trans->prob;
-	//origin = trans;
-	//trans->dst = this;
+	prob *= trans->prob;
+	origin = trans;
+	assert(trans->dst == nullptr);
+	trans->dst = this;
 }
 
 bool compState::nullstate(void) const {

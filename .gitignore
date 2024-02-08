@@ -24,3 +24,4 @@ tests/CTestTestfile.cmake
 tests/test_suite\[1\]_tests.cmake
 tests/test_suite\[1\]_include.cmake
 tests/test_suite
+src/libdaedalux_lib.a

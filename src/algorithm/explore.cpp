@@ -593,6 +593,7 @@ void ltlModelChecker::startNestedDFS(const fsm * automata, const TVL * tvl)
 
   // Sanity checks
   auto neverClaim = init->getNeverClaim();
+  assert(neverClaim);
   auto neverTrans = neverClaim->transitions();
   if (!neverClaim || neverClaim->nullstate() || neverTrans.size() == 0) {
     printf("init->never is NULL\n");

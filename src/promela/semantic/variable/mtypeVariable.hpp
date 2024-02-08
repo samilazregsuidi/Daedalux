@@ -23,6 +23,8 @@ public:
 
 	int operator -- (int) override;
 
+	float delta(const variable* other) const override;
+
 	operator std::string(void) const override;
 
 	void print(void) const override;

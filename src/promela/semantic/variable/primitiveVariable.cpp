@@ -117,6 +117,13 @@ bool primitiveVariable::operator != (const variable* other) const {
 	return !(*this == other);
 }
 
+float primitiveVariable::delta(const variable* other) const {
+	auto cast = dynamic_cast<const primitiveVariable*>(other);
+	if(!cast)
+		return 1;
+	return 1 / std::abs(getValue() - cast->getValue()) + 1;
+}
+
 void primitiveVariable::setValue(int value) {
 	assert(getPayload());
 	assert(value >= varSymNode::getLowerBound(varSym->getType()));
