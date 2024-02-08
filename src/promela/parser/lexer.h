@@ -492,7 +492,7 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 234 "promela.l"
+#line 227 "promela.l"
 
 
 #line 499 "lexer.h"

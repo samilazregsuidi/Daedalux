@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_YY_HOME_SLAZREG_WORK_RESEARCH_MUTATION_DEADALUX_PARSER_Y_TAB_HPP_INCLUDED
-# define YY_YY_HOME_SLAZREG_WORK_RESEARCH_MUTATION_DEADALUX_PARSER_Y_TAB_HPP_INCLUDED
+#ifndef YY_YY_Y_TAB_HPP_INCLUDED
+# define YY_YY_Y_TAB_HPP_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
@@ -271,7 +271,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 66 "/home/slazreg/Work/Research/Mutation/deadalux/parser/promela.y"
+#line 66 "promela.y"
  
 	int       				iVal;
 	char*    				sVal;
@@ -296,7 +296,7 @@ union YYSTYPE
 	
 	enum symbol::Type   	iType;
 
-#line 300 "/home/slazreg/Work/Research/Mutation/deadalux/parser/y.tab.hpp"
+#line 300 "y.tab.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -310,4 +310,4 @@ typedef union YYSTYPE YYSTYPE;
 int yyparse (symTable** globalSymTab, stmnt** program);
 
 
-#endif /* !YY_YY_HOME_SLAZREG_WORK_RESEARCH_MUTATION_DEADALUX_PARSER_Y_TAB_HPP_INCLUDED  */
+#endif /* !YY_YY_Y_TAB_HPP_INCLUDED  */

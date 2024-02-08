@@ -15,7 +15,7 @@ protected:
   {
     // Common teardown code that will be called after each test
   }
-  std::string file1 = "/test_files/basic/0.pml";
+  std::string file1 = "/test_files/basic/array.pml";
   std::string file2 = "/test_files/basic/flows.pml";
   std::string current_path = std::filesystem::current_path();
 };

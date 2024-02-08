@@ -121,7 +121,7 @@ float primitiveVariable::delta(const variable* other) const {
 	auto cast = dynamic_cast<const primitiveVariable*>(other);
 	if(!cast)
 		return 1;
-	return 1 / std::abs(getValue() - cast->getValue()) + 1;
+	return std::abs(getValue() - cast->getValue()) / (float)varSymNode::getUpperBound(varSym->getType());
 }
 
 void primitiveVariable::setValue(int value) {
