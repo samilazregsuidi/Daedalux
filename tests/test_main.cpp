@@ -13,17 +13,17 @@
 
 #include "test_ADDutils.cpp"
 
+
 // VIZUALIZER - TESTS
 #include "vizualizers/test_trace.cpp"
 #include "vizualizers/test_traceReport.cpp"
 #include "vizualizers/test_stateToGraphViz.cpp"
 
-
 // #include "test_transition.cpp"
 #include "test_state.cpp"
-
 #include "test_elementStack.cpp"
 #include "test_promela_loader.cpp"
+#include "test_specification_writer.cpp"
 
 // INTEGRATION TESTS
 #include "integration_tests/test_mutantgeneration.cpp"

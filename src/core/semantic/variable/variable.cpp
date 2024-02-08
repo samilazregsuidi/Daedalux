@@ -176,20 +176,15 @@ void variable::assign(const variable* sc) {
 }
 
 void variable::init(void) {
-
 	if(!payLoad) {
-	
 		if(parent) {
 			parent->init();
 			return;
 		}
-
 		setPayload(new payload(getSizeOf()));
 	}
-
 	for(auto var : varList)
 		var->init();
-	
 }
 
 bool variable::operator == (const variable* other) const {

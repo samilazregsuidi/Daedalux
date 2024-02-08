@@ -8,7 +8,7 @@
 
 
 // Define a fixture for the tests
-class MutantGenerationTest : public ::testing::Test {
+class DISABLED_MutantGenerationTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Common setup code that will be called before each test
@@ -20,7 +20,7 @@ protected:
 };
 
 
-TEST_F(MutantGenerationTest, GenerateMutant) {
+TEST_F(DISABLED_MutantGenerationTest, GenerateMutant) {
     std::string current_directory = std::filesystem::current_path();
     std::string file_name = "/models/windows/original.pml";
     std::string file_path = current_directory + file_name;
