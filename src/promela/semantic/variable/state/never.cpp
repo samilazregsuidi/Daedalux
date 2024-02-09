@@ -351,13 +351,19 @@ Apply:
 
 
 void never::print(void) const {
-	
 	auto node = getFsmNodePointer();
-
 	if(node)	printf("0x%-4lx:   never                               @ NL%02u %s\n", getOffset(), node->getLineNb(), node->getFlags() & fsmNode::N_ACCEPT ? " (accepting)" : "");
 	else 		printf("0x%-4lx:   never                               @ end\n", getOffset());
 	
 	variable::print();
+}
+
+void never::printCSVHeader(std::ostream &out) const {
+	out << "never,";
+}
+
+void never::printCSV(std::ostream &out) const {
+	out << getLocation() << ",";
 }
 
 bool never::isAccepting(void) const {

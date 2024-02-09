@@ -28,6 +28,10 @@ public:
 
 	void print(void) const override;
 
+	void printCSVHeader(std::ostream &out) const override;
+
+	void printCSV(std::ostream &out) const override;
+
 	std::list<transition*> executables(void) const override;
 
 	std::list<transition*> transitions(void) const override;

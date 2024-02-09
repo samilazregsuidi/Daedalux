@@ -35,7 +35,7 @@ public:
 
 	void send(const std::list<const variable*>& args);
 
-	void reset(void);
+	void reset(void) override;
 
 	void receive(const std::list<variable*>& rargs);
 

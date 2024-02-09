@@ -94,7 +94,7 @@ fMultiLTLSymNode::operator std::string(void) const {
 	res += getBasicTypeName() + " " + name + " ";
 	int i = 0;
 	for(auto it : variants) {
-		res += std::string(*it) + (++i < variants.size() ? ", " : "");
+		res += std::string(*it) + (++i < ((int)variants.size()) ? ", " : "");
 	}
 	res += " {\n\t" + std::string(*formula) + "\n}";
 

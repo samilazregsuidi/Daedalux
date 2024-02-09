@@ -40,7 +40,7 @@ public:
 
 	//state(const state& s) = default;
 
-	compState* deepCopy(void) const;
+	compState* deepCopy(void) const override;
 	/**
 	 * Frees the memory used by a given state. It does NOT free any symbol tables, FSM or mtypes list.
 	 * However, it DOES free:
@@ -118,6 +118,8 @@ public:
 	void printTexada(void) const override;
 
 	void printCSV(std::ostream &out) const override;
+
+	void printCSVHeader(std::ostream &out) const override;
 
 	void printHexadecimal(void) const override;
 

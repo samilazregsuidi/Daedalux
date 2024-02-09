@@ -60,9 +60,11 @@ fsmNode * fsm::copyFsmNode(const fsmNode * node) { return createFsmNode(node->ge
 
 fsmNode * fsm::getNode(unsigned int lineNb) const
 {
-  for (auto node : nodes)
+  for (auto node : nodes) {
+    unsigned int nodeLineNb = node->getLineNb();
     if (node->getLineNb() == lineNb)
       return node;
+  }
   return nullptr;
 }
 

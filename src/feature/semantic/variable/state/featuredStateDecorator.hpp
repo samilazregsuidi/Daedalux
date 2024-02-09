@@ -10,45 +10,49 @@ class TVL;
 // State
 class featStateDecorator : public stateDecorator {
 public:
-	// Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
-	featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl); 
-	
-	featStateDecorator(const featStateDecorator* other);
+  // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+  featStateDecorator(state * wrappee, const ADD & diagram, const TVL * tvl);
 
-	state* deepCopy(void) const override;
+  featStateDecorator(const featStateDecorator * other);
 
-	~featStateDecorator() override;
+  state * deepCopy(void) const override;
 
-	std::list<transition*> executables(void) const override;
+  ~featStateDecorator() override;
 
-	unsigned long hash(void) const override;
+  std::list<transition *> executables(void) const override;
 
-	byte compare(const state& s2) const override;
+  unsigned long hash(void) const override;
 
-	byte compare(const state& s2, const ADD& features) const;
+  byte compare(const state & s2) const override;
 
-	byte compare(unsigned long s2Hash, const ADD& features) const;
+  byte compare(const state & s2, const ADD & features) const;
 
-	// Applying statements
+  byte compare(unsigned long s2Hash, const ADD & features) const;
 
-	void apply(transition* trans) override;
+  // Applying statements
 
-	void print(void) const override;
+  void apply(transition * trans) override;
 
-	ADD getFeatures(void) const;
+  void print(void) const override;
 
-	ADD getDiagram(void) const;
+  void printCSVHeader(std::ostream & out) const override;
 
-	bool constraint(const ADD& cst);
+  void printCSV(std::ostream & out) const override;
 
-	void accept(stateVisitor* visitor) override;
+  ADD getFeatures(void) const;
+
+  ADD getDiagram(void) const;
+
+  bool constraint(const ADD & cst);
+
+  void accept(stateVisitor * visitor) override;
 
 public:
-	ADD features;
-	ADD diagram;
-	ADD choices;
-	ADD R;
-	const TVL* tvl;
+  ADD features;
+  ADD diagram;
+  ADD choices;
+  ADD R;
+  const TVL * tvl;
 };
 
 #endif

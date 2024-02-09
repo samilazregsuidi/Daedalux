@@ -111,8 +111,15 @@ void compState::printTexada(void) const {
 }
 
 void compState::printCSV(std::ostream &out) const {
-	variable::printCSV(out);
-	out << " .." << std::endl;
+	for(auto s : getSubStates()) {
+		s->printCSV(out);
+	}
+}
+
+void compState::printCSVHeader(std::ostream &out) const {
+	for(auto s : getSubStates()) {
+		s->printCSVHeader(out);
+	}
 }
 
 /*void compState::printGraphViz(unsigned long i) const {

@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 
 promela_loader::promela_loader(std::string file_name, const TVL * tvl)
-    : automata(nullptr), globalSymTab(nullptr), program(nullptr)
+    : globalSymTab(nullptr), program(nullptr), automata(nullptr)
 {
   // The variable promelaFile should have the fileExtension .pml
   if (file_name.find(".pml") == std::string::npos) {

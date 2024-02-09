@@ -48,8 +48,10 @@ public:
   {
     auto start = this->states.front();
     start->printCSVHeader(out);
+    out << std::endl;
     for (auto st : this->states) {
       st->printCSV(out);
+      out << std::endl;
     }
   }
 

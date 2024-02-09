@@ -13,15 +13,15 @@ public:
 
 	std::list<varSymNode*> getDeclSymTab(void) const;
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
 	unsigned int assignMutables(const Mask& mask = Mask(), unsigned int id = 0) override;
 
-	bool mutateMutable(unsigned int id);
+	bool mutateMutable(unsigned int id) override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -49,7 +49,7 @@ public:
 
 	std::string getTypeDescr(void) const;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -71,9 +71,9 @@ public:
 
 	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -87,11 +87,11 @@ class tdefDecl : public stmnt {
 public:
 	tdefDecl(tdefSymNode *declSymTab, int lineNb);
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -124,7 +124,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 private:
 	std::string name;
@@ -144,7 +144,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 private:
 	std::string name;
@@ -161,11 +161,11 @@ public:
 
 	std::string getFctName(void) const override;
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 private:
 	initSymNode* procSym;
@@ -179,11 +179,11 @@ public:
 
 	std::string getFctName(void) const override;
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 private:
 	neverSymNode* procSym;

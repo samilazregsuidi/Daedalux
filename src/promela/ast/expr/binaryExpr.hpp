@@ -13,7 +13,7 @@ public:
 
 	expr* getRightExpr(void) const;
 
-	symbol::Type getExprType(void) const;
+	symbol::Type getExprType(void) const override;
 
 	bool operator==(const exprBinary* other) const; 
 

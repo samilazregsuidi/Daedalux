@@ -722,15 +722,21 @@ int process::eval(const astNode* node, byte flag) const {
 }
 
 void process::print(void) const {
-	
 	auto node = getFsmNodePointer();
-
 	if(node) 	printf("0x%-4lx:   %s pid  %-13u @ NL%02u\n", getOffset(), getFullName().c_str(), getPid(), node->getLineNb());
 	else 		printf("0x%-4lx:   %s pid  %-13u @ end\n", getOffset(), getFullName().c_str(), getPid());
 
 	variable::print();
-
 }
+
+void process::printCSVHeader(std::ostream &out) const {
+	out << getFullName() << ",";
+}
+
+void process::printCSV(std::ostream &out) const {
+	out << getLocation() << ",";
+}
+
 
 void process::accept(stateVisitor* visitor) {
 	visitor->visit(this);

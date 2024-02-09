@@ -26,7 +26,7 @@ public:
 	
 	virtual int getValue(void) const ;
 
-	virtual void init(void) ;
+	virtual void init(void) override;
 
 	virtual void reset(void) override;
 

@@ -120,11 +120,10 @@ int payload::getValue(size_t offset, variable::Type type) const {
 		case variable::V_INT:
 			return getValue<int>(offset);
 		default:
+			printf("type = %d\n", type);
 			assert(false);
 			return -1;
 	}
-	assert(false);
-	return -1;
 }
 
 void payload::setValue(size_t offset, int value, variable::Type type) {

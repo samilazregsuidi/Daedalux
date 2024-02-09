@@ -13,8 +13,6 @@ public:
 
 	stateDecorator(const stateDecorator* other);
 
-	virtual state* deepCopy(void) const = 0;
-
 	~stateDecorator() override;
 
 	/****************************************************/

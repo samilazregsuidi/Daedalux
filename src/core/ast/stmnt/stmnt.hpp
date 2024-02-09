@@ -59,13 +59,13 @@ public:
 
 	stmnt* getBlock() const;
 
-	virtual void printSymTab(void) const;
+	virtual void printSymTab(void) const override;
 
-	operator std::string() const;
+	operator std::string() const override;
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -82,7 +82,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -99,7 +99,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -126,7 +126,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -147,7 +147,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 	
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -168,7 +168,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -189,7 +189,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -210,7 +210,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 

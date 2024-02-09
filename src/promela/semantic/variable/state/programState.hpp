@@ -168,6 +168,10 @@ public:
 
 	void print(void) const override;
 
+	void printCSVHeader(std::ostream &out) const override;
+
+	void printCSV(std::ostream &out) const override;
+
 	//void printGraphViz(unsigned long i) const override;
 
 	void accept(stateVisitor* visitor) override;

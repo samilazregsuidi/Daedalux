@@ -248,9 +248,9 @@ void thread::printGraphViz(unsigned long i) const {
 float thread::delta(const variable* s2) const {
 	auto cast = dynamic_cast<const thread*>(s2);
 	auto delta = variable::delta(s2) * 0.5;
-	float lineNb = getFsmNodePointer()->getLineNb();
-	auto deltaProcess = (float)(std::abs(getFsmNodePointer()->getLineNb() - cast->getFsmNodePointer()->getLineNb())) / (getFsmNodePointer()->getLineNb() + cast->getFsmNodePointer()->getLineNb());
-	std::cout << "deltaProcess: " << getFsmNodePointer()->getLineNb() << " : " << cast->getFsmNodePointer()->getLineNb() << std::endl;
+	float lineNbThis = getFsmNodePointer()->getLineNb();
+	float lineNbOther = cast->getFsmNodePointer()->getLineNb();
+	auto deltaProcess = (float)(std::abs(lineNbThis - lineNbOther)) / (lineNbThis + lineNbOther);
 	delta += deltaProcess * 0.5;
 	assert(delta >= 0 && delta <= 1);
 	return delta;

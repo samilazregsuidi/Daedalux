@@ -65,7 +65,7 @@ public:
 		return "Clones count (E_EXPR_COUNT)";
 	}
 
-	symbol::Type getExprType(void) const {
+	symbol::Type getExprType(void) const override {
 		return symbol::T_BYTE;
 	}
 

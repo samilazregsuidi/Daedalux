@@ -155,7 +155,6 @@ primitiveVariable::operator::std::string(void) const {
 
 void primitiveVariable::print(void) const {
 	printf("%s", std::string(*this).c_str());
-
 	//variable::print();
 }
 
@@ -169,8 +168,6 @@ void primitiveVariable::printTexada(void) const {
 
 	variable::printTexada();
 }
-
-// TODO: printCSV
 
 void primitiveVariable::printCSVHeader(std::ostream &out) const {
 	assert(getPayload());
@@ -203,8 +200,8 @@ constVar::constVar(int value, variable::Type type, int lineNb)
 	assert(false);//sizeOf += 
 }
 
-void constVar::setValue(int value) {
-	value = value;
+void constVar::setValue(int val) {
+	value = val;
 	assert(false);
 }
 
