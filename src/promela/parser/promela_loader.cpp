@@ -10,7 +10,6 @@ namespace fs = std::filesystem;
 promela_loader::promela_loader(std::string file_name, const TVL * tvl)
     : automata(nullptr), globalSymTab(nullptr), program(nullptr)
 {
-  printf("Running the promela loader\n");
   // The variable promelaFile should have the fileExtension .pml
   if (file_name.find(".pml") == std::string::npos) {
     std::cerr << "The model file must have the extension .pml." << std::endl;
@@ -29,14 +28,11 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
     std::cerr << "The fPromela file does not exist or is not readable!" << std::endl;
     exit(1);
   }
-  printf("Running the c preprocessor (cpp) on the file: %s\n", file_name.c_str());
 
   if (system("cpp __workingfile.tmp __workingfile.tmp.cpp") != 0) {
     std::cerr << "Could not run the c preprocessor (cpp)." << std::endl;
     exit(1);
   }
-
-  printf("Loading file: %s\n", file_name.c_str());
 
   // Read the original file
   auto fileStream = std::make_shared<std::ifstream>(sourcePath);
@@ -46,8 +42,6 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
   }
   std::stringstream buffer;
   buffer << fileStream->rdbuf();
-
-  printf("Parsing the file\n");
 
   // Open the temporary file
   yyin = fopen("__workingfile.tmp.cpp", "r");
@@ -67,8 +61,6 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
     yylex_destroy();
   }
 
-  printf("Creating the AST\n");
-
   while (globalSymTab->prevSymTab())
     globalSymTab = globalSymTab->prevSymTab();
 
@@ -87,8 +79,6 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
   //     std::cerr << buffer.str() << std::endl;
   //     exit(1);
   //   }
-
-  printf("Printing graphvis\n");
 
   std::ofstream graph;
   graph.open("fsm_graphvis");
