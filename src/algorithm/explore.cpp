@@ -69,7 +69,7 @@ state * most_similar_state(const state * current, const std::list<state *> state
     double delta = s->delta(current);
     if (delta < max_similarity) {
       max_similarity = delta;
-      most_similar = s->deepCopy();
+      most_similar = s;
     }
   }
   return most_similar;
