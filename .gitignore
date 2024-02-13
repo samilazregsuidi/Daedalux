@@ -46,4 +46,7 @@ src/libs/cudd/libtool
 src/libs/cudd/config.h
 src/libs/cudd/config.log
 src/libs/cudd/config.status
+<<<<<<< HEAD
 src/libs/cudd/include/*
+=======
+>>>>>>> f3b29ab538b3b7a09755db4d50f6f3b0b44efdb8
