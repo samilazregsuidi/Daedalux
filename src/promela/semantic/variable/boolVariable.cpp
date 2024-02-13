@@ -34,6 +34,14 @@ float boolVar::delta(const variable* other) const {
 	return (getValue() != otherVar->getValue()) ? 1 : 0;
 }
 
+void boolVar::printDelta(const variable* other) const {
+	auto otherVar = dynamic_cast<const boolVar*>(other);
+	if(!otherVar)
+		return;
+	if(getValue() != otherVar->getValue())
+		printf("%s: %s -> %s\n", getFullName().c_str(), getValue() ? "true" : "false", otherVar->getValue() ? "true" : "false");
+}
+
 boolVar::operator std::string(void) const {
 
 	char buffer[128];

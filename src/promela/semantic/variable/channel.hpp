@@ -34,6 +34,8 @@ public:
 
 	float delta(const variable* v2) const override;
 
+	void printDelta(const variable* v2) const override;
+
 	void send(const std::list<const variable*>& args);
 
 	void reset(void) override;

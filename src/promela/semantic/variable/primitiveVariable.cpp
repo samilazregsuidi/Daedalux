@@ -128,6 +128,18 @@ float primitiveVariable::delta(const variable * other) const
   return std::abs(getValue() - cast->getValue()) / upper_bound;
 }
 
+void primitiveVariable::printDelta(const variable * other) const
+{
+  auto cast = dynamic_cast<const primitiveVariable *>(other);
+  if (!cast)
+    return;
+
+  if(delta(cast)) {
+    printf("%s = %d, %s = %d, delta = %f\n", getFullName().c_str(), getValue(), cast->getFullName().c_str(), cast->getValue(),
+           delta(cast));
+  }
+}
+
 void primitiveVariable::setValue(int value)
 {
   assert(getPayload());

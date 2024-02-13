@@ -49,6 +49,23 @@ bool utypeVar::operator != (const variable* other) const {
 	return variable::operator!=(other);
 }
 
+float utypeVar::delta(const variable* v2) const {
+	auto casted = dynamic_cast<const utypeVar*>(v2);
+	if(!casted)
+		return 1;
+
+	float res = 0;
+	for(auto var : varList)
+		res += var->delta(v2->getVariable(var->getLocalName()));
+
+	return res / varList.size();
+}
+
+void utypeVar::printDelta(const variable* v2) const {
+	for(auto var : varList)
+		var->printDelta(v2->getVariable(var->getLocalName()));
+}
+
 variable* utypeVar::deepCopy(void) const {
 	utypeVar* copy = new utypeVar(this);
 	//warning shared payload! 

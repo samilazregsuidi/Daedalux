@@ -25,6 +25,8 @@ public:
 
 	float delta(const variable* other) const override;
 
+	void printDelta(const variable* other) const override;
+
 	operator std::string(void) const override;
 
 	void print(void) const override;

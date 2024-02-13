@@ -307,6 +307,12 @@ float variable::delta(const variable* v2) const {
 	return res / varList.size();
 }
 
+void variable::printDelta(const variable* v2) const {
+	for(auto var : varList) {
+		var->printDelta(v2->getVariable(var->getLocalName()));
+	}
+}
+
 size_t variable::getOffset(void) const {
 	return parent? offset + parent->getOffset() : offset;
 }

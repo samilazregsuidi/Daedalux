@@ -115,11 +115,16 @@ float channel::delta(const variable* v2) const {
 	if(!casted)
 		return 1;
 
-	int res = 0;
+	float res = 0;
 	for(auto var : varList)
 		res += var->delta(v2->getVariable(var->getLocalName()));
 
 	return res / varList.size();
+}
+
+void channel::printDelta(const variable* v2) const {
+	for(auto var : varList)
+		var->printDelta(v2->getVariable(var->getLocalName()));
 }
 
 bool channel::isRendezVous(void) const {

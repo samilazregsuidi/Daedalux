@@ -37,6 +37,20 @@ float mtypeVar::delta(const variable * other) const
   return (getValue() != otherVar->getValue()) ? 1 : 0;
 }
 
+void mtypeVar::printDelta(const variable* other) const {
+	auto otherVar = dynamic_cast<const mtypeVar*>(other);
+	if(!otherVar)
+		return;
+
+  auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
+
+  auto value = getValue();
+  auto otherValue = otherVar->getValue();
+
+	if(value != otherValue)
+		printf("%s: %s -> %s\n", getFullName().c_str(),  def->getCmtypeSymNodeName(value).c_str(), def->getCmtypeSymNodeName(otherValue).c_str());
+}
+
 variable * mtypeVar::deepCopy(void) const
 {
   mtypeVar * copy = new mtypeVar(*this);

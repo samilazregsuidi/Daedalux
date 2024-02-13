@@ -188,6 +188,8 @@ public:
 
 	virtual float delta(const variable* v2) const;
 
+	virtual void printDelta(const variable* v2) const;
+
 	/*********************************************************/
 
 	static Type getVarType(symbol::Type type);

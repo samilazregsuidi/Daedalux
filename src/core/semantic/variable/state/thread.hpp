@@ -101,6 +101,10 @@ public:
 
 	float delta(const variable* v2) const override;
 
+	float deltaProcess(const thread* s2) const;
+
+	void printDelta(const variable* v2) const override;
+
 public:
 	const seqSymNode* symType;
 	unsigned int index;

@@ -139,45 +139,45 @@ TEST_F(SimilarityTest, FlowMostSimilarStateOneElement)
   ASSERT_TRUE(most_similar == post_state);
 }
 
-// TEST_F(SimilarityTest, FlowMostSimilarStateOfSameState)
-// {
-//   const TVL * tvl = nullptr;
-//   auto file_path = current_path + file2;
-//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
-//   auto myFSM = loader->getAutomata().get();
-//   auto current_state = initState::createInitState(myFSM, tvl);
-//   auto post_states = current_state->Post();
-//   post_states.push_back(current_state);
-//   ASSERT_TRUE(post_states.size() > 0);
-//   auto most_similar = most_similar_state(current_state, post_states);
-//   ASSERT_TRUE(most_similar != nullptr);
-//   ASSERT_EQ(most_similar, current_state);
-// }
+TEST_F(SimilarityTest, FlowMostSimilarStateOfSameState)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + file2;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto myFSM = loader->getAutomata().get();
+  auto current_state = initState::createInitState(myFSM, tvl);
+  auto post_states = current_state->Post();
+  post_states.push_back(current_state);
+  ASSERT_TRUE(post_states.size() > 0);
+  auto most_similar = most_similar_state(current_state, post_states);
+  ASSERT_TRUE(most_similar != nullptr);
+  ASSERT_EQ(most_similar, current_state);
+}
 
-// TEST_F(SimilarityTest, MostSimilarStateOneElement)
-// {
-//   const TVL * tvl = nullptr;
-//   auto file_path = current_path + minepump;
-//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
-//   auto myFSM = loader->getAutomata().get();
-//   auto current_state = initState::createInitState(myFSM, tvl);
-//   auto post_state = current_state->Post().front();
-//   std::list<state *> post_states = {post_state};
-//   auto most_similar = most_similar_state(current_state, post_states);
-//   ASSERT_TRUE(most_similar == post_state);
-// }
+TEST_F(SimilarityTest, MostSimilarStateOneElement)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + minepump;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto myFSM = loader->getAutomata().get();
+  auto current_state = initState::createInitState(myFSM, tvl);
+  auto post_state = current_state->Post().front();
+  std::list<state *> post_states = {post_state};
+  auto most_similar = most_similar_state(current_state, post_states);
+  ASSERT_TRUE(most_similar == post_state);
+}
 
-// TEST_F(SimilarityTest, MostSimilarStateOfSameState)
-// {
-//   const TVL * tvl = nullptr;
-//   auto file_path = current_path + minepump;
-//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
-//   auto myFSM = loader->getAutomata().get();
-//   auto current_state = initState::createInitState(myFSM, tvl);
-//   auto post_states = current_state->Post();
-//   post_states.push_back(current_state);
-//   ASSERT_TRUE(post_states.size() > 0);
-//   auto most_similar = most_similar_state(current_state, post_states);
-//   ASSERT_TRUE(most_similar != nullptr);
-//   ASSERT_EQ(most_similar, current_state);
-// }
+TEST_F(SimilarityTest, MostSimilarStateOfSameState)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + minepump;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto myFSM = loader->getAutomata().get();
+  auto current_state = initState::createInitState(myFSM, tvl);
+  auto post_states = current_state->Post();
+  post_states.push_back(current_state);
+  ASSERT_TRUE(post_states.size() > 0);
+  auto most_similar = most_similar_state(current_state, post_states);
+  ASSERT_TRUE(most_similar != nullptr);
+  ASSERT_EQ(most_similar, current_state);
+}
