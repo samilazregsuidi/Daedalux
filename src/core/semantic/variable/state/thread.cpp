@@ -250,6 +250,6 @@ float thread::delta(const variable* s2) const {
 	float lineNbOther = cast->getFsmNodePointer()->getLineNb();
 	auto deltaProcess = (float)(std::abs(lineNbThis - lineNbOther)) / (lineNbThis + lineNbOther);
 	delta += deltaProcess * 0.5;
-	assert(delta >= 0 && delta <= 1);w
+	assert(delta >= 0 && delta <= 1);
 	return delta;
 }
