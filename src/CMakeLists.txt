@@ -40,6 +40,12 @@ add_link_options(
 	${ASAN}
 )
 
+# Build CUDD library
+add_custom_target(CUDD_project
+	COMMAND sh install.sh
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
+	COMMENT "building CUDD"
+)
 
 # Create a library from the source files
 add_library(daedalux_lib STATIC
@@ -65,7 +71,7 @@ add_library(daedalux_lib STATIC
 	core/semantic/variable/transition/transition.cpp
 	core/semantic/variable/transition/compositeTransition.cpp
 	core/semantic/variable/transition/rendezVousTransition.cpp
-    	core/semantic/variable/transition/deleteTransVisitor.cpp
+	core/semantic/variable/transition/deleteTransVisitor.cpp
 	core/semantic/variable/state/initState.cpp
 
 	core/logic/ltl.cpp
@@ -214,12 +220,10 @@ target_link_directories(daedalux_lib
 	)
 
 target_link_libraries(daedalux_lib libobj.a libcudd.a)
-
+add_dependencies(daedalux_lib CUDD_project)
 
 add_executable(daedalux
-    # main.cpp
-    
-    	core/ast/astNode.cpp
+	core/ast/astNode.cpp
 	core/ast/stmnt/stmnt.cpp
 	core/ast/expr/expr.cpp
 	
@@ -391,3 +395,5 @@ target_link_directories(daedalux
 	)
 
 target_link_libraries(daedalux libobj.a libcudd.a)
+
+add_dependencies(daedalux CUDD_project)
