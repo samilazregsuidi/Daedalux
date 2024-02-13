@@ -12,15 +12,15 @@ public:
 
 	ltlDecl* getDeclSymTab(void) const;
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
 	unsigned int assignMutables(const Mask& mask = Mask(), unsigned int id = 0) override;
 
-	bool mutateMutable(unsigned int id);
+	bool mutateMutable(unsigned int id) override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -39,15 +39,15 @@ public:
 
 	bltlDecl* getDeclSymTab(void) const;
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
 	unsigned int assignMutables(const Mask& mask = Mask(), unsigned int id = 0) override;
 
-	bool mutateMutable(unsigned int id);
+	bool mutateMutable(unsigned int id) override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -68,15 +68,15 @@ public:
 
 	fMultiLTLSymNode* getDeclSymTab(void) const;
 
-	operator std::string() const;
+	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
 	unsigned int assignMutables(const Mask& mask = Mask(), unsigned int id = 0) override;
 
-	bool mutateMutable(unsigned int id);
+	bool mutateMutable(unsigned int id) override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 

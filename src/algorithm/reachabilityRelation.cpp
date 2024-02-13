@@ -94,8 +94,8 @@ ADD reachabilityRelation::getFailedProducts(void) const {
 /*******************************************/
 
 reachabilityRelation::updateVisitor::updateVisitor(reachabilityRelation* R, RState* rstate, state* s, dfs dfsIn, const TVL* tvl) 
-	: R(R)
-	, current(rstate)
+	: current(rstate)
+	, R(R)
 	, dfsIn(dfsIn)
 {
 	s->accept(this);
@@ -260,8 +260,8 @@ void reachabilityRelation::violationsVisitor::visit(featStateDecorator* s) {
 /******************************************************/
 
 reachabilityRelation::getStatusVisitor::getStatusVisitor(RState* rstate, state* s, dfs dfsIn) 
-	: dfsIn(dfsIn)
-	, current(rstate)
+	: current(rstate)
+	, dfsIn(dfsIn)
 {
 	s->accept(this);
 }

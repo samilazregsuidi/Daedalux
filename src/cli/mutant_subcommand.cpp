@@ -119,16 +119,17 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
  * @param original: original promela file
  * @param number_of_mutants: number of mutants to generate
  */
-fsm generateFeaturedMutants(const std::string& original_file, unsigned int number_of_mutants)
-{
-  std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>(original_file, nullptr);
-  auto fsm_original(loader_original->getAutomata());
+// fsm generateFeaturedMutants(const std::string& original_file, unsigned int number_of_mutants)
+// {
+//   std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>(original_file, nullptr);
+//   auto fsm_original(loader_original->getAutomata());
 
-  // Generate mutants
-  for (unsigned int j = 0; j < number_of_mutants; j++) {
-    // Generate mutant by mutating the original program and writing it to a file
-  }
-}
+//   // Generate mutants
+//   for (unsigned int j = 0; j < number_of_mutants; j++) {
+//     // Generate mutant by mutating the original program and writing it to a file
+//   }
+//   return nullptr
+// }
 
 /* Analyze mutants to determine whether the specification will kill them or not
  * @param feature_mutant_model: mutant model as a featured transition system

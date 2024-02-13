@@ -25,7 +25,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -52,7 +52,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -69,7 +69,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -126,7 +126,7 @@ public:
 	
 	std::string getLabel(void) const;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -152,7 +152,7 @@ public:
 
 	std::string getLabel(void) const;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 
@@ -172,7 +172,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 	void acceptVisitor(ASTConstVisitor* visitor) const override;
 

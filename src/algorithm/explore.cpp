@@ -58,6 +58,21 @@ transition * most_similar_transition(const std::list<transition *> transitions, 
   return most_similar;
 }
 
+state * most_similar_state(const state * current, const std::list<state *> states)
+{
+  state * most_similar = nullptr;
+  // Similarity is measured by the delta function in the range of [0, 1]
+  double max_similarity = 1;
+  for (auto s : states) {
+    double delta = s->delta(current);
+    if (delta < max_similarity) {
+      max_similarity = delta;
+      most_similar = s;
+    }
+  }
+  return most_similar;
+}
+
 std::list<state *> distinct_states(const std::list<state *> & states_original, const std::list<state *> & states_mutant)
 {
   std::list<state *> distinct;
@@ -183,7 +198,7 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
     }
     int choice;
     std::cin >> choice;
-    if (choice < 0 || choice >= post_states.size()) {
+    if (choice < 0 || choice >= ((int) post_states.size())) {
       std::cout << "Invalid choice - firing the first transition" << std::endl;
       choice = 0;
     }
@@ -625,7 +640,7 @@ void ltlModelChecker::startNestedDFS(const fsm * automata, const TVL * tvl)
 
     // if(_nbErrors == 1) printf(" -  One problem found");
     // else printf(" - %u problems were found", _nbErrors);
-    /*if(_allProductsFail /*|| isTautology(_failProducts)///)
+    /*if(_allProductsFail || isTautology(_failProducts))
             printf(" covering every product.\n");
     else {
             printf(" covering the following products (others are ok):\n");

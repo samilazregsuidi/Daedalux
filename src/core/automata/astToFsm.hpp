@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 
-#include "cuddObj.hh" 
+#include "cuddObj.hh"
 
 class symTable;
 

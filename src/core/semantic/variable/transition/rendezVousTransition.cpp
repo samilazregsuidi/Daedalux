@@ -24,8 +24,11 @@ rendezVousTransition::rendezVousTransition(state* s, transition* question, trans
 	assert(prob >= 0 && prob <= 1);
 
 	lines.push_back(dynamic_cast<processTransition*>(question)->getLineNb());
-	if(response)
-		lines.push_back(dynamic_cast<processTransition*>(response)->getLineNb());
+	if(response){
+		auto casted = dynamic_cast<processTransition*>(response);
+		if (casted)
+			lines.push_back(casted->getLineNb());
+	}
 
 	action = question->action;
 

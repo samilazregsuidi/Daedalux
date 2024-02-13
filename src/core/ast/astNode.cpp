@@ -236,11 +236,11 @@ astNode* astNode::mutate(astNode* ast, unsigned int id) {
 }
 
 void astNode::acceptVisitor(ASTConstVisitor* visitor) const {
-	visitor = visitor;
+	//visitor = visitor;
 	assert(false);
 }
 
 void astNode::acceptVisitor(ASTVisitor* visitor) {
-	visitor = visitor;
+	//visitor = visitor;
 	assert(false);
 }

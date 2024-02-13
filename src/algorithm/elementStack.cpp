@@ -36,7 +36,6 @@ elementStack::element::element(std::shared_ptr<state> s, unsigned int depth)
 void elementStack::push(std::shared_ptr<state> s, int depth){
 	std::shared_ptr<element> elem(new element(s, depth));
 	stackElem.push(elem);
-	unsigned long hash = s->hash();
 	setElem.insert(s->hash());
 }
     

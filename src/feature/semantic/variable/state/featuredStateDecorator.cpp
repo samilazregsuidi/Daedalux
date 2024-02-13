@@ -73,14 +73,21 @@ ADD featStateDecorator::getDiagram(void) const {
 }
 
 void featStateDecorator::print(void) const {
-	
 	wrappee->print();
-
 	printf("\n\n");
-
 	tvl->printBool(features);
 }
 
+void featStateDecorator::printCSV(std::ostream& out) const {
+	wrappee->printCSV(out);
+	printf("\n\n");
+	tvl->printBool(features);
+}
+
+void featStateDecorator::printCSVHeader(std::ostream& out) const {
+	wrappee->printCSVHeader(out);
+	out << "features,";
+}
 /**
  * Returns a list of all the executable transitions (for all the processes).
  * EFFECTS: None. (It CANNOT have any!)

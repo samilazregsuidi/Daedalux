@@ -24,9 +24,11 @@ void traceReport::addBadTrace(std::shared_ptr<trace> t) {
 }
 
 void traceReport::printCSV(std::ostream& goodTraceFile, std::ostream& badTraceFile) const {
+    goodTraceFile << "Good Traces" << std::endl;
     for (const auto& t : this->goodTraces) {
         t->printCSV(goodTraceFile);
     }
+    badTraceFile << "Bad Traces " << std::endl;
     for (const auto& t : this->badTraces) {
         t->printCSV(badTraceFile);
     }

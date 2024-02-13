@@ -117,7 +117,6 @@ cmtypeVar::cmtypeVar(const cmtypeSymNode * sym) : primitiveVariable(sym) {}
 
 void cmtypeVar::setValue(int value)
 {
-  value;
   assert(false);
 }
 

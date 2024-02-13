@@ -10,8 +10,8 @@
 
 class trace {
 private:
-  std::list<std::shared_ptr<transition>> transitions;
-  std::list<std::shared_ptr<state>> states;
+  std::list<std::shared_ptr<transition>> transitions = std::list<std::shared_ptr<transition>>();
+  std::list<std::shared_ptr<state>> states = std::list<std::shared_ptr<state>>();
 
 public:
   trace();
@@ -48,14 +48,44 @@ public:
   {
     auto start = this->states.front();
     start->printCSVHeader(out);
+    out << std::endl;
     for (auto st : this->states) {
       st->printCSV(out);
+      out << std::endl;
     }
   }
 
   friend bool operator==(const trace & lhs, const trace & rhs)
   {
-    return (lhs.getTransitions() == rhs.getTransitions()) && (lhs.getStates() == rhs.getStates());
+    printf("Comparing traces\n");
+    bool sameStates = lhs.getStates().size() == rhs.getStates().size();
+    bool sameTransitions = lhs.getTransitions().size() == rhs.getTransitions().size();
+    if (!sameStates || !sameTransitions) {
+      return false;
+    }
+    if(lhs.getStates().size() == 0 && lhs.getTransitions().size() == 0) {
+      return true;
+    }
+    printf("Comparing states and transitions\n");
+    std::vector<std::shared_ptr<state>> l_states{std::begin(lhs.getStates()), std::end(lhs.getStates())};
+    std::vector<std::shared_ptr<state>> r_states{std::begin(rhs.getStates()), std::end(rhs.getStates())};
+    std::vector<std::shared_ptr<transition>> l_transitions{std::begin(lhs.getTransitions()), std::end(lhs.getTransitions())};
+    std::vector<std::shared_ptr<transition>> r_transitions{std::begin(rhs.getTransitions()), std::end(rhs.getTransitions())};
+
+    printf("Comparing states one by one\n");
+    for (int i = 0; i < (int) lhs.getStates().size(); i++) {
+      if (l_states[i]->delta(r_states[i].get()) != 0) {
+
+        return false;
+      }
+    }
+    // TODO: Fix this
+    // for (int i = 0; i < lhs.getTransitions().size(); i++) {
+    //   if (*l_transitions[i] != *r_transitions[i]) {
+    //     return false;
+    //   }
+    // }
+    return true;
   }
 
   friend bool operator!=(const trace & lhs, const trace & rhs) { return !(lhs == rhs); }

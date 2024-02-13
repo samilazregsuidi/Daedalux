@@ -19,7 +19,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 };
 
@@ -43,7 +43,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	stmnt* deepCopy(void) const;
+	stmnt* deepCopy(void) const override;
 
 private:
 	std::list<varSymNode*> clocks;

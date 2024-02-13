@@ -23,7 +23,7 @@ public:
 
 	symbol::Type getExprType(void) const override;
 
-	bool castToExprType(symbol::Type type) const;
+	bool castToExprType(symbol::Type type) const override;
 
 	std::vector<astNode*> getMutations(void) const override ;
 
@@ -53,7 +53,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	symbol::Type getExprType(void) const;
+	symbol::Type getExprType(void) const override;
 
 	std::vector<astNode*> getMutations(void) const override;
 
@@ -75,7 +75,7 @@ public:
 
 	std::string getTypeDescr(void) const override;
 
-	symbol::Type getExprType(void) const;
+	symbol::Type getExprType(void) const override;
 
 	std::vector<astNode*> getMutations(void) const override;
 

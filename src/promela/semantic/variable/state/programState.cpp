@@ -179,7 +179,7 @@ byte progState::compare(const state& s2) const {
 	//                fresh info, and exploration must continue.
 
 	// Convention: nullptr means 'true'.
-	/*if(!s2Features) return STATES_SAME_S1_VISITED;
+	if(!s2Features) return STATES_SAME_S1_VISITED;
 	if(!s1->features) return STATES_SAME_S1_FRESH;	// Here we do not check the case in which s2->features != nullptr but still a tautology;
 													// There is a compilation parameter CHECK_TAUTOLOGY that can be set to check for
 													// tautologies before they end up here.
@@ -197,6 +197,20 @@ void progState::print(void) const {
 		for(auto a : actions)
 			printf(" %s, ", a.c_str());
 	}
+}
+
+void progState::printCSV(std::ostream &out) const {
+	variable::printCSV(out);
+	out << prob << ",";
+	for(auto a : actions)
+		out << a << ",";
+}
+
+void progState::printCSVHeader(std::ostream &out) const {
+	variable::printCSVHeader(out);
+	out << "prob,";
+	for(auto a : actions)
+		out << a << ",";
 }
 
 /*
