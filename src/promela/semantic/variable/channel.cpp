@@ -110,6 +110,18 @@ primitiveVariable* channel::getField(unsigned int index) const {
 	return dynamic_cast<primitiveVariable*>(*it);
 }
 
+float channel::delta(const variable* v2) const {
+	auto casted = dynamic_cast<const channel*>(v2);
+	if(!casted)
+		return 1;
+
+	int res = 0;
+	for(auto var : varList)
+		res += var->delta(v2->getVariable(var->getLocalName()));
+
+	return res / varList.size();
+}
+
 bool channel::isRendezVous(void) const {
 	return getCapacity() == 0;
 }

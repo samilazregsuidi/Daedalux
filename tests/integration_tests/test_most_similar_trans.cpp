@@ -105,11 +105,11 @@ TEST_F(SimilarityTest, DifferentStateDelta_ShouldNotBe0)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
   auto delta = current_state->delta(post_state);
-  auto expected = 0.008333;
+  auto expected = 0.00869686622;
   ASSERT_EQ(delta - expected < 0.00001, true);
   auto post_post_state = post_state->Post().front();
   delta = current_state->delta(post_post_state);
-  expected = 0.011538;
+  expected = 0.043205;
   ASSERT_EQ(delta - expected < 0.00001, true);
 }
 
@@ -136,8 +136,6 @@ TEST_F(SimilarityTest, FlowMostSimilarStateOneElement)
   std::list<state *> post_states = {post_state};
   auto most_similar = most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar != nullptr);
-  post_state->print();
-  most_similar->print();
   ASSERT_TRUE(most_similar == post_state);
 }
 
