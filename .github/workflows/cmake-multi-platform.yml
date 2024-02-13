@@ -1,10 +1,9 @@
-name: Build
-on:
-  push:
+name: Daedalux CI
+on: [workflow_dispatch, push, pull_request]
 jobs:
   build-project:
     name: Build Project
-    runs-on: ubuntu-latest, macos-latest, windows-latest
+    runs-on: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -13,6 +12,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           build-dir: build
+          source-dir: .
 
       - name: Build Project
         run: cmake --build build
