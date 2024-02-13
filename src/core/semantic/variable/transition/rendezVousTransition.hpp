@@ -7,8 +7,6 @@
 
 #include "transition.hpp"
 
-//#include "cuddObj.hh"
-
 // ProcessTransitions are returned by the executables() function
 class rendezVousTransition : public transition {
 public:

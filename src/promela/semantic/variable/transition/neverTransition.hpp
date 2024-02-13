@@ -8,8 +8,6 @@
 #include "transition.hpp"
 #include "fsmEdge.hpp"
 
-//#include "cuddObj.hh"
-
 // ProcessTransitions are returned by the executables() function
 class neverTransition : public transition {
 public:

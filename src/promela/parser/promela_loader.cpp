@@ -67,7 +67,6 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
   // Create the converter
   std::unique_ptr<ASTtoFSM> converter = std::make_unique<ASTtoFSM>();
   // Create the automata from the AST
-  printf("Creating the automata from the AST\n");
   automata = std::make_shared<fsm>(*converter->astToFsm(globalSymTab, program, tvl));
 
   // Note: The following code is commented out because it is not used in the current implementation.

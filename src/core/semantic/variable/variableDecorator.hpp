@@ -12,8 +12,6 @@ public:
 	
 	variableDecorator(const variableDecorator* other);
 
-	virtual variableDecorator* deepCopy(void) const = 0;
-
 	~variableDecorator() override;
 
 	void init(void) override;

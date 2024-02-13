@@ -47,7 +47,7 @@ public:
 
 	operator std::string() const override;
 
-	std::string getTypeDescr(void) const;
+	std::string getTypeDescr(void) const override;
 
 	stmnt* deepCopy(void) const override;
 

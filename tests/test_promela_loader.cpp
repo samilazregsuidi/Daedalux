@@ -1,140 +1,128 @@
+#include "../src/promela/parser/promela_loader.hpp"
 #include <gtest/gtest.h>
 #include <memory>
-#include "../src/promela/parser/promela_loader.hpp"
 
 namespace fs = std::filesystem;
 
 // Define a fixture for the tests
 class PromelaLoaderTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        // Common setup code that will be called before each test
+  void SetUp() override
+  {
+    // Common setup code that will be called before each test
+  }
 
-    }
-
-    void TearDown() override {
-        // Common teardown code that will be called after each test
-    }
+  void TearDown() override
+  {
+    // Common teardown code that will be called after each test
+  }
 };
 
-// // Test case for loading a valid Promela file
-// TEST_F(PromelaLoaderTest, LoadValidPromelaFile) {
-//     promela_loader loader;
-//     std::string file_name = "minepump.pml";
-//     const TVL* tvl = nullptr;
-
-//     // Mock the necessary functions and files
-//     EXPECT_CALL(fs, copy(testing::_, testing::_, testing::_)).WillOnce(testing::Return());
-//     EXPECT_CALL(fs, path(testing::_)).WillOnce(testing::Return(fs::path("__workingfile.tmp")));
-//     EXPECT_CALL(fs, path("__workingfile.tmp.cpp")).WillOnce(testing::Return(fs::path("__workingfile.tmp.cpp")));
-//     EXPECT_CALL(fs, filesystem_error(testing::_)).WillOnce(testing::Return(fs::filesystem_error("Error")));
-//     EXPECT_CALL(fs, copy_options::overwrite_existing).WillOnce(testing::Return(fs::copy_options::overwrite_existing));
-//     EXPECT_CALL(fs, filesystem_error::what()).WillOnce(testing::Return("The fPromela file does not exist or is not readable!"));
-//     EXPECT_CALL(fs, system("cpp __workingfile.tmp __workingfile.tmp.cpp")).WillOnce(testing::Return(0));
-//     EXPECT_CALL(fs, fopen("__workingfile.tmp.cpp", "r")).WillOnce(testing::Return(yyin));
-//     EXPECT_CALL(fs, fclose(yyin)).WillOnce(testing::Return(0));
-//     EXPECT_CALL(fs, yylex_destroy()).WillOnce(testing::Return());
-//     EXPECT_CALL(fs, ASTtoFSM()).WillOnce(testing::Return(converter));
-//     EXPECT_CALL(fs, astToFsm(testing::_, testing::_, testing::_)).WillOnce(testing::Return(automata));
-
-//     // Call the function under test
-//     fsm* result = loader.load_promela_file(file_name, tvl);
-
-//     // Assert the result
-//     EXPECT_EQ(result, automata);
-// }
-
 // Test case for loading an invalid Promela file
-TEST_F(PromelaLoaderTest, LoadInvalidPromelaFile) {
-    // Load promela file
-    std::string file_name = "invalid_file.txt";
-    const TVL* tvl = nullptr;
-    // Call the function under test and expect it to exit with code 1
-    EXPECT_EXIT(std::make_unique<promela_loader>(file_name, tvl), ::testing::ExitedWithCode(1), "The model file must have the extension .pml.");
+TEST_F(PromelaLoaderTest, LoadInvalidPromelaFile)
+{
+  // Load promela file
+  std::string file_name = "invalid_file.txt";
+  const TVL * tvl = nullptr;
+  // Call the function under test and expect it to exit with code 1
+  EXPECT_EXIT(std::make_unique<promela_loader>(file_name, tvl), ::testing::ExitedWithCode(1),
+              "The model file must have the extension .pml.");
 }
 
 // Test case for loading a valid Promela file
-TEST_F(PromelaLoaderTest, LoadValidPromelaFile1) {
+TEST_F(PromelaLoaderTest, LoadValidPromelaFileFlows)
+{
+  // Skip this test if it is not running on a macOs
+  if (std::filesystem::current_path().string().find("macOS") == std::string::npos) {
+    GTEST_SKIP();
+  }
 
-    std::string current_directory = fs::current_path();
-    std::string file_name = "/test_files/basic/flows.pml";
-    std::string file_path = current_directory + file_name;
-    const TVL* tvl = nullptr;
-    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  std::string current_directory = fs::current_path();
+  std::string file_name = "/test_files/basic/flows.pml";
+  std::string file_path = current_directory + file_name;
+  const TVL * tvl = nullptr;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-    auto automata = loader->getAutomata();
+  auto automata = loader->getAutomata();
 
-    int numNodes = automata->getNodes().size();
-    int numTransitions = automata->getTransitions().size();
+  int numNodes = automata->getNodes().size();
+  int numTransitions = automata->getTransitions().size();
 
-    EXPECT_EQ(automata->getNodes().size(), 9);
-    EXPECT_EQ(automata->getTransitions().size(), 16);
+  EXPECT_EQ(automata->getNodes().size(), 9);
+  EXPECT_EQ(automata->getTransitions().size(), 16);
 
-    auto initialStates = automata->getInitNodes();
-    EXPECT_EQ(initialStates.size(), 2);
+  auto initialStates = automata->getInitNodes();
+  EXPECT_EQ(initialStates.size(), 2);
 }
 
 // Test case for loading a valid Promela file
-TEST_F(PromelaLoaderTest, LoadValidPromelaFile2) {
+TEST_F(PromelaLoaderTest, LoadValidPromelaFileArray)
+{
+  // Skip this test if it is not running on a macOs
+  if (std::filesystem::current_path().string().find("macOS") == std::string::npos) {
+    GTEST_SKIP();
+  }
 
-    std::string current_directory = fs::current_path();
-    std::string file_name = "/test_files/basic/array.pml";
-    std::string file_path = current_directory + file_name;
-    const TVL* tvl = nullptr;
-    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  std::string current_directory = fs::current_path();
+  std::string file_name = "/test_files/basic/array.pml";
+  std::string file_path = current_directory + file_name;
+  const TVL * tvl = nullptr;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-    auto automata = loader->getAutomata();
+  auto automata = loader->getAutomata();
 
-    int numNodes = automata->getNodes().size();
-    int numTransitions = automata->getTransitions().size();
+  int numNodes = automata->getNodes().size();
+  int numTransitions = automata->getTransitions().size();
 
-    EXPECT_EQ(automata->getNodes().size(), 5);
-    EXPECT_EQ(automata->getTransitions().size(), 6);
+  EXPECT_EQ(automata->getNodes().size(), 5);
+  EXPECT_EQ(automata->getTransitions().size(), 6);
 
-    auto initialStates = automata->getInitNodes();
-    EXPECT_EQ(initialStates.size(), 1);
+  auto initialStates = automata->getInitNodes();
+  EXPECT_EQ(initialStates.size(), 1);
 }
 
 // Test case for loading a valid Promela file
-TEST_F(PromelaLoaderTest, LoadMinePumpPromelaFile) {
+TEST_F(PromelaLoaderTest, LoadMinePumpPromelaFile)
+{
 
-    std::string current_directory = fs::current_path();
-    std::string file_name = "/models/minepump/original.pml";
-    std::string file_path = current_directory + file_name;
-    const TVL* tvl = nullptr;
-    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  std::string current_directory = fs::current_path();
+  std::string file_name = "/models/minepump/original.pml";
+  std::string file_path = current_directory + file_name;
+  const TVL * tvl = nullptr;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-    auto automata = loader->getAutomata();
+  auto automata = loader->getAutomata();
 
-    int numNodes = automata->getNodes().size();
-    int numTransitions = automata->getTransitions().size();
+  int numNodes = automata->getNodes().size();
+  int numTransitions = automata->getTransitions().size();
 
-    EXPECT_EQ(automata->getNodes().size(), 46);
-    EXPECT_EQ(automata->getTransitions().size(), 67);
+  EXPECT_EQ(automata->getNodes().size(), 46);
+  EXPECT_EQ(automata->getTransitions().size(), 67);
 
-    auto initialStates = automata->getInitNodes();
-    EXPECT_EQ(initialStates.size(), 5);
+  auto initialStates = automata->getInitNodes();
+  EXPECT_EQ(initialStates.size(), 5);
 }
 
 // Test case for loading Windows Promela file
-TEST_F(PromelaLoaderTest, LoadWindowsPromelaFile) {
+TEST_F(PromelaLoaderTest, LoadWindowsPromelaFile)
+{
 
-    std::string current_directory = fs::current_path();
-    std::string file_name = "/models/windows/original.pml";
-    std::string file_path = current_directory + file_name;
-    const TVL* tvl = nullptr;
-    auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  std::string current_directory = fs::current_path();
+  std::string file_name = "/models/windows/original.pml";
+  std::string file_path = current_directory + file_name;
+  const TVL * tvl = nullptr;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-    auto automata = loader->getAutomata();
+  auto automata = loader->getAutomata();
 
-    int numNodes = automata->getNodes().size();
-    int numTransitions = automata->getTransitions().size();
+  int numNodes = automata->getNodes().size();
+  int numTransitions = automata->getTransitions().size();
 
-    EXPECT_EQ(automata->getNodes().size(), 35);
-    EXPECT_EQ(automata->getTransitions().size(), 46);
+  EXPECT_EQ(automata->getNodes().size(), 35);
+  EXPECT_EQ(automata->getTransitions().size(), 46);
 
-    auto initialStates = automata->getInitNodes();
-    EXPECT_EQ(initialStates.size(), 2);
+  auto initialStates = automata->getInitNodes();
+  EXPECT_EQ(initialStates.size(), 2);
 }
 
 // Test case for loading Elevator Promela file

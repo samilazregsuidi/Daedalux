@@ -17,8 +17,6 @@
 
 #include "initState.hpp"
 
-//#include "cuddObj.hh"
-
 thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, unsigned int index)
 	: state(type, sym->getName())
 	, symType(sym)

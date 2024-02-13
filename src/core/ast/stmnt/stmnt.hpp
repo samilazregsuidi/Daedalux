@@ -33,7 +33,7 @@ public:
 
 	//virtual void printGraphViz(std::ofstream& graphVis) = 0;
 
-	virtual stmnt* deepCopy(void) const = 0;
+	virtual stmnt* deepCopy(void) const override = 0;
 
 	void setProb(double newProb);
 

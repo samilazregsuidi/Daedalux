@@ -62,7 +62,7 @@ fsmNode * fsm::getNode(unsigned int lineNb) const
 {
   for (auto node : nodes) {
     unsigned int nodeLineNb = node->getLineNb();
-    if (node->getLineNb() == lineNb)
+    if (nodeLineNb == lineNb)
       return node;
   }
   return nullptr;
@@ -415,6 +415,5 @@ void fsm::printGraphVisWithLocations(std::ofstream & file, const std::list<const
            << (t->getProbability() != 1.0 ? " [" + std::to_string(t->getProbability()) + "] " : "") << t->getLineNb() << " | "
            << exprStr << "\"];\n";
   }
-
   file << "}";
 }

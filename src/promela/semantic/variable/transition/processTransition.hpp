@@ -7,8 +7,6 @@
 
 #include "transition.hpp"
 
-//#include "cuddObj.hh"
-
 class fsmEdge;
 class process;
 

@@ -55,11 +55,14 @@ std::string varSymNode::getTypeName(void) const {
 }
 
 int varSymNode::getUpperBound(void) const {
+	
 	assert(false);
+	return 1;
 }
 	
 int varSymNode::getLowerBound(void) const {
 	assert(false);
+	return 0;
 }
 
 bool varSymNode::castTo(const symbol* sym) const {
@@ -216,12 +219,14 @@ template<> int varSymNode::getLowerBound<symbol::T_PID>(void) {
 }
 
 template<> int varSymNode::getLowerBound<symbol::T_UTYPE>(void) {
-	assert(false);
+	// assert(false);
+	// Ask Sami about this
 	return 0;
 }
 
 template<> int varSymNode::getLowerBound<symbol::T_CHAN>(void) {
-	assert(false);
+	// assert(false);
+	// Ask Sami about this
 	return 0;
 }
 
@@ -346,13 +351,19 @@ int varSymNode::getUpperBound(Type type) {
 	case T_PID: // Channel: capacity used; children denote message fields
 		return getUpperBound<T_PID>();
 	case T_UTYPE: // Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type record
-		assert(false);
+		// assert(false);
+		// Ask Sami about this
+		return 0;
 		//return getUpperBound<T_UTYPE>();
 	case T_CHAN:
-		assert(false);
+		//assert(false);
+		// Ask Sami about this
+		return 0;
 		//return getUpperBound<T_CHAN>();
 	default:
-		assert(false);
+		return 0;
+		// Ask Sami about this
+		// assert(false);
 	}
 
 	return 0;

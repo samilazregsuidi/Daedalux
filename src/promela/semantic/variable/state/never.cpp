@@ -17,8 +17,6 @@
 
 #include "initState.hpp"
 
-//#include "cuddObj.hh"
-
 never::never(const seqSymNode* sym, const fsmNode* start)
 	: thread(variable::V_NEVER, sym, start)
 {
