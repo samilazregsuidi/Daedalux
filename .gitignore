@@ -47,3 +47,9 @@ src/libs/cudd/config.h
 src/libs/cudd/config.log
 src/libs/cudd/config.status
 src/libs/cudd/include/*
+
+# Ignore the SPIN generated files
+**/pan.*
+**/*.pml.trail
+
+src/CTestTestfile.cmake
