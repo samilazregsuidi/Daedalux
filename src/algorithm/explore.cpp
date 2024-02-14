@@ -79,7 +79,7 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
   for (auto & s : states_original) {
     bool found = false;
     for (auto & d : states_mutant) {
-      if (s->compare(*d)) {
+      if (s->delta(d) < 0.00000001) {
         found = true;
         break;
       }
@@ -193,7 +193,8 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
     int index = 0;
     for (auto & p : post_states) {
       std::shared_ptr<state> postState(p);
-      std::cout << index << " : " << postState->hash() << std::endl;
+      std::cout << index << " : ";
+      postState->printDelta(current_state);
       index++;
     }
     int choice;

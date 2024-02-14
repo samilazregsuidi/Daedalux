@@ -181,3 +181,54 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   ASSERT_TRUE(most_similar != nullptr);
   ASSERT_EQ(most_similar->delta(current_state) < 0.000000001, true);
 }
+
+
+
+TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + minepump;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto myFSM = loader->getAutomata().get();
+  auto current_state = initState::createInitState(myFSM, tvl);
+  auto post_state_front = current_state->Post().front();
+  std::list<state *> post_states_1 = {post_state_front};
+  auto post_state_back = current_state->Post().back();
+  // The two states are different
+  ASSERT_TRUE(post_state_back->delta(post_state_front) > 0.0000001);
+  std::list<state *> post_states_2 = {post_state_back};
+  auto distinct_States = distinct_states(post_states_1, post_states_2);
+  ASSERT_TRUE(distinct_States.size() == post_states_1.size());
+  ASSERT_TRUE(distinct_States.front() == post_state_front);
+}
+
+TEST_F(SimilarityTest, DistinctStates_IdenticalLists_ShouldReturnEmptyList)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + minepump;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto myFSM = loader->getAutomata().get();
+  auto current_state = initState::createInitState(myFSM, tvl);
+  auto post_state = current_state->Post().front();
+  std::list<state *> post_states_1 = {post_state};
+  auto distinct_States = distinct_states(post_states_1, post_states_1);
+  ASSERT_TRUE(distinct_States.empty());
+}
+
+TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + minepump;
+  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto myFSM = loader->getAutomata().get();
+  auto current_state = initState::createInitState(myFSM, tvl);
+  auto post_state_front = current_state->Post().front();
+  std::list<state *> post_states_1 = {post_state_front, current_state};
+  auto post_state_back = current_state->Post().back();
+  // The two states are different
+  ASSERT_TRUE(post_state_back->delta(current_state) > 0.0000001);
+  std::list<state *> post_states_2 = {post_state_back, current_state};
+  auto distinct_States = distinct_states(post_states_1, post_states_2);
+  ASSERT_TRUE(distinct_States.size() == 1);
+  ASSERT_TRUE(distinct_States.front() == post_state_front);
+}
