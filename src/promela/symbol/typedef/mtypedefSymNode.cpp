@@ -2,6 +2,8 @@
 #include "mtypeSymNode.hpp"
 
 #include <cassert>
+#include <cstdio>
+#include <climits>
 
 #include "symTabVisitor.hpp"
 
