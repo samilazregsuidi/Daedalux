@@ -79,9 +79,13 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
   for (auto & s : states_original) {
     bool found = false;
     for (auto & d : states_mutant) {
-      if (s->delta(d) < 0.00000001) {
+      double delta = s->delta(d);
+      if (delta < 0.00000001) {
         found = true;
         break;
+      }
+      else {
+        d->printDelta(s);
       }
     }
     if (!found) {
@@ -90,7 +94,6 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
   }
   return distinct;
 }
-
 
 //**
 // * This function consumes two automatas - the original automata and the mutant automata.
@@ -127,24 +130,24 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
 
   while (current_trace->size() < trace_length) {
     // Check if the two nodes are the same if they have the same prefix
-    if (same_prefix && current_state_original->compare(*current_state_mutant)) {
+    if (same_prefix) {
       post_states_original = current_state_original->Post();
       post_states_mutant = current_state_mutant->Post();
       different_states = distinct_states(post_states_original, post_states_mutant);
       // If the mutant automata has a state that the original automata does not have - go to that state
       if (!different_states.empty()) {
         // Fire the transition
-        auto next_state = different_states.front();
+        auto next_state_mutant = different_states.front();
         // Move to the next state
-        current_trans_mutant = next_state->getOrigin()->deepCopy();
+        current_trans_mutant = next_state_mutant->getOrigin()->deepCopy();
         current_state_mutant->apply(current_trans_mutant);
+        // Find the most similar transition to the fired transition in the original automata
+        auto similar_state_original = most_similar_state(next_state_mutant, post_states_original);
+        // Apply the transition to the original automata
+        current_trans_original = similar_state_original->getOrigin()->deepCopy();
+        current_state_original->apply(current_trans_original);
         // The prefix is no longer the same
         same_prefix = false;
-        // Find the most similar transition to the fired transition in the original automata
-        auto most_similar_trans = most_similar_transition(current_state_original->executables(), current_trans_mutant);
-        // Apply the transition to the original automata
-        current_state_original->apply(most_similar_trans);
-        current_trans_original = most_similar_trans;
       }
       else {
         // We could not find a different state in the mutant automata - take a random transition for both automata
@@ -162,7 +165,6 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
       current_trans_mutant = transition::sampleUniform(current_state_mutant->executables());
       current_state_mutant->apply(current_trans_mutant);
     }
-
     // Add the state and transition to the trace
     std::shared_ptr<state> curent_state_mutant_copy(current_state_mutant);
     std::shared_ptr<transition> current_trans_copy(current_trans_mutant);
@@ -199,7 +201,7 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
     }
     int choice;
     std::cin >> choice;
-    if (choice < 0 || choice >= ((int) post_states.size())) {
+    if (choice < 0 || choice >= ((int)post_states.size())) {
       std::cout << "Invalid choice - firing the first transition" << std::endl;
       choice = 0;
     }
@@ -211,7 +213,7 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
     current_trace->addTransition(current_trans_copy);
     current_trace->addState(curent_state_copy);
   }
-  return current_trace ;
+  return current_trace;
 }
 
 /***
@@ -735,7 +737,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
         // s_->print();
 
         if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-          printf("Assertion at line %d violated", *s_->getOrigin() ->lines.begin());
+          printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
 
           R.addTraceViolation(current->s.get());
 

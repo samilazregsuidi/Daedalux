@@ -15,12 +15,23 @@ protected:
   {
     // Common teardown code that will be called after each test
   }
+  std::string foo = "/test_files/basic/hello_world.pml";
   std::string minepump = "/models/minepump/minepump.pml";
   std::string minepump_mutant = "/models/minepump/mutants/mutant_1.pml";
   std::string current_path = std::filesystem::current_path();
 };
 
-// TEST_F(TraceGenerator, SimpleTrace)
+TEST_F(TraceGenerator, SimpleTrace)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + foo;
+  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  // Create the initial state for both automata
+  generateNegativeTraces(originalFSM, originalFSM, 5);
+}
+
+// TEST_F(TraceGenerator, SimpleTraceMinepump)
 // {
 //   const TVL * tvl = nullptr;
 //   auto file_path = current_path + minepump;

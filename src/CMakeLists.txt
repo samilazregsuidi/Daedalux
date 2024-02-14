@@ -245,7 +245,7 @@ add_executable(daedalux
 	core/semantic/variable/transition/transition.cpp
 	core/semantic/variable/transition/compositeTransition.cpp
 	core/semantic/variable/transition/rendezVousTransition.cpp
-    	core/semantic/variable/transition/deleteTransVisitor.cpp
+	core/semantic/variable/transition/deleteTransVisitor.cpp
 	core/semantic/variable/state/initState.cpp
 	
 	core/logic/ltl.cpp

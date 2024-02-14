@@ -37,18 +37,27 @@ float mtypeVar::delta(const variable * other) const
   return (getValue() != otherVar->getValue()) ? 1 : 0;
 }
 
-void mtypeVar::printDelta(const variable* other) const {
-	auto otherVar = dynamic_cast<const mtypeVar*>(other);
-	if(!otherVar)
-		return;
-
-  auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
+void mtypeVar::printDelta(const variable * other) const
+{
+  auto otherVar = dynamic_cast<const mtypeVar *>(other);
+  if (!otherVar)
+    return;
 
   auto value = getValue();
   auto otherValue = otherVar->getValue();
 
-	if(value != otherValue)
-		printf("%s: %s -> %s\n", getFullName().c_str(),  def->getCmtypeSymNodeName(value).c_str(), def->getCmtypeSymNodeName(otherValue).c_str());
+  if (value != otherValue) {
+    auto name = getFullName().c_str();
+    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
+    if (def) {
+      auto mtypestr = def->getCmtypeSymNodeName(value);
+      auto otherMtypestr = def->getCmtypeSymNodeName(otherValue);
+      printf("%s: %s -> %s\n", name, mtypestr.c_str(), otherMtypestr.c_str());
+    }
+    else {
+      printf("%s: %d -> %d\n", name, value, otherValue);
+    }
+  }
 }
 
 variable * mtypeVar::deepCopy(void) const
@@ -129,10 +138,7 @@ void mtypeVar::printCSVHeader(std::ostream & out) const
 
 cmtypeVar::cmtypeVar(const cmtypeSymNode * sym) : primitiveVariable(sym) {}
 
-void cmtypeVar::setValue(int value)
-{
-  assert(false);
-}
+void cmtypeVar::setValue(int value) { assert(false); }
 
 int cmtypeVar::getValue(void) const { return dynamic_cast<const cmtypeSymNode *>(varSym)->getIntValue(); }
 
