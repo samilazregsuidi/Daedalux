@@ -35,8 +35,10 @@ TEST_F(TraceGenerator, SimpleTraceMinepump)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + minepump;
-  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
+  delete original_loader;
+
   // Load the mutant
   auto file_path_mutant = current_path + minepump_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);

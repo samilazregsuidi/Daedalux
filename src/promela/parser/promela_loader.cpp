@@ -56,11 +56,6 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
     exit(1);
   }
 
-  if (yyin != nullptr) {
-    fclose(yyin);
-    yylex_destroy();
-  }
-
   while (globalSymTab->prevSymTab())
     globalSymTab = globalSymTab->prevSymTab();
 
@@ -83,4 +78,48 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
   graph.open("fsm_graphvis");
   automata->printGraphVis(graph);
   graph.close();
+}
+
+
+extern std::string nameSpace;
+extern symbol::Type declType;
+extern tdefSymNode* typeDef;
+extern mtypedefSymNode* mtypeDef;
+
+extern symTable* currentSymTab;
+extern symTable* savedSymTab;
+
+extern std::list<varSymNode*> declSyms;
+extern std::list<varSymNode*> typeLst;
+extern std::list<std::string> params;
+extern std::list<variantQuantifier*> variants;
+
+extern std::map<std::string, stmntLabel*> labelsMap;
+
+extern int mtypeId;
+extern bool inInline;
+
+promela_loader::~promela_loader(){
+  nameSpace = "global";
+  declType = symbol::T_NA;
+  typeDef = nullptr;
+  mtypeDef = nullptr;
+
+  currentSymTab = nullptr;
+  savedSymTab = nullptr;
+
+  declSyms.clear();
+  typeLst.clear();
+  params.clear();
+  variants.clear();
+
+  labelsMap.clear();
+
+  mtypeId = 1;
+  inInline = false;
+
+  if(yyin != nullptr) {
+		fclose(yyin);
+		yylex_destroy();
+	}
 }

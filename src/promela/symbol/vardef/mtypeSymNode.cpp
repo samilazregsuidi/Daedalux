@@ -7,6 +7,7 @@
 
 mtypeSymNode::mtypeSymNode(int lineNb, const std::string& name, int bound, expr* init)
 	: varSymNode(symbol::T_MTYPE, lineNb, name, bound, init)
+	, def(nullptr)
 {}
 
 mtypeSymNode::~mtypeSymNode() {}
@@ -28,6 +29,7 @@ int mtypeSymNode::getTypeSize(void) const {
 }
 
 const mtypedefSymNode* mtypeSymNode::getMTypeDef(void) const {
+	//assert(def);
 	return def;
 }
 

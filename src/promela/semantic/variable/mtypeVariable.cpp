@@ -2,7 +2,7 @@
 
 #include "varExpr.hpp"
 
-mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) {}
+mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) {   assert(varType == V_MTYPE); }
 
 void mtypeVar::init(void)
 {
