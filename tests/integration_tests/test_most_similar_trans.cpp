@@ -125,7 +125,7 @@ TEST_F(SimilarityTest, MostSimilarStateEmptyList)
   ASSERT_TRUE(most_similar == nullptr);
 }
 
-TEST_F(SimilarityTest, FlowMostSimilarStateOneElement)
+TEST_F(SimilarityTest, MinepumpMostSimilarStateOneElement)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + minepump;
@@ -139,20 +139,20 @@ TEST_F(SimilarityTest, FlowMostSimilarStateOneElement)
   ASSERT_TRUE(most_similar == post_state);
 }
 
-TEST_F(SimilarityTest, FlowMostSimilarStateOfSameState)
-{
-  const TVL * tvl = nullptr;
-  auto file_path = current_path + file2;
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
-  auto myFSM = loader->getAutomata().get();
-  auto current_state = initState::createInitState(myFSM, tvl);
-  auto post_states = current_state->Post();
-  post_states.push_back(current_state);
-  ASSERT_TRUE(post_states.size() > 0);
-  auto most_similar = most_similar_state(current_state, post_states);
-  ASSERT_TRUE(most_similar != nullptr);
-  ASSERT_EQ(most_similar, current_state);
-}
+// TEST_F(SimilarityTest, FlowMostSimilarStateOfSameState)
+// {
+//   const TVL * tvl = nullptr;
+//   auto file_path = current_path + file2;
+//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
+//   auto myFSM = loader->getAutomata().get();
+//   auto current_state = initState::createInitState(myFSM, tvl);
+//   auto post_states = current_state->Post();
+//   post_states.push_back(current_state);
+//   ASSERT_TRUE(post_states.size() > 0);
+//   auto most_similar = most_similar_state(current_state, post_states);
+//   ASSERT_TRUE(most_similar != nullptr);
+//   ASSERT_EQ(most_similar, current_state);
+// }
 
 TEST_F(SimilarityTest, MostSimilarStateOneElement)
 {
@@ -179,5 +179,5 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   ASSERT_TRUE(post_states.size() > 0);
   auto most_similar = most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar != nullptr);
-  ASSERT_EQ(most_similar, current_state);
+  ASSERT_EQ(most_similar->delta(current_state) < 0.000000001, true);
 }

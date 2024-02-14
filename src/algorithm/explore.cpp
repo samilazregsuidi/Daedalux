@@ -62,12 +62,9 @@ state * most_similar_state(const state * current, const std::list<state *> state
 {
   state * most_similar = nullptr;
   // Similarity is measured by the delta function in the range of [0, 1]
-
   double max_similarity = 1;
   for (auto s : states) {
     double delta = s->delta(current);
-    s->printDelta(current);
-    std::cout << "delta : " << delta << std::endl;
     if (delta < max_similarity) {
       max_similarity = delta;
       most_similar = s;
