@@ -36,7 +36,7 @@ int mtypeSymNode::getUpperBound(void) const {
 }
 	
 int mtypeSymNode::getLowerBound(void) const {
-	return 0;
+	return def->getLowerBound();
 }
 
 bool mtypeSymNode::castTo(const symbol* sym) const {

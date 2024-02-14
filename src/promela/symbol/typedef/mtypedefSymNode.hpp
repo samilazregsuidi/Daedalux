@@ -34,6 +34,8 @@ public:
 
 	std::string getCmtypeSymNodeName(int value) const;
 
+	int getIntValueOffset(void) const;
+
 	//void printGraphViz(std::ofstream& file) const;
 
 private:

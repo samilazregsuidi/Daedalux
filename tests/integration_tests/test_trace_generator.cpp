@@ -21,26 +21,26 @@ protected:
   std::string current_path = std::filesystem::current_path();
 };
 
-TEST_F(TraceGenerator, SimpleTrace)
-{
-  const TVL * tvl = nullptr;
-  auto file_path = current_path + foo;
-  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
-  auto originalFSM = original_loader->getAutomata();
-  // Create the initial state for both automata
-  generateNegativeTraces(originalFSM, originalFSM, 5);
-}
-
-// TEST_F(TraceGenerator, SimpleTraceMinepump)
+// TEST_F(TraceGenerator, SimpleTrace)
 // {
 //   const TVL * tvl = nullptr;
-//   auto file_path = current_path + minepump;
+//   auto file_path = current_path + foo;
 //   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
 //   auto originalFSM = original_loader->getAutomata();
-//   // Load the mutant
-//   auto file_path_mutant = current_path + minepump_mutant;
-//   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
-//   auto mutantFSM = mutant_loader->getAutomata();
 //   // Create the initial state for both automata
-//   generateNegativeTraces(originalFSM, mutantFSM, 10);
+//   generateNegativeTraces(originalFSM, originalFSM, 5);
 // }
+
+TEST_F(TraceGenerator, SimpleTraceMinepump)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + minepump;
+  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  // Load the mutant
+  auto file_path_mutant = current_path + minepump_mutant;
+  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+  auto mutantFSM = mutant_loader->getAutomata();
+  // Create the initial state for both automata
+  generateNegativeTraces(originalFSM, mutantFSM, 10);
+}

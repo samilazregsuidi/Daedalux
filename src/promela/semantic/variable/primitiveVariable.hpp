@@ -48,8 +48,6 @@ public:
 
 	void printDelta(const variable* other) const override;
 
-	/****************************************************/
-
 	operator std::string(void) const override;
 
 	virtual void print(void) const override;
@@ -89,7 +87,6 @@ public:
 private:
 	int value;
 	int lineNb;
-
 };
 
 class process;

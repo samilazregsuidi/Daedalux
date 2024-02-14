@@ -115,7 +115,6 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
   auto post_states_original = std::list<state *>();
   auto post_states_mutant = std::list<state *>();
   auto different_states = std::list<state *>();
-
   // Variables to store the current transition
   transition * current_trans_original = nullptr;
   transition * current_trans_mutant = nullptr;
@@ -124,7 +123,6 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
   std::unique_ptr<trace> current_trace = std::make_unique<trace>();
   std::shared_ptr<state> current_state_mutant_copy(current_state_mutant);
   current_trace->addState(current_state_mutant_copy);
-
   // Keep track if the run of the two automatas have the same prefix - the default is true as the initial states are the same
   bool same_prefix = true;
 

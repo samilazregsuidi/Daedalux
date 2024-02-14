@@ -29,6 +29,8 @@ public:
 
 	operator std::string(void) const override;
 
+	std::string getValueName(void) const;
+
 	void print(void) const override;
 
 	void printTexada(void) const override;

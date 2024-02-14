@@ -301,15 +301,18 @@ float variable::delta(const variable* v2) const {
 	if(v2 == nullptr)
 		return 1;
 
-	for(auto var : varList)
-		res += var->delta(v2->getVariable(var->getLocalName()));
+	for(auto var : varList){
+		auto v = v2->getVariable(var->getLocalName());
+		res += var->delta(v);
+	}
 
 	return res / varList.size();
 }
 
 void variable::printDelta(const variable* v2) const {
 	for(auto var : varList) {
-		var->printDelta(v2->getVariable(var->getLocalName()));
+		auto v = v2->getVariable(var->getLocalName());
+		var->printDelta(v);
 	}
 }
 
@@ -333,7 +336,6 @@ variable* variable::getVariable(const std::string& name) const {
 	variable* var = nullptr;
 	if(parent)
 		var = parent->getVariable(name);
-	
 	else {
 		bool found = false;
 		for (auto scope : varList) {

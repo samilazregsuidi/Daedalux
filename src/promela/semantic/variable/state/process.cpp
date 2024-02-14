@@ -435,7 +435,8 @@ Apply:
 	//TODO : compute the prob
 
 	origin = trans;
-	assert(trans->dst == nullptr);
+	// Make sure that we do not override the destination of another transition.
+	assert(trans->dst == nullptr || trans->dst == this);
 	trans->dst = this;
 
 	//std::cout << this->getFullName() << "::apply (" << oldLocation << ", " << dynamic_cast<const processTransition*>(trans)->getEdge()->getLineNb() << ", " << getLocation() << ")" << std::endl;

@@ -1,4 +1,5 @@
 #include "primitiveVariable.hpp"
+#include <cstdio>
 
 #include "constExpr.hpp"
 #include "payload.hpp"
@@ -122,7 +123,7 @@ float primitiveVariable::delta(const variable * other) const
   try {
     upper_bound = varSymNode::getUpperBound(varSym->getType());
   }
-  catch(...) {
+  catch (...) {
     upper_bound = getValue() > cast->getValue() ? getValue() : cast->getValue();
   }
   return std::abs(getValue() - cast->getValue()) / upper_bound;
@@ -134,9 +135,14 @@ void primitiveVariable::printDelta(const variable * other) const
   if (!cast)
     return;
 
-  if(delta(cast)) {
-    printf("%s = %d, %s = %d, delta = %f\n", getFullName().c_str(), getValue(), cast->getFullName().c_str(), cast->getValue(),
-           delta(cast));
+  auto delta = this->delta(cast);
+
+  if (delta > 0.00000001) {
+    auto name = getFullName();
+    auto value = getValue();
+    auto otherValue = cast->getValue();
+    auto OtherName = cast->getFullName();
+    printf("%s = %d, %s = %d, delta = %f\n", name.c_str(), value, OtherName.c_str(), otherValue, delta);
   }
 }
 
@@ -159,12 +165,13 @@ int primitiveVariable::getValue(void) const
 
 void primitiveVariable::reset(void) { setValue(0); }
 
+
 primitiveVariable::operator ::std::string(void) const
 {
   assert(getPayload());
   auto value = getPayload()->getValue(getOffset(), getType());
   char buffer[128];
-  sprintf(buffer, "0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
+  snprintf(buffer, sizeof(buffer), "0x%-4ld:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
 
   // res += variable::operator std::string();
   return buffer;

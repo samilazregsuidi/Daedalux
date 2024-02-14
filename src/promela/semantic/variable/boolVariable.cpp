@@ -1,4 +1,5 @@
 #include "boolVariable.hpp"
+#include <cstdio>
 
 #include "boolSymNode.hpp"
 
@@ -42,13 +43,13 @@ void boolVar::printDelta(const variable* other) const {
 		printf("%s: %s -> %s\n", getFullName().c_str(), getValue() ? "true" : "false", otherVar->getValue() ? "true" : "false");
 }
 
-boolVar::operator std::string(void) const {
 
+boolVar::operator std::string(void) const {
 	char buffer[128];
 	if(getValue() == 1)
-		sprintf(buffer, "0x%-4lx:   %-23s = true\n", getOffset(), getFullName().c_str());
+		snprintf(buffer, sizeof(buffer), "0x%-4lx:   %-23s = true\n", getOffset(), getFullName().c_str());
 	else
-		sprintf(buffer, "0x%-4lx:   %-23s = false\n", getOffset(), getFullName().c_str());
+		snprintf(buffer, sizeof(buffer), "0x%-4lx:   %-23s = false\n", getOffset(), getFullName().c_str());
 	return buffer;
 }
 

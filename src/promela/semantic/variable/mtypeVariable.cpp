@@ -32,32 +32,53 @@ int mtypeVar::operator--(int) { assert(false); }
 float mtypeVar::delta(const variable * other) const
 {
   auto otherVar = dynamic_cast<const mtypeVar *>(other);
-  if (!otherVar)
+  if (!otherVar) {
+    // Not the same type
     return 1;
-  return (getValue() != otherVar->getValue()) ? 1 : 0;
+  }
+  auto value = getValue();
+  auto otherValue = otherVar->getValue();
+  auto hasSameValue = (value == otherValue);
+  auto valueName = getValueName();
+  auto otherValueName = otherVar->getValueName();
+  auto hasSameValueName = (valueName.compare(otherValueName) == 0);
+  if (hasSameValueName && !hasSameValue) {
+    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
+    auto def_other = dynamic_cast<const mtypeSymNode *>(otherVar->varSym)->getMTypeDef();
+    auto offset = def->getIntValueOffset();
+    auto offset_other = def_other->getIntValueOffset();
+    auto value_minus_offset = value - offset;
+    auto value_minus_offset_other = otherValue - offset_other;
+    hasSameValue = (value_minus_offset == value_minus_offset_other);
+  }
+  return (hasSameValue && hasSameValueName) ? 0 : 1;
+}
+
+std::string mtypeVar::getValueName(void) const
+{
+  auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
+  if (def) {
+    auto mtypestr = def->getCmtypeSymNodeName(getValue());
+    return mtypestr;
+  }
+  else {
+    return std::to_string(getValue());
+  }
 }
 
 void mtypeVar::printDelta(const variable * other) const
 {
+  if (delta(other) < 0.00000001)
+    return;
+
   auto otherVar = dynamic_cast<const mtypeVar *>(other);
   if (!otherVar)
     return;
 
-  auto value = getValue();
-  auto otherValue = otherVar->getValue();
-
-  if (value != otherValue) {
-    auto name = getFullName().c_str();
-    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-    if (def) {
-      auto mtypestr = def->getCmtypeSymNodeName(value);
-      auto otherMtypestr = def->getCmtypeSymNodeName(otherValue);
-      printf("%s: %s -> %s\n", name, mtypestr.c_str(), otherMtypestr.c_str());
-    }
-    else {
-      printf("%s: %d -> %d\n", name, value, otherValue);
-    }
-  }
+  auto name = getFullName();
+  auto valueName = getValueName();
+  auto otherValueName = otherVar->getValueName();
+  printf("%s: %s -> %s\n", name.c_str(), valueName.c_str(), otherValueName.c_str());
 }
 
 variable * mtypeVar::deepCopy(void) const
@@ -72,14 +93,8 @@ mtypeVar::operator std::string(void) const
   char buffer[128];
   auto value = getValue();
   if (value) {
-    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-    if (def) {
-      auto mtypestr = def->getCmtypeSymNodeName(value);
-      sprintf(buffer, "0x%-4lx:   %-23s = %s\n", getOffset(), getFullName().c_str(), mtypestr.c_str());
-    }
-    else {
-      sprintf(buffer, "0x%-4lx:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
-    }
+    auto valueName = getValueName();
+    sprintf(buffer, "0x%-4lx:   %-23s = %s\n", getOffset(), getFullName().c_str(), valueName.c_str());
   }
   else {
     sprintf(buffer, "0x%-4lx:   %-23s = nil\n", getOffset(), getFullName().c_str());
@@ -95,9 +110,8 @@ void mtypeVar::printTexada(void) const
     return;
   auto value = getValue();
   if (value) {
-    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-    auto mtypestr = def->getCmtypeSymNodeName(value);
-    printf("%s = %s\n", getFullName().c_str(), mtypestr.c_str());
+    auto valueName = getValueName();
+    printf("%s = %s\n", getFullName().c_str(), valueName.c_str());
   }
   else {
     printf("%s = nil\n", getFullName().c_str());
@@ -110,9 +124,8 @@ void mtypeVar::printCSV(std::ostream & out) const
     return;
   auto value = getValue();
   if (value) {
-    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-    auto mtypestr = def->getCmtypeSymNodeName(value);
-    out << getFullName() + " = " + mtypestr << std::endl;
+    auto valueName = getValueName();
+    out << getFullName() + " = " + valueName << std::endl;
   }
   else {
     out << getFullName() + " = nil" << std::endl;
@@ -125,9 +138,8 @@ void mtypeVar::printCSVHeader(std::ostream & out) const
     return;
   auto value = getValue();
   if (value) {
-    auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-    auto mtypestr = def->getCmtypeSymNodeName(value);
-    out << getFullName() + " = " + mtypestr << std::endl;
+    auto valueName = getValueName();
+    out << getFullName() + " = " + valueName << std::endl;
   }
   else {
     out << getFullName() + " = nil" << std::endl;
