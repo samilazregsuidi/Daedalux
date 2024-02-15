@@ -207,23 +207,26 @@ std::list<transition*> compState::executables(void) const {
  */
 
 void compState::apply(transition* trans) {
-	
+	assert(trans->src == this);
+	assert(trans->dst == nullptr); // Apply most not have been called on this transition before
 	//assert(origin == nullptr);
-
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
+	// Ensure that the cast was successful
 	assert(compTrans);
 
 	for(auto t : compTrans->subTs) {
 		//std::cout << trans->src->getLocalName() << std::endl;
-		auto s = getSubState(t->src->getLocalName());
+		auto localName = t->src->getLocalName();
+		auto s = getSubState(localName);
 		assert(s);
 		s->apply(t);
 	}
+	//Todo here - src and dst should not be the same
 
 	prob *= trans->prob;
 	origin = trans;
-	assert(trans->dst == nullptr);
 	trans->dst = this;
+	assert(trans->src != trans->dst);
 }
 
 bool compState::nullstate(void) const {

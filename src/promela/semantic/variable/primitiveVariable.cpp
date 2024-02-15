@@ -119,14 +119,17 @@ float primitiveVariable::delta(const variable * other) const
   if (!cast)
     return 1;
 
-  float upper_bound = getValue() > cast->getValue() ? getValue() : cast->getValue();
+  auto value = getValue();
+  auto otherValue = cast->getValue();
+
+  float upper_bound = value > otherValue ? value : otherValue;
   try {
     upper_bound = varSymNode::getUpperBound(varSym->getType());
   }
   catch (...) {
-    upper_bound = getValue() > cast->getValue() ? getValue() : cast->getValue();
+    upper_bound = value > otherValue ? value : otherValue;
   }
-  return std::abs(getValue() - cast->getValue()) / upper_bound;
+  return std::abs(value - otherValue) / upper_bound;
 }
 
 void primitiveVariable::printDelta(const variable * other) const
@@ -164,7 +167,6 @@ int primitiveVariable::getValue(void) const
 }
 
 void primitiveVariable::reset(void) { setValue(0); }
-
 
 primitiveVariable::operator ::std::string(void) const
 {

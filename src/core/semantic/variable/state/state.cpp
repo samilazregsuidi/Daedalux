@@ -59,7 +59,8 @@ bool state::hasDeadlock(void) const {
 
 std::list<state*> state::Post(void) const {
 	std::list<state*> res;
-	for(auto t : executables())
+	auto executable_transitions = executables();
+	for(auto t : executable_transitions)
 		res.push_back(this->Post(t));
 	
 	if(getNeverClaim()) {
