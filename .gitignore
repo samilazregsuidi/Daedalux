@@ -53,3 +53,12 @@ src/libs/cudd/include/*
 **/*.pml.trail
 
 src/CTestTestfile.cmake
+src/libs/cudd/autom4te.cache/output.0
+src/libs/cudd/autom4te.cache/output.1
+src/libs/cudd/autom4te.cache/output.2
+src/libs/cudd/autom4te.cache/output.3
+src/libs/cudd/autom4te.cache/requests
+src/libs/cudd/autom4te.cache/traces.0
+src/libs/cudd/autom4te.cache/traces.1
+src/libs/cudd/autom4te.cache/traces.2
+src/libs/cudd/autom4te.cache/traces.3
