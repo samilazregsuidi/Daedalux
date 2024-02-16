@@ -25,4 +25,7 @@ public:
     void addBadTrace(std::shared_ptr<trace> t);
 
     void printCSV(std::ostream& goodTraceFile, std::ostream& badTraceFile) const;
+
+    std::unique_ptr<traceReport> removeCommonPrefixes();
+
 };

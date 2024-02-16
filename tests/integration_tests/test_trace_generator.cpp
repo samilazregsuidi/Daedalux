@@ -69,6 +69,46 @@ TEST_F(TraceGenerator, TraceReport_DifferentFSM)
   ASSERT_EQ(bad_trace->size(), trace_size);
 }
 
+TEST_F(TraceGenerator, TraceReport_RemoveCommonPrefixes)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + test1;
+  auto original_loader = new promela_loader(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  delete original_loader;
+  auto file_path_mutant = current_path + test1_mutant;
+  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+  auto mutantFSM = mutant_loader->getAutomata();
+  auto trace_size = 12;
+  auto traceReport = generateTraces(originalFSM, mutantFSM, 1, trace_size, tvl);
+  ASSERT_EQ(traceReport->getGoodTraces().size(), 1);
+  ASSERT_EQ(traceReport->getBadTraces().size(), 1);
+  auto reduced_traceReport = traceReport->removeCommonPrefixes();
+  ASSERT_EQ(reduced_traceReport->getGoodTraces().size(), 1);
+  ASSERT_EQ(reduced_traceReport->getBadTraces().size(), 1);
+  auto good_trace = *reduced_traceReport->getGoodTraces().begin();
+  auto bad_trace = *reduced_traceReport->getBadTraces().begin();
+  ASSERT_TRUE(good_trace->size() < trace_size);
+  ASSERT_TRUE(bad_trace->size() < trace_size);
+}
+
+TEST_F(TraceGenerator, DiscriminateBetweenTrace)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = current_path + test1;
+  auto original_loader = new promela_loader(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  delete original_loader;
+  auto file_path_mutant = current_path + test1_mutant;
+  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+  auto mutantFSM = mutant_loader->getAutomata();
+  auto trace_size = 12;
+  auto traceReport = generateTraces(originalFSM, mutantFSM, 1, trace_size, tvl);
+  auto good_trace = *traceReport->getGoodTraces().begin();
+  auto bad_trace = *traceReport->getBadTraces().begin();
+  good_trace->discriminate(bad_trace);
+}
+
 // TEST_F(TraceGenerator, interactiveDebuggingHelloWorld)
 // {
 //   const TVL * tvl = nullptr;
