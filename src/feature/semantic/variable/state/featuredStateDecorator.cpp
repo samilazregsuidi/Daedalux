@@ -28,8 +28,8 @@ featStateDecorator::featStateDecorator(const featStateDecorator* other)
 	, features(other->getFeatures())
 	, diagram(other->diagram)
 	, choices(other->choices)
-	, tvl(other->tvl)
 	, R(other->R)
+	, tvl(other->tvl)
 {}
 
 

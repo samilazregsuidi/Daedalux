@@ -115,7 +115,7 @@ private:
     private:
         void visit(state* s) override;
         void visit(process* s) override;
-        void visit(progState* s) override;
+        void visit(program* s) override;
         void visit(compState* s) override;
         void visit(never* s) override;
         void visit(featStateDecorator* s) override;
@@ -132,7 +132,7 @@ private:
     private:
         void visit(state* s) override;
         void visit(process* s) override;
-        void visit(progState* s) override;
+        void visit(program* s) override;
         void visit(compState* s) override;
         void visit(never* s) override;
         void visit(featStateDecorator* s) override;
@@ -150,7 +150,7 @@ private:
     private:
         void visit(state* s) override;
         void visit(process* s) override;
-        void visit(progState* s) override;
+        void visit(program* s) override;
         void visit(compState* s) override;
         void visit(never* s) override;
         void visit(featStateDecorator* s) override;
@@ -166,7 +166,7 @@ private:
     public:
         void visit(state* s) override;
         void visit(process* s) override;
-        void visit(progState* s) override;
+        void visit(program* s) override;
         void visit(compState* s) override;
         void visit(never* s) override;
         void visit(featStateDecorator* s) override;
@@ -181,7 +181,7 @@ private:
     public:
         void visit(state* s) override;
         void visit(process* s) override;
-        void visit(progState* s) override;
+        void visit(program* s) override;
         void visit(compState* s) override;
         void visit(never* s) override;
         void visit(featStateDecorator* s) override;

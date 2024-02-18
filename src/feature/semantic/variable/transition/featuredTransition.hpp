@@ -27,6 +27,10 @@ public:
 
 	bool operator==(const transition* other) const override;
 
+	float similarity(const transition* other) const override;
+
+	void print(void) const override;
+
 public:		//
 	ADD features;
 	transition* wrappee;

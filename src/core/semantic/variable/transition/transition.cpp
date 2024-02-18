@@ -54,96 +54,21 @@ transition::transition(state * s) : parent(nullptr), src(s), dst(nullptr), prob(
 }
 
 transition::transition(const transition * other)
-    : parent(nullptr), src(other->src), dst(other->dst), prob(other->prob), lines(other->lines), action(other->action)
+    : parent(nullptr), src(other->src), dst(other->dst), prob(other->prob), action(other->action)
 {
   assert(src);
   assert(prob >= 0 && prob <= 1);
-
-  for (auto t : other->subTs) {
-    add(t->deepCopy());
-  }
 }
 
 transition::~transition()
 {
-  auto copy = subTs;
-  for (auto t : copy)
-    delete t;
-
   if (dst)
     dst->origin = nullptr;
-  if (parent)
-    parent->detach(this);
-
   // assert(subTs.empty());
-}
-
-void transition::add(transition * t)
-{
-  if (t == nullptr)
-    return;
-  t->parent = this;
-  subTs.push_back(t);
-}
-
-void transition::add(const std::list<transition *> & Ts)
-{
-  for (auto t : Ts)
-    add(t);
-}
-
-void transition::detach(void)
-{
-  if (parent)
-    parent->detach(this);
-  auto copy = subTs;
-  for (auto t : copy)
-    detach(t);
-}
-
-void transition::detach(transition * t)
-{
-  auto it = std::find(subTs.begin(), subTs.end(), t);
-  assert(it != subTs.end());
-  (*it)->parent = nullptr;
-  subTs.erase(it);
-}
-
-void transition::detach(const std::list<transition *> & Ts)
-{
-  for (auto t : Ts)
-    detach(t);
 }
 
 double transition::getProbability(void) const { return prob; }
 
-transition * transition::deepCopy(void) const { return new transition(this); }
+//transition * transition::deepCopy(void) const { return new transition(this); }
 
 void transition::accept(transitionVisitor * visitor) { visitor->visit(this); }
-
-bool transition::operator==(const transition * other) const
-{
-  for (auto t : subTs) {
-    bool found = false;
-    for (auto t_ : other->subTs) {
-      if (*t == t_) {
-        found = true;
-        break;
-      }
-    }
-    if (!found)
-      return false;
-  }
-  return true;
-}
-
-float transition::similarity(const transition * other) const
-{
-  float sim = 0;
-  for (auto t : subTs) {
-    for (auto t_ : other->subTs) {
-      sim += t->similarity(t_);
-    }
-  }
-  return sim / (subTs.size() * other->subTs.size());
-}

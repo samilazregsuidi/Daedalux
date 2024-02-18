@@ -357,7 +357,6 @@ variable* variable::getVariableDownScoping(const std::string& name) const {
 		return resIt->second;
 	
 	variable* var = nullptr;
-	bool found = false;
 	for (auto scope : varList) {
 		auto v = scope->getVariableDownScoping(name);
 		if(v) {

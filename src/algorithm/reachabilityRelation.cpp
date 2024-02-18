@@ -104,7 +104,7 @@ reachabilityRelation::updateVisitor::updateVisitor(reachabilityRelation* R, RSta
 void reachabilityRelation::updateVisitor::visit(state* s) { assert(false); }
 void reachabilityRelation::updateVisitor::visit(process* s) { assert(false); }
 void reachabilityRelation::updateVisitor::visit(never* s) {}
-void reachabilityRelation::updateVisitor::visit(progState* s) {}
+void reachabilityRelation::updateVisitor::visit(program* s) {}
 
 // The state was visited already, but the current copy is "fresher".
 // No need to insert it into the hash table, just update the feature expression
@@ -201,7 +201,7 @@ void reachabilityRelation::updateVisitor::visit(compState* s) {
 
 void reachabilityRelation::compBuilder::visit(state* s) {	assert(false);}
 void reachabilityRelation::compBuilder::visit(process* s) { assert(false);}
-void reachabilityRelation::compBuilder::visit(progState* s) {}
+void reachabilityRelation::compBuilder::visit(program* s) {}
 void reachabilityRelation::compBuilder::visit(never* s) {}
 
 void reachabilityRelation::compBuilder::visit(compState* s) {
@@ -230,7 +230,7 @@ bool reachabilityRelation::violationsVisitor::isViolationsComplete(void) const {
 
 void reachabilityRelation::violationsVisitor::visit(state* s) {	assert(false);}
 void reachabilityRelation::violationsVisitor::visit(process* s) { assert(false);}
-void reachabilityRelation::violationsVisitor::visit(progState* s) {}
+void reachabilityRelation::violationsVisitor::visit(program* s) {}
 void reachabilityRelation::violationsVisitor::visit(never* s) {}
 
 void reachabilityRelation::violationsVisitor::visit(compState* s) {
@@ -269,7 +269,7 @@ reachabilityRelation::getStatusVisitor::getStatusVisitor(RState* rstate, state* 
 void reachabilityRelation::getStatusVisitor::visit(state* s) {	assert(false); }
 void reachabilityRelation::getStatusVisitor::visit(process* s) { assert(false); }
 void reachabilityRelation::getStatusVisitor::visit(never* s) { res = s->compare(current->hash); }
-void reachabilityRelation::getStatusVisitor::visit(progState* s) { res = s->compare(current->hash); }
+void reachabilityRelation::getStatusVisitor::visit(program* s) { res = s->compare(current->hash); }
 
 void reachabilityRelation::getStatusVisitor::visit(featStateDecorator* s) {
 	auto feat = (dfsIn == DFS_OUTER)? &current->outerFeatures : &current->innerFeatures;
@@ -328,7 +328,7 @@ reachabilityRelation::stateToRState::stateToRState(state* s, dfs dfsIn) {
     
 void reachabilityRelation::stateToRState::visit(state* s) { assert(false); }
 void reachabilityRelation::stateToRState::visit(process* s) {}
-void reachabilityRelation::stateToRState::visit(progState* s) {}
+void reachabilityRelation::stateToRState::visit(program* s) {}
 void reachabilityRelation::stateToRState::visit(never* s) {}
 
 void reachabilityRelation::stateToRState::visit(compState* s) {

@@ -60,8 +60,10 @@ bool state::hasDeadlock(void) const {
 std::list<state*> state::Post(void) const {
 	std::list<state*> res;
 	for(auto t : executables())
-		res.push_back(this->Post(t));
+		res.push_back(fire(t));
 	
+
+	//check if it is a deadlock state
 	if(getNeverClaim()) {
 		auto neverTs = getNeverClaim()->executables();
 		if(res.empty() && !neverTs.empty())
@@ -71,30 +73,55 @@ std::list<state*> state::Post(void) const {
 	return res;
 }
 
-state* state::Post(transition* trans) const {
+state* state::fire(transition* trans) const {
+	assert(trans->src == this);
+	assert(trans->dst == nullptr);
+
+	auto copy = deepCopy();
+	assert(copy);
+	assert(this != copy);
+
+	assert(hash() == copy->hash()); // The copy should have the same hash as the original
+	assert(copy->getOrigin() == nullptr); //the origin has been reset to nullptr
+
+	this->print();
+
+	copy->apply(trans);
+
+	copy->print();
+
+	trans->print();
+
+	assert(copy->origin == trans);
+	assert(trans->dst == copy);
+
+	return copy;
+}
+
+/*state* state::Post(transition* trans) const {
 	auto post = state::apply(this, trans);
 	assert(trans->src == this);
 	trans->dst = post;
 	return post;
-}
+}*/
 
 void state::applyRepeated(const std::list<transition*>& transList) {
 	for (auto t : transList)
 		this->apply(t);
 }
 
-state* state::apply(const state* s, transition* t) {
-	auto copy = s->deepCopy();
-	assert(copy->getOrigin() == nullptr);
-	//printf("copy print\n");
-	//copy->print();
-	// Apply the transition to the copy
-	assert(copy);
-	assert(s->hash() == copy->hash()); // The copy should have the same hash as the original
-	copy->apply(t);
-	assert(copy->getOrigin() == t);
-	return copy;
-}
+// state* state::apply(const state* s, transition* t) {
+// 	auto copy = s->deepCopy();
+// 	assert(copy->getOrigin() == nullptr);
+// 	//printf("copy print\n");
+// 	//copy->print();
+// 	// Apply the transition to the copy
+// 	assert(copy);
+// 	assert(s->hash() == copy->hash()); // The copy should have the same hash as the original
+// 	copy->apply(t);
+// 	assert(copy->getOrigin() == t);
+// 	return copy;
+// }
 
 const transition* state::getOrigin(void) const {
 	return origin;

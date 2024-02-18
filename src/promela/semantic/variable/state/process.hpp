@@ -12,7 +12,7 @@ typedef char byte;
 
 #include "astNode.hpp"
 #include "automata.hpp"
-#include "programState.hpp"
+#include "program.hpp"
 #include "state.hpp"
 
 // A state mask gives for every process the pid, a pointer to its symtab node
@@ -31,12 +31,6 @@ public:
 
   process * deepCopy(void) const override;
 
-  void init(void) override;
-
-  byte getPid(void) const;
-
-  void setPid(byte pid);
-
   // operator std::string(void) const override;
 
   void print(void) const override;
@@ -47,9 +41,9 @@ public:
 
   std::list<transition *> transitions(void) const override;
 
-  void setProgState(progState * newS);
+  void setProgState(program * newS);
 
-  progState * getProgState(void) const;
+  program * getProgState(void) const;
 
   std::list<transition *> executables(void) const override;
 
@@ -70,9 +64,6 @@ public:
   bool safetyPropertyViolation(void) const override;
 
   void accept(stateVisitor * visitor) override;
-
-public:
-  byte pid;
 };
 
 #endif

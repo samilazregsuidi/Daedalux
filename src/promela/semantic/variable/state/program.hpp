@@ -27,20 +27,20 @@ class variable;
 #define SIZE_EXCLUSIVITY_VAR (sizeof(EXCLUSIVITY_VAR))
 
 // State
-class progState : public state {
+class program : public state {
 public:
 
 	friend class process;
 
-	progState(const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	program(const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	progState(const progState* other);
+	program(const program* other);
 
-	progState(const progState& other);
+	program(const program& other);
 
 	//state(const state& s) = default;
 
-	progState* deepCopy(void) const override;
+	program* deepCopy(void) const override;
 
 	void assign(const variable* sc) override;
 	/**
@@ -58,7 +58,7 @@ public:
 	 * This parameter is only true when destroying a stack element where the payload and boolean function
 	 * are still used in the visited states hashtable.
 	 */
-	virtual ~progState();
+	virtual ~program();
 
 	void init(void) override;
 

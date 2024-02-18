@@ -32,7 +32,7 @@ class thread : public state {
 public:
 	friend class state;
 
-	thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, unsigned int index = 0);
+	thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid = -1, unsigned int index = 0);
 
 	thread(const thread& other);
 
@@ -112,6 +112,8 @@ public:
 	const fsmNode* const start;
 
 	mutable bool _else;
+
+	byte pid;
 };
 
 #endif

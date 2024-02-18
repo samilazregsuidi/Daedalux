@@ -12,10 +12,6 @@
 
 #include "deleteTransVisitor.hpp"
 
-#include "programState.hpp"
-#include "process.hpp"
-#include "never.hpp"
-
 #include "stateVisitor.hpp"
 
 /**
@@ -35,7 +31,7 @@ compState::compState(const compState* other)
 {
 	if(other->n) {
 		n = getTVariable<state*>(other->n->getLocalName());
-		assert(n && dynamic_cast<never*>(n));
+		assert(n);
 	}
 }
 
@@ -65,7 +61,7 @@ void compState::assign(const variable* sc) {
 
 	if(n) {
 		n = sc->getTVariable<state*>(n->getLocalName());
-		assert(n && dynamic_cast<never*>(n));
+		assert(n);
 	}
 }
 
@@ -195,25 +191,22 @@ std::list<transition*> compState::executables(void) const {
 }
 
 /**
- * Executes a statement and returns the new reached state. The transition must be executable.
- * The preserve parameter controls whether or not the state that is passed is preserved.
- *
- * The features expression of the processTransition is not modified. The value of this expression is
- * copied into the new state. Thus, when this state is destroyed, the features expression of the
- * processTransition is not deleted.
- *
- * assertViolation is a return value set to true in case the statement on the transition was an assert
- * that evaluated to false.
+ * Applies the transition to the state.
  */
 
 void compState::apply(transition* trans) {
 	
-	//assert(origin == nullptr);
+	assert(trans->dst == nullptr);
+
+	assert(trans->src->hash() == hash());
+	
+	//this assert is not valid if manual apply is used
+	assert(origin == nullptr);
 
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 	assert(compTrans);
 
-	for(auto t : compTrans->subTs) {
+	for(auto t : compTrans->getSubTs()) {
 		//std::cout << trans->src->getLocalName() << std::endl;
 		auto s = getSubState(t->src->getLocalName());
 		assert(s);
@@ -222,9 +215,13 @@ void compState::apply(transition* trans) {
 
 	prob *= trans->prob;
 	origin = trans;
-	assert(trans->dst == nullptr);
+	
 	trans->dst = this;
 }
+
+/**
+ * Returns a new state that is the result of firing the transition.
+*/
 
 bool compState::nullstate(void) const {
 	for(auto elem : getSubStates())

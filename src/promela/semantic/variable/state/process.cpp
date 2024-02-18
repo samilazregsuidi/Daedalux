@@ -7,8 +7,8 @@
 
 #include "process.hpp"
 #include "transition.hpp"
-#include "processTransition.hpp"
-#include "programState.hpp"
+#include "threadTransition.hpp"
+#include "program.hpp"
 
 #include "payload.hpp"
 #include "variable.hpp"
@@ -20,19 +20,16 @@
 #include "initState.hpp"
 
 process::process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: thread(variable::V_PROC, sym, start, index)
-	, pid(pid)
+	: thread(variable::V_PROC, sym, start, pid, index)
 {}
 
 process::process(const process& other) 
 	: thread(other)
-	, pid(other.pid)
 {
 }
 
 process::process(const process* other)
 	: thread(other)
-	, pid(other->pid)
 {
 }
 
@@ -45,30 +42,12 @@ process* process::deepCopy(void) const {
 	return copy;
 }
 
-void process::init(void) {
-	//assert(getProgState());
-
-	thread::init();
-
-	variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
-}
-
-void process::setProgState(progState* newS) {
+void process::setProgState(program* newS) {
 	setParent(newS);
 }
 
-progState* process::getProgState(void) const {
-	return dynamic_cast<progState*>(getParent());
-}
-
-byte process::getPid(void) const {
-	return payLoad? variable::getTVariable<PIDVar*>("_pid")->getValue() : pid;
-}
-
-void process::setPid(byte pid) {
-	this->pid = pid;
-	if(payLoad)
-		variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
+program* process::getProgState(void) const {
+	return dynamic_cast<program*>(getParent());
 }
 
 bool process::isAccepting(void) const {
@@ -87,7 +66,7 @@ std::list<transition*> process::transitions(void) const {
 	auto node = getFsmNodePointer();
 	std::list<transition*> res;
 	for(auto e : node->getEdges())
-		res.push_back(new processTransition(const_cast<process*>(this), e));
+		res.push_back(new threadTransition(const_cast<process*>(this), e));
 	return res;
 }
 
@@ -176,8 +155,9 @@ std::list<transition*> process::executables(void) const {
  * that evaluated to false.
  */
 void process::apply(transition* trans) {
-	const process* proc = dynamic_cast<const processTransition*>(trans)->getProc();
-	const fsmEdge* edge =  dynamic_cast<const processTransition*>(trans)->getEdge();
+	auto threadTrans = dynamic_cast<const threadTransition*>(trans);
+	auto proc = dynamic_cast<const process*>(threadTrans->getThread());
+	auto edge =  threadTrans->getEdge();
 
 	assert(proc && proc->getPid() == getPid());
 	assert(edge);
@@ -187,7 +167,7 @@ void process::apply(transition* trans) {
 	//auto oldLocation = getLocation();
 	//_assertViolation = 0;
 
-	progState* s = getProgState();
+	program* s = getProgState();
 
 	//std::cout << " APPLYING LINE: " << *(trans->lines.cbegin()) << " to process " << this->getFullName() << std::endl;
 
@@ -452,7 +432,7 @@ int process::eval(const astNode* node, byte flag) const {
 	if(!node)	
 		return 0;
 
-	progState* s = getProgState();
+	program* s = getProgState();
 
 	//MODE : HANDSHAKE REQUEST TO MEET
 	if(flag == EVAL_EXECUTABILITY && s->hasHandShakeRequest() && node->getType() != astNode::E_STMNT_CHAN_RCV)

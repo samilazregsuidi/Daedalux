@@ -6,7 +6,6 @@
 #include "thread.hpp"
 #include "transition.hpp"
 #include "rendezVousTransition.hpp"
-#include "programState.hpp"
 
 #include "payload.hpp"
 #include "variable.hpp"
@@ -17,12 +16,13 @@
 
 #include "initState.hpp"
 
-thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, unsigned int index)
+thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
 	: state(type, sym->getName())
 	, symType(sym)
 	, index(index)
 	, start(start)
 	, _else(false)
+	, pid(pid)
 {
 
 	//seq sym node need boud attr. if arrays
@@ -37,6 +37,7 @@ thread::thread(const thread& other)
 	, index(other.index)
 	, start(other.start)
 	, _else(other._else)
+	, pid(other.pid)
 {}
 
 thread::thread(const thread* other)
@@ -45,6 +46,7 @@ thread::thread(const thread* other)
 	, index(other->index)
 	, start(other->start)
 	, _else(other->_else)
+	, pid(other->pid)
 {
 }
 
@@ -53,6 +55,18 @@ void thread::init(void) {
 
 	variable::init();
 	setFsmNodePointer(start);
+
+	variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
+}
+
+byte thread::getPid(void) const {
+	return payLoad? variable::getTVariable<PIDVar*>("_pid")->getValue() : pid;
+}
+
+void thread::setPid(byte pid) {
+	this->pid = pid;
+	if(payLoad)
+		variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
 }
 
 const fsmNode* thread::getFsmNodePointer(void) const {

@@ -17,9 +17,7 @@
 
 #include "rendezVousTransition.hpp"
 #include "progTransition.hpp"
-#include "processTransition.hpp"
-
-#include "neverTransition.hpp"
+#include "threadTransition.hpp"
 
 #include "stateVisitor.hpp"
 
@@ -29,7 +27,7 @@
  * Does not set the payloadHash.
  */
 
-progState::progState(const fsm* stateMachine, const std::string& name) 
+program::program(const fsm* stateMachine, const std::string& name) 
 	: state(variable::V_PROG, name)
 	, globalSymTab(stateMachine->getGlobalSymTab())
 	, stateMachine (stateMachine)
@@ -43,7 +41,7 @@ progState::progState(const fsm* stateMachine, const std::string& name)
 {
 }
 
-progState::progState(const progState* other)
+program::program(const program* other)
 	: state(other)
 	, globalSymTab(other->globalSymTab)
 	, stateMachine(other->stateMachine)
@@ -62,7 +60,7 @@ progState::progState(const progState* other)
 	assert(getVariables().size());
 }
 
-progState::progState(const progState& other)
+program::program(const program& other)
 	: state(other)
 	, globalSymTab(other.globalSymTab)
 	, stateMachine(other.stateMachine)
@@ -82,15 +80,15 @@ progState::progState(const progState& other)
 }
 
 
-progState* progState::deepCopy(void) const {
-	progState* copy = new progState(this);
+program* program::deepCopy(void) const {
+	program* copy = new program(this);
 	//auto newScope = deepCopy();
 	//newScope->setPayload(getPayload()->copy());
 	//copy->assign(newScope);
 	return copy;
 }
 
-void progState::init(void) {
+void program::init(void) {
 
 	state::init();
 	// No process is executing something atomic
@@ -99,7 +97,7 @@ void progState::init(void) {
 	//getPayload()->setValue(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 }
 
-void progState::assign(const variable* sc) {
+void program::assign(const variable* sc) {
 	
 	assert(sc->getVariables().size());
 	variable::assign(sc);
@@ -119,7 +117,7 @@ void progState::assign(const variable* sc) {
 	}
 }
 
-std::list<transition*> progState::transitions(void) const {
+std::list<transition*> program::transitions(void) const {
 	std::list<transition*> res;
 	for(auto p : getProcs())
 		res.merge(p->transitions());
@@ -143,7 +141,7 @@ std::list<transition*> progState::transitions(void) const {
  * are still used in the visited states hashtable.
  */
 
-progState::~progState() {
+program::~program() {
 }
 
 /*
@@ -164,7 +162,7 @@ progState::~progState() {
  */
 /*
 
-byte progState::compare(const state& s2) const {
+byte program::compare(const state& s2) const {
 
 	if(!(*payLoad == *s2.payLoad))	
 		return STATES_DIFF;
@@ -189,7 +187,7 @@ byte progState::compare(const state& s2) const {
 	return STATES_SAME_S1_FRESH;
 }*/
 
-void progState::print(void) const {
+void program::print(void) const {
 	variable::print();
 	printf("prob : %lf\n", prob);
 	if(actions.size()){
@@ -199,14 +197,14 @@ void progState::print(void) const {
 	}
 }
 
-void progState::printCSV(std::ostream &out) const {
+void program::printCSV(std::ostream &out) const {
 	variable::printCSV(out);
 	out << prob << ",";
 	for(auto a : actions)
 		out << a << ",";
 }
 
-void progState::printCSVHeader(std::ostream &out) const {
+void program::printCSVHeader(std::ostream &out) const {
 	variable::printCSVHeader(out);
 	out << "prob,";
 	for(auto a : actions)
@@ -214,7 +212,7 @@ void progState::printCSVHeader(std::ostream &out) const {
 }
 
 /*
-void progState::printGraphViz(unsigned long i) const {
+void program::printGraphViz(unsigned long i) const {
 	std::ofstream stateFile;
 	//stateFile.open("trace/" + std::to_string(hash()));
 	stateFile.open("trace/" + std::to_string(i) + ".dot");
@@ -237,13 +235,13 @@ void progState::printGraphViz(unsigned long i) const {
 	stateFile.close();
 }*/
 
-std::list<process*> progState::getProcs(void) const {
+std::list<process*> program::getProcs(void) const {
 	return getTVariables<process*>();
 }
 /**
  * Returns the stateMask of a given pid.
  */
-process* progState::getProc(int pid) const {
+process* program::getProc(int pid) const {
 	auto procs = getProcs();
 	for(auto proc : procs)
 		if(proc->getPid() == pid)
@@ -251,11 +249,11 @@ process* progState::getProc(int pid) const {
 	return nullptr;
 }
 
-state* progState::getNeverClaim(void) const {
+state* program::getNeverClaim(void) const {
 	return parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr;
 }
 
-bool progState::safetyPropertyViolation(void) const {
+bool program::safetyPropertyViolation(void) const {
 	return false;
 }
 
@@ -265,7 +263,7 @@ bool progState::safetyPropertyViolation(void) const {
  *
  * Does not change the payloadHash.
  */
-void progState::addProcess(process* proc){
+void program::addProcess(process* proc){
 	
 	if(nbProcesses >= MAX_PROCESS) {
 		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
@@ -284,7 +282,7 @@ void progState::addProcess(process* proc){
  * Does not change the payloadHash.
  */
 /*
-process* progState::addNever(const neverSymNode* neverSym) {
+process* program::addNever(const neverSymNode* neverSym) {
 	
 	never = new process(neverSym, stateMachine->getFsmWithName(neverSym->getName()), -2);
 	_addVariable(never);
@@ -297,76 +295,76 @@ process* progState::addNever(const neverSymNode* neverSym) {
 
 /*******************************************************************************************************/
 
-const process* progState::getExclusiveProc(void) const {
+const process* program::getExclusiveProc(void) const {
 	return exclusiveProc;
 }
 
-byte progState::getExclusiveProcId(void) const {
+byte program::getExclusiveProcId(void) const {
 	return getExclusiveProc()? getExclusiveProc()->getPid() : NO_PROCESS;
 }
 
-bool progState::hasExclusivity(void) const {
+bool program::hasExclusivity(void) const {
 	return getExclusiveProc() != nullptr;
 }
 
-void progState::resetExclusivity(void) const {
+void program::resetExclusivity(void) const {
 	setExclusivity(NO_PROCESS);
 }
 
-void progState::setExclusivity(const process* proc) const {
+void program::setExclusivity(const process* proc) const {
 	exclusiveProc = proc;
 	//getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
 }
 
-void progState::setExclusivity(byte pid) const {
+void program::setExclusivity(byte pid) const {
 	setExclusivity(getProc(pid));
 }
 
-bool progState::requestHandShake(const std::pair<const channel*, const process*>& handShake) const {
+bool program::requestHandShake(const std::pair<const channel*, const process*>& handShake) const {
 	if(!hasHandShakeRequest()) {
 		setHandShake(handShake);
 		return true;
 	} return false; 
 }
 
-void progState::setHandShake(const std::pair<const channel*, const process*>& handShake) const {
+void program::setHandShake(const std::pair<const channel*, const process*>& handShake) const {
 	assert((handShake.first && handShake.first) || (!handShake.first && !handShake.first));
 	handShakeChan = handShake.first;
 	handShakeProc = handShake.second;
 	//getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
 }
 
-/*void progState::setHandShake(unsigned int cid) const {
+/*void program::setHandShake(unsigned int cid) const {
 
 }*/
 
-std::pair<const channel*, const process*> progState::getHandShakeRequest(void) const {
+std::pair<const channel*, const process*> program::getHandShakeRequest(void) const {
 	return {handShakeChan, handShakeProc};
 }
 
-unsigned int progState::getHandShakeRequestId(void) const {
+unsigned int program::getHandShakeRequestId(void) const {
 	return hasHandShakeRequest()? getHandShakeRequest().first->getVariableId() : NO_HANDSHAKE;
 }
 
-const channel* progState::getHandShakeRequestChan(void) const {
+const channel* program::getHandShakeRequestChan(void) const {
 	return handShakeChan;
 }
 
-const process* progState::getHandShakeRequestProc(void) const {
+const process* program::getHandShakeRequestProc(void) const {
 	return handShakeProc;
 }
 
-bool progState::hasHandShakeRequest(void) const {
+bool program::hasHandShakeRequest(void) const {
 	return handShakeChan != nullptr;
 }
 
-void progState::resetHandShake(void) const {
+void program::resetHandShake(void) const {
 	handShakeChan = nullptr;
 	handShakeProc = nullptr;
 	//getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, NO_HANDSHAKE);
 }
 
-bool progState::getTimeoutStatus(void) const {
+bool program::getTimeoutStatus(void) const {
 	return timeout;
 }
 
@@ -376,7 +374,7 @@ bool progState::getTimeoutStatus(void) const {
  * WARNING:
  * 	In the end, does NOT (and must NEVER) modify the state payload.
  */
-std::list<transition*> progState::executables(void) const {
+std::list<transition*> program::executables(void) const {
 
 	std::list<transition*> execs;
 
@@ -390,9 +388,7 @@ std::list<transition*> progState::executables(void) const {
 			t->prob /= getProcs().size();*/
 		
 		for(auto t : Ts) {
-			auto pT = new transition(const_cast<progState*>(this));
-			pT->subTs.push_back(t);
-			execs.push_back(pT);
+			execs.push_back(t);
 		}
 	}
 
@@ -428,47 +424,44 @@ std::list<transition*> progState::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-void progState::apply(transition* trans) {
-	assert(trans->subTs.size());
-	trans = *trans->subTs.begin();
+void program::apply(transition* trans) {
 
 	auto rdvTrans = dynamic_cast<const rendezVousTransition*>(trans);
 	if(rdvTrans) {
-		process* proc = dynamic_cast<processTransition*>(rdvTrans->getQuestion())->getProc();
-		assert(proc);
+		assert(rdvTrans->getQuestion() != nullptr);
+		auto questionTrans = dynamic_cast<threadTransition*>(rdvTrans->getQuestion());
+		assert(questionTrans);
 		//warning if "different" procs have the same pid i.e., dynamic proc creation
 		//not sure about that
 
-		auto _pid = proc->getPid();
-
-		proc = getProc(proc->getPid());
+		auto proc = getProc(questionTrans->getThread()->getPid());
 		assert(proc);
 
 		proc->apply(rdvTrans->getQuestion());
 
-		auto response = dynamic_cast<processTransition*>(rdvTrans->getResponse());
-		if(response) {
-			auto responseProc = getProc(response->getProc()->getPid());
-			responseProc->apply(response);
+		auto responseTrans = dynamic_cast<threadTransition*>(rdvTrans->getQuestion());
+		if(responseTrans) {
+			auto responseProc = getProc(responseTrans->getThread()->getPid());
+			responseProc->apply(rdvTrans->getQuestion());
 		}
 		prob *= trans->prob;
 
 	} else {
 
-		auto procTrans = dynamic_cast<processTransition*>(trans); 
+		auto progTrans = dynamic_cast<progTransition*>(trans);
+		auto procTrans = dynamic_cast<threadTransition*>(progTrans->getProcTrans()); 
 		assert(procTrans);
-		process* proc = procTrans->getProc();
-		assert(proc);
+
 		//warning if "different" procs have the same pid i.e., dynamic proc creation
 		//not sure about that
 
-		auto _pid = proc->getPid();
-
-		proc = getProc(proc->getPid());
+		auto proc = getProc(procTrans->getThread()->getPid());
 		assert(proc);
 
 		proc->apply(procTrans);
 
+
+		//that is ugly, should return a progtrans in the first place
 		trans = new progTransition(this, procTrans);
 		prob *= trans->prob;
 	}
@@ -480,35 +473,31 @@ void progState::apply(transition* trans) {
 	trans->dst = this;
 }
 
-/*const ADD& progState::getFeatures(void) const {
-	return features;
-}*/
-
-bool progState::nullstate(void) const {
+bool program::nullstate(void) const {
 	for(auto p : getProcs())
 		if(!p->nullstate())
 			return false;
 	return true;
 }
 
-bool progState::endstate(void) const {
+bool program::endstate(void) const {
 	for(auto p : getProcs())
 		if(!p->endstate())
 			return false;
 	return true;
 }
 
-bool progState::isAccepting(void) const {
+bool program::isAccepting(void) const {
 	return false;
 }
 
-bool progState::isAtomic(void) const {
+bool program::isAtomic(void) const {
 	for(auto p : getProcs())
 		if(p->isAtomic())
 			return true;
 	return false;
 }
 
-void progState::accept(stateVisitor* visitor) {
+void program::accept(stateVisitor* visitor) {
 	visitor->visit(this);
 }

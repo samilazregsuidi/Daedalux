@@ -1,5 +1,5 @@
-#ifndef PROCESS_TRANSITION_H
-#define PROCESS_TRANSITION_H
+#ifndef THREAD_TRANSITION_H
+#define THREAD_TRANSITION_H
 
 /*
  * Execution of FSMs
@@ -8,20 +8,18 @@
 #include "transition.hpp"
 
 class fsmEdge;
-class process;
+class thread;
 
 // ProcessTransitions are returned by the executables() function
-class processTransition : public transition {
+class threadTransition : public transition {
 public:
-	processTransition(process* proc, const fsmEdge* trans);
+	threadTransition(thread* proc, const fsmEdge* trans);
 
-	processTransition(const processTransition* other);
+	threadTransition(const threadTransition* other);
 
-	//progTransition(state* s, process* proc, const fsmEdge* trans, const ADD& featExpr);
+	~threadTransition() override;
 	
-	~processTransition() override;
-	
-	process* getProc(void) const;
+	thread* getThread(void) const;
 
 	const fsmEdge* getEdge(void) const;
 
@@ -34,6 +32,8 @@ public:
 	bool operator==(const transition* other) const override;
 
 	float similarity(const transition* other) const override;
+
+	void print(void) const override;
 
 public:		//
 	const fsmEdge* const edge;			//  - The transition that can be fired
