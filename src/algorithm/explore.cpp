@@ -79,8 +79,7 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
   for (auto & s : states_original) {
     bool found = false;
     for (auto & d : states_mutant) {
-      double delta = s->delta(d);
-      if (delta < 0.00000001) {
+      if (s->isSame(d)) {
         found = true;
         break;
       }
@@ -91,7 +90,6 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
   }
   return distinct;
 }
-
 
 std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
 {

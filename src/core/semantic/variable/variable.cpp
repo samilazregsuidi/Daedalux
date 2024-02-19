@@ -347,7 +347,6 @@ variable * variable::getVariableDownScoping(const std::string & name) const
     return resIt->second;
 
   variable * var = nullptr;
-  bool found = false;
   for (auto scope : varList) {
     auto v = scope->getVariableDownScoping(name);
     if (v) {
@@ -401,6 +400,12 @@ void variable::reset(void)
 {
   for (auto subVar : varList)
     subVar->reset();
+}
+
+bool variable::isSame(const variable * other) const
+{
+  auto delta = this->delta(other);
+  return delta < 0.0000000001;
 }
 
 /*************************************************************************************************/

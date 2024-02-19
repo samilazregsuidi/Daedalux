@@ -192,6 +192,8 @@ public:
 	
 	virtual std::list<variable*> getDelta(const variable* v2) const;
 
+	bool isSame(const variable* other) const;
+
 	/*********************************************************/
 
 	static Type getVarType(symbol::Type type);
