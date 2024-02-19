@@ -143,6 +143,7 @@ add_library(daedalux_lib STATIC
 	algorithm/explore.cpp
 	algorithm/elementStack.cpp
 	algorithm/reachabilityRelation.cpp
+	algorithm/traceGenerator.cpp
 
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp
@@ -317,6 +318,7 @@ add_executable(daedalux
 	algorithm/explore.cpp
 	algorithm/elementStack.cpp
 	algorithm/reachabilityRelation.cpp
+	algorithm/traceGenerator.cpp
 
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp

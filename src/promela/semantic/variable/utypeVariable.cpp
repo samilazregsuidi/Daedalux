@@ -4,90 +4,75 @@
 
 #include "symbols.hpp"
 
-utypeVar::utypeVar(const utypeSymNode* sym, unsigned int index)
-	: primitiveVariable(sym, index)
+utypeVar::utypeVar(const utypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) {}
+
+utypeVar::utypeVar(const utypeVar * other) : primitiveVariable(other) { assert(getSizeOf() == other->getSizeOf()); }
+
+int utypeVar::operator=(const primitiveVariable & rvalue)
 {
+  rvalue;
+  assert(false);
 }
 
-utypeVar::utypeVar(const utypeVar* other) 
-	: primitiveVariable(other)
+size_t utypeVar::getSizeOf(void) const { return variable::getSizeOf(); }
+
+int utypeVar::operator++(void) { assert(false); }
+
+int utypeVar::operator--(void) { assert(false); }
+
+int utypeVar::operator++(int) { assert(false); }
+
+int utypeVar::operator--(int) { assert(false); }
+
+// need to call variable::operator==(const variable* other)
+bool utypeVar::operator==(const variable * other) const { return variable::operator==(other); }
+
+bool utypeVar::operator!=(const variable * other) const { return variable::operator!=(other); }
+
+float utypeVar::delta(const variable * v2) const
 {
-	assert(getSizeOf() == other->getSizeOf());
+  auto casted = dynamic_cast<const utypeVar *>(v2);
+  if (!casted)
+    return 1;
+
+  float res = 0;
+  for (auto var : varList)
+    res += var->delta(v2->getVariable(var->getLocalName()));
+
+  return res / varList.size();
 }
 
-int utypeVar::operator = (const primitiveVariable& rvalue) {
-	rvalue;
-	assert(false);
+void utypeVar::printDelta(const variable * v2) const
+{
+  for (auto var : varList)
+    var->printDelta(v2->getVariable(var->getLocalName()));
 }
 
-size_t utypeVar::getSizeOf(void) const {
-	return variable::getSizeOf();
+std::list<variable *> utypeVar::getDelta(const variable * v2) const
+{
+  std::list<variable *> res;
+  for (auto var : varList) {
+    auto v = v2->getVariable(var->getLocalName());
+    auto delta = var->delta(v);
+    if (delta > 0)
+      res.push_back(v);
+  }
+  return res;
 }
 
-int utypeVar::operator ++ (void) {
-	assert(false);
+variable * utypeVar::deepCopy(void) const
+{
+  utypeVar * copy = new utypeVar(this);
+  // warning shared payload!
+  return copy;
 }
 
-int utypeVar::operator -- (void) {
-	assert(false);
-}
+utypeVar::operator std::string(void) const { return variable::operator std::string(); }
 
-int utypeVar::operator ++ (int) {
-	assert(false);
-}
+void utypeVar::print(void) const { variable::print(); }
 
-int utypeVar::operator -- (int) {
-	assert(false);
-}
+void utypeVar::printTexada(void) const { variable::printTexada(); }
 
-//need to call variable::operator==(const variable* other)
-bool utypeVar::operator == (const variable* other) const {
-	return variable::operator==(other);
-}
+void utypeVar::printCSV(std::ostream & out) const { variable::printCSV(out); }
 
-bool utypeVar::operator != (const variable* other) const {
-	return variable::operator!=(other);
-}
-
-float utypeVar::delta(const variable* v2) const {
-	auto casted = dynamic_cast<const utypeVar*>(v2);
-	if(!casted)
-		return 1;
-
-	float res = 0;
-	for(auto var : varList)
-		res += var->delta(v2->getVariable(var->getLocalName()));
-
-	return res / varList.size();
-}
-
-void utypeVar::printDelta(const variable* v2) const {
-	for(auto var : varList)
-		var->printDelta(v2->getVariable(var->getLocalName()));
-}
-
-variable* utypeVar::deepCopy(void) const {
-	utypeVar* copy = new utypeVar(this);
-	//warning shared payload! 
-	return copy;
-}
-
-utypeVar::operator std::string(void) const {
-	return variable::operator std::string();
-}
-
-void utypeVar::print(void) const {
-	variable::print();
-}
-
-void utypeVar::printTexada(void) const {
-	variable::printTexada();
-}
-
-void utypeVar::printCSV(std::ostream& out) const {
-	variable::printCSV(out);
-}
-
-void utypeVar::printCSVHeader(std::ostream& out) const {
-	variable::printCSVHeader(out);
-}
+void utypeVar::printCSVHeader(std::ostream & out) const { variable::printCSVHeader(out); }

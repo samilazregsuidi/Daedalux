@@ -81,6 +81,22 @@ void mtypeVar::printDelta(const variable * other) const
   printf("%s: %s -> %s\n", name.c_str(), valueName.c_str(), otherValueName.c_str());
 }
 
+
+std::list<variable*> mtypeVar::getDelta(const variable * other) const
+{
+  std::list<variable*> res;
+  if (delta(other) < 0.00000001)
+    return res;
+
+  auto otherVar = dynamic_cast<const mtypeVar *>(other);
+  if (!otherVar)
+    return res;
+
+  res.push_back(deepCopy());
+  return res;
+}
+
+
 variable * mtypeVar::deepCopy(void) const
 {
   mtypeVar * copy = new mtypeVar(*this);

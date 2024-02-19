@@ -144,6 +144,21 @@ void primitiveVariable::printDelta(const variable * other) const
   }
 }
 
+std::list<variable *> primitiveVariable::getDelta(const variable * other) const
+{
+  std::list<variable *> res;
+  auto cast = dynamic_cast<const primitiveVariable *>(other);
+  if (!cast)
+    return res;
+
+  auto delta = this->delta(cast);
+
+  if (delta > 0.00000001) {
+    res.push_back(this->deepCopy());
+  }
+  return res;
+}
+
 void primitiveVariable::setValue(int value)
 {
   assert(getPayload());
