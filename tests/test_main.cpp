@@ -31,6 +31,7 @@
 #include "integration_tests/test_most_similar_trans.cpp"
 #include "integration_tests/test_icse_test.cpp"
 #include "integration_tests/test_trace_generator.cpp"
+#include "integration_tests/test_bisimulation.cpp"
 
 
 int main(int argc, char **argv) {

@@ -62,3 +62,9 @@ src/libs/cudd/autom4te.cache/traces.0
 src/libs/cudd/autom4te.cache/traces.1
 src/libs/cudd/autom4te.cache/traces.2
 src/libs/cudd/autom4te.cache/traces.3
+src/libs/cudd/aclocal.m4
+src/libs/cudd/config.h.in
+src/libs/cudd/config.h.in~
+src/libs/cudd/configure
+src/libs/cudd/configure~
+src/libs/cudd/Makefile.in
