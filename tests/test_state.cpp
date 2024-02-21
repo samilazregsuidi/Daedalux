@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include "../src/core/semantic/variable/state/compositeState.hpp"
+#include "../src/core/semantic/variable/state/composite.hpp"
 
 class StateTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Common setup code for all tests goes here
-        s = std::make_unique<compState>("testState");
+        s = std::make_unique<composite>("testState");
     }
 
     void TearDown() override {
@@ -27,11 +27,11 @@ TEST_F(StateTest, DefaultConstructor) {
 
 TEST_F(StateTest, CopyConstructor) {
     // Create a state object to copy from
-    auto originalState = new compState("test_variable");
+    auto originalState = new composite("test_variable");
     originalState->prob = 0.5;
 
     // Create a new state object using the copy constructor
-    // auto copiedState = new compState(originalState);
+    // auto copiedState = new composite(originalState);
 
     // Verify that the copied state has the same values as the original state
     // EXPECT_EQ(copiedState->prob, originalState->prob);
@@ -43,10 +43,10 @@ TEST_F(StateTest, CopyConstructor) {
 }
 
 // TEST_F(StateTest, CopyConstructorWithErrors) {
-//     auto original = new compState("originalState");
+//     auto original = new composite("originalState");
 //     original->addError(state::ERR_DEADLOCK);
 
-//     auto copy = new compState(original);
+//     auto copy = new composite(original);
 
 //     EXPECT_EQ(original->getType(), copy->getType());
 //     EXPECT_EQ(original->getFullName(), copy->getFullName());

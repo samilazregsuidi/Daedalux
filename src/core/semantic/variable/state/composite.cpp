@@ -7,7 +7,7 @@
 #include <vector>
 #include <iterator>
 
-#include "compositeState.hpp"
+#include "composite.hpp"
 #include "compositeTransition.hpp"
 
 #include "deleteTransVisitor.hpp"
@@ -19,13 +19,13 @@
  *
  * Does not set the payloadHash.
  */
-compState::compState(const std::string& name) 
+composite::composite(const std::string& name) 
 	: state(variable::V_COMP_S, name)
 	, n(nullptr)
 {
 }
 
-compState::compState(const compState* other)
+composite::composite(const composite* other)
 	: state(other)
 	, n(nullptr)
 {
@@ -35,27 +35,27 @@ compState::compState(const compState* other)
 	}
 }
 
-compState* compState::deepCopy(void) const {
-	return new compState(this);
+composite* composite::deepCopy(void) const {
+	return new composite(this);
 }
 
-compState::~compState() {
+composite::~composite() {
 	/*if(origin)
 		delete origin;*/
 }
 
-void compState::addState(state* s) {
+void composite::addState(state* s) {
 	assert(s);
 	_addVariable(s);
 }
 
-void compState::addNeverState(state* s) {
+void composite::addNeverState(state* s) {
 	assert(s);
 	n = s;
 	addState(s);
 }
 
-void compState::assign(const variable* sc) {
+void composite::assign(const variable* sc) {
 
 	variable::assign(sc);
 
@@ -82,8 +82,8 @@ void compState::assign(const variable* sc) {
  *  - STATES_SAME_S1_FRESH	 if s1 and s2 are identical but s1 has products that were not explored with s2; hence, s1 is fresh
  */
 
-/*byte compState::compare(const state& s2) const {
-	auto compS2 = dynamic_cast<const compState&>(s2);
+/*byte composite::compare(const state& s2) const {
+	auto compS2 = dynamic_cast<const composite&>(s2);
 	for(auto [n1, s1] : subStates) {
 		auto subStateS2 = compS2.getState(n1);
 		if(subStateS2 == nullptr || subStateS2->hash() != s1->hash())
@@ -92,7 +92,7 @@ void compState::assign(const variable* sc) {
 	return STATES_SAME_S1_FRESH;
 }*/
 
-void compState::print(void) const {
+void composite::print(void) const {
 	for(auto s : getSubStates()) {
 		s->print();
 		printf(" ----------------------------------------- \n");
@@ -101,24 +101,24 @@ void compState::print(void) const {
 	printf(" ****************************************** \n\n");
 }
 
-void compState::printTexada(void) const {
+void composite::printTexada(void) const {
 	variable::printTexada();
 	printf("..\n");
 }
 
-void compState::printCSV(std::ostream &out) const {
+void composite::printCSV(std::ostream &out) const {
 	for(auto s : getSubStates()) {
 		s->printCSV(out);
 	}
 }
 
-void compState::printCSVHeader(std::ostream &out) const {
+void composite::printCSVHeader(std::ostream &out) const {
 	for(auto s : getSubStates()) {
 		s->printCSVHeader(out);
 	}
 }
 
-/*void compState::printGraphViz(unsigned long i) const {
+/*void composite::printGraphViz(unsigned long i) const {
 	auto subStates = getTVariables<state*>();
 	for(auto s : subStates)
 		s->printGraphViz(i);
@@ -158,7 +158,7 @@ std::list<transition*> t_copy(const std::vector<transition*>& Ts) {
  * WARNING:
  * 	In the end, does NOT (and must NEVER) modify the state payload.
  */
-std::list<transition*> compState::executables(void) const {
+std::list<transition*> composite::executables(void) const {
 
 	std::list<transition*> execs;
 	std::vector<std::vector<transition*>> stateTransList;
@@ -180,7 +180,7 @@ std::list<transition*> compState::executables(void) const {
 
 	auto Tss = CartesianProduct(stateTransList);
 	for (auto Ts : Tss) {
-		execs.push_back(new compTransition(const_cast<compState*>(this), t_copy(Ts)));
+		execs.push_back(new compTransition(const_cast<composite*>(this), t_copy(Ts)));
 	}
 
 	for(auto stateTransListIt : stateTransList)
@@ -194,7 +194,7 @@ std::list<transition*> compState::executables(void) const {
  * Applies the transition to the state.
  */
 
-void compState::apply(transition* trans) {
+void composite::apply(transition* trans) {
 	// This is temporally commented out to make some tests pass
 	//assert(trans->src == this);
 	assert(trans->dst == nullptr); // Apply most not have been called on this transition before
@@ -222,54 +222,54 @@ void compState::apply(transition* trans) {
  * Returns a new state that is the result of firing the transition.
 */
 
-bool compState::nullstate(void) const {
+bool composite::nullstate(void) const {
 	for(auto elem : getSubStates())
 		if(!elem->nullstate())
 			return false;
 	return true;
 }
 
-bool compState::endstate(void) const {
+bool composite::endstate(void) const {
 	for(auto elem : getSubStates())
 		if(!elem->endstate())
 			return false;
 	return true;
 }
 
-bool compState::isAccepting(void) const {
+bool composite::isAccepting(void) const {
 	for(auto elem : getSubStates())
 		if(elem->isAccepting())
 			return true;
 	return false;
 }
 
-bool compState::safetyPropertyViolation(void) const {
+bool composite::safetyPropertyViolation(void) const {
 	return n? n->safetyPropertyViolation() : false;
 }
 
-state* compState::getNeverClaim(void) const {
+state* composite::getNeverClaim(void) const {
 	return n? n : (parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr);
 }
 
-state* compState::getSubState(const std::string& name) const {
+state* composite::getSubState(const std::string& name) const {
 	return getTVariable<state*>(name);
 }
 
-std::list<state*> compState::getSubStates(void) const {
+std::list<state*> composite::getSubStates(void) const {
 	return getTVariables<state*>();
 }
 
-void compState::printHexadecimal(void) const {
+void composite::printHexadecimal(void) const {
 	assert(false);
 }
 
-std::list<transition*> compState::transitions(void) const {
+std::list<transition*> composite::transitions(void) const {
 	std::list<transition*> res;
 	for(auto s : getSubStates())
 		res.merge(s->transitions());
 	return res;
  }
 
- void compState::accept(stateVisitor* visitor) {
+ void composite::accept(stateVisitor* visitor) {
 	visitor->visit(this);
 }

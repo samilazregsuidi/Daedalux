@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include "../../src/visualizer/stateToGraphViz.hpp"
-#include "../../src/core/semantic/variable/state/compositeState.hpp"
+#include "../../src/core/semantic/variable/state/composite.hpp"
 #include "../../src/core/symbol/symTable.hpp"
 #include "../../src/core/automata/fsm.hpp"  // Include the necessary headers
 #include "../../src/core/automata/fsmEdge.hpp"
@@ -60,7 +60,7 @@ TEST_F(StateToGraphVizTest, Construction) {
 TEST_F(StateToGraphVizTest, PrintGraphViz) {
     // Test the printGraphViz method with a valid state and depth
     auto graphViz = std::make_unique<stateToGraphViz>(myFSM.get());
-    auto testState = new compState("test_variable");
+    auto testState = new composite("test_variable");
     auto testDepth = 0;
     graphViz->printGraphViz(testState, testDepth);
     // Add assertions to verify the generated GraphViz content or file

@@ -149,7 +149,7 @@ std::string stateToGraphViz::_toInStrDescr(void) const {
 	}
 }
 
-void stateToGraphViz::visit(compState* s) {
+void stateToGraphViz::visit(composite* s) {
 	file <<  _tab() << "subgraph cluster_"<< s->getLocalName() << " {" << std::endl;
 	++tab;
 	file <<  _tab() << "style=filled;" << std::endl \
@@ -212,7 +212,7 @@ void stateToGraphViz::visit(never* s) {
 	file << std::endl <<  _tab() << "}" << std::endl;
 }
 
-void stateToGraphViz::visit(featStateDecorator* s) {
+void stateToGraphViz::visit(featured* s) {
 	//featToPrint = s->choices;
 	featToPrint = s->features;
 	Rfeat = s->R;

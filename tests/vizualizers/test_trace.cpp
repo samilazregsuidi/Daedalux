@@ -1,5 +1,5 @@
 #include "../../src/algorithm/explore.hpp"
-#include "../../src/core/semantic/variable/state/compositeState.hpp"
+#include "../../src/core/semantic/variable/state/composite.hpp"
 #include "../../src/core/semantic/variable/state/initState.hpp"
 #include "../../src/core/semantic/variable/transition/compositeTransition.hpp"
 #include "../../src/promela/parser/promela_loader.hpp"
@@ -26,7 +26,7 @@ protected:
 TEST_F(TraceTest, AddTransition)
 {
   std::list<transition *> transList = std::list<transition *>();
-  std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+  std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
   myTrace->addTransition(t);
   ASSERT_EQ(myTrace->size(), 1);
@@ -35,7 +35,7 @@ TEST_F(TraceTest, AddTransition)
 // Test case for adding states
 TEST_F(TraceTest, AddState)
 {
-  std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+  std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   myTrace->addState(state);
   ASSERT_EQ(myTrace->getStates().size(), 1);
 }
@@ -45,7 +45,7 @@ TEST_F(TraceTest, AddTrace)
 {
   std::unique_ptr<trace> other = std::make_unique<trace>();
   std::list<transition *> transList = std::list<transition *>();
-  std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+  std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
   other->addTransition(t);
   other->addState(state);
@@ -68,7 +68,7 @@ TEST_F(TraceTest, InequalityOperatorAdvanced)
   trace t2 = trace();
 
   std::list<transition *> transList = std::list<transition *>();
-  std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+  std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
   t1.addTransition(t);
   t2.addState(state);

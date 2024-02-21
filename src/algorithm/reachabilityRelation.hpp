@@ -116,9 +116,9 @@ private:
         void visit(state* s) override;
         void visit(process* s) override;
         void visit(program* s) override;
-        void visit(compState* s) override;
+        void visit(composite* s) override;
         void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
+        void visit(featured* s) override;
    
     public:
         dfs dfsIn;
@@ -133,9 +133,9 @@ private:
         void visit(state* s) override;
         void visit(process* s) override;
         void visit(program* s) override;
-        void visit(compState* s) override;
+        void visit(composite* s) override;
         void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
+        void visit(featured* s) override;
     
     public:
         RState* current;
@@ -151,9 +151,9 @@ private:
         void visit(state* s) override;
         void visit(process* s) override;
         void visit(program* s) override;
-        void visit(compState* s) override;
+        void visit(composite* s) override;
         void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
+        void visit(featured* s) override;
     
     public:
         RState* current;
@@ -167,9 +167,9 @@ private:
         void visit(state* s) override;
         void visit(process* s) override;
         void visit(program* s) override;
-        void visit(compState* s) override;
+        void visit(composite* s) override;
         void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
+        void visit(featured* s) override;
     public:
         reachabilityRelation* R;
     };
@@ -182,9 +182,9 @@ private:
         void visit(state* s) override;
         void visit(process* s) override;
         void visit(program* s) override;
-        void visit(compState* s) override;
+        void visit(composite* s) override;
         void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
+        void visit(featured* s) override;
     
     public:
         reachabilityRelation* R;

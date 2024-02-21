@@ -31,16 +31,16 @@ typedef char byte;
 typedef unsigned char ubyte;
 
 // State
-class compState : public state {
+class composite : public state {
 public:
 
-	compState(const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
+	composite(const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	compState(const compState* other);
+	composite(const composite* other);
 
 	//state(const state& s) = default;
 
-	compState* deepCopy(void) const override;
+	composite* deepCopy(void) const override;
 	/**
 	 * Frees the memory used by a given state. It does NOT free any symbol tables, FSM or mtypes list.
 	 * However, it DOES free:
@@ -56,7 +56,7 @@ public:
 	 * This parameter is only true when destroying a stack element where the payload and boolean function
 	 * are still used in the visited states hashtable.
 	 */
-	~compState() override;
+	~composite() override;
 
 	std::list<transition*> executables(void) const override;
 

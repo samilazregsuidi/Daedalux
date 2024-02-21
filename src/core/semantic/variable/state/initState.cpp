@@ -7,8 +7,8 @@
 #include "never.hpp"
 #include "process.hpp"
 #include "program.hpp"
-#include "featuredStateDecorator.hpp"
-#include "compositeState.hpp"
+#include "featured.hpp"
+#include "composite.hpp"
 
 #include "threadTransition.hpp"
 #include "rendezVousTransition.hpp"
@@ -34,7 +34,7 @@
 state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 
 	auto sysTable = automata->getSystemSymTab();
-	auto compS = new compState("sys");
+	auto compS = new composite("sys");
 
 	if(sysTable && sysTable->getSymbols().size() > 1) {
 		for(auto sys : sysTable->getSymbols()) {
@@ -215,14 +215,14 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 	res = s;
 
 	if(stateMachine->isFeatured()){
-		res = new featStateDecorator(res, stateMachine->getFeatureDiagram(), tvl);
+		res = new featured(res, stateMachine->getFeatureDiagram(), tvl);
 		if(sym && sym->getInitExpr()){
 			auto v = expToADD(tvl);
 			sym->getInitExpr()->acceptVisitor(&v);
 			auto cst = v.getFormula();
 			assert(cst);
 			
-			auto b = dynamic_cast<featStateDecorator*>(res)->constraint(cst);
+			auto b = dynamic_cast<featured*>(res)->constraint(cst);
 			assert(b);
 		}
 	}

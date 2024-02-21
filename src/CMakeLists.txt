@@ -66,7 +66,7 @@ add_library(daedalux_lib STATIC
 	core/semantic/variable/variableDecorator.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
-	core/semantic/variable/state/compositeState.cpp
+	core/semantic/variable/state/composite.cpp
 	core/semantic/variable/state/thread.cpp
 	core/semantic/variable/transition/transition.cpp
 	core/semantic/variable/transition/compositeTransition.cpp
@@ -136,7 +136,7 @@ add_library(daedalux_lib STATIC
 	feature/tvl.cpp
 	feature/expToADD.cpp
 	feature/ADDutils.cpp
-	feature/semantic/variable/state/featuredStateDecorator.cpp
+	feature/semantic/variable/state/featured.cpp
 	feature/semantic/variable/transition/featuredTransition.cpp
 
 	algorithm/explore.cpp
@@ -242,7 +242,7 @@ add_executable(daedalux
 	core/semantic/variable/variableDecorator.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
-	core/semantic/variable/state/compositeState.cpp
+	core/semantic/variable/state/composite.cpp
 	core/semantic/variable/state/thread.cpp
 	core/semantic/variable/transition/transition.cpp
 	core/semantic/variable/transition/threadTransition.cpp
@@ -312,7 +312,7 @@ add_executable(daedalux
 	feature/tvl.cpp
 	feature/expToADD.cpp
 	feature/ADDutils.cpp
-	feature/semantic/variable/state/featuredStateDecorator.cpp
+	feature/semantic/variable/state/featured.cpp
 	feature/semantic/variable/transition/featuredTransition.cpp
 	
 	algorithm/explore.cpp
