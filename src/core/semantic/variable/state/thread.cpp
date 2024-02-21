@@ -277,9 +277,24 @@ void thread::printDelta(const variable * v2) const
   if (node == nullptr && otherNode == nullptr)
     return;
 
-  std::string strLineNbThis = node ? std::to_string(getFsmNodePointer()->getLineNb()) : "end";
-  std::string strLineNbOther = otherNode ? std::to_string(cast->getFsmNodePointer()->getLineNb()) : "end";
   if (deltaProcess(cast)) {
+    std::string strLineNbThis = node ? std::to_string(getFsmNodePointer()->getLineNb()) : "end";
+    std::string strLineNbOther = otherNode ? std::to_string(cast->getFsmNodePointer()->getLineNb()) : "end";
     printf("%s @ NL%s -> @ %s\n", getFullName().c_str(), strLineNbThis.c_str(), strLineNbOther.c_str());
   }
+}
+
+std::list<variable *> thread::getDelta(const variable * v2) const
+{
+  std::list<variable *> res;
+  auto cast = dynamic_cast<const thread *>(v2);
+  if (cast == nullptr)
+    return res;
+
+  res = variable::getDelta(v2);
+
+  if (deltaProcess(cast)) {
+    res.push_back(deepCopy());
+  }
+  return res;
 }

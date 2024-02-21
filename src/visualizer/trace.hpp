@@ -23,7 +23,9 @@ public:
 
   ~trace();
 
-  void discriminate(const std::shared_ptr<trace> t);
+  void findDistinguishingFormula(const std::shared_ptr<trace> t);
+
+  bool containState(const std::shared_ptr<state> s) const;
 
   std::list<std::shared_ptr<transition>> getTransitions() const { return this->transitions; }
   std::list<std::shared_ptr<state>> getStates() const { return this->states; }

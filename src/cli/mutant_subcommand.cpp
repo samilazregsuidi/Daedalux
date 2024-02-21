@@ -1,4 +1,5 @@
 #include "mutant_subcommand.hpp"
+#include "traceGenerator.hpp"
 
 void setup_subcommand_mutations(CLI::App & app)
 {
@@ -97,8 +98,10 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
   std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>(original_file, nullptr);
   auto fsm_original = loader_original->getAutomata();
 
+  auto traceGen = std::make_unique<TraceGenerator>(fsm_original, fsm_mutant);
+
   // Generate traces
-  std::unique_ptr<traceReport> report = generateTraces(fsm_original, fsm_mutant);
+  std::unique_ptr<traceReport> report = traceGen->generateTraceReport(number_of_traces, traces_length);
 
   // Write traces to file
   std::ofstream negative_output;
@@ -137,7 +140,7 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
  */
 void analyzeMutants(fsm feature_mutant_model, std::vector<std::string> properties)
 {
-  // Initally, all mutants are surviving mutants
+  // Initially, all mutants are surviving mutants
   auto killed_mutants = std::vector<std::string>();
   auto surviving_mutants = std::vector<std::string>();
   // Check whether the mutants are killed by the properties
@@ -151,7 +154,7 @@ void analyzeMutants(fsm feature_mutant_model, std::vector<std::string> propertie
       // Move mutant from surviving to killed mutants
       // killed_mutants.push_back(property);
       // surviving_mutants.erase(std::remove(surviving_mutants.begin(), surviving_mutants.end(), property),
-      // surviving_mutants.end());
+      // surviving_mutants.end()); 
     }
     else {
       std::cout << "Property does not kill mutant" << std::endl;

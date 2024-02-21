@@ -2,7 +2,7 @@
 
 #include "varExpr.hpp"
 
-mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) {   assert(varType == V_MTYPE); }
+mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) { assert(varType == V_MTYPE); }
 
 void mtypeVar::init(void)
 {
@@ -68,7 +68,7 @@ std::string mtypeVar::getValueName(void) const
 
 void mtypeVar::printDelta(const variable * other) const
 {
-  if (delta(other) < 0.00000001)
+  if (isSame(other))
     return;
 
   auto otherVar = dynamic_cast<const mtypeVar *>(other);
@@ -79,6 +79,20 @@ void mtypeVar::printDelta(const variable * other) const
   auto valueName = getValueName();
   auto otherValueName = otherVar->getValueName();
   printf("%s: %s -> %s\n", name.c_str(), valueName.c_str(), otherValueName.c_str());
+}
+
+std::list<variable *> mtypeVar::getDelta(const variable * other) const
+{
+  std::list<variable *> res;
+  if (isSame(other))
+    return res;
+
+  auto otherVar = dynamic_cast<const mtypeVar *>(other);
+  if (!otherVar)
+    return res;
+
+  res.push_back(deepCopy());
+  return res;
 }
 
 variable * mtypeVar::deepCopy(void) const

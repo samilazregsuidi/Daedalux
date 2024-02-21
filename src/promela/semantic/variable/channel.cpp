@@ -101,7 +101,7 @@ void channel::receive(const std::list<variable*>& rargs) {
 	
 }
 
-//to moove to variable class?
+//to move to variable class?
 primitiveVariable* channel::getField(unsigned int index) const {
 	assert(0 < index && index < varList.size());
 	auto it = varList.begin();

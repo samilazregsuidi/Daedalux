@@ -79,8 +79,7 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
   for (auto & s : states_original) {
     bool found = false;
     for (auto & d : states_mutant) {
-      double delta = s->delta(d);
-      if (delta < 0.00000001) {
+      if (s->isSame(d)) {
         found = true;
         break;
       }
@@ -90,103 +89,6 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
     }
   }
   return distinct;
-}
-
-//**
-// * This function consumes two automatas - the original automata and the mutant automata.
-// * It then create a run of length k of the mutant automata that cannot be created by the original automata.
-// * The function returns a list of states that represent the run.
-// * Parameters:
-// * 	original - The original automata
-// * 	mutant - The mutant automata
-// * 	k - The length of the run
-// * 	tvl - The feature model
-// *
-std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
-                                              const size_t trace_length, const TVL * tvl)
-{
-  // Create the initial state for both automata
-  auto current_state_original = initState::createInitState(original.get(), tvl);
-  auto current_state_mutant = initState::createInitState(mutant.get(), tvl);
-  // Lists to store the transitions of the two automata
-  auto post_states_original = std::list<state *>();
-  auto post_states_mutant = std::list<state *>();
-  auto different_states = std::list<state *>();
-  // Variables to store the current transition
-  transition * current_trans_original = nullptr;
-  transition * current_trans_mutant = nullptr;
-
-  // Create a trace holding the visited states and transitions
-  std::unique_ptr<trace> current_trace = std::make_unique<trace>();
-  std::shared_ptr<state> current_state_mutant_copy(current_state_mutant);
-  current_trace->addState(current_state_mutant_copy);
-  // Keep track if the run of the two automata have the same prefix - the default is true as the initial states are the same
-  bool same_prefix = true;
-
-  while (current_trace->size() < trace_length) {
-    // Check if the two nodes are the same if they have the same prefix
-    post_states_original = current_state_original->Post();
-    post_states_mutant = current_state_mutant->Post();
-    if (post_states_mutant.empty() || post_states_original.empty()) {
-      std::cout << "No more transitions to fire - the trace is complete." << std::endl;
-      break;
-    }
-    if (same_prefix) {
-      different_states = distinct_states(post_states_original, post_states_mutant);
-      // If the mutant automata has a state that the original automata does not have - go to that state
-      if (!different_states.empty()) {
-        // Fire the transition
-        current_state_original = different_states.front();
-        // Move to the next state
-        current_trans_original = current_state_original->getOrigin()->deepCopy();
-        // Find the most similar transition to the fired transition in the original automata
-        current_state_mutant = most_similar_state(current_state_original, post_states_mutant);
-        // Apply the transition to the original automata
-        current_trans_mutant = current_state_mutant->getOrigin()->deepCopy();
-
-        std::cout << "The original automata does not have the same state as the mutant automata." << std::endl;
-        std::cout << "The transition fired in the mutant automata is: " << std::endl;
-        current_state_mutant->PRINT_STATE();
-        std::cout << "The transition fired in the original automata is: " << std::endl;
-        current_state_original->PRINT_STATE();
-        std::cout << "The difference between the two states is: ";
-        current_state_mutant->printDelta(current_state_original);
-        // The prefix is no longer the same
-        same_prefix = false;
-      }
-      else {
-        // We could not find a different state in the mutant automata - take a random transition for both automata
-        // Take the same transition as the original automata
-        // Not sure if this is the best approach / if it is correct
-        auto next_state_original = post_states_original.front();
-        auto next_state_mutant = most_similar_state(next_state_original, post_states_mutant);
-        assert(next_state_mutant->delta(next_state_original) < 0.00000001); // The states should be the same
-
-        current_trans_mutant = next_state_mutant->getOrigin()->deepCopy();
-        current_trans_original = next_state_original->getOrigin()->deepCopy();
-        // Apply the transition to both automata - A hack not to use the apply function
-        current_state_mutant = next_state_mutant;
-        current_state_original = next_state_original;
-      }
-    }
-    else {
-      // Fire a random transition as the trace is guaranteed to be different
-      current_state_mutant = post_states_mutant.front();
-      auto similar_state_original = most_similar_state(current_state_mutant, post_states_original);
-      current_state_original = similar_state_original;
-      current_trans_mutant = current_state_mutant->getOrigin()->deepCopy();
-      current_trans_original = similar_state_original->getOrigin()->deepCopy();
-    }
-    // Add the state and transition to the trace
-    std::shared_ptr<state> curent_state_mutant_copy(current_state_mutant);
-    std::shared_ptr<transition> current_trans_copy(current_trans_mutant);
-    current_trace->addTransition(current_trans_copy);
-    current_trace->addState(curent_state_mutant_copy);
-  }
-  if (same_prefix)
-    std::cout << "A trace in the mutant that not can be found in the original automata was not found" << std::endl;
-
-  return current_trace;
 }
 
 std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
@@ -235,26 +137,6 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
     current_trace->addState(curent_state_copy);
   }
   return current_trace;
-}
-
-/***
- * This function consumes two automatas - the original automata and the mutant automata to generate traces that cannot be
- * generated by the original automata. The function returns the traces as a traceReport containing both good and bad traces.
- * Parameters:
- *   original - The original automata
- *   mutant - The mutant automata
- *   no_traces - The number of traces to generate
- *   len_traces - The length of the traces
- */
-std::unique_ptr<traceReport> generateTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
-                                            const size_t no_traces, size_t len_traces, const TVL * tvl)
-{
-  std::unique_ptr<traceReport> traces = std::make_unique<traceReport>();
-  for (size_t i = 0; i < no_traces; ++i) {
-    traces->addBadTrace(generateNegativeTraces(original, mutant, len_traces, tvl));
-    traces->addGoodTrace(generateNegativeTraces(mutant, original, len_traces, tvl));
-  }
-  return traces;
 }
 
 void fireNonActionTransition(state * current)

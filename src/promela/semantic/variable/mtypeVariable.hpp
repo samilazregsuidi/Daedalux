@@ -27,6 +27,8 @@ public:
 
 	void printDelta(const variable* other) const override;
 
+	std::list<variable*> getDelta(const variable* other) const override;
+
 	operator std::string(void) const override;
 
 	std::string getValueName(void) const;

@@ -179,7 +179,7 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   ASSERT_TRUE(post_states.size() > 0);
   auto most_similar = most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar != nullptr);
-  ASSERT_EQ(most_similar->delta(current_state) < 0.000000001, true);
+  ASSERT_EQ(most_similar->isSame(current_state), true);
 }
 
 
