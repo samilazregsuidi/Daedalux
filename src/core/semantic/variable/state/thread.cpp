@@ -221,14 +221,16 @@ void thread::printGraphViz(unsigned long i) const {}
 
 float thread::deltaProcess(const thread * s2) const
 {
-  auto node = getFsmNodePointer();
-  auto otherNode = s2->getFsmNodePointer();
-  if (node == nullptr && otherNode == nullptr)
-    return 0;
+  return 0;
+  // Ignore for now
+  // auto node = getFsmNodePointer();
+  // auto otherNode = s2->getFsmNodePointer();
+  // if (node == nullptr && otherNode == nullptr)
+  //   return 0;
 
-  float lineNbThis = node ? node->getLineNb() : 0;
-  float lineNbOther = otherNode ? otherNode->getLineNb() : 0;
-  return (float)(std::abs(lineNbThis - lineNbOther)) / (lineNbThis + lineNbOther);
+  // float lineNbThis = node ? node->getLineNb() : 0;
+  // float lineNbOther = otherNode ? otherNode->getLineNb() : 0;
+  // return (float)(std::abs(lineNbThis - lineNbOther)) / (lineNbThis + lineNbOther);
 }
 
 float thread::delta(const variable * s2) const

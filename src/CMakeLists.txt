@@ -146,10 +146,14 @@ add_library(daedalux_lib STATIC
 	algorithm/traceGenerator.cpp
 	algorithm/bisimulationChecker.cpp
 
+	mutants/mutantAnalyzer.cpp
 
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp
 	visualizer/traceReport.cpp
+
+	formulas/formulaCreator.cpp
+
 )
 
 target_include_directories(daedalux_lib
@@ -326,6 +330,10 @@ add_executable(daedalux
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp
 	visualizer/traceReport.cpp
+
+	mutants/mutantAnalyzer.cpp
+
+	formulas/formulaCreator.cpp
     
 	)
 

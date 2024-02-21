@@ -1,5 +1,6 @@
 #include "mutant_subcommand.hpp"
 #include "traceGenerator.hpp"
+#include "../mutants/mutantAnalyzer.hpp"
 
 void setup_subcommand_mutations(CLI::App & app)
 {
@@ -17,15 +18,15 @@ void setup_subcommand_mutations(CLI::App & app)
   // Set the run function as callback to be called when this subcommand is issued.
   sub->callback([opt]() { generate_mutants(*opt); });
 
-  auto genTopt = std::make_shared<GenTracesOptions>();
+  auto genTraceOpt = std::make_shared<GenTracesOptions>();
 
   sub = app.add_subcommand("gen-traces", "Generate positives and negatives traces from an original and a mutant file");
-  sub->add_option("-o, --original", genTopt->original_file, "Original promela file to explore")->check(CLI::ExistingFile)->required();
-  sub->add_option("-m, --mutant", genTopt->mutant_file, "Mutant promela file to explore")->check(CLI::ExistingFile)->required();
-  sub->add_option("-l, --l_traces", genTopt->traces_length, "Length of traces")->required();
-  sub->add_option("-n, --nb_traces", genTopt->nb_traces, "Number of traces to generate")->required();
+  sub->add_option("-o, --original", genTraceOpt->original_file, "Original promela file to explore")->check(CLI::ExistingFile)->required();
+  sub->add_option("-m, --mutant", genTraceOpt->mutant_file, "Mutant promela file to explore")->check(CLI::ExistingFile)->required();
+  sub->add_option("-l, --l_traces", genTraceOpt->traces_length, "Length of traces")->required();
+  sub->add_option("-n, --nb_traces", genTraceOpt->nb_traces, "Number of traces to generate")->required();
 
-  sub->callback([genTopt]() { generateMutantTraces(genTopt->original_file, genTopt->mutant_file, genTopt->traces_length, genTopt->nb_traces); });
+  sub->callback([genTraceOpt]() { generateMutantTraces(genTraceOpt->original_file, genTraceOpt->mutant_file, genTraceOpt->traces_length, genTraceOpt->nb_traces); });
 
 }
 
@@ -33,49 +34,10 @@ void generate_mutants(const MutantsOptions & opt)
 {
   std::cout << "Generating " << opt.number_of_mutants << " mutants from " << opt.input_file << std::endl;
   // Load promela file
-  auto loader = std::make_unique<promela_loader>(opt.input_file, nullptr);
-  stmnt * program = loader->getProgram();
+  MutantAnalyzer mutantAnalyzer(opt.input_file, opt.property_file);
+  mutantAnalyzer.createMutants(opt.number_of_mutants);
 
-  unsigned int index = program->assignMutables();
-  std::cout << "NUMBER OF MUTABLE NODES " << index << std::endl;
-
-  // Folder of the original program
-  std::string folder = opt.input_file.substr(0, opt.input_file.find_last_of("/"));
-  std::string mutant_folder = folder + "/mutants";
-  std::string property_file_name = opt.property_file.substr(opt.input_file.find_last_of("/") + 1);
-
-  // Write original program to file so that it can be used by the mutation operators
-  // Create folder for mutants if it does not exist
-  if (!std::filesystem::exists(mutant_folder)) {
-    std::filesystem::create_directory(mutant_folder);
-    std::cout << "Created folder " << mutant_folder << std::endl;
-  }
-
-  std::ofstream output;
-  output.open(mutant_folder + "/original.pml");
-  output << "#include \"../" << property_file_name << "\"" << std::endl << std::endl;
-  output << stmnt::string(program);
-  output.close();
-
-  // Generate mutants
-  for (unsigned int j = 0; j < opt.number_of_mutants; j++) {
-    for (unsigned int i = 1; i <= index; i++) {
-      // Generate mutant by mutating the original program and writing it to a file
-      auto copy = program->deepCopy();
-      astNode::mutate(copy, i);
-      std::string file_name = mutant_folder + "/mutant_" + std::to_string(j * index + i) + ".pml";
-      output.open(file_name);
-      // Write property file to mutant folder as well
-      output << "#include \"../" << property_file_name << "\"" << std::endl << std::endl;
-      output << stmnt::string(copy);
-      output.close();
-      delete copy;
-    }
-  }
-
-  std::cout << "Generated " << opt.number_of_mutants * index << " mutants" << std::endl;
   // Generate traces for mutants
-  generateMutantTraces(opt.input_file, mutant_folder + "/mutant_1.pml", 100, 100);
 }
 
 bool fileExists(const std::string & filename)
@@ -92,9 +54,7 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
 
   // Load promela files using smart pointers
   std::unique_ptr<promela_loader> loader_mutant = std::make_unique<promela_loader>(mutant_file, nullptr);
-
   std::shared_ptr<fsm> fsm_mutant = loader_mutant->getAutomata();
-
   std::unique_ptr<promela_loader> loader_original = std::make_unique<promela_loader>(original_file, nullptr);
   auto fsm_original = loader_original->getAutomata();
 

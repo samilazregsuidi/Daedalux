@@ -224,7 +224,7 @@ TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state_front = current_state->Post().front();
   std::list<state *> post_states_1 = {post_state_front, current_state};
-  auto post_state_back = current_state->Post().back();
+  auto post_state_back = current_state->Post().back()->Post().front();
   // The two states are different
   ASSERT_TRUE(post_state_back->delta(current_state) > 0.0000001);
   std::list<state *> post_states_2 = {post_state_back, current_state};

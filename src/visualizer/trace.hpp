@@ -1,25 +1,25 @@
 #pragma once
 
 #include <iostream>
-#include <sstream>
-#include <list>
 #include <memory> // Include for smart pointers
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "state.hpp"
 #include "transition.hpp"
 
 class trace {
 private:
-  std::list<std::shared_ptr<transition>> transitions = std::list<std::shared_ptr<transition>>();
-  std::list<std::shared_ptr<state>> states = std::list<std::shared_ptr<state>>();
+  std::vector<std::shared_ptr<transition>> transitions = std::vector<std::shared_ptr<transition>>();
+  std::vector<std::shared_ptr<state>> states = std::vector<std::shared_ptr<state>>();
 
 public:
   trace();
   trace(const trace & other);
   trace(const trace * other);
-  trace(std::list<std::shared_ptr<transition>> transitions, std::list<std::shared_ptr<state>> states);
-  trace(std::list<std::shared_ptr<state>> states);
+  trace(std::vector<std::shared_ptr<transition>> transitions, std::vector<std::shared_ptr<state>> states);
+  trace(std::vector<std::shared_ptr<state>> states);
 
   ~trace();
 
@@ -27,21 +27,24 @@ public:
 
   bool containState(const std::shared_ptr<state> s) const;
 
-  std::list<std::shared_ptr<transition>> getTransitions() const { return this->transitions; }
-  std::list<std::shared_ptr<state>> getStates() const { return this->states; }
+  std::vector<std::shared_ptr<transition>> getTransitions() const { return this->transitions; }
+  std::vector<std::shared_ptr<state>> getStates() const { return this->states; }
 
   void addTransition(std::shared_ptr<transition> t) { this->transitions.push_back(t); }
   void addState(std::shared_ptr<state> s) { this->states.push_back(s); }
 
+  void removeTransitionAt(int index) { this->transitions.erase(this->transitions.begin() + index); }
+  void removeStateAt(int index) { this->states.erase(this->states.begin() + index); }
+
   size_t size() const { return this->transitions.size(); }
 
-  void addTransitions(const std::list<std::shared_ptr<transition>> & Ts)
+  void addTransitions(const std::vector<std::shared_ptr<transition>> & Ts)
   {
     for (auto t : Ts) {
       this->addTransition(t);
     }
   }
-  void addStates(const std::list<std::shared_ptr<state>> & Ss)
+  void addStates(const std::vector<std::shared_ptr<state>> & Ss)
   {
     for (auto s : Ss) {
       this->addState(s);
@@ -76,22 +79,23 @@ public:
 
   friend bool operator==(const trace & lhs, const trace & rhs)
   {
-    bool sameStates = lhs.getStates().size() == rhs.getStates().size();
-    bool sameTransitions = lhs.getTransitions().size() == rhs.getTransitions().size();
-    if (!sameStates || !sameTransitions) {
+    auto l_states = lhs.getStates();
+    auto r_states = rhs.getStates();
+    int lhs_number_of_states = l_states.size();
+    int rhs_number_of_states = r_states.size();
+    auto lhs_number_of_transitions = lhs.getTransitions().size();
+    auto rhs_number_of_transitions = rhs.getTransitions().size();
+    if (lhs_number_of_states != rhs_number_of_states || lhs_number_of_transitions != rhs_number_of_transitions) {
       return false;
     }
-    if (lhs.getStates().size() == 0 && lhs.getTransitions().size() == 0) {
-      return true;
+    else {
+      if (lhs_number_of_states == 0 || lhs_number_of_transitions == 0) {
+        return true;
+      }
     }
-    std::vector<std::shared_ptr<state>> l_states{std::begin(lhs.getStates()), std::end(lhs.getStates())};
-    std::vector<std::shared_ptr<state>> r_states{std::begin(rhs.getStates()), std::end(rhs.getStates())};
-    std::vector<std::shared_ptr<transition>> l_transitions{std::begin(lhs.getTransitions()), std::end(lhs.getTransitions())};
-    std::vector<std::shared_ptr<transition>> r_transitions{std::begin(rhs.getTransitions()), std::end(rhs.getTransitions())};
 
-    for (int i = 0; i < (int)lhs.getStates().size(); i++) {
-      if (l_states[i]->delta(r_states[i].get()) != 0) {
-
+    for (int i = 0; i < lhs_number_of_states; i++) {
+      if (l_states[i]->isSame(r_states[i].get()) == false) {
         return false;
       }
     }

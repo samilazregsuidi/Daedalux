@@ -24,8 +24,8 @@ public:
     };
 
     elementStack() = default; //constructors
-    //destructors
-    ~elementStack() = default;
+    
+    ~elementStack() = default; //destructors
 
     void push(std::shared_ptr<state> s, int depth = 0);
 

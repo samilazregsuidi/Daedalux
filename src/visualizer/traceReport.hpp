@@ -26,6 +26,7 @@ public:
 
     void printCSV(std::ostream& goodTraceFile, std::ostream& badTraceFile) const;
 
-    std::unique_ptr<traceReport> removeCommonPrefixes();
+    void removeCommonPrefixes();
 
+    int getShortestTraceLength() const;
 };

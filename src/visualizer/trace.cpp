@@ -16,13 +16,13 @@ trace::trace(const trace * other)
   this->addStates(other->getStates());
 }
 
-trace::trace(std::list<std::shared_ptr<transition>> transitions, std::list<std::shared_ptr<state>> states)
+trace::trace(std::vector<std::shared_ptr<transition>> transitions, std::vector<std::shared_ptr<state>> states)
 {
   this->addTransitions(transitions);
   this->addStates(states);
 }
 
-trace::trace(std::list<std::shared_ptr<state>> states) { this->addStates(states); }
+trace::trace(std::vector<std::shared_ptr<state>> states) { this->addStates(states); }
 
 trace::~trace() = default;
 
@@ -37,8 +37,7 @@ void trace::findDistinguishingFormula(const std::shared_ptr<trace> t)
   while (current_trace_it != this->states.end() && other_trace_it != t->states.end()) {
     auto next_state_current = *current_trace_it;
     auto next_state_other = *other_trace_it;
-    auto isSimilar = next_state_current->delta(next_state_other.get()) < 0.000001;
-    if (!isSimilar) {
+    if (!next_state_current->isSame(next_state_other.get())) {
       // The states are different, so we need to inspect what distinguishes them.
       std::cout << "The states are different, so we need to inspect what distinguishes them." << std::endl;
       auto delta_var = next_state_current->getDelta(next_state_other.get());

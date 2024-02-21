@@ -228,6 +228,17 @@ bool variable::hasVariables(void) const { return getVariables().size() > 0; }
 
 std::list<variable *> variable::getVariables(void) const { return varList; }
 
+std::list<variable *> variable::getAllVariables(void) const
+{
+  std::list<variable *> res;
+  for (auto var : varList) {
+    res.push_back(var);
+    auto subVars = var->getAllVariables();
+    res.insert(res.end(), subVars.begin(), subVars.end());
+  }
+  return res;
+}
+
 variable::operator std::string(void) const
 {
   std::string res;
@@ -282,7 +293,9 @@ float variable::delta(const variable * v2) const
     return 1;
 
   for (auto var : varList) {
-    auto v = v2->getVariable(var->getLocalName());
+    auto name = var->getLocalName();
+    //std::cout << "name: " << name << std::endl;
+    auto v = v2->getVariable(name);
     res += var->delta(v);
   }
 

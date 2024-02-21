@@ -1,4 +1,5 @@
 #include "traceReport.hpp"
+#include <limits>
 
 const std::unordered_set<std::shared_ptr<trace>> & traceReport::getGoodTraces() const { return goodTraces; }
 const std::unordered_set<std::shared_ptr<trace>> & traceReport::getBadTraces() const { return badTraces; }
@@ -39,35 +40,48 @@ void traceReport::printCSV(std::ostream & goodTraceFile, std::ostream & badTrace
   }
 }
 
-std::unique_ptr<traceReport> traceReport::removeCommonPrefixes()
+// This function removes common prefixes from all the traces in the report.
+void traceReport::removeCommonPrefixes()
 {
-  assert(goodTraces.size() == 1);
-  assert(badTraces.size() == 1);
-  auto goodTrace = *goodTraces.begin();
-  auto badTrace = *badTraces.begin();
-  auto goodStates = goodTrace->getStates();
-  auto badStates = badTrace->getStates();
-  auto good_state_it = goodStates.begin();
-  auto bad_state_it = badStates.begin();
-
-  while (good_state_it != goodStates.end() && bad_state_it != badStates.end()) {
-    auto goodState = *good_state_it;
-    auto badState = *bad_state_it;
-    if (goodState->delta(badState.get()) < 0.000001) {
-      good_state_it++;
-      bad_state_it++;
-      // Remove the common prefix
-      goodStates.pop_front();
-      badStates.pop_front();
+  int shortest = this->getShortestTraceLength();
+  int index = 0; // The index of the state to remove and the index of the state to compare with is always 0
+  for (int i = 0; i < shortest; i++) {
+    bool all_traces_have_same_state = true;
+    auto first_state = this->goodTraces.begin()->get()->getStates().front();
+    for (auto & good_trace : this->goodTraces) {
+      if (!good_trace->getStates().front()->isSame(first_state.get())) {
+        all_traces_have_same_state = false;
+        break;
+      }
+    }
+    for (auto & bad_trace : this->badTraces) {
+      if (!bad_trace->getStates().front()->isSame(first_state.get())) {
+        all_traces_have_same_state = false;
+        break;
+      }
+    }
+    if (all_traces_have_same_state) {
+      for (auto & good_trace : this->goodTraces) {
+        good_trace->removeStateAt(index);
+      }
+      for (auto & bad_trace : this->badTraces) {
+        bad_trace->removeStateAt(index);
+      }
     }
     else {
       break;
     }
   }
-  auto newGoodTrace = std::make_shared<trace>(goodStates);
-  auto newBadTrace = std::make_shared<trace>(badStates);
-  auto newTraceReport = std::make_unique<traceReport>();
-  newTraceReport->addGoodTrace(newGoodTrace);
-  newTraceReport->addBadTrace(newBadTrace);
-  return newTraceReport;
+}
+
+int traceReport::getShortestTraceLength(void) const
+{
+  int shortest = std::numeric_limits<int>::max();
+  for (const auto & t : this->goodTraces) {
+    shortest = std::min(shortest, (int)t->size());
+  }
+  for (const auto & t : this->badTraces) {
+    shortest = std::min(shortest, (int)t->size());
+  }
+  return shortest;
 }

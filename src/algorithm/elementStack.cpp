@@ -40,8 +40,8 @@ void elementStack::push(std::shared_ptr<state> s, int depth){
 }
     
 void elementStack::pop(void) {
-	auto t = stackElem.top();
-	auto hash = t->s->hash();
+	auto top = stackElem.top();
+	auto hash = top->s->hash();
 	
 	stackElem.pop();
 	setElem.erase(hash);

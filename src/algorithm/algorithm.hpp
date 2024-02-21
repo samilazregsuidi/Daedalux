@@ -5,8 +5,6 @@ class fsm;
 class symTable;
 
 class algorithm {
-    
-
     virtual void execute(const fsm* automata) = 0;
     
 };

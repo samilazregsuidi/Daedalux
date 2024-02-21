@@ -14,7 +14,7 @@
 #include "test_ADDutils.cpp"
 
 
-// VIZUALIZER - TESTS
+// VISUALIZER - TESTS
 #include "vizualizers/test_trace.cpp"
 #include "vizualizers/test_traceReport.cpp"
 #include "vizualizers/test_stateToGraphViz.cpp"
@@ -32,6 +32,12 @@
 #include "integration_tests/test_icse_test.cpp"
 #include "integration_tests/test_trace_generator.cpp"
 #include "integration_tests/test_bisimulation.cpp"
+
+#include "integration_tests/test_formula_creator.cpp"
+#include "integration_tests/test_mutant_handling.cpp"
+
+// Add your test files here
+
 
 
 int main(int argc, char **argv) {

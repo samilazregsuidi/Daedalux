@@ -21,7 +21,7 @@ reachabilityRelation::reachabilityRelation()
 }
 
 reachabilityRelation::~reachabilityRelation() {
-	for(auto elem : map)
+	for(auto elem : stateMap)
 		delete elem.second;
 }
 
@@ -38,8 +38,8 @@ void reachabilityRelation::setDFS(dfs dfs) {
 
 byte reachabilityRelation::getStatus(state* s) {
 	auto s_Hash = s->hash();
-	auto foundIt = map.find(s_Hash);
-	if(foundIt != map.end()) {
+	auto foundIt = stateMap.find(s_Hash);
+	if(foundIt != stateMap.end()) {
 		getStatusVisitor v = getStatusVisitor(foundIt->second, s, dfsIn);
 		assert(v.res != STATES_S1_NEVER_VISITED);
 		return v.res;
@@ -51,17 +51,17 @@ byte reachabilityRelation::getStatus(state* s) {
 
 void reachabilityRelation::update(state* s_) {
 	auto s_Hash = s_->hash();
-	auto foundIt = map.find(s_Hash);
-	if(foundIt != map.end()) {
+	auto foundIt = stateMap.find(s_Hash);
+	if(foundIt != stateMap.end()) {
 		updateVisitor v = updateVisitor(this, foundIt->second, s_, dfsIn, tvl);
 	} else {
-		map[s_->hash()] = stateToRState(s_, dfsIn);
+		stateMap[s_->hash()] = stateToRState(s_, dfsIn);
 	}
 }
 
 reachabilityRelation::dfs reachabilityRelation::lastFoundIn(state* s) const {
-	auto it = map.find(s->hash());
-	assert(it != map.end());
+	auto it = stateMap.find(s->hash());
+	assert(it != stateMap.end());
 	return it->second->lastFoundIn;
 }
 
@@ -296,9 +296,7 @@ void reachabilityRelation::getStatusVisitor::visit(compState* s) {
 		s->secret = "DIFF";
 		return;
 	}
-
 	else if (comp == STATES_SAME_S1_VISITED) {
-	 	
 		auto save = current;
 		for(auto s : s->getSubStates()) {
 			current = current->getSubHtState(s);

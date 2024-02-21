@@ -1,9 +1,9 @@
 #ifndef REACHABILITY_RELATION_H
 #define REACHABILITY_RELATION_H
 
+#include <list>
 #include <memory>
 #include <stack>
-#include <list>
 
 #include "state.hpp"
 #include "tvl.hpp"
@@ -16,188 +16,175 @@ typedef unsigned char ubyte;
 class reachabilityRelation {
 
 public:
+  enum status { S_NEW, S_VISITED, S_FRESH };
 
-    enum status {
-        S_NEW,
-        S_VISITED,
-        S_FRESH
-    };
-
-    enum dfs {
-        DFS_OUTER,
-        DFS_INNER
-    };
+  enum dfs { DFS_OUTER, DFS_INNER };
 
 private:
-    class RState {
-    public:
-        RState(const state* s, 
-                dfs lastFoundIn)
-            : vId(s->getVariableId())
-            , hash(s->hash())
-            , lastFoundIn(lastFoundIn)
-        {}
-        
-        /*RState(const state* s, dfs lastFoundIn, const ADD& outerFeatures, const ADD& innerFeatures) 
-            : vId(s->getVariableId())
-            , hash(s->hash())
-            , lastFoundIn(lastFoundIn)
-            , outerFeatures(outerFeatures)
-            , innerFeatures(innerFeatures)
-        {
-        }*/
+  class RState {
+  public:
+    RState(const state * s, dfs lastFoundIn) : vId(s->getVariableId()), hash(s->hash()), lastFoundIn(lastFoundIn) {}
 
-        ~RState() {
-            for(auto subS : subStates) {
-                delete subS;
-            }
-        }
+    /*RState(const state* s, dfs lastFoundIn, const ADD& outerFeatures, const ADD& innerFeatures)
+        : vId(s->getVariableId())
+        , hash(s->hash())
+        , lastFoundIn(lastFoundIn)
+        , outerFeatures(outerFeatures)
+        , innerFeatures(innerFeatures)
+    {
+    }*/
 
-        RState* getSubHtState(const state* s) {
-            for(auto htS : subStates)  {
-                if(htS->hash == s->hash() && s->getVariableId() == htS->vId)
-                    return htS;
-            }
-            return nullptr;
-        }
+    ~RState()
+    {
+      for (auto subS : subStates) {
+        delete subS;
+      }
+    }
 
-    public:
-        unsigned int vId;
-        unsigned long hash;
-        dfs lastFoundIn;
-        ADD outerFeatures;
-        ADD innerFeatures;
-    
+    RState * getSubHtState(const state * s)
+    {
+      for (auto htS : subStates) {
+        if (htS->hash == s->hash() && s->getVariableId() == htS->vId)
+          return htS;
+      }
+      return nullptr;
+    }
 
-        std::list<RState*> subStates;
-    };
+  public:
+    unsigned int vId;
+    unsigned long hash;
+    dfs lastFoundIn;
+    ADD outerFeatures;
+    ADD innerFeatures;
 
-    class component {
-    public:
-        std::string name;
-        ADD productToVisit;
-        ADD productFail;
-        bool allProductsFail;
-    };
+    std::list<RState *> subStates;
+  };
+
+  class component {
+  public:
+    std::string name;
+    ADD productToVisit;
+    ADD productFail;
+    bool allProductsFail;
+  };
 
 public:
-    reachabilityRelation(void);
+  reachabilityRelation(void);
 
-    virtual ~reachabilityRelation();
+  virtual ~reachabilityRelation();
 
-    void init(state* init);
+  void init(state * init);
 
-    void setDFS(dfs current);
+  void setDFS(dfs current);
 
-    //delete filtered state
-    const reachabilityRelation* filter(byte s, std::list<state*>& toFilter) const; 
-   
-    byte getStatus(state* s);
-    
-    dfs lastFoundIn(state* s) const;
-    
-    void update(state* s);
+  // delete filtered state
+  const reachabilityRelation * filter(byte s, std::list<state *> & toFilter) const;
 
-    void addTraceViolation(state* loop);
+  byte getStatus(state * s);
 
-    bool isComplete(void);
+  dfs lastFoundIn(state * s) const;
 
-    bool hasErrors(void) const;
+  void update(state * s);
 
-    ADD getFailedProducts(void) const;
+  void addTraceViolation(state * loop);
+
+  bool isComplete(void);
+
+  bool hasErrors(void) const;
+
+  ADD getFailedProducts(void) const;
 
 private:
-    class stateToRState : public stateVisitor {
-    public:
-        stateToRState(state* s, dfs dfsIn);
-        operator RState*(void) const;
+  class stateToRState : public stateVisitor {
+  public:
+    stateToRState(state * s, dfs dfsIn);
+    operator RState *(void) const;
 
-    private:
-        void visit(state* s) override;
-        void visit(process* s) override;
-        void visit(progState* s) override;
-        void visit(compState* s) override;
-        void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
-   
-    public:
-        dfs dfsIn;
-        RState* res;
-    };
+  private:
+    void visit(state * s) override;
+    void visit(process * s) override;
+    void visit(progState * s) override;
+    void visit(compState * s) override;
+    void visit(never * s) override;
+    void visit(featStateDecorator * s) override;
 
-    class getStatusVisitor : public stateVisitor {
-    public:
-        getStatusVisitor(RState* rstate, state* s, dfs dfsIn);
-
-    private:
-        void visit(state* s) override;
-        void visit(process* s) override;
-        void visit(progState* s) override;
-        void visit(compState* s) override;
-        void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
-    
-    public:
-        RState* current;
-        dfs dfsIn;
-        byte res;
-    };
-
-    class updateVisitor : public stateVisitor {
-    public:
-        updateVisitor(reachabilityRelation* R, RState* rstate, state* s, dfs dfsIn, const TVL* tvl);
-
-    private:
-        void visit(state* s) override;
-        void visit(process* s) override;
-        void visit(progState* s) override;
-        void visit(compState* s) override;
-        void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
-    
-    public:
-        RState* current;
-        std::string nameComp;
-        reachabilityRelation* R;
-        dfs dfsIn;
-    };
-
-    class compBuilder : public stateVisitor {
-    public:
-        void visit(state* s) override;
-        void visit(process* s) override;
-        void visit(progState* s) override;
-        void visit(compState* s) override;
-        void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
-    public:
-        reachabilityRelation* R;
-    };
-
-    class violationsVisitor : public stateVisitor {
-    public:
-        bool isViolationsComplete(void) const;
-
-    public:
-        void visit(state* s) override;
-        void visit(process* s) override;
-        void visit(progState* s) override;
-        void visit(compState* s) override;
-        void visit(never* s) override;
-        void visit(featStateDecorator* s) override;
-    
-    public:
-        reachabilityRelation* R;
-    };
-
-public:
-    std::map<unsigned long, RState*> map; 
+  public:
     dfs dfsIn;
-    const TVL* tvl;
-    unsigned int nbErrors;
-    std::map<std::string, component*> compMap;
+    RState * res;
+  };
+
+  class getStatusVisitor : public stateVisitor {
+  public:
+    getStatusVisitor(RState * rstate, state * s, dfs dfsIn);
+
+  private:
+    void visit(state * s) override;
+    void visit(process * s) override;
+    void visit(progState * s) override;
+    void visit(compState * s) override;
+    void visit(never * s) override;
+    void visit(featStateDecorator * s) override;
+
+  public:
+    RState * current;
+    dfs dfsIn;
+    byte res;
+  };
+
+  class updateVisitor : public stateVisitor {
+  public:
+    updateVisitor(reachabilityRelation * R, RState * rstate, state * s, dfs dfsIn, const TVL * tvl);
+
+  private:
+    void visit(state * s) override;
+    void visit(process * s) override;
+    void visit(progState * s) override;
+    void visit(compState * s) override;
+    void visit(never * s) override;
+    void visit(featStateDecorator * s) override;
+
+  public:
+    RState * current;
+    std::string nameComp;
+    reachabilityRelation * R;
+    dfs dfsIn;
+  };
+
+  class compBuilder : public stateVisitor {
+  public:
+    void visit(state * s) override;
+    void visit(process * s) override;
+    void visit(progState * s) override;
+    void visit(compState * s) override;
+    void visit(never * s) override;
+    void visit(featStateDecorator * s) override;
+
+  public:
+    reachabilityRelation * R;
+  };
+
+  class violationsVisitor : public stateVisitor {
+  public:
+    bool isViolationsComplete(void) const;
+
+  public:
+    void visit(state * s) override;
+    void visit(process * s) override;
+    void visit(progState * s) override;
+    void visit(compState * s) override;
+    void visit(never * s) override;
+    void visit(featStateDecorator * s) override;
+
+  public:
+    reachabilityRelation * R;
+  };
+
+public:
+  std::map<unsigned long, RState *> stateMap;
+  dfs dfsIn;
+  const TVL * tvl;
+  unsigned int nbErrors;
+  std::map<std::string, component *> compMap;
 };
-
-
 
 #endif

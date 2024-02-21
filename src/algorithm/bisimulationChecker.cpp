@@ -9,7 +9,6 @@
 bool BisimulationChecker::isBisimilar(const std::shared_ptr<fsm> fsm1, const std::shared_ptr<fsm> fsm2, const TVL * tvl)
 {
   // Create the initial state for both automata
-
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
   auto current_state_fsm2 = initState::createInitState(fsm2.get(), tvl);
 

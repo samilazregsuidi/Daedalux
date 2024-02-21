@@ -294,13 +294,13 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
     st.pop();
     depth = current->depth;
 
-    auto nexts = current->s->Post();
+    auto successors = current->s->Post();
     // delete current;
 
-    if (nexts.size() > 0) {
+    if (successors.size() > 0) {
       printf("************* next possible states **************\n");
       ++depth;
-      for (auto & n : nexts) {
+      for (auto & n : successors) {
 
         n->PRINT_STATE();
 
@@ -315,7 +315,7 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
           graphVis->printGraphViz(n, depth);
         }
 
-        if (nexts.size() > 1) {
+        if (successors.size() > 1) {
           printf("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
         }
       }
@@ -458,6 +458,7 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
 
         // delete n;
       }
+      // TODO: Sami look at this
       else if (STATES_S1_NEVER_VISITED || STATES_SAME_S1_FRESH) {
         st.push(n, depth);
 
