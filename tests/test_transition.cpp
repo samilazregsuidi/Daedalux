@@ -2,7 +2,7 @@
 #include <list>
 #include <cstdlib>
 #include <memory>
-#include "../src/core/semantic/variable/state/compositeState.hpp"
+#include "../src/core/semantic/variable/state/composite.hpp"
 #include "../src/core/semantic/variable/transition/compositeTransition.hpp"
 
 class TransitionTest : public ::testing::Test {

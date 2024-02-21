@@ -120,7 +120,7 @@ TEST_F(TraceTest, InEqualityOperatorAdvanced)
   auto FSM = loader->getAutomata();
   auto current_state = initState::createInitState(FSM.get(), tvl);
   auto next_state = current_state->Post().front();
-  transition * current_trans = next_state->getOrigin()->deepCopy();
+  //transition * current_trans = next_state->getOrigin()->deepCopy();
   std::shared_ptr<state> curent_state_smart(current_state);
   std::shared_ptr<state> next_state_smart(next_state);
   std::shared_ptr<transition> current_trans_smart(current_trans);
