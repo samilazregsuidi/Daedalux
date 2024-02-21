@@ -8,16 +8,16 @@
 class TVL;
 
 // State
-class featStateDecorator : public stateDecorator {
+class featured : public stateDecorator {
 public:
   // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
-  featStateDecorator(state * wrappee, const ADD & diagram, const TVL * tvl);
+  featured(state * wrappee, const ADD & diagram, const TVL * tvl);
 
-  featStateDecorator(const featStateDecorator * other);
+  featured(const featured * other);
 
   state * deepCopy(void) const override;
 
-  ~featStateDecorator() override;
+  ~featured() override;
 
   std::list<transition *> executables(void) const override;
 

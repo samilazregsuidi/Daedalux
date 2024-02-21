@@ -83,7 +83,7 @@ void stateToGraphViz::visit(process* s) {
 	file <<  _tab() << "s" <<  sId + s->start->getID() << " -> " << sId + s->start->getID() << ";" <<std::endl;
 	
 	auto edges = s->start->getParent()->getTransitions(const_cast<fsmNode*>(s->start));
-	auto firedEdge = s->getOrigin() ? dynamic_cast<const processTransition*>(s->getOrigin())->getEdge() : nullptr;
+	auto firedEdge = s->getOrigin() ? dynamic_cast<const threadTransition*>(s->getOrigin())->getEdge() : nullptr;
 
 	for(auto t : edges){
 		auto exprStr = std::string(*t->getExpression());
@@ -104,7 +104,7 @@ void stateToGraphViz::visit(process* s) {
 	file << std::endl << _tab() << "}";
 }
 
-void stateToGraphViz::visit(progState* s) {
+void stateToGraphViz::visit(program* s) {
 	file <<  _tab() << "subgraph cluster_"<< s->getLocalName() << " {" << std::endl;
 	++tab;
 	file << _tab() << "style=filled;" << std::endl \
@@ -149,7 +149,7 @@ std::string stateToGraphViz::_toInStrDescr(void) const {
 	}
 }
 
-void stateToGraphViz::visit(compState* s) {
+void stateToGraphViz::visit(composite* s) {
 	file <<  _tab() << "subgraph cluster_"<< s->getLocalName() << " {" << std::endl;
 	++tab;
 	file <<  _tab() << "style=filled;" << std::endl \
@@ -186,10 +186,10 @@ void stateToGraphViz::visit(never* s) {
 	
 	auto edges = s->start->getParent()->getTransitions(const_cast<fsmNode*>(s->start));
 	auto trans = s->getOrigin();
-	const neverTransition* castTrans = nullptr;
+	const threadTransition* castTrans = nullptr;
 	const fsmEdge* firedEdge = nullptr;
 	if(trans) {
-		castTrans = dynamic_cast<const neverTransition*>(trans);
+		castTrans = dynamic_cast<const threadTransition*>(trans);
 		firedEdge = castTrans->getEdge();
 	}
 
@@ -212,7 +212,7 @@ void stateToGraphViz::visit(never* s) {
 	file << std::endl <<  _tab() << "}" << std::endl;
 }
 
-void stateToGraphViz::visit(featStateDecorator* s) {
+void stateToGraphViz::visit(featured* s) {
 	//featToPrint = s->choices;
 	featToPrint = s->features;
 	Rfeat = s->R;

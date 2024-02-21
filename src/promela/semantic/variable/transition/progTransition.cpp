@@ -1,24 +1,23 @@
 #include "progTransition.hpp"
-#include "processTransition.hpp"
 #include "transitionVisitor.hpp"
+#include "threadTransition.hpp"
+#include "program.hpp"
 
 #include <assert.h>
 #include <iterator>
 #include <iostream>
 
-progTransition::progTransition(state* s, transition* procTrans) 
+progTransition::progTransition(program* s, threadTransition* procTrans) 
 	: transition(s)
 	, procTrans(procTrans)
 {
 	assert(s);
 	assert(procTrans);
 
-	add(procTrans);
-
 	prob = procTrans->getProbability();
 	assert(prob >= 0 && prob <= 1);
 
-	lines.push_back(dynamic_cast<processTransition*>(procTrans)->getLineNb());
+	//lines.push_back(dynamic_cast<processTransition*>(procTrans)->getLineNb());
 
 	action = procTrans->action;
 
@@ -26,18 +25,15 @@ progTransition::progTransition(state* s, transition* procTrans)
 
 progTransition::progTransition(const progTransition* other)
 	: transition(other)
-	, procTrans(other->procTrans)
+	, procTrans(dynamic_cast<threadTransition*>(other->procTrans->deepCopy()))
 {
-	auto it = subTs.begin();
-	procTrans = *it;
-	if(++it != subTs.end())
-		procTrans = *it;
 }
 
 progTransition::~progTransition() {
+	delete procTrans;
 }
 
-transition* progTransition::getProcTrans(void) const {
+threadTransition* progTransition::getProcTrans(void) const {
 	return procTrans;
 }
 
@@ -52,4 +48,15 @@ void progTransition::accept(transitionVisitor* visitor) {
 bool progTransition::operator==(const transition* other) const {
 	auto cast = dynamic_cast<const progTransition*>(other);
 	return *procTrans == cast->procTrans;
+}
+
+float progTransition::similarity(const transition* other) const {
+	auto cast = dynamic_cast<const progTransition*>(other);
+	return procTrans->similarity(cast->procTrans);
+}
+
+void progTransition::print(void) const {
+	std::cout << "progTransition: ";
+	procTrans->print();
+	std::cout << std::endl;
 }

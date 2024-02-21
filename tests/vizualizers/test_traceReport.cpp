@@ -2,7 +2,7 @@
 #include <memory>
 #include <sstream>
 
-#include "../../src/core/semantic/variable/state/compositeState.hpp"
+#include "../../src/core/semantic/variable/state/composite.hpp"
 #include "../../src/core/semantic/variable/transition/compositeTransition.hpp"
 #include "../../src/visualizer/trace.hpp"
 #include "../../src/visualizer/traceReport.hpp"
@@ -28,7 +28,7 @@ TEST_F(TraceReportTest, Test) { ASSERT_TRUE(true); }
 TEST_F(TraceReportTest, AddBadTraceAndGetBadTraces)
 {
   std::list<transition *> transList = std::list<transition *>();
-  std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+  std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
 
   std::shared_ptr<trace> t1 = std::make_shared<trace>();
@@ -48,7 +48,7 @@ TEST_F(TraceReportTest, AddBadTraceAndGetBadTraces)
 TEST_F(TraceReportTest, AddGoodTraceAndGetGoodTraces)
 {
   std::list<transition *> transList = std::list<transition *>();
-  std::shared_ptr<state> state = std::make_shared<compState>("test_variable");
+  std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
 
   std::shared_ptr<trace> t1 = std::make_shared<trace>();

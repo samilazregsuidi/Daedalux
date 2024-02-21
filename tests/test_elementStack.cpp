@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "../src/algorithm/elementStack.hpp"
-#include "../../src/core/semantic/variable/state/compositeState.hpp"
+#include "../../src/core/semantic/variable/state/composite.hpp"
 
 // Test fixture for the elementStack class
 class ElementStackTest : public ::testing::Test {
@@ -22,7 +22,7 @@ protected:
 
 // Test the push and top functions
 TEST_F(ElementStackTest, PushAndTop) {
-    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<composite>("init_state");
     std::cout << "initialState: " << initialState->getFullName() << std::endl;
     s->push(initialState, 0);
     std::cout << "top: " << s->top()->s->getFullName() << std::endl;
@@ -40,7 +40,7 @@ TEST_F(ElementStackTest, PushAndTop) {
 
 // Test the isIn function
 TEST_F(ElementStackTest, IsIn) {
-    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<composite>("init_state");
 
     s->push(initialState, 0);
     ASSERT_TRUE(s->isIn(initialState->hash()));
@@ -53,7 +53,7 @@ TEST_F(ElementStackTest, IsIn) {
 TEST_F(ElementStackTest, Empty) {
     ASSERT_TRUE(s->empty());
 
-    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<composite>("init_state");
     s->push(initialState, 0);
     ASSERT_FALSE(s->empty());
 
@@ -63,7 +63,7 @@ TEST_F(ElementStackTest, Empty) {
 
 // Test the pop function
 TEST_F(ElementStackTest, Pop) {
-    std::shared_ptr<state> initialState = std::make_shared<compState>("init_state");
+    std::shared_ptr<state> initialState = std::make_shared<composite>("init_state");
     std::cout << "initialState: " << initialState->getFullName() << std::endl;
     s->push(initialState, 0);
     ASSERT_FALSE(s->empty());

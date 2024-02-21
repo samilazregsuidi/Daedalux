@@ -25,7 +25,6 @@ channel::channel(const chanSymNode* chanSym, unsigned int index)
 			}
 		}
 	} else {
-		unsigned int fieldIndex = 0;
 		for(auto typeSym: chanSym->getTypeList()){
 			for(unsigned int j = 0; j < typeSym->getBound(); ++j){
 				//auto msgField = new channelField(typeSym, fieldIndex++, 0, j);

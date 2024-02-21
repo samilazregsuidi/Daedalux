@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "programState.hpp"
+#include "program.hpp"
 #include "rendezVousTransition.hpp"
 #include "thread.hpp"
 #include "transition.hpp"
@@ -17,8 +17,13 @@
 
 #include "initState.hpp"
 
-thread::thread(variable::Type type, const seqSymNode * sym, const fsmNode * start, unsigned int index)
-    : state(type, sym->getName()), symType(sym), index(index), start(start), _else(false)
+thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
+	: state(type, sym->getName())
+	, symType(sym)
+	, index(index)
+	, start(start)
+	, _else(false)
+	, pid(pid)
 {
 
   // seq sym node need boud attr. if arrays
@@ -27,22 +32,42 @@ thread::thread(variable::Type type, const seqSymNode * sym, const fsmNode * star
   addRawBytes(sizeof(const fsmNode *));
 }
 
-thread::thread(const thread & other)
-    : state(other), symType(other.symType), index(other.index), start(other.start), _else(other._else)
+thread::thread(const thread& other)
+	: state(other)
+	, symType(other.symType)
+	, index(other.index)
+	, start(other.start)
+	, _else(other._else)
+	, pid(other.pid)
+{}
+
+thread::thread(const thread* other)
+	: state(other)
+	, symType(other->symType)
+	, index(other->index)
+	, start(other->start)
+	, _else(other->_else)
+	, pid(other->pid)
 {
 }
 
-thread::thread(const thread * other)
-    : state(other), symType(other->symType), index(other->index), start(other->start), _else(other->_else)
-{
+void thread::init(void) {
+	//assert(getProgState());
+
+	variable::init();
+	setFsmNodePointer(start);
+
+	variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
 }
 
-void thread::init(void)
-{
-  // assert(getProgState());
+byte thread::getPid(void) const {
+	return payLoad? variable::getTVariable<PIDVar*>("_pid")->getValue() : pid;
+}
 
-  variable::init();
-  setFsmNodePointer(start);
+void thread::setPid(byte pid) {
+	this->pid = pid;
+	if(payLoad)
+		variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }

@@ -1,4 +1,4 @@
-#include "featuredStateDecorator.hpp"
+#include "featured.hpp"
 #include "featuredTransition.hpp"
 
 //bad coupling!
@@ -14,7 +14,7 @@
  * Does not set the payloadHash.
  */
 
-featStateDecorator::featStateDecorator(state* wrappee, const ADD& diagram, const TVL* tvl) 
+featured::featured(state* wrappee, const ADD& diagram, const TVL* tvl) 
 	: stateDecorator(wrappee)
 	, features(tvl->getMgr()->addOne())
 	, diagram(diagram)
@@ -23,18 +23,18 @@ featStateDecorator::featStateDecorator(state* wrappee, const ADD& diagram, const
 {
 }
 
-featStateDecorator::featStateDecorator(const featStateDecorator* other)
+featured::featured(const featured* other)
 	: stateDecorator(other)
 	, features(other->getFeatures())
 	, diagram(other->diagram)
 	, choices(other->choices)
-	, tvl(other->tvl)
 	, R(other->R)
+	, tvl(other->tvl)
 {}
 
 
-state* featStateDecorator::deepCopy(void) const {
-	featStateDecorator* copy = new featStateDecorator(this);
+state* featured::deepCopy(void) const {
+	featured* copy = new featured(this);
 	//auto newScope = deepCopy();
 	//newScope->setPayload(getPayload()->copy());
 	//copy->assign(newScope);
@@ -57,34 +57,34 @@ state* featStateDecorator::deepCopy(void) const {
  * are still used in the visited states hashtable.
  */
 
-featStateDecorator::~featStateDecorator() {
+featured::~featured() {
 }
 
-unsigned long featStateDecorator::hash(void) const {
+unsigned long featured::hash(void) const {
 	return wrappee->hash();
 }
 
-ADD featStateDecorator::getFeatures(void) const {
+ADD featured::getFeatures(void) const {
 	return features;
 }
 
-ADD featStateDecorator::getDiagram(void) const {
+ADD featured::getDiagram(void) const {
 	return diagram;
 }
 
-void featStateDecorator::print(void) const {
+void featured::print(void) const {
 	wrappee->print();
 	printf("\n\n");
 	tvl->printBool(features);
 }
 
-void featStateDecorator::printCSV(std::ostream& out) const {
+void featured::printCSV(std::ostream& out) const {
 	wrappee->printCSV(out);
 	printf("\n\n");
 	tvl->printBool(features);
 }
 
-void featStateDecorator::printCSVHeader(std::ostream& out) const {
+void featured::printCSVHeader(std::ostream& out) const {
 	wrappee->printCSVHeader(out);
 	out << "features,";
 }
@@ -94,7 +94,7 @@ void featStateDecorator::printCSVHeader(std::ostream& out) const {
  * WARNING:
  * 	In the end, does NOT (and must NEVER) modify the state payload.
  */
-std::list<transition*> featStateDecorator::executables(void) const {
+std::list<transition*> featured::executables(void) const {
 
 	std::list<transition*> candidates = wrappee->executables();
 	std::list<transition*> execs;
@@ -130,7 +130,7 @@ std::list<transition*> featStateDecorator::executables(void) const {
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-void featStateDecorator::apply(transition* trans) {
+void featured::apply(transition* trans) {
 	
 	wrappee->apply(trans);
 
@@ -157,15 +157,15 @@ void featStateDecorator::apply(transition* trans) {
 	trans->dst = this;
 }
 
-bool featStateDecorator::constraint(const ADD& cst) {
+bool featured::constraint(const ADD& cst) {
 	features &= cst;
 	return !features.IsZero();
 }
 
-byte featStateDecorator::compare(const state& s2) const {
+byte featured::compare(const state& s2) const {
 	byte res = wrappee->compare(s2);
 	
-	auto featStateS2 = dynamic_cast<const featStateDecorator*>(&s2);
+	auto featStateS2 = dynamic_cast<const featured*>(&s2);
 	if(res == STATES_DIFF || !featStateS2) 
 		return res;
 	
@@ -175,13 +175,13 @@ byte featStateDecorator::compare(const state& s2) const {
 	return STATES_SAME_S1_FRESH;
 }
 
-byte featStateDecorator::compare(const state& s2, const ADD& featS2) const {
+byte featured::compare(const state& s2, const ADD& featS2) const {
 	return compare(s2.hash(), featS2);
 }
 
 #include <iostream>
 
-byte featStateDecorator::compare(unsigned long s2Hash, const ADD& featS2) const {
+byte featured::compare(unsigned long s2Hash, const ADD& featS2) const {
 	byte res = wrappee->compare(s2Hash);
 	
 	if(res == STATES_DIFF)
@@ -200,6 +200,6 @@ byte featStateDecorator::compare(unsigned long s2Hash, const ADD& featS2) const 
 	return STATES_SAME_S1_FRESH;
 }
 
-void featStateDecorator::accept(stateVisitor* visitor) {
+void featured::accept(stateVisitor* visitor) {
 	visitor->visit(this);
 }

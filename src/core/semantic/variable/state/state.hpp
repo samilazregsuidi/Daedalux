@@ -107,7 +107,9 @@ public:
 
 	//static std::list<std::shared_ptr<state>> Post(const state* s);
 
-	virtual state* Post(transition* trans) const;
+	//virtual state* Post(transition* trans) const;
+
+	virtual state* fire(transition* trans) const;
 
 	//static std::shared_ptr<state> Post(transition* trans, const state* s);
 

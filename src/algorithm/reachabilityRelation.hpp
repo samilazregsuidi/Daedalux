@@ -103,10 +103,10 @@ private:
   private:
     void visit(state * s) override;
     void visit(process * s) override;
-    void visit(progState * s) override;
-    void visit(compState * s) override;
+    void visit(program * s) override;
+    void visit(composite * s) override;
     void visit(never * s) override;
-    void visit(featStateDecorator * s) override;
+    void visit(featured * s) override;
 
   public:
     dfs dfsIn;
@@ -120,10 +120,10 @@ private:
   private:
     void visit(state * s) override;
     void visit(process * s) override;
-    void visit(progState * s) override;
-    void visit(compState * s) override;
+    void visit(program * s) override;
+    void visit(composite * s) override;
     void visit(never * s) override;
-    void visit(featStateDecorator * s) override;
+    void visit(featured * s) override;
 
   public:
     RState * current;
@@ -138,10 +138,10 @@ private:
   private:
     void visit(state * s) override;
     void visit(process * s) override;
-    void visit(progState * s) override;
-    void visit(compState * s) override;
+    void visit(program * s) override;
+    void visit(composite * s) override;
     void visit(never * s) override;
-    void visit(featStateDecorator * s) override;
+    void visit(featured * s) override;
 
   public:
     RState * current;
@@ -154,10 +154,10 @@ private:
   public:
     void visit(state * s) override;
     void visit(process * s) override;
-    void visit(progState * s) override;
-    void visit(compState * s) override;
+    void visit(program * s) override;
+    void visit(composite * s) override;
     void visit(never * s) override;
-    void visit(featStateDecorator * s) override;
+    void visit(featured * s) override;
 
   public:
     reachabilityRelation * R;
@@ -170,10 +170,10 @@ private:
   public:
     void visit(state * s) override;
     void visit(process * s) override;
-    void visit(progState * s) override;
-    void visit(compState * s) override;
+    void visit(program * s) override;
+    void visit(composite * s) override;
     void visit(never * s) override;
-    void visit(featStateDecorator * s) override;
+    void visit(featured * s) override;
 
   public:
     reachabilityRelation * R;

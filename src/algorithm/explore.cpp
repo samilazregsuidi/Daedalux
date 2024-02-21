@@ -49,7 +49,7 @@ transition * most_similar_transition(const std::list<transition *> transitions, 
   transition * most_similar = nullptr;
   double max_similarity = 0;
   for (auto t : transitions) {
-    double similarity = t->similarity(current);
+    double similarity = 0;/*t->similarity(current)*/
     if (similarity > max_similarity) {
       max_similarity = similarity;
       most_similar = t;
@@ -641,7 +641,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
         // s_->print();
 
         if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-          printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
+          //printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
 
           R.addTraceViolation(current->s.get());
 
@@ -791,7 +791,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
           printf("Property violated\n");
         }
         else {
-          printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
+          //printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
         }
 
         stackInner.push(s_, _depth + 1);

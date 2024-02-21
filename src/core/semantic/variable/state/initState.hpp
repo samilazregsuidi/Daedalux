@@ -10,7 +10,7 @@ class fsmEdge;
 class state;
 class process;
 class never;
-class progState;
+class program;
 class transition;
 class variable;
 class varSymNode;
@@ -35,7 +35,7 @@ public:
 	
 	static state* createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl, const sysSymNode* sym = nullptr);
 
-	static transition* createTransition(const fsmEdge* edge, state* s, process* proc, transition* response = nullptr);
+	static transition* createTransition(const fsmEdge* edge, program* s, process* proc, transition* response = nullptr);
 };
 
 #endif

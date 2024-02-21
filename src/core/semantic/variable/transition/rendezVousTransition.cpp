@@ -1,5 +1,4 @@
 #include "rendezVousTransition.hpp"
-#include "processTransition.hpp"
 #include "transitionVisitor.hpp"
 
 #include "fsmEdge.hpp"
@@ -17,18 +16,15 @@ rendezVousTransition::rendezVousTransition(state* s, transition* question, trans
 	assert(s);
 	assert(question);
 
-	add(question);
-	add(response);
-
 	prob = question->getProbability() * (response ? response->getProbability() : 1.0);
 	assert(prob >= 0 && prob <= 1);
 
-	lines.push_back(dynamic_cast<processTransition*>(question)->getLineNb());
+	/*lines.push_back(dynamic_cast<processTransition*>(question)->getLineNb());
 	if(response){
 		auto casted = dynamic_cast<processTransition*>(response);
 		if (casted)
 			lines.push_back(casted->getLineNb());
-	}
+	}*/
 
 	action = question->action;
 
@@ -39,13 +35,15 @@ rendezVousTransition::rendezVousTransition(const rendezVousTransition* other)
 	, question(nullptr)
 	, response(nullptr)
 {
-	auto it = subTs.begin();
-	question = *it;
-	if(++it != subTs.end())
-		response = *it;
+	question = other->question->deepCopy();
+	if(other->response)
+		response = other->response->deepCopy();
 }
 
 rendezVousTransition::~rendezVousTransition() {
+	delete question;
+	if(response)
+		delete response;
 }
 
 transition* rendezVousTransition::getQuestion(void) const {
@@ -67,4 +65,17 @@ void rendezVousTransition::accept(transitionVisitor* visitor) {
 bool rendezVousTransition::operator==(const transition* other) const {
 	auto cast = dynamic_cast<const rendezVousTransition*>(other);
 	return *question == cast->question && *response == cast->response;
+}
+
+//to improve
+float rendezVousTransition::similarity(const transition* other) const {
+	auto cast = dynamic_cast<const rendezVousTransition*>(other);
+	return cast ? question->similarity(cast->question) * (response ? response->similarity(cast->response) : 1.0) : 0;
+}
+
+void rendezVousTransition::print(void) const {
+	std::cout << "RendezVousTransition: " << std::endl;
+	question->print();
+	if(response)
+		response->print();
 }

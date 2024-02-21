@@ -3,10 +3,10 @@
 
 class state;
 class process;
-class progState;
+class program;
 class never;
-class compState;
-class featStateDecorator;
+class composite;
+class featured;
 
 class stateVisitor {
 public:
@@ -14,10 +14,10 @@ public:
 
 	virtual void visit(state* s) = 0;
 	virtual void visit(process* s) = 0;
-	virtual void visit(progState* s) = 0;
-	virtual void visit(compState* s) = 0;
+	virtual void visit(program* s) = 0;
+	virtual void visit(composite* s) = 0;
 	virtual void visit(never* state) = 0;
-	virtual void visit(featStateDecorator* s) = 0;
+	virtual void visit(featured* s) = 0;
 };
 
 #endif

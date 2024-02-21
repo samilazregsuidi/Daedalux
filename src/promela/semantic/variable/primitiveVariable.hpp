@@ -90,7 +90,7 @@ private:
 };
 
 class process;
-class pidSymNode;
+class seqSymNode;
 
 class PIDVar : public primitiveVariable {
 public:

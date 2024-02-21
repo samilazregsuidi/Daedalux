@@ -6,14 +6,15 @@
 #include "state.hpp"
 #include "never.hpp"
 #include "process.hpp"
-#include "programState.hpp"
-#include "featuredStateDecorator.hpp"
-#include "compositeState.hpp"
+#include "program.hpp"
+#include "featured.hpp"
+#include "composite.hpp"
 
-#include "processTransition.hpp"
+#include "threadTransition.hpp"
 #include "rendezVousTransition.hpp"
 #include "featuredTransition.hpp"
 #include "rendezVousTransition.hpp"
+#include "progTransition.hpp"
 
 #include "symbols.hpp"
 
@@ -33,7 +34,7 @@
 state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 
 	auto sysTable = automata->getSystemSymTab();
-	auto compS = new compState("sys");
+	auto compS = new composite("sys");
 
 	if(sysTable && sysTable->getSymbols().size() > 1) {
 		for(auto sys : sysTable->getSymbols()) {
@@ -186,6 +187,8 @@ never* initState::createNever(const fsm* stateMachine, const seqSymNode* procTyp
 
 	never* proc = new never(procType, start);
 
+	proc->_addVariable(new PIDVar(new pidSymNode(0, "_pid"), 0));
+
 	return proc;
 }
 
@@ -193,7 +196,7 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 
 	state* res = nullptr;
 
-	progState* s = new progState(stateMachine, name);
+	program* s = new program(stateMachine, name);
 
 	for (auto sym : stateMachine->getGlobalSymTab()->getSymbols<const varSymNode*>()) {
 		addVariables(s, sym);
@@ -212,14 +215,14 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 	res = s;
 
 	if(stateMachine->isFeatured()){
-		res = new featStateDecorator(res, stateMachine->getFeatureDiagram(), tvl);
+		res = new featured(res, stateMachine->getFeatureDiagram(), tvl);
 		if(sym && sym->getInitExpr()){
 			auto v = expToADD(tvl);
 			sym->getInitExpr()->acceptVisitor(&v);
 			auto cst = v.getFormula();
 			assert(cst);
 			
-			auto b = dynamic_cast<featStateDecorator*>(res)->constraint(cst);
+			auto b = dynamic_cast<featured*>(res)->constraint(cst);
 			assert(b);
 		}
 	}
@@ -227,13 +230,15 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 	return res;
 }
 
-transition* initState::createTransition(const fsmEdge* edge, state* s, process* proc, transition* response) {
+transition* initState::createTransition(const fsmEdge* edge, program* s, process* proc, transition* response) {
 	
-	transition* res = new processTransition(proc, edge);
+	transition* res = new threadTransition(proc, edge);
 
 	if(response)
 		res = new rendezVousTransition(s, res, response);	
-	
+	else
+		res = new progTransition(s, dynamic_cast<threadTransition*>(res));
+
 	if(edge->hasFeatures())
 		res = new featTransition(s, res, edge->getFeatures());
 	

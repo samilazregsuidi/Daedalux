@@ -353,21 +353,20 @@ variable * variable::getVariable(const std::string & name) const
   return var;
 }
 
-variable * variable::getVariableDownScoping(const std::string & name) const
-{
-  std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
-  if (resIt != varMap.cend())
-    return resIt->second;
-
-  variable * var = nullptr;
-  for (auto scope : varList) {
-    auto v = scope->getVariableDownScoping(name);
-    if (v) {
-      var = v;
-      break;
-    }
-  }
-  return var;
+variable* variable::getVariableDownScoping(const std::string& name) const {
+	std::map<std::string, variable*>::const_iterator resIt = varMap.find(name);
+	if(resIt != varMap.cend())
+		return resIt->second;
+	
+	variable* var = nullptr;
+	for (auto scope : varList) {
+		auto v = scope->getVariableDownScoping(name);
+		if(v) {
+			var = v;
+			break;
+		}
+	}
+	return var;
 }
 
 channel * variable::getChannel(const std::string & name) const

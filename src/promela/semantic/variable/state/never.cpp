@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "never.hpp"
-#include "neverTransition.hpp"
+#include "threadTransition.hpp"
 
 #include "stateVisitor.hpp"
 
@@ -48,7 +48,7 @@ std::list<transition*> never::transitions(void) const {
 	auto node = getFsmNodePointer();
 	std::list<transition*> res;
 	for(auto e : node->getEdges())
-		res.push_back(new neverTransition(const_cast<never*>(this), e));
+		res.push_back(new threadTransition(const_cast<never*>(this), e));
 	return res;
 }
 
@@ -71,7 +71,7 @@ std::list<transition*> never::executables(void) const {
 
 		if(eval(edge, EVAL_EXECUTABILITY) > 0) {
 
-			res.push_back(new neverTransition(const_cast<never*>(this), edge));
+			res.push_back(new threadTransition(const_cast<never*>(this), edge));
 		}
 	}
 
@@ -231,9 +231,10 @@ int never::eval(const astNode* node, byte flag) const {
  * that evaluated to false.
  */
 void never::apply(transition* trans) {
-	assert(dynamic_cast<const neverTransition*>(trans));
-	const never* proc = dynamic_cast<const neverTransition*>(trans)->getNeverClaim();
-	const fsmEdge* edge =  dynamic_cast<const neverTransition*>(trans)->getEdge();
+	auto threadTrans = dynamic_cast<const threadTransition*>(trans);
+	assert(threadTrans);
+	auto proc = dynamic_cast<const never*>(threadTrans->getThread());
+	auto edge = threadTrans->getEdge();
 
 	assert(proc);
 	assert(edge);
@@ -244,9 +245,6 @@ void never::apply(transition* trans) {
 
 	//_assertViolation = 0;
 
-	auto oldLocation = getLocation();
-
-	byte leaveUntouched = 0; // Set to 1 in case of a rendez-vous channel send.
 Apply:
 
 	switch(expression->getType()) {

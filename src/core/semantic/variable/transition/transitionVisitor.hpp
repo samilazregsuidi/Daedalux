@@ -5,8 +5,7 @@ class transition;
 class compTransition;
 class rendezVousTransition;
 class featTransition;
-class processTransition;
-class neverTransition;
+class threadTransition;
 
 class transitionVisitor {
 public:
@@ -16,8 +15,7 @@ public:
 	virtual void visit(compTransition* s) = 0;
 	virtual void visit(rendezVousTransition* s) = 0;
 	virtual void visit(featTransition* s) = 0;
-	virtual void visit(processTransition* state) = 0;
-	virtual void visit(neverTransition* s) = 0;
+	virtual void visit(threadTransition* state) = 0;
 };
 
 #endif

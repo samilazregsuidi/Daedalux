@@ -13,8 +13,7 @@ public:
 	void visit(compTransition* t) override;
 	void visit(rendezVousTransition* t) override;
 	void visit(featTransition* t) override;
-	void visit(processTransition* t) override;
-	void visit(neverTransition* t) override;
+	void visit(threadTransition* t) override;
 
 	std::set<transition*> table;
 };
