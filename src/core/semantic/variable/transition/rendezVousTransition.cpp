@@ -19,6 +19,10 @@ rendezVousTransition::rendezVousTransition(state* s, transition* question, trans
 	prob = question->getProbability() * (response ? response->getProbability() : 1.0);
 	assert(prob >= 0 && prob <= 1);
 
+	add(question);
+	if(response)
+		add(response);
+
 	/*lines.push_back(dynamic_cast<processTransition*>(question)->getLineNb());
 	if(response){
 		auto casted = dynamic_cast<processTransition*>(response);

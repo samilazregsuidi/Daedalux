@@ -237,7 +237,7 @@ transition* initState::createTransition(const fsmEdge* edge, program* s, process
 	if(response)
 		res = new rendezVousTransition(s, res, response);	
 	else
-		res = new progTransition(s, dynamic_cast<threadTransition*>(res));
+		res = new programTransition(s, dynamic_cast<threadTransition*>(res));
 
 	if(edge->hasFeatures())
 		res = new featTransition(s, res, edge->getFeatures());

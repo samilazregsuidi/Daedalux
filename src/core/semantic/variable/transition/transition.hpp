@@ -40,33 +40,35 @@ public:
 
 	virtual ~transition();
 
-	//virtual state* fire(void) = 0;
-
 	double getProbability(void) const;
 	
 	virtual transition* deepCopy(void) const = 0;
 
-	virtual void accept(transitionVisitor* visitor);
+	void add(transition* t);
 
-	virtual bool operator==(const transition* other) const = 0;
+	void add(const std::list<transition*>& Ts);
 
-	virtual float similarity(const transition* other) const = 0;
+	void detach(void);
+
+	void detach(transition* t);
+
+	void detach(const std::list<transition*>& Ts);
+
+	virtual void accept(transitionVisitor* visitor) = 0;
+
+	virtual bool operator==(const transition* other) const;
+
+	virtual float similarity(const transition* other) const;
 
 	virtual void print(void) const = 0;
 
-	// friend bool operator== (const transition& t1, const transition& t2) {
-	// 	return t1.src->compare(t2.src->hash()) && t1.dst->compare(t2.dst->hash()) && t1.prob == t2.prob && t1.action == t2.action;
-	// }
-
-	// friend bool operator!= (const transition& t1, const transition& t2) {
-	// 	return !(t1 == t2);
-	// }
-
-public:
+public:		//
 	transition* parent;
 	state* src;
 	state* dst;
 	double prob;
+	std::list<transition*> subTs; 
+	std::list<unsigned int> lines;
 	std::string action;
 };
 

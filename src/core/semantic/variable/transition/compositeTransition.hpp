@@ -25,21 +25,7 @@ public:
 
 	void accept(transitionVisitor* visitor) override;
 
-	bool operator==(const transition* other) const override;
-
-	float similarity(const transition* other) const override;
-
 	//state* fire(void) override;
-
-	void add(transition* t);
-
-	void add(const std::list<transition*>& Ts);
-
-	void detach(void);
-
-	void detach(transition* t);
-
-	void detach(const std::list<transition*>& Ts);
 
 	std::list<transition*> getSubTs(void) const;
 

@@ -7,32 +7,26 @@
 
 #include "transition.hpp"
 
-class threadTransition;
-class program;
 
 // ProcessTransitions are returned by the executables() function
-class progTransition : public transition {
+class programTransition : public transition {
 public:
-	progTransition(program* s, threadTransition* procTrans);
+	programTransition(state* s, transition* progTrans);
 
-	progTransition(const progTransition* other);
+	programTransition(const programTransition* other);
 
-	~progTransition() override;
+	~programTransition() override;
 	
-	threadTransition* getProcTrans(void) const;
+	transition* getProgTrans(void) const;
 
 	transition* deepCopy(void) const override;
 
 	void accept(transitionVisitor* visitor) override;
 
-	bool operator==(const transition* other) const override;
-
-	float similarity(const transition* other) const override;
-
 	void print(void) const override;
 
 public:		//
-	threadTransition* procTrans;
+	transition* progTrans;
 };
 
 #endif

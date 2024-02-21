@@ -1,62 +1,54 @@
 #include "progTransition.hpp"
 #include "transitionVisitor.hpp"
-#include "threadTransition.hpp"
-#include "program.hpp"
+
+#include "fsmEdge.hpp"
+#include "process.hpp"
 
 #include <assert.h>
 #include <iterator>
 #include <iostream>
 
-progTransition::progTransition(program* s, threadTransition* procTrans) 
+programTransition::programTransition(state* s, transition* progTrans) 
 	: transition(s)
-	, procTrans(procTrans)
+	, progTrans(progTrans)
 {
 	assert(s);
-	assert(procTrans);
+	assert(progTrans);
 
-	prob = procTrans->getProbability();
-	assert(prob >= 0 && prob <= 1);
+	add(progTrans);
 
-	//lines.push_back(dynamic_cast<processTransition*>(procTrans)->getLineNb());
+	prob = progTrans->getProbability();
 
-	action = procTrans->action;
+	lines.merge(progTrans->lines);
+
+	action = progTrans->action;
 
 }
 
-progTransition::progTransition(const progTransition* other)
+programTransition::programTransition(const programTransition* other)
 	: transition(other)
-	, procTrans(dynamic_cast<threadTransition*>(other->procTrans->deepCopy()))
+	, progTrans(nullptr)
 {
+	auto it = subTs.begin();
+	progTrans = *it;
 }
 
-progTransition::~progTransition() {
-	delete procTrans;
+programTransition::~programTransition() {
 }
 
-threadTransition* progTransition::getProcTrans(void) const {
-	return procTrans;
+transition* programTransition::getProgTrans(void) const {
+	return progTrans;
 }
 
-transition* progTransition::deepCopy(void) const {
-	return new progTransition(this);
+transition* programTransition::deepCopy(void) const {
+	return new programTransition(this);
 }
 
-void progTransition::accept(transitionVisitor* visitor) {
+void programTransition::accept(transitionVisitor* visitor) {
 	visitor->visit(this);
 }
 
-bool progTransition::operator==(const transition* other) const {
-	auto cast = dynamic_cast<const progTransition*>(other);
-	return *procTrans == cast->procTrans;
-}
-
-float progTransition::similarity(const transition* other) const {
-	auto cast = dynamic_cast<const progTransition*>(other);
-	return procTrans->similarity(cast->procTrans);
-}
-
-void progTransition::print(void) const {
-	std::cout << "progTransition: ";
-	procTrans->print();
-	std::cout << std::endl;
+void programTransition::print(void) const {
+	std::cout << "Program transition: ";
+	progTrans->print();
 }

@@ -19,6 +19,8 @@ typedef unsigned char ubyte;
 
 class ltlModelChecker {
 public:
+
+  
   void startNestedDFS(const fsm * automata, const TVL * tvl);
   byte outerDFS(elementStack & stackOuter);
   byte innerDFS(elementStack & stackInner, const elementStack & stackOuter);

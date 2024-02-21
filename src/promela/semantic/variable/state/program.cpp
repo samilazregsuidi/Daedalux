@@ -222,12 +222,12 @@ void program::printGraphViz(unsigned long i) const {
 		locs.push_back(p->getFsmNodePointer());
 	
 	std::list<const fsmEdge*> edges;
-	if(auto progTrans = dynamic_cast<const progTransition*>(origin)) {
+	if(auto progTrans = dynamic_cast<const programTransition*>(origin)) {
 		edges.push_back(progTrans->getEdge());
 		auto t = progTrans;
 
 		for(auto r : t->getResponses()){
-			edges.push_back(dynamic_cast<const progTransition*>(r)->getEdge());
+			edges.push_back(dynamic_cast<const programTransition*>(r)->getEdge());
 		}
 	}
 
@@ -448,8 +448,8 @@ void program::apply(transition* trans) {
 
 	} else {
 
-		auto progTrans = dynamic_cast<progTransition*>(trans);
-		auto procTrans = dynamic_cast<threadTransition*>(progTrans->getProcTrans()); 
+		auto progTrans = dynamic_cast<programTransition*>(trans);
+		auto procTrans = dynamic_cast<threadTransition*>(progTrans->getProgTrans()); 
 		assert(procTrans);
 
 		//warning if "different" procs have the same pid i.e., dynamic proc creation
@@ -462,7 +462,7 @@ void program::apply(transition* trans) {
 
 
 		//that is ugly, should return a progtrans in the first place
-		trans = new progTransition(this, procTrans);
+		trans = new programTransition(this, procTrans);
 		prob *= trans->prob;
 	}
 
