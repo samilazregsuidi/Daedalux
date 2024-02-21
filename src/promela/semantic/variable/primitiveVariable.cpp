@@ -119,14 +119,12 @@ float primitiveVariable::delta(const variable * other) const
   if (!cast)
     return 1;
 
-  float upper_bound = getValue() > cast->getValue() ? getValue() : cast->getValue();
-  try {
-    upper_bound = varSymNode::getUpperBound(varSym->getType());
-  }
-  catch (...) {
-    upper_bound = getValue() > cast->getValue() ? getValue() : cast->getValue();
-  }
-  return std::abs(getValue() - cast->getValue()) / upper_bound;
+  float value = getPayload()->getValue(getOffset(), getType());
+  float otherValue = cast->getPayload()->getValue(cast->getOffset(), cast->getType());
+
+  float diff = std::abs(value - otherValue);
+  auto delta = 1.0 - (1.0 / (diff + 1.0));
+  return delta;
 }
 
 void primitiveVariable::printDelta(const variable * other) const
@@ -139,8 +137,8 @@ void primitiveVariable::printDelta(const variable * other) const
 
   if (delta > 0.00000001) {
     auto name = getFullName();
-    auto value = getValue();
-    auto otherValue = cast->getValue();
+    auto value = getPayload()->getValue(getOffset(), getType());
+    auto otherValue = cast->getPayload()->getValue(cast->getOffset(), cast->getType());
     auto OtherName = cast->getFullName();
     printf("%s = %d, %s = %d, delta = %f\n", name.c_str(), value, OtherName.c_str(), otherValue, delta);
   }
@@ -165,7 +163,6 @@ int primitiveVariable::getValue(void) const
 
 void primitiveVariable::reset(void) { setValue(0); }
 
-
 primitiveVariable::operator ::std::string(void) const
 {
   assert(getPayload());
@@ -179,8 +176,8 @@ primitiveVariable::operator ::std::string(void) const
 
 void primitiveVariable::print(void) const
 {
-  printf("%s", std::string(*this).c_str());
-  // variable::print();
+  auto name = std::string(*this);
+  printf("%s", name.c_str());
 }
 
 void primitiveVariable::printTexada(void) const

@@ -1,7 +1,6 @@
 #include "featuredTransition.hpp"
 
 #include "state.hpp"
-#include "programState.hpp"
 #include "fsmEdge.hpp"
 #include "process.hpp"
 

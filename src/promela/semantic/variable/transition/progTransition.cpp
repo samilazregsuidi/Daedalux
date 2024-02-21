@@ -1,7 +1,7 @@
 #include "progTransition.hpp"
 #include "transitionVisitor.hpp"
 #include "threadTransition.hpp"
-#include "programState.hpp"
+#include "program.hpp"
 
 #include <assert.h>
 #include <iterator>

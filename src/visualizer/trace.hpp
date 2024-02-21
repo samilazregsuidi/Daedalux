@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
 #include <list>
 #include <memory> // Include for smart pointers
 #include <string>
@@ -15,7 +16,14 @@ private:
 
 public:
   trace();
+  trace(const trace & other);
+  trace(const trace * other);
+  trace(std::list<std::shared_ptr<transition>> transitions, std::list<std::shared_ptr<state>> states);
+  trace(std::list<std::shared_ptr<state>> states);
+
   ~trace();
+
+  void discriminate(const std::shared_ptr<trace> t);
 
   std::list<std::shared_ptr<transition>> getTransitions() const { return this->transitions; }
   std::list<std::shared_ptr<state>> getStates() const { return this->states; }
@@ -55,25 +63,31 @@ public:
     }
   }
 
+  std::string to_string() const
+  {
+    std::stringstream s = std::stringstream();
+    for (auto st : this->states) {
+      st->printCSV(s);
+    }
+    return s.str();
+  }
+
   friend bool operator==(const trace & lhs, const trace & rhs)
   {
-    printf("Comparing traces\n");
     bool sameStates = lhs.getStates().size() == rhs.getStates().size();
     bool sameTransitions = lhs.getTransitions().size() == rhs.getTransitions().size();
     if (!sameStates || !sameTransitions) {
       return false;
     }
-    if(lhs.getStates().size() == 0 && lhs.getTransitions().size() == 0) {
+    if (lhs.getStates().size() == 0 && lhs.getTransitions().size() == 0) {
       return true;
     }
-    printf("Comparing states and transitions\n");
     std::vector<std::shared_ptr<state>> l_states{std::begin(lhs.getStates()), std::end(lhs.getStates())};
     std::vector<std::shared_ptr<state>> r_states{std::begin(rhs.getStates()), std::end(rhs.getStates())};
     std::vector<std::shared_ptr<transition>> l_transitions{std::begin(lhs.getTransitions()), std::end(lhs.getTransitions())};
     std::vector<std::shared_ptr<transition>> r_transitions{std::begin(rhs.getTransitions()), std::end(rhs.getTransitions())};
 
-    printf("Comparing states one by one\n");
-    for (int i = 0; i < (int) lhs.getStates().size(); i++) {
+    for (int i = 0; i < (int)lhs.getStates().size(); i++) {
       if (l_states[i]->delta(r_states[i].get()) != 0) {
 
         return false;

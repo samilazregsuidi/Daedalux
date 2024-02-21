@@ -84,9 +84,6 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
         found = true;
         break;
       }
-      else {
-        d->printDelta(s);
-      }
     }
     if (!found) {
       distinct.push_back(s);
@@ -108,10 +105,10 @@ std::list<state *> distinct_states(const std::list<state *> & states_original, c
 std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> original, const std::shared_ptr<fsm> mutant,
                                               const size_t trace_length, const TVL * tvl)
 {
-  // Create the initial state for both automatas
+  // Create the initial state for both automata
   auto current_state_original = initState::createInitState(original.get(), tvl);
   auto current_state_mutant = initState::createInitState(mutant.get(), tvl);
-  // Lists to store the transitions of the two automatas
+  // Lists to store the transitions of the two automata
   auto post_states_original = std::list<state *>();
   auto post_states_mutant = std::list<state *>();
   auto different_states = std::list<state *>();
@@ -123,27 +120,37 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
   std::unique_ptr<trace> current_trace = std::make_unique<trace>();
   std::shared_ptr<state> current_state_mutant_copy(current_state_mutant);
   current_trace->addState(current_state_mutant_copy);
-  // Keep track if the run of the two automatas have the same prefix - the default is true as the initial states are the same
+  // Keep track if the run of the two automata have the same prefix - the default is true as the initial states are the same
   bool same_prefix = true;
 
   while (current_trace->size() < trace_length) {
     // Check if the two nodes are the same if they have the same prefix
+    post_states_original = current_state_original->Post();
+    post_states_mutant = current_state_mutant->Post();
+    if (post_states_mutant.empty() || post_states_original.empty()) {
+      std::cout << "No more transitions to fire - the trace is complete." << std::endl;
+      break;
+    }
     if (same_prefix) {
-      post_states_original = current_state_original->Post();
-      post_states_mutant = current_state_mutant->Post();
       different_states = distinct_states(post_states_original, post_states_mutant);
       // If the mutant automata has a state that the original automata does not have - go to that state
       if (!different_states.empty()) {
         // Fire the transition
-        auto next_state_mutant = different_states.front();
+        current_state_original = different_states.front();
         // Move to the next state
-        current_trans_mutant = next_state_mutant->getOrigin()->deepCopy();
-        current_state_mutant->apply(current_trans_mutant);
+        current_trans_original = current_state_original->getOrigin()->deepCopy();
         // Find the most similar transition to the fired transition in the original automata
-        auto similar_state_original = most_similar_state(next_state_mutant, post_states_original);
+        current_state_mutant = most_similar_state(current_state_original, post_states_mutant);
         // Apply the transition to the original automata
-        current_trans_original = similar_state_original->getOrigin()->deepCopy();
-        current_state_original->apply(current_trans_original);
+        current_trans_mutant = current_state_mutant->getOrigin()->deepCopy();
+
+        std::cout << "The original automata does not have the same state as the mutant automata." << std::endl;
+        std::cout << "The transition fired in the mutant automata is: " << std::endl;
+        current_state_mutant->PRINT_STATE();
+        std::cout << "The transition fired in the original automata is: " << std::endl;
+        current_state_original->PRINT_STATE();
+        std::cout << "The difference between the two states is: ";
+        current_state_mutant->printDelta(current_state_original);
         // The prefix is no longer the same
         same_prefix = false;
       }
@@ -152,16 +159,23 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
         // Take the same transition as the original automata
         // Not sure if this is the best approach / if it is correct
         auto next_state_original = post_states_original.front();
-        auto next_state_mutant = post_states_mutant.front();
-        // Apply the transition to both automata
-        current_state_mutant->apply(next_state_mutant->getOrigin()->deepCopy());
-        current_state_original->apply(next_state_original->getOrigin()->deepCopy());
+        auto next_state_mutant = most_similar_state(next_state_original, post_states_mutant);
+        assert(next_state_mutant->delta(next_state_original) < 0.00000001); // The states should be the same
+
+        current_trans_mutant = next_state_mutant->getOrigin()->deepCopy();
+        current_trans_original = next_state_original->getOrigin()->deepCopy();
+        // Apply the transition to both automata - A hack not to use the apply function
+        current_state_mutant = next_state_mutant;
+        current_state_original = next_state_original;
       }
     }
     else {
       // Fire a random transition as the trace is guaranteed to be different
-      current_trans_mutant = transition::sampleUniform(current_state_mutant->executables());
-      current_state_mutant->apply(current_trans_mutant);
+      current_state_mutant = post_states_mutant.front();
+      auto similar_state_original = most_similar_state(current_state_mutant, post_states_original);
+      current_state_original = similar_state_original;
+      current_trans_mutant = current_state_mutant->getOrigin()->deepCopy();
+      current_trans_original = similar_state_original->getOrigin()->deepCopy();
     }
     // Add the state and transition to the trace
     std::shared_ptr<state> curent_state_mutant_copy(current_state_mutant);
@@ -177,9 +191,9 @@ std::unique_ptr<trace> generateNegativeTraces(const std::shared_ptr<fsm> origina
 
 std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
 {
-  // Create the initial state for both automatas
+  // Create the initial state for both automata
   auto current_state = initState::createInitState(automata.get(), tvl);
-  // Lists to store the transitions of the two automatas
+  // Lists to store the transitions of the two automata
   auto post_states = std::list<state *>();
 
   // Create a trace holding the visited states and transitions
@@ -189,25 +203,34 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
 
   while (current_trace->size() < trace_length) {
     post_states = current_state->Post();
-    std::cout << "Choose a transition to fire of the following transitions" << std::endl;
+    if (post_states.empty()) {
+      std::cout << "No more transitions to fire - the trace is complete." << std::endl;
+      break;
+    }
+    std::cout << "**********************************" << std::endl;
+    std::cout << "Current state" << std::endl;
+    current_state->PRINT_STATE();
+    std::cout << "Choose a transition to fire by selecting a number between 0 and " << post_states.size() << "." << std::endl;
+    std::cout
+        << "The transitions are displayed as \"new value -> current value\" based on how they will change the current state."
+        << std::endl;
     int index = 0;
     for (auto & p : post_states) {
-      std::shared_ptr<state> postState(p);
       std::cout << index << " : ";
-      postState->printDelta(current_state);
+      p->printDelta(current_state);
       index++;
     }
+    auto post_state_vector = std::vector<state *>(post_states.begin(), post_states.end());
     int choice;
     std::cin >> choice;
     if (choice < 0 || choice >= ((int)post_states.size())) {
-      std::cout << "Invalid choice - firing the first transition" << std::endl;
+      std::cout << "Invalid choice - firing the first transition." << std::endl;
       choice = 0;
     }
-    auto next_state = post_states.front();
-    auto trans = next_state->getOrigin()->deepCopy();
-    current_state->apply(trans);
-    std::shared_ptr<state> curent_state_copy(current_state);
+    current_state = post_state_vector[choice];
+    transition * trans = const_cast<transition *>(current_state->getOrigin());
     std::shared_ptr<transition> current_trans_copy(trans);
+    std::shared_ptr<state> curent_state_copy(current_state);
     current_trace->addTransition(current_trans_copy);
     current_trace->addState(curent_state_copy);
   }

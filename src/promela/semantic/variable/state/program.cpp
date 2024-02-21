@@ -4,7 +4,7 @@
 #include <string.h>
 #include <cmath>
 
-#include "programState.hpp"
+#include "program.hpp"
 
 #include "process.hpp"
 
