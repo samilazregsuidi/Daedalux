@@ -500,6 +500,8 @@ static long unsigned int _depth = 0;                   // Current exploration de
 
 bool ltlModelChecker::check(const fsm * automata, const TVL * tvl)
 {
+  R = reachabilityRelation();
+
   _nbStatesExplored = 0;
   _nbStatesReExplored = 0;
 
