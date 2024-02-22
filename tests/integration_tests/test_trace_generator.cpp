@@ -82,7 +82,7 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix
   auto trace = traceGen->generatePositiveTrace(trace_size, ignore_common_prefix);
   // The trace will be shorter than the requested size as the common prefix is ignored
   auto expected_trace_size = 4;
-  ASSERT_EQ(trace->size(), expected_trace_size);
+  ASSERT_EQ(trace->getStates().size(), expected_trace_size);
 }
 
 TEST_F(TraceGeneratorTest, TraceReport_DifferentFSM)

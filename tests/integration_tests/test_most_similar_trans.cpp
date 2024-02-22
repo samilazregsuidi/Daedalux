@@ -178,8 +178,6 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   ASSERT_EQ(most_similar->isSame(current_state), true);
 }
 
-
-
 TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
 {
   const TVL * tvl = nullptr;
@@ -221,8 +219,6 @@ TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
   auto post_state_front = current_state->Post().front();
   std::list<state *> post_states_1 = {post_state_front, current_state};
   auto post_state_back = current_state->Post().back()->Post().front()->Post().front()->Post().front()->Post().front();
-  current_state->print();
-  post_state_back->print();
   // The two states are different
   ASSERT_FALSE(post_state_back->isSame(current_state));
   std::list<state *> post_states_2 = {post_state_back, current_state};
