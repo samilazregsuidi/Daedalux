@@ -28,9 +28,10 @@ std::unique_ptr<traceReport> TraceGenerator::generateTraceReport(const size_t no
 // * It then create a run of length @trace_length of the mutant automata that cannot be created by the original automata.
 // * The function returns a list of states that represent the run.
 // * Parameters:
-// * 	original - The original automata
-// * 	mutant - The mutant automata
-// * 	trace_length - The length of the run
+// * 	@original - The original automata
+// * 	@mutant - The mutant automata
+// * 	@trace_length - The length of the run
+// * 	@ignore_common_prefix - A flag to ignore the common prefix of the two automata
 // *
 std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant,
                                                      const size_t trace_length, bool ignore_common_prefix)
