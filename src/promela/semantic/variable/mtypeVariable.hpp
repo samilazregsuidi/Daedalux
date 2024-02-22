@@ -23,6 +23,10 @@ public:
 
 	int operator -- (int) override;
 
+	bool operator == (const std::string& cmtype) const;
+
+	bool operator != (const std::string& cmtype) const;
+
 	float delta(const variable* other) const override;
 
 	void printDelta(const variable* other) const override;

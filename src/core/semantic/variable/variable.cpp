@@ -331,6 +331,18 @@ void variable::addRawBytes(size_t size) { rawBytes += size; }
 
 variable * variable::getVariable(const std::string & name) const
 {
+  size_t pos = name.find(".");
+  if(pos != std::string::npos) {
+    auto subScope = name.substr(0, pos);
+    variable * var = getVariable(subScope);
+    if(var == nullptr) {
+      std::cout << subScope << " not found. " << std::endl;
+      assert(false);
+    }
+    auto next = std::string(name).erase(0, pos + std::string(".").length());
+    return var->getVariable(next);
+  }
+
   std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
   if (resIt != varMap.cend())
     return resIt->second;

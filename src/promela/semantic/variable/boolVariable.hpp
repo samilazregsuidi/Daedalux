@@ -21,11 +21,17 @@ public:
 
 	int operator -- (int) override;
 
+	bool operator == (bool value) const;
+
+	bool operator != (bool value) const;
+
 	float delta(const variable* other) const override;
 	
 	void printDelta(const variable* other) const override;
 
 	operator std::string(void) const override;
+
+	operator bool(void) const;
 
 	void print(void) const override;
 

@@ -28,6 +28,18 @@ int boolVar::operator -- (int) {
 	assert(false);
 }
 
+bool boolVar::operator == (bool value) const {
+	return getValue() == value;
+}
+
+bool boolVar::operator != (bool value) const {
+	return getValue() != value;
+}
+
+boolVar::operator bool(void) const {
+	return getValue() != 0? true : false;
+}
+
 float boolVar::delta(const variable* other) const {
 	auto otherVar = dynamic_cast<const boolVar*>(other);
 	if(!otherVar)

@@ -111,7 +111,11 @@ bool primitiveVariable::operator==(const variable * other) const
   return getValue() == cast->getValue();
 }
 
+bool primitiveVariable::operator==(int value) const { return getValue() == value; }
+
 bool primitiveVariable::operator!=(const variable * other) const { return !(*this == other); }
+
+bool primitiveVariable::operator!=(int value) const { return !(*this == value); }
 
 float primitiveVariable::delta(const variable * other) const
 {
@@ -175,6 +179,8 @@ int primitiveVariable::getValue(void) const
   // assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
   return value;
 }
+
+//primitiveVariable::operator int(void) const { return getValue(); }
 
 void primitiveVariable::reset(void) { setValue(0); }
 

@@ -57,6 +57,14 @@ std::string mtypedefSymNode::getCmtypeSymNodeName(int value) const
   return "";
 }
 
+int mtypedefSymNode::getCmtypeSymNodeValue(const std::string & name) const
+{
+  auto it = mtypes.find(name);
+  if (it == mtypes.end())
+    return -1;
+  return mtypes.at(name)->getIntValue();
+}
+
 int mtypedefSymNode::getIntValueOffset(void) const
 {
   int offset = INT_MAX;

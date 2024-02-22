@@ -25,6 +25,9 @@
 #include "test_promela_loader.cpp"
 #include "test_specification_writer.cpp"
 
+// SEMANTIC - TESTS
+#include "semantic/test_init_state.cpp"
+
 // INTEGRATION TESTS
 #include "integration_tests/test_mutantgeneration.cpp"
 #include "integration_tests/test_dfs.cpp"

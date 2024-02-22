@@ -20,6 +20,21 @@ class exprRArgList;
 
 class channel;
 
+class primitiveVariable;
+class boolVar;
+
+template <typename T> struct return_value {
+	using type = T;
+};
+
+template <> struct return_value<primitiveVariable*> {
+	using type = int;
+};
+
+template <> struct return_value<boolVar*> {
+	using type = bool;
+};
+
 class variable {
 public:
 
@@ -181,6 +196,13 @@ public:
 				res.push_back(varT);
 		}
 		return res;
+	}
+
+	template <class T> typename return_value<T>::type getValue(const std::string& name) const {
+		auto var = getVariable(name);
+		if(var != nullptr)
+			return (dynamic_cast<T>(var))->getValue();
+		assert(false);
 	}
 
 	virtual std::map<std::string, variable*> getVariablesMap(void) const;

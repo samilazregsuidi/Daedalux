@@ -29,6 +29,20 @@ int mtypeVar::operator++(int) { assert(false); }
 
 int mtypeVar::operator--(int) { assert(false); }
 
+bool mtypeVar::operator==(const std::string & cmtype) const
+{
+  auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
+  if(!def) {
+    assert(false);
+    return false;
+  }
+  auto cmtypeValue = def->getCmtypeSymNodeValue(cmtype);
+  assert(cmtypeValue!=  -1);
+  return (getValue() == cmtypeValue);
+}
+
+bool mtypeVar::operator!=(const std::string & cmtype) const { return !(*this == cmtype); }
+
 float mtypeVar::delta(const variable * other) const
 {
   auto otherVar = dynamic_cast<const mtypeVar *>(other);

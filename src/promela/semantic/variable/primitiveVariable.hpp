@@ -41,7 +41,11 @@ public:
 
   bool operator==(const variable * other) const override;
 
+  bool operator==(int value) const;
+
   bool operator!=(const variable * other) const override;
+
+  bool operator!=(int value) const;
 
   float delta(const variable * other) const override;
 
@@ -50,6 +54,8 @@ public:
   void printDelta(const variable * other) const override;
 
   operator std::string(void) const override;
+
+  //operator int(void) const;
 
   virtual void print(void) const override;
 

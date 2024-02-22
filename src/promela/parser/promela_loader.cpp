@@ -12,8 +12,11 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
 {
   // The variable promelaFile should have the fileExtension .pml
   if (file_name.find(".pml") == std::string::npos) {
-    std::cerr << "The model file must have the extension .pml." << std::endl;
-    exit(1);
+    //std::cerr << "The model file must have the extension .pml." << std::endl;
+    //exit(1);
+    std::ofstream tempFile("_temp.pml");
+    tempFile << file_name;
+    file_name = "_temp.pml";
   }
   // Copy the model file to a temporary file
   fs::path sourcePath = file_name;

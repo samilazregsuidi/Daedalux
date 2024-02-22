@@ -120,23 +120,7 @@ std::string thread::getVarName(const expr * varExpr) const
 variable * thread::getVariable(const expr * varExpr) const
 {
   auto varName = getVarName(varExpr);
-  const variable * scope = this;
-
-  size_t pos = 0;
-
-  std::string token;
-
-  while ((pos = varName.find(".")) != std::string::npos) {
-    token = varName.substr(0, pos);
-
-    scope = scope->getVariable(token);
-    if (scope == nullptr)
-      std::cout << token << " not found. " << std::endl;
-
-    varName.erase(0, pos + std::string(".").length());
-  }
-
-  return scope->getVariable(varName);
+  return variable::getVariable(varName);
 }
 
 std::list<variable *> thread::getVariables(const exprArgList * args) const
