@@ -32,7 +32,6 @@
 #include "expToADD.hpp"
 
 state* initState::createInitState(const fsm* automata, const TVL* tvl) {
-
 	auto sysTable = automata->getSystemSymTab();
 	auto compS = new composite("sys");
 
@@ -47,12 +46,11 @@ state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 
 	auto globSymTab = automata->getGlobalSymTab();
 	auto neverSymList = globSymTab->getSymbols<neverSymNode*>();
-	if(neverSymList.size() > 0) {
+	if(!neverSymList.empty()) {
 		assert(neverSymList.size() == 1);
 		auto never = createNever(automata, *(neverSymList.cbegin()));
 		compS->addNeverState(never);
 	}
-
 
 	compS->init();
 	return compS;
