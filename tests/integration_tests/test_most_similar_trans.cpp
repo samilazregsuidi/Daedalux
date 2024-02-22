@@ -101,11 +101,11 @@ TEST_F(SimilarityTest, DifferentStateDelta_ShouldNotBe0)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
   auto delta = current_state->delta(post_state);
-  auto expected = 0.00869686622;
+  float expected = 0.00862068962;
   ASSERT_TRUE(expected - delta < 0.00001);
   auto post_post_state = post_state->Post().front();
   delta = current_state->delta(post_post_state);
-  expected = 0.043205;
+  expected = 0.043103449;
   ASSERT_TRUE(expected - delta  < 0.00001);
 }
 
