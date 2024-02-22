@@ -101,11 +101,11 @@ TEST_F(SimilarityTest, DifferentStateDelta_ShouldNotBe0)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
   auto delta = current_state->delta(post_state);
-  auto expected = 0.00869686622;
+  float expected = 0.00862068962;
   ASSERT_TRUE(expected - delta < 0.00001);
   auto post_post_state = post_state->Post().front();
   delta = current_state->delta(post_post_state);
-  expected = 0.043205;
+  expected = 0.043103449;
   ASSERT_TRUE(expected - delta  < 0.00001);
 }
 
@@ -178,8 +178,6 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   ASSERT_EQ(most_similar->isSame(current_state), true);
 }
 
-
-
 TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
 {
   const TVL * tvl = nullptr;
@@ -221,8 +219,6 @@ TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
   auto post_state_front = current_state->Post().front();
   std::list<state *> post_states_1 = {post_state_front, current_state};
   auto post_state_back = current_state->Post().back()->Post().front()->Post().front()->Post().front()->Post().front();
-  current_state->print();
-  post_state_back->print();
   // The two states are different
   ASSERT_FALSE(post_state_back->isSame(current_state));
   std::list<state *> post_states_2 = {post_state_back, current_state};

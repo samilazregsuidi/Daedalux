@@ -228,25 +228,10 @@ bool thread::operator!=(const variable * other) const { return !(*this == other)
 
 void thread::printGraphViz(unsigned long i) const {}
 
-float thread::deltaProcess(const thread * s2) const
-{
-  return 0;
-  // Ignore for now
-  // auto node = getFsmNodePointer();
-  // auto otherNode = s2->getFsmNodePointer();
-  // if (node == nullptr && otherNode == nullptr)
-  //   return 0;
-
-  // float lineNbThis = node ? node->getLineNb() : 0;
-  // float lineNbOther = otherNode ? otherNode->getLineNb() : 0;
-  // return (float)(std::abs(lineNbThis - lineNbOther)) / (lineNbThis + lineNbOther);
-}
-
 float thread::delta(const variable * s2) const
 {
   auto cast = dynamic_cast<const thread *>(s2);
   auto delta = variable::delta(s2) * 0.5;
-  delta += deltaProcess(cast) * 0.5;
   assert(delta >= 0 && delta <= 1);
   return delta;
 }
@@ -263,11 +248,11 @@ void thread::printDelta(const variable * v2) const
   if (node == nullptr && otherNode == nullptr)
     return;
 
-  if (deltaProcess(cast)) {
-    std::string strLineNbThis = node ? std::to_string(getFsmNodePointer()->getLineNb()) : "end";
-    std::string strLineNbOther = otherNode ? std::to_string(cast->getFsmNodePointer()->getLineNb()) : "end";
-    printf("%s @ NL%s -> @ %s\n", getFullName().c_str(), strLineNbThis.c_str(), strLineNbOther.c_str());
-  }
+  // if (deltaProcess(cast)) {
+  //   std::string strLineNbThis = node ? std::to_string(getFsmNodePointer()->getLineNb()) : "end";
+  //   std::string strLineNbOther = otherNode ? std::to_string(cast->getFsmNodePointer()->getLineNb()) : "end";
+  //   printf("%s @ NL%s -> @ %s\n", getFullName().c_str(), strLineNbThis.c_str(), strLineNbOther.c_str());
+  // }
 }
 
 std::list<variable *> thread::getDelta(const variable * v2) const
@@ -278,9 +263,5 @@ std::list<variable *> thread::getDelta(const variable * v2) const
     return res;
 
   res = variable::getDelta(v2);
-
-  if (deltaProcess(cast)) {
-    res.push_back(deepCopy());
-  }
   return res;
 }
