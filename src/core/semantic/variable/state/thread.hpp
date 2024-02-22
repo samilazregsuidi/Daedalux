@@ -100,8 +100,6 @@ public:
 
   float delta(const variable * v2) const override;
 
-  float deltaProcess(const thread * s2) const;
-
   std::list<variable *> getDelta(const variable * v2) const override;
 
   void printDelta(const variable * v2) const override;
