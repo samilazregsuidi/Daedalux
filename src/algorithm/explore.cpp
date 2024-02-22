@@ -49,7 +49,7 @@ transition * most_similar_transition(const std::list<transition *> transitions, 
   transition * most_similar = nullptr;
   double max_similarity = 0;
   for (auto t : transitions) {
-    double similarity = 0;/*t->similarity(current)*/
+    double similarity = 0; /*t->similarity(current)*/
     if (similarity > max_similarity) {
       max_similarity = similarity;
       most_similar = t;
@@ -498,6 +498,34 @@ static long unsigned int _nbStatesReExploredInner = 0; // As before, but for inn
 static long unsigned int _nbStatesStopsInner = 0;      // As before, but for inner search.
 static long unsigned int _depth = 0;                   // Current exploration depth (inner and outer)
 
+bool ltlModelChecker::check(const fsm * automata, const TVL * tvl)
+{
+  _nbStatesExplored = 0;
+  _nbStatesReExplored = 0;
+
+  // Create initial state
+  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
+
+  auto neverClaim = init->getNeverClaim();
+  assert(neverClaim);
+  auto neverTrans = neverClaim->transitions();
+  if (!neverClaim || neverClaim->nullstate() || neverTrans.size() == 0) {
+    printf("init->never is NULL\n");
+    assert(false);
+  }
+
+  transition::erase(neverTrans);
+
+  elementStack stack;
+  stack.push(init);
+
+  printf("state size : %lu\n", init->getSizeOf());
+
+  auto seach_result = outerDFS(stack);
+  return seach_result == 0;
+}
+
+// Can use the check method to check if the property is satisfied
 void ltlModelChecker::startNestedDFS(const fsm * automata, const TVL * tvl)
 {
   _nbStatesExplored = 0;
@@ -641,7 +669,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter)
         // s_->print();
 
         if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-          //printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
+          // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
 
           R.addTraceViolation(current->s.get());
 
@@ -791,7 +819,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
           printf("Property violated\n");
         }
         else {
-          //printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
+          // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
         }
 
         stackInner.push(s_, _depth + 1);

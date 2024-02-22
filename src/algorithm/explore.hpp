@@ -20,7 +20,7 @@ typedef unsigned char ubyte;
 class ltlModelChecker {
 public:
 
-  
+  bool check(const fsm * automata, const TVL * tvl);
   void startNestedDFS(const fsm * automata, const TVL * tvl);
   byte outerDFS(elementStack & stackOuter);
   byte innerDFS(elementStack & stackInner, const elementStack & stackOuter);
