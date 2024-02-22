@@ -1,6 +1,7 @@
 
 #include "mutantAnalyzer.hpp"
 #include "../formulas/formulaCreator.hpp"
+#include "explore.hpp"
 #include "promela_loader.hpp"
 #include "traceGenerator.hpp"
 #include <iostream>
@@ -75,6 +76,8 @@ void MutantAnalyzer::analyzeSpecification(unsigned int number_of_mutants, unsign
   // Kill mutants
   auto [killed_mutants, surviving_mutants] = killMutants();
 
+  // Filter out bisimilar mutants
+
   // Analyze surviving mutants using trace generation and comparison with the original program
   analyzeMutants(trace_size);
 
@@ -94,10 +97,11 @@ std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::ki
     std::unique_ptr<promela_loader> loader_mutant = std::make_unique<promela_loader>(mutant_file_path, nullptr);
     std::shared_ptr<fsm> fsm_mutant = loader_mutant->getAutomata();
 
-    bool is_killed = false;
-
     // Check whether the properties kill the mutant
     // TODO implement - not sure how to do this yet - SAMI might be able to help with this
+    ltlModelChecker * mc = new ltlModelChecker();
+    bool is_killed = mc->check(fsm_mutant.get(), nullptr);
+    delete mc;
 
     // If the mutant is killed, add it to the list of killed mutants and add it to the list of surviving mutants otherwise
     if (is_killed) {
