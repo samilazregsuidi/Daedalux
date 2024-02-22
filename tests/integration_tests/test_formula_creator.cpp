@@ -14,8 +14,8 @@ protected:
   {
     // Common teardown code that will be called after each test
   }
-  std::string test1 = "/test_files/mutants/array.pml";
-  std::string test1_mutant = "/test_files/mutants/array_mutant.pml";
+  std::string array_model = "/test_files/mutants/array.pml";
+  std::string array_model_mutant = "/test_files/mutants/array_mutant.pml";
   std::string minepump = "/models/minepump/minepump.pml";
   std::string flows_model = "/test_files/basic/flows.pml";
   std::string current_path = std::filesystem::current_path();
@@ -24,7 +24,7 @@ protected:
 TEST_F(FormulaCreatorTest, test_buildVariableValueMap_one_state)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
@@ -41,7 +41,7 @@ TEST_F(FormulaCreatorTest, test_buildVariableValueMap_one_state)
 TEST_F(FormulaCreatorTest, test_buildVariableValueMap_two_states)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
@@ -75,7 +75,7 @@ TEST_F(FormulaCreatorTest, test_buildVariableValueMap_two_states_flows)
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
   std::shared_ptr<state> current_state_fsm1_ptr(current_state_fsm1);
-  auto next_state = current_state_fsm1->Post().front();
+  auto next_state = current_state_fsm1->Post().front()->Post().front()->Post().front();
   std::shared_ptr<state> next_state_ptr(next_state);
   const std::vector<std::shared_ptr<state>> states =
       std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
@@ -113,14 +113,17 @@ TEST_F(FormulaCreatorTest, groupStates_singleState)
 TEST_F(FormulaCreatorTest, groupStates_array)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
   std::shared_ptr<state> current_state_fsm1_ptr(current_state_fsm1);
   auto next_state = current_state_fsm1->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
+  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state));
   auto next_next_state = next_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
+  ASSERT_FALSE(next_state->isSame(next_next_state));
   auto next_next_next_state = next_next_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
+  ASSERT_FALSE(next_next_state->isSame(next_next_next_state));
   std::shared_ptr<state> next_state_ptr(next_state);
   std::shared_ptr<state> next_next_state_ptr(next_next_state);
   std::shared_ptr<state> next_next_next_state_ptr(next_next_next_state);
@@ -140,21 +143,20 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
   std::shared_ptr<state> current_state_fsm1_ptr(current_state_fsm1);
-  auto next_state = current_state_fsm1->Post().front();
+  auto next_state = current_state_fsm1->Post().front()->Post().front()->Post().front();
   std::shared_ptr<state> next_state_ptr(next_state);
   const std::vector<std::shared_ptr<state>> states =
       std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
 
   ASSERT_EQ(states.size(), 2);
   ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get()));
-
   formulaCreator::groupStates(states);
 }
 
 TEST_F(FormulaCreatorTest, distinguishStates_array_same_states)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
@@ -171,7 +173,7 @@ TEST_F(FormulaCreatorTest, distinguishStates_array_same_states)
 TEST_F(FormulaCreatorTest, distinguishStates_array)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
