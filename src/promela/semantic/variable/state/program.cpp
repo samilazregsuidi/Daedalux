@@ -48,13 +48,25 @@ program::program(const program* other)
 	, pidCounter(other->pidCounter)
 	, nbProcesses(other->nbProcesses)
 	, lastStepPid(other->lastStepPid)
-	, handShakeChan(other->handShakeChan)
-	, handShakeProc(other->handShakeProc)
-	, exclusiveProc(other->exclusiveProc)
+	, handShakeChan(nullptr)
+	, handShakeProc(nullptr)
+	, exclusiveProc(nullptr)
 	, timeout(other->timeout)
 {
-	assert(handShakeChan == nullptr);
-	assert(handShakeProc == nullptr);
+	if(other->handShakeChan) {
+		handShakeChan = getChannel(other->handShakeChan->getLocalName());
+		assert(handShakeChan);
+	}
+
+	if(other->handShakeProc) {
+		handShakeProc = other->getTVariable<process*>(other->handShakeProc->getName());
+		assert(handShakeProc);
+	}
+
+	if(other->exclusiveProc) {
+		exclusiveProc = other->getTVariable<process*>(other->exclusiveProc->getName());
+		assert(exclusiveProc);
+	}
 
 	assert(other->getVariables().size() == getVariables().size());
 	assert(getVariables().size());

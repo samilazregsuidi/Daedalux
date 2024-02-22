@@ -84,13 +84,13 @@ state* state::fire(transition* trans) const {
 	assert(hash() == copy->hash()); // The copy should have the same hash as the original
 	assert(copy->getOrigin() == nullptr); //the origin has been reset to nullptr
 
-	this->print();
+	//this->print();
 
 	copy->apply(trans);
 
-	copy->print();
+	//copy->print();
 
-	trans->print();
+	//trans->print();
 
 	assert(copy->origin == trans);
 	assert(trans->dst == copy);

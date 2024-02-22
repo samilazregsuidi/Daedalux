@@ -30,11 +30,6 @@ public:
 	std::list<transition*> getSubTs(void) const;
 
 	void print(void) const override;
-
-private:
-	compTransition* parent;
-	std::list<transition*> subTs; 
-	std::list<unsigned int> lines;
 };
 
 #endif

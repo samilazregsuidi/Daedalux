@@ -27,6 +27,7 @@
 		if(threshold < acc)
 			return t;
 	}
+	return nullptr;
 }
 
 /*static*/ transition* transition::select(const std::list<transition*>& transList, const std::string& action) {
@@ -80,7 +81,7 @@ transition::~transition(){
 	if(parent)
 		parent->detach(this);
 
-	assert(subTs.empty());
+	//assert(subTs.empty());
 }
 
 void transition::add(transition* t) {

@@ -99,9 +99,9 @@ public:
 
 	virtual void applyRepeated(const std::list<transition*>& transList);
 	
-	static state* apply(const state* s, transition* t);
+	//static state* apply(const state* s, transition* t);
 
-	static state* applyRepeated(const state* s, const std::list<transition*> transList);
+	//static state* applyRepeated(const state* s, const std::list<transition*> transList);
 
 	virtual std::list<state*> Post(void) const;
 

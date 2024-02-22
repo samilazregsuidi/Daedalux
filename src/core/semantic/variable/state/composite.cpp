@@ -196,9 +196,10 @@ std::list<transition*> composite::executables(void) const {
 
 void composite::apply(transition* trans) {
 	// This is temporally commented out to make some tests pass
-	//assert(trans->src == this);
+	assert(trans->src != nullptr);
+	assert(trans->src != this);
 	assert(trans->dst == nullptr); // Apply most not have been called on this transition before
-	//assert(origin == nullptr);
+	assert(origin == nullptr);
 	auto compTrans = dynamic_cast<const compTransition*>(trans);
 	// Ensure that the cast was successful
 	assert(compTrans);
