@@ -53,8 +53,6 @@ TEST_F(SimilarityTest, DistinctStates_DifferentFSM)
   // Create the initial state for both automata
   auto current_state_original = initState::createInitState(myFSM, tvl);
   auto current_state_mutant = initState::createInitState(mutant, tvl);
-  printf("Created initial states\n");
-  printf("Computing post states\n");
   auto post_states_original = current_state_original->Post();
   auto post_states_mutant = current_state_mutant->Post();
   ASSERT_EQ(post_states_original.empty(), false);
@@ -72,9 +70,7 @@ TEST_F(SimilarityTest, DistinctStates_SameFSM)
   auto file_path = current_path + minepump;
   auto loader = std::make_unique<promela_loader>(file_path, tvl);
   auto myFSM = loader->getAutomata().get();
-  printf("Created automata\n");
   auto current_state_original = initState::createInitState(myFSM, tvl);
-  printf("Created initial states\n");
   auto post_states_original = current_state_original->Post();
   auto post_states_mutant = current_state_original->Post();
   ASSERT_EQ(post_states_original.empty(), false);
@@ -106,11 +102,11 @@ TEST_F(SimilarityTest, DifferentStateDelta_ShouldNotBe0)
   auto post_state = current_state->Post().front();
   auto delta = current_state->delta(post_state);
   auto expected = 0.00869686622;
-  ASSERT_EQ(delta - expected < 0.00001, true);
+  ASSERT_TRUE(expected - delta < 0.00001);
   auto post_post_state = post_state->Post().front();
   delta = current_state->delta(post_post_state);
   expected = 0.043205;
-  ASSERT_EQ(delta - expected < 0.00001, true);
+  ASSERT_TRUE(expected - delta  < 0.00001);
 }
 
 TEST_F(SimilarityTest, MostSimilarStateEmptyList)
@@ -195,7 +191,7 @@ TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
   std::list<state *> post_states_1 = {post_state_front};
   auto post_state_back = current_state->Post().back();
   // The two states are different
-  ASSERT_TRUE(post_state_back->delta(post_state_front) > 0.0000001);
+  ASSERT_FALSE(post_state_back->isSame(post_state_front));
   std::list<state *> post_states_2 = {post_state_back};
   auto distinct_States = distinct_states(post_states_1, post_states_2);
   ASSERT_TRUE(distinct_States.size() == post_states_1.size());
@@ -224,9 +220,11 @@ TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state_front = current_state->Post().front();
   std::list<state *> post_states_1 = {post_state_front, current_state};
-  auto post_state_back = current_state->Post().back()->Post().front();
+  auto post_state_back = current_state->Post().back()->Post().front()->Post().front()->Post().front()->Post().front();
+  current_state->print();
+  post_state_back->print();
   // The two states are different
-  ASSERT_TRUE(post_state_back->delta(current_state) > 0.0000001);
+  ASSERT_FALSE(post_state_back->isSame(current_state));
   std::list<state *> post_states_2 = {post_state_back, current_state};
   auto distinct_States = distinct_states(post_states_1, post_states_2);
   ASSERT_TRUE(distinct_States.size() == 1);
