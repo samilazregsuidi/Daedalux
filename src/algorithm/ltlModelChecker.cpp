@@ -180,9 +180,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       }
       else if (current->Post.size() == 0) {
         s_hash = current->s->hash();
-
         // printf("    +-> all transitions of state %lu fired, acceptance check and backtracking...\n", s_hash);
-
         // Back these values up, the inner search will free current->state before returning
 
         if (current->s->isAccepting()) {

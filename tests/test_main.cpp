@@ -13,6 +13,8 @@
 
 #include "test_ADDutils.cpp"
 
+#include "test_ltl_creator.cpp"
+
 
 // VISUALIZER - TESTS
 #include "vizualizers/test_trace.cpp"

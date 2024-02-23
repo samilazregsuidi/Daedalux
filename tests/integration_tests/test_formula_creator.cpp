@@ -214,3 +214,37 @@ TEST_F(FormulaCreatorTest, distinguishStates_flows)
   ASSERT_EQ(exclude_states.size(), 1);
   formulaCreator::distinguishStates(include_states, exclude_states);
 }
+
+TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Globally)
+{
+  auto formula = "[](x)";
+  auto result = formulaCreator::formulaStringToNeverClaim(formula);
+  std::string expected_result =
+      "never{/*!([](x))*/\nT0_init:\n\tif\n\t::(1)->gotoT0_init\n\t::(!x)->gotoaccept_all\n\tfi;\naccept_all:\n\tskip\n}\n";
+  expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
+  result.erase(remove(result.begin(), result.end(), ' '), result.end());
+  ASSERT_EQ(result, expected_result);
+}
+
+TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Finally)
+{
+  auto formula = "<>(x)";
+  auto result = formulaCreator::formulaStringToNeverClaim(formula);
+  std::cout << "Result: " << result << std::endl;
+  std::string expected_result = "never{/*!(<>(x))*/\naccept_init:\n\tif\n\t::(!x)->gotoaccept_init\n\tfi;\n}\n";
+  expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
+  result.erase(remove(result.begin(), result.end(), ' '), result.end());
+  ASSERT_EQ(result, expected_result);
+}
+
+TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Liveness)
+{
+  auto formula = "[]((!(x)) -> <>x)";
+  auto result = formulaCreator::formulaStringToNeverClaim(formula);
+  std::string expected_result = "never{/*!([]((!(x))-><>x))*/"
+                                "\nT0_init:\n\tif\n\t::(1)->gotoT0_init\n\t::(!x)->gotoaccept_S2\n\tfi;\naccept_S2:\n\tif\n\t::"
+                                "(!x)->gotoaccept_S2\n\tfi;\n}\n";
+  expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
+  result.erase(remove(result.begin(), result.end(), ' '), result.end());
+  ASSERT_EQ(result, expected_result);
+}

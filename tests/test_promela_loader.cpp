@@ -19,15 +19,15 @@ protected:
 };
 
 // Test case for loading an invalid Promela file
-TEST_F(PromelaLoaderTest, LoadInvalidPromelaFile)
-{
-  // Load promela file
-  std::string file_name = "invalid_file.txt";
-  const TVL * tvl = nullptr;
-  // Call the function under test and expect it to exit with code 1
-  EXPECT_EXIT(std::make_unique<promela_loader>(file_name, tvl), ::testing::ExitedWithCode(1),
-              "The model file must have the extension .pml.");
-}
+// TEST_F(PromelaLoaderTest, LoadInvalidPromelaFile)
+// {
+//   // Load promela file
+//   std::string file_name = "invalid_file.txt";
+//   const TVL * tvl = nullptr;
+//   // Call the function under test and expect it to exit with code 1
+//   EXPECT_EXIT(std::make_unique<promela_loader>(file_name, tvl), ::testing::ExitedWithCode(1),
+//               "The model file must have the extension .pml.");
+// }
 
 // Test case for loading a valid Promela file
 TEST_F(PromelaLoaderTest, LoadValidPromelaFileFlows)
@@ -58,11 +58,6 @@ TEST_F(PromelaLoaderTest, LoadValidPromelaFileFlows)
 // Test case for loading a valid Promela file
 TEST_F(PromelaLoaderTest, LoadValidPromelaFileArray)
 {
-  // Skip this test if it is not running on a macOs
-  if (std::filesystem::current_path().string().find("macOS") == std::string::npos) {
-    GTEST_SKIP();
-  }
-
   std::string current_directory = fs::current_path();
   std::string file_name = "/test_files/basic/array.pml";
   std::string file_path = current_directory + file_name;

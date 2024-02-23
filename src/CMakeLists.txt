@@ -4,9 +4,6 @@ project(daedalux LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 #set(ASAN -fsanitize=address -fno-omit-frame-pointer -static-libasan)
-# enable_testing()
-
-# add_subdirectory(tests)
 
 set(Parser "y.tab.cpp")
 set(Lexer "lex.yy.cpp")
@@ -234,6 +231,7 @@ target_link_directories(daedalux_lib
 
 target_link_libraries(daedalux_lib libobj.a libcudd.a)
 add_dependencies(daedalux_lib CUDD_project)
+add_dependencies(daedalux_lib LTL2BA_project)
 
 add_executable(daedalux
 	core/ast/astNode.cpp
@@ -416,3 +414,5 @@ target_link_libraries(daedalux libobj.a libcudd.a)
 
 add_dependencies(daedalux CUDD_project)
 add_dependencies(daedalux LTL2BA_project)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libs/bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

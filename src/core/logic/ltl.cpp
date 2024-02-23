@@ -1,50 +1,80 @@
-#include <errno.h>
 #include "ltl.hpp"
 #include "assert.h"
+#include <errno.h>
+#include <filesystem>
+#include <iostream> // Include the <iostream> header
 
-int appendClaim(const std::string& file, const std::string& path, const std::string& ltl, std::string& error) {
-	
-	if(system(std::string(path + "libs/ltl2ba/ltl2ba -f \"!("+ltl+")\" > __formula.tmp").c_str()) != 0) {
-		FILE* fsource;
-		fsource = fopen("__formula.tmp", "r");
-		if(fsource != NULL) {
-			int i = 0;
-			do {
-				error[i] = fgetc(fsource);
-				i++;
-			} while(!feof(fsource));
-			error[i-2] = '\0';
-			fclose(fsource);
-		}
-	} else {
-		FILE* fsource;
-		FILE* ftarget;
-		fsource = fopen("__formula.tmp", "r");
-		ftarget = fopen(file.c_str(), "a");
+std::string transformLTLStringToNeverClaim(const std::string & ltl)
+{
+  std::string currentPath = std::filesystem::current_path().string();
+  std::string ltl2baPath = currentPath + "/../src/bin/ltl2ba";
+  // Assert that the ltl2ba binary exists
+  if (!std::filesystem::exists(ltl2baPath)) {
+    printf("Could not find the ltl2ba binary!\n");
+    assert(false);
+  }
+  // Create a temporary file to store the never claim
+  std::string formulaPath = currentPath + "/__formula.tmp";
 
-		if(fsource == NULL || ftarget == NULL) {
-			printf("Could not append the never claim to the promela file!\n");
-			assert(false);
-		} else {
-			fputc('\n', ftarget);
-			fputs(("# 25 \""+ltl+"\" \n").c_str(), ftarget);
-			char buffer;
-			buffer = fgetc(fsource);
-			while(!feof(fsource)) {
-				fputc(buffer, ftarget);
-				buffer = fgetc(fsource);
-			}
-			fclose(fsource);
-			fclose(ftarget);
+  std::string negatedLTL = "!(" + ltl + ")";
+  // Call LTL2BA to transform the LTL formula into a never claim
+  auto result = system(std::string(ltl2baPath + " -f \"" + negatedLTL + "\" > " + formulaPath).c_str());
+  if (result != 0) {
+    printf("Could not transform the LTL formula into a never claim!\n");
+    assert(false);
+  }
+  FILE * formulaFile;
+  formulaFile = fopen("__formula.tmp", "r");
+  if (formulaFile == NULL) {
+    printf("Could not open the never claim file!\n");
+    assert(false);
+  }
+  std::string neverClaim;
+  char buffer;
+  buffer = fgetc(formulaFile);
+  while (!feof(formulaFile)) {
+    neverClaim += buffer;
+    buffer = fgetc(formulaFile);
+  }
+  fclose(formulaFile);
+  remove(formulaPath.c_str());
+  return neverClaim;
+}
 
-			//if(!keepTempFiles) remove("__formula.tmp");
-			return 1;
-		}
+int appendClaimToFile(const std::string & file, const std::string & ltl)
+{
+  std::string neverClaim = transformLTLStringToNeverClaim(ltl);
+  FILE * ftarget;
+  // Open the file to append the never claim to it
+  ftarget = fopen(file.c_str(), "a");
+  if (ftarget == NULL) {
+    printf("Could not append the never claim to the promela file - invalid file path!\n");
+    return 0;
+  }
+  fputc('\n', ftarget);
+  fputs(("# 25 \"" + ltl + "\" \n").c_str(), ftarget);
+  for (char c : neverClaim) {
+	fputc(c, ftarget);
+  }
+  fclose(ftarget);
+  return 1;
+}
 
-		if(fsource != NULL) fclose(fsource);
-		if(ftarget != NULL) fclose(ftarget);
-	}
-
-	//if(!keepTempFiles) remove("__formula.tmp");
-	return 0;
+int appendClaim(const std::string & file, const std::string & path, const std::string & ltl, std::string & error)
+{
+  std::string neverClaim = transformLTLStringToNeverClaim(ltl);
+  FILE * ftarget;
+  // Open the file to append the never claim to it
+  ftarget = fopen(file.c_str(), "a");
+  if (ftarget == NULL) {
+    printf("Could not append the never claim to the promela file - invalid file path!\n");
+    return 0;
+  }
+  fputc('\n', ftarget);
+  fputs(("# 25 \"" + ltl + "\" \n").c_str(), ftarget);
+  for (char c : neverClaim) {
+	fputc(c, ftarget);
+  }
+  fclose(ftarget);
+  return 1;
 }
