@@ -47,6 +47,13 @@ add_custom_target(CUDD_project
 	COMMENT "building CUDD"
 )
 
+# Build LTL2BA
+add_custom_target(LTL2BA_project
+	COMMAND sh install.sh
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/ltl2ba
+	COMMENT "building LTL2BA"
+)
+
 # Create a library from the source files
 add_library(daedalux_lib STATIC
 	core/ast/astNode.cpp
@@ -153,7 +160,6 @@ add_library(daedalux_lib STATIC
 	visualizer/traceReport.cpp
 
 	formulas/formulaCreator.cpp
-
 )
 
 target_include_directories(daedalux_lib
@@ -334,7 +340,6 @@ add_executable(daedalux
 	mutants/mutantAnalyzer.cpp
 
 	formulas/formulaCreator.cpp
-    
 	)
 
 target_include_directories(daedalux
@@ -410,3 +415,4 @@ target_link_directories(daedalux
 target_link_libraries(daedalux libobj.a libcudd.a)
 
 add_dependencies(daedalux CUDD_project)
+add_dependencies(daedalux LTL2BA_project)
