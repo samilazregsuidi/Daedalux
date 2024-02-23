@@ -35,4 +35,5 @@ private:
 
   void checkNeverClaim(std::shared_ptr<state> init);
   void resetCounters();
+  void emptyStack(elementStack & stack);
 };

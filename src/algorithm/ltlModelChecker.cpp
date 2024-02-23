@@ -119,10 +119,8 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       // current->s->print();
       // printf("    +-> exploring %lu...\n", s_hash);
       // current->setErrorStatus = _nbErrors;
-
       // ..., or there is a transition to be executed:
       if (current->Post.size() > 0) {
-
         // printf("    +-> peecking state %lu...\n", s_hash);
 
         auto s_ = *current->Post.begin();
@@ -213,12 +211,18 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
   }   // end while
 
   assert(stackOuter.empty() || !exhaustive);
-  while (!stackOuter.empty()) {
-    stackOuter.pop();
-  }
+
+  emptyStack(stackOuter);
 
   // TVL::printBool(R.getFailedProducts());
   return R.hasErrors();
+}
+
+void ltlModelChecker::emptyStack(elementStack & stack)
+{
+  while (!stack.empty()) {
+    stack.pop();
+  }
 }
 
 byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles)
@@ -295,7 +299,6 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
           nbStatesStops++;
         }
         else if (status == STATES_SAME_S1_FRESH) {
-
           // The state is not a new state:
           if (lastFoundIn == reachabilityRelation::DFS_INNER) {
             // printf("                 - inner state %lu visited, but features fresh\n", s_hash);
@@ -329,9 +332,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
 
   // If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
   // if(error /* not needed: && exhaustive */
-
-  while (!stackInner.empty())
-    stackInner.pop();
+  emptyStack(stackInner);
 
   return R.hasErrors();
 }
