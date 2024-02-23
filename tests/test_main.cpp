@@ -29,10 +29,11 @@
 
 // SEMANTIC - TESTS
 #include "semantic/test_init_state.cpp"
+#include "semantic/test_executables.cpp"
 
 // INTEGRATION TESTS
 #include "integration_tests/test_mutantgeneration.cpp"
-#include "integration_tests/test_ltlModelChecker.cpp"
+#include "integration_tests/test_ltlmodelChecker.cpp"
 #include "integration_tests/test_most_similar_trans.cpp"
 #include "integration_tests/test_trace_generator.cpp"
 #include "integration_tests/test_bisimulation.cpp"

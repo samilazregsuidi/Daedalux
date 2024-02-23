@@ -39,15 +39,12 @@ rendezVousTransition::rendezVousTransition(const rendezVousTransition* other)
 	, question(nullptr)
 	, response(nullptr)
 {
-	question = other->question->deepCopy();
+	question = subTs.front();
 	if(other->response)
-		response = other->response->deepCopy();
+		response = subTs.back();
 }
 
 rendezVousTransition::~rendezVousTransition() {
-	delete question;
-	if(response)
-		delete response;
 }
 
 transition* rendezVousTransition::getQuestion(void) const {

@@ -36,11 +36,13 @@ public:
 
 	void printDelta(const variable* v2) const override;
 
-	void send(const std::list<const variable*>& args);
+	void send(const std::list<arg>& args);
 
 	void reset(void) override;
 
-	void receive(const std::list<variable*>& rargs);
+	bool isReceivable(const std::list<arg>& rargs) const;
+
+	void receive(const std::list<arg>& rargs);
 
 	bool isRendezVous(void) const;
 

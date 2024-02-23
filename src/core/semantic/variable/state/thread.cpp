@@ -123,81 +123,54 @@ variable * thread::getVariable(const expr * varExpr) const
   return variable::getVariable(varName);
 }
 
-std::list<variable *> thread::getVariables(const exprArgList * args) const
+/**
+ * @brief Get the arguments of a channel send.
+ * get the variables or the values of the arguments of a channel send.
+ * @param args
+ * @return std::list<arg> 
+*/
+
+std::list<arg> thread::getArgs(const exprArgList * args) const
 {
-  std::list<variable *> res;
+  std::list<arg> res;
   while (args) {
     auto exp = args->getExprArg()->getExpr();
-    variable * ptr;
     if (exp->getType() == astNode::E_EXPR_CONST)
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
+      res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
     else
-      ptr = getVariable(exp)->deepCopy();
-    res.push_back(ptr);
+      res.push_back(arg(dynamic_cast<primitiveVariable*> (getVariable(exp)->deepCopy())));
     args = args->getArgList();
   }
   return res;
 }
 
-std::list<const variable *> thread::getConstVariables(const exprArgList * args) const
-{
-  std::list<const variable *> res;
-  while (args) {
-    auto exp = args->getExprArg()->getExpr();
-    const variable * ptr;
-    if (exp->getType() == astNode::E_EXPR_CONST)
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
-    else
-      ptr = getVariable(exp);
-    res.push_back(ptr);
-    args = args->getArgList();
-  }
-  return res;
-}
+/**
+ * @brief Get the arguments of a channel receive.
+ * get the variables or the values of the arguments of a channel receive.
+ * variables are used to store the values of the received arguments.
+ * values are used to compare the received arguments with the expected ones.
+ * values should be equal to the received arguments to be executed
+ * @param rargs
+ * @return std::list<arg> 
+*/
 
-std::list<variable *> thread::getVariables(const exprRArgList * rargs) const
+std::list<arg> thread::getRArgs(const exprRArgList * rargs) const
 {
-  std::list<variable *> res;
+  std::list< arg> res;
   while (rargs) {
     auto exp = rargs->getExprRArg();
-    variable * ptr;
     switch (exp->getType()) {
     case astNode::E_RARG_CONST:
     case astNode::E_RARG_EVAL:
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
+      res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
       break;
     case astNode::E_RARG_VAR:
-      ptr = getVariable(exp);
+      res.push_back(arg(dynamic_cast<primitiveVariable*> (getVariable(exp)->deepCopy())));
       break;
     default:
       assert(false);
       break;
     }
-    res.push_back(ptr);
-    rargs = rargs->getRArgList();
-  }
-  return res;
-}
-
-std::list<const variable *> thread::getConstVariables(const exprRArgList * rargs) const
-{
-  std::list<const variable *> res;
-  while (rargs) {
-    auto exp = rargs->getExprRArg();
-    const variable * ptr;
-    switch (exp->getType()) {
-    case astNode::E_RARG_CONST:
-    case astNode::E_RARG_EVAL:
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
-      break;
-    case astNode::E_RARG_VAR:
-      ptr = getVariable(exp)->deepCopy();
-      break;
-    default:
-      assert(false);
-      break;
-    }
-    res.push_back(ptr);
     rargs = rargs->getRArgList();
   }
   return res;

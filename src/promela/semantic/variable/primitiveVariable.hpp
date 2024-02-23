@@ -3,6 +3,27 @@
 
 #include "variable.hpp"
 
+class primitiveVariable;
+
+struct arg {
+  
+  arg(primitiveVariable * variable) 
+    : type(VAR) { data.variable = variable; }
+  
+  arg(int value) 
+    : type(VAL) { data.value = value; }
+  
+  enum {
+    VAR,
+    VAL
+  } type;
+
+  union {
+    primitiveVariable * variable;
+    int value;
+  } data;
+};
+
 class primitiveVariable : public variable {
 public:
   primitiveVariable(const varSymNode * const sym, unsigned int index = 0);
@@ -30,6 +51,8 @@ public:
   virtual void reset(void) override;
 
   virtual int operator=(const primitiveVariable & rvalue);
+
+  virtual int operator=(const arg & rvalue);
 
   virtual int operator++(void);
 

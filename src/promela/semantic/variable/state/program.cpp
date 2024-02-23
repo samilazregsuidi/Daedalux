@@ -451,10 +451,10 @@ void program::apply(transition* trans) {
 
 		proc->apply(rdvTrans->getQuestion());
 
-		auto responseTrans = dynamic_cast<threadTransition*>(rdvTrans->getQuestion());
+		auto responseTrans = dynamic_cast<threadTransition*>(rdvTrans->getResponse());
 		if(responseTrans) {
 			auto responseProc = getProc(responseTrans->getThread()->getPid());
-			responseProc->apply(rdvTrans->getQuestion());
+			responseProc->apply(rdvTrans->getResponse());
 		}
 		prob *= trans->prob;
 

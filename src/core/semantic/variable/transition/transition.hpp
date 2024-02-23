@@ -54,6 +54,8 @@ public:
 
 	void detach(const std::list<transition*>& Ts);
 
+	transition* getTransition(const std::string& stateName) const;
+
 	virtual void accept(transitionVisitor* visitor) = 0;
 
 	virtual bool operator==(const transition* other) const;

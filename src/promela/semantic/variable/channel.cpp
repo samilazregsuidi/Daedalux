@@ -57,7 +57,7 @@ void channel::reset(void) {
 }
 
 //int return type for executability check?
-void channel::send(const std::list<const variable*>& args) {
+void channel::send(const std::list<arg>& args) {
 	
 	auto argIt = args.cbegin();
 
@@ -66,7 +66,7 @@ void channel::send(const std::list<const variable*>& args) {
 		//field->print();
 		//(*argIt)->print();
 
-		*dynamic_cast<primitiveVariable*>(field) = *dynamic_cast<const primitiveVariable*>(*argIt++);
+		*dynamic_cast<primitiveVariable*>(field) = *argIt++;
 
 		//field->print();
 	
@@ -78,18 +78,33 @@ void channel::send(const std::list<const variable*>& args) {
 
 //TODO : Make it work for a dynamic channel, add stack management
 
-void channel::receive(const std::list<variable*>& rargs) {
+bool channel::isReceivable(const std::list<arg>& rargs) const {
+	if(!isRendezVous() && len() == getCapacity())
+		return false;
+
+	auto rargIt = rargs.cbegin();
+	for(auto field : varList) {
+		auto rarg = (*rargIt++);
+		switch (rarg.type) {
+			case arg::VAL:
+				if(rarg.data.value != dynamic_cast<primitiveVariable*>(field)->getValue())
+					return false;
+				break;
+		}
+	}
+
+	return true;
+}
+
+void channel::receive(const std::list<arg>& rargs) {
 
 	auto rargIt = rargs.begin();
-
 	for(auto field : varList) {
-		
-		auto rarg = (*rargIt);
-		//rarg->print();
-		//field->print();
-
-		if(rarg->getLocalName() != std::string("_")) {
-			*dynamic_cast<primitiveVariable*>(*rargIt++) = *dynamic_cast<primitiveVariable*>(field);
+		auto rarg = (*rargIt++);
+		switch (rarg.type) {
+			case arg::VAR:
+				*rarg.data.variable = *dynamic_cast<primitiveVariable*>(field);
+				break;
 		}
 		//rarg->print();
 	}
@@ -98,7 +113,6 @@ void channel::receive(const std::list<variable*>& rargs) {
 		reset();
 	else 
 		len(len()-1);
-	
 }
 
 //to move to variable class?

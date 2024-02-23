@@ -116,6 +116,20 @@ void transition::detach(const std::list<transition*>& Ts) {
 		detach(t);
 }
 
+transition* transition::getTransition(const std::string& stateName) const {
+
+	for(auto t : subTs) {
+		if(t->src->name == stateName)
+			return t;
+		else {
+			auto res = t->getTransition(stateName);
+			if(res)
+				return res;
+		}
+	}
+	return nullptr;
+}
+
 double transition::getProbability(void) const {
 	return prob;
 }

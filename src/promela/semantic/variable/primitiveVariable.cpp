@@ -66,6 +66,21 @@ int primitiveVariable::operator=(const primitiveVariable & rvalue)
   return res;
 }
 
+int primitiveVariable::operator=(const arg & rvalue)
+{
+  switch (rvalue.type) {
+  case arg::VAL:
+    setValue(rvalue.data.value);
+    break;
+
+  case arg::VAR:
+    auto var = dynamic_cast<const primitiveVariable *>(rvalue.data.variable);
+    assert(var);
+    setValue(rvalue.data.variable->getValue());
+    break;
+  }
+}
+
 int primitiveVariable::operator++(void)
 {
   auto temp = getValue();

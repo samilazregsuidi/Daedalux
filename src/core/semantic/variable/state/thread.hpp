@@ -76,13 +76,13 @@ public:
 
   variable * getVariable(const expr * varExpr) const;
 
-  std::list<variable *> getVariables(const exprArgList * args) const;
+  std::list<arg> getArgs(const exprArgList * args) const;
 
-  std::list<const variable *> getConstVariables(const exprArgList * args) const;
+  //std::list<const arg> getConstArgs(const exprArgList * args) const;
 
-  std::list<variable *> getVariables(const exprRArgList * rargs) const;
+  std::list<arg> getRArgs(const exprRArgList * rargs) const;
 
-  std::list<const variable *> getConstVariables(const exprRArgList * rargs) const;
+  //std::list<const arg> getConstRArgs(const exprRArgList * rargs) const;
 
   channel * getChannel(const expr * varExpr) const;
 
