@@ -118,7 +118,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	// createStateSpaceBFS(automata, tvl);
 
 	ltlModelChecker* mc = new ltlModelChecker();
-	mc->startNestedDFS(automata.get(), tvl.get());
+	auto result = mc->check(automata.get(), tvl.get());
 	delete mc;
 
 	// createStateSpaceDFS_RR(automata, tvl);

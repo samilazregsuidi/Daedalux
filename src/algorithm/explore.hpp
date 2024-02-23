@@ -10,6 +10,7 @@
 
 #include "elementStack.hpp"
 #include "reachabilityRelation.hpp"
+#include "stateToGraphViz.hpp"
 #include "traceReport.hpp"
 
 typedef char byte;
@@ -17,18 +18,7 @@ typedef unsigned char ubyte;
 
 #include "stateVisitor.hpp"
 
-class ltlModelChecker {
-public:
-
-  bool check(const fsm * automata, const TVL * tvl);
-  void startNestedDFS(const fsm * automata, const TVL * tvl);
-  byte outerDFS(elementStack & stackOuter);
-  byte innerDFS(elementStack & stackInner, const elementStack & stackOuter);
-
-  reachabilityRelation R;
-};
-
-void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> & outerStack,
+void printElementStack(stateToGraphViz * graphVis, const std::stack<std::shared_ptr<elementStack::element>> & outerStack,
                        const std::stack<std::shared_ptr<elementStack::element>> & innerStack =
                            std::stack<std::shared_ptr<elementStack::element>>(),
                        const state * loopBegin = nullptr);

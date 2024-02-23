@@ -140,6 +140,7 @@ add_library(daedalux_lib STATIC
 	feature/semantic/variable/transition/featuredTransition.cpp
 
 	algorithm/explore.cpp
+	algorithm/ltlModelChecker.cpp
 	algorithm/elementStack.cpp
 	algorithm/reachabilityRelation.cpp
 	algorithm/traceGenerator.cpp
@@ -320,6 +321,7 @@ add_executable(daedalux
 	feature/semantic/variable/transition/featuredTransition.cpp
 	
 	algorithm/explore.cpp
+	algorithm/ltlModelChecker.cpp
 	algorithm/elementStack.cpp
 	algorithm/reachabilityRelation.cpp
 	algorithm/traceGenerator.cpp

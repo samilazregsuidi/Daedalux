@@ -2,6 +2,7 @@
 #include "mutantAnalyzer.hpp"
 #include "../formulas/formulaCreator.hpp"
 #include "explore.hpp"
+#include "ltlModelChecker.hpp"
 #include "promela_loader.hpp"
 #include "traceGenerator.hpp"
 #include <iostream>

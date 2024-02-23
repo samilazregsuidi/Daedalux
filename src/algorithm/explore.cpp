@@ -8,7 +8,6 @@
 #include "initState.hpp"
 #include "process.hpp"
 #include "semantic.hpp"
-#include "stateToGraphViz.hpp"
 #include "transition.hpp"
 
 #define PRINT_STATE print
@@ -17,6 +16,7 @@
 
 stateToGraphViz * graphVis = nullptr;
 
+// TODO: Do we this method?
 void launchExecution(const fsm * automata, const TVL * tvl)
 {
   state * current = initState::createInitState(automata, tvl);
@@ -161,7 +161,6 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
   current->PRINT_STATE();
 
   graphVis = new stateToGraphViz(automata);
-
   graphVis->printGraphViz(current);
 
   std::vector<std::string> scheduler;
@@ -455,18 +454,14 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
       if (status == STATES_SAME_S1_VISITED) {
         // printf("************* already visited state **************\n");
         // graphVis->printGraphViz(n.get(), depth);
-
         // delete n;
       }
       // TODO: Sami look at this
       else if (STATES_S1_NEVER_VISITED || STATES_SAME_S1_FRESH) {
         st.push(n, depth);
-
         // graphVis->printGraphViz(n.get(), depth);
-
         ++depth;
         i++;
-
         // graphVis->printGraphViz(n.get(), depth);
       }
       else {
@@ -487,408 +482,6 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
   delete graphVis;
 }
 
-// static 		unsigned int _nbErrors = 0;				// Total number of encountered problems
-static long unsigned int _nbStatesExplored = 1; // Total of distinct states (without features) explored
-static long unsigned int _nbStatesReExplored =
-    0; // Total of states that had to be re-explored because new products were found to be able to reach them
-static long unsigned int _nbStatesStops =
-    0; // Total of states where exploration backtracked because they were already visited before
-static long unsigned int _nbStatesExploredInner = 0;   // As before, but for inner search.
-static long unsigned int _nbStatesReExploredInner = 0; // As before, but for inner search.
-static long unsigned int _nbStatesStopsInner = 0;      // As before, but for inner search.
-static long unsigned int _depth = 0;                   // Current exploration depth (inner and outer)
-
-bool ltlModelChecker::check(const fsm * automata, const TVL * tvl)
-{
-  R = reachabilityRelation();
-
-  _nbStatesExplored = 0;
-  _nbStatesReExplored = 0;
-
-  // Create initial state
-  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
-
-  auto neverClaim = init->getNeverClaim();
-  assert(neverClaim);
-  auto neverTrans = neverClaim->transitions();
-  if (!neverClaim || neverClaim->nullstate() || neverTrans.size() == 0) {
-    printf("init->never is NULL\n");
-    assert(false);
-  }
-
-  transition::erase(neverTrans);
-
-  elementStack stack;
-  stack.push(init);
-
-  printf("state size : %lu\n", init->getSizeOf());
-
-  auto seach_result = outerDFS(stack);
-  return seach_result == 0;
-}
-
-// Can use the check method to check if the property is satisfied
-void ltlModelChecker::startNestedDFS(const fsm * automata, const TVL * tvl)
-{
-  _nbStatesExplored = 0;
-  _nbStatesReExplored = 0;
-  printf("[startNestedDFS]\n");
-
-  // Create initial state
-  std::shared_ptr<state> init(initState::createInitState(automata, tvl));
-
-  graphVis = new stateToGraphViz(automata);
-
-  // graphVis->printGraphViz(init, _depth);
-
-  // init->print();
-
-  // Sanity checks
-  auto neverClaim = init->getNeverClaim();
-  assert(neverClaim);
-  auto neverTrans = neverClaim->transitions();
-  if (!neverClaim || neverClaim->nullstate() || neverTrans.size() == 0) {
-    printf("init->never is NULL\n");
-    assert(false);
-  }
-
-  transition::erase(neverTrans);
-
-  elementStack stack;
-  stack.push(init);
-
-  printf("state size : %lu\n", init->getSizeOf());
-
-  if (outerDFS(stack) == 0) {
-    printf("Property satisfied");
-    printf(" [explored %lu states, re-explored %lu, stops %lu].\n", _nbStatesExplored, _nbStatesReExplored, _nbStatesStops);
-    if (_nbStatesExploredInner != 0)
-      printf("The inner search explored %lu states and re-explored %lu.\n", _nbStatesExploredInner, _nbStatesReExploredInner);
-  }
-  else {
-    /*auto _failProducts = R.getFailedProducts();
-    auto _nbErrors = R.nbErrors;
-    auto _allProductsFail = (tvl->getFeatureModelClauses() & ~_failProducts).IsZero();*/
-    printf("\n");
-    printf("Non Exhaustive search finished ");
-    printf(" [explored %lu states, re-explored %lu].\n", _nbStatesExplored, _nbStatesReExplored);
-    if (_nbStatesExploredInner != 0)
-      printf("The inner search explored %lu states and re-explored %lu.\n", _nbStatesExploredInner, _nbStatesReExploredInner);
-
-    // if(_nbErrors == 1) printf(" -  One problem found");
-    // else printf(" - %u problems were found", _nbErrors);
-    /*if(_allProductsFail || isTautology(_failProducts))
-            printf(" covering every product.\n");
-    else {
-            printf(" covering the following products (others are ok):\n");
-            TVL::printBool(_failProducts);
-            printf("\n");
-    }*/
-    printf("\n");
-  }
-
-  delete graphVis;
-}
-
-int i = 0;
-
-byte ltlModelChecker::outerDFS(elementStack & stackOuter)
-{
-
-  byte exhaustive = 0;
-
-  R.getStatus(stackOuter.top()->s.get());
-  R.init(stackOuter.top()->s.get());
-
-  // graphVis->printGraphViz(stackOuter.top()->s);
-
-  // Execution continues as long as the
-
-  //  - stack is not empty
-  //  - no error was found (except in the exhaustive case)
-  while (!stackOuter.empty() && (!R.hasErrors() || exhaustive) /*&& !R.isComplete()*/) {
-
-    auto current = stackOuter.top();
-    // graphVis->printGraphViz(current->s);
-
-    auto s_hash = current->s->hash();
-
-    if (current->s->getErrorMask() & state::ERR_DEADLOCK) {
-
-      printf("Found deadlock");
-      printElementStack(stackOuter.stackElem);
-      assert(false);
-    }
-    else if (current->s->safetyPropertyViolation()) {
-      // Safety property violated.
-      // We have to pop two states off the stack to get to the violating state:
-      //  -> the current top is a skip transition fired from an accepting state
-      //  -> the state below that is the accepting state
-      //  -> the state below that is the state that actually led to the accepting state to be reachable.
-      //     i.e. this state is the actual violating state.
-
-      printf("Safety property violated %lu.\n", s_hash);
-      printElementStack(stackOuter.stackElem);
-
-      R.addTraceViolation(current->s.get());
-
-      stackOuter.pop();
-
-      // auto newTop = stackOuter.top();
-      // graphVis->printGraphViz(newTop->s);
-
-      stackOuter.pop();
-
-      // newTop = stackOuter.top();
-      // graphVis->printGraphViz(newTop->s);
-
-      stackOuter.pop();
-
-      _depth -= 3;
-
-      // Otherwise, the state can be explored (or exploration continue)
-    }
-    else {
-
-      // current->s->print();
-      // printf("    +-> exploring %lu...\n", s_hash);
-      // current->setErrorStatus = _nbErrors;
-
-      // ..., or there is a transition to be executed:
-      if (current->Post.size() > 0) {
-
-        // printf("    +-> peecking state %lu...\n", s_hash);
-
-        auto s_ = *current->Post.begin();
-        s_hash = s_->hash();
-
-        current->Post.pop_front();
-
-        // s_->print();
-
-        // graphVis->printGraphViz(s_);
-
-        // s_->print();
-
-        if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-          // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
-
-          R.addTraceViolation(current->s.get());
-
-          // delete s_;
-          s_ = nullptr;
-        }
-        else {
-
-          // get the status before update!
-          auto status = R.getStatus(s_.get());
-          // graphVis->printGraphViz(s_, _depth);
-
-          if (status == STATES_SAME_S1_VISITED) {
-            // printf("         - state %lu already visited.\n", s_hash);
-            // s_->print();
-            // delete s_;
-
-            _nbStatesStops++;
-          }
-          else {
-
-            // graphVis->printGraphViz(s_, _depth);
-
-            if (status == STATES_SAME_S1_FRESH) {
-
-              // The state is not a new state:
-              // printf("         - state %lu visited but features fresh, pushing on stack.\n", s_hash);
-
-              // graphVis->printGraphViz(s_);
-
-              _nbStatesReExplored++;
-            }
-            else if (status == STATES_S1_NEVER_VISITED) {
-
-              // graphVis->printGraphViz(s_, _depth);
-
-              _nbStatesExplored++;
-
-              // printf("         - state fresh %lu, pushing on stack.\n", s_hash);
-            }
-
-            R.update(s_.get());
-            // assert(R.getStatus(s_.get()) != status);
-
-            _depth++;
-            stackOuter.push(s_, _depth);
-          }
-        }
-      }
-      else if (current->Post.size() == 0) {
-
-        s_hash = current->s->hash();
-
-        // printf("    +-> all transitions of state %lu fired, acceptance check and backtracking...\n", s_hash);
-
-        // Back these values up, the inner search will free current->state before returning
-
-        if (current->s->isAccepting()) {
-          _depth++;
-          _nbStatesExploredInner++;
-
-          // printf("    +-> found accepting state %lu, starting inner...\n", s_hash);
-          elementStack stackInner;
-          std::shared_ptr<state> s_ptr(current->s->deepCopy());
-          stackInner.push(s_ptr, _depth);
-
-          // error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
-          R.setDFS(reachabilityRelation::DFS_INNER);
-          innerDFS(stackInner, stackOuter);
-          R.setDFS(reachabilityRelation::DFS_OUTER);
-          // it will have been destroyed when the innerDFS backtracked for the last time
-          // delete current->s;
-        }
-
-        // current->s = nullptr;
-        stackOuter.pop();
-        _depth--;
-        // printf("    +-> State %lu erase from the hast table.\n", s_hash);
-      }
-
-    } // explore state
-  }   // end while
-
-  // If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
-  // if(error /* not needed: && exhaustive */
-
-  assert(stackOuter.empty() || !exhaustive);
-  while (!stackOuter.empty()) {
-    stackOuter.pop();
-  }
-
-  // TVL::printBool(R.getFailedProducts());
-  return R.hasErrors();
-}
-
-byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & stackOuter)
-{
-
-  byte exhaustive = 0;
-
-  // Execution continues as long as the
-  //  - stack is not empty
-  //  - no error was found (except in the exhaustive case)
-  while (!stackInner.empty() && (!R.hasErrors() || exhaustive) /*&& !R.isComplete()*/) {
-
-    auto current = stackInner.top();
-    auto s_hash = current->s->hash();
-
-    // current->s->print();
-    // printf("    +-> inner exploring %lu...\n", s_hash);
-    // current->setErrorStatus = _nbErrors;
-
-    if (current->s->getErrorMask() & state::ERR_DEADLOCK) {
-
-      printf("Found deadlock");
-      printElementStack(stackOuter.stackElem);
-      assert(false);
-    }
-
-    // If we have explored all transitions of the state (!current->E_never; see "struct stackElt"
-    // in stack.h), we check whether the state is accepting and start a backlink search if it is;
-    // otherwise just backtrack
-    if (current->Post.size() == 0) {
-      // printf("    +-> inner all transitions of state %lu fired, backtracking...\n", s_hash);
-      stackInner.pop();
-      _depth--;
-
-      // ..., or there is a transition to be executed:
-    }
-    else if (current->Post.size() > 0) {
-
-      // printf("    +-> inner peecking state %lu...\n", s_hash);
-
-      auto s_ = *current->Post.begin();
-      current->Post.pop_front();
-
-      // s_->print();
-
-      s_hash = s_->hash();
-      bool onSt = stackOuter.isIn(s_hash);
-
-      // graphVis->printGraphViz(s_);
-
-      if (onSt || s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
-
-        if (onSt) {
-          printf("Property violated\n");
-        }
-        else {
-          // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
-        }
-
-        stackInner.push(s_, _depth + 1);
-        printElementStack(stackOuter.stackElem, stackInner.stackElem, s_.get());
-        stackInner.pop();
-
-        R.addTraceViolation(current->s.get());
-      }
-      else {
-
-        // get the status before update!
-        auto status = R.getStatus(s_.get());
-
-        // graphVis->printGraphViz(s_, _depth);
-
-        auto lastFoundIn = R.lastFoundIn(s_.get());
-        // update put to inner if outer
-        R.update(s_.get());
-        assert(R.lastFoundIn(s_.get()) == reachabilityRelation::DFS_INNER);
-
-        if (status == STATES_SAME_S1_VISITED) {
-          // printf("         - inner state %lu already visited.\n", s_hash);
-          _nbStatesStops++;
-        }
-        else if (status == STATES_SAME_S1_FRESH) {
-
-          // The state is not a new state:
-          if (lastFoundIn == reachabilityRelation::DFS_INNER) {
-            // printf("                 - inner state %lu visited, but features fresh\n", s_hash);
-            _nbStatesReExploredInner++;
-          }
-          else {
-            // printf("                 - inner state %lu only visited during outer search\n", s_hash);
-            _nbStatesExploredInner++;
-          }
-          // done by the reachability relation object logic
-          // graphVis->printGraphViz(s_);
-
-          _depth++;
-          _nbStatesReExplored++;
-
-          // will put to inner if it was outer
-          stackInner.push(s_, _depth);
-        }
-        else {
-
-          printElementStack(stackOuter.stackElem, stackInner.stackElem, s_.get());
-          printf("Bug! The above state was found during the inner DFS but not during the outer! Aborting.\n");
-          assert(false);
-        }
-        // fresh state
-
-        // no assert violation
-      }
-    } // fire post
-
-  } // end while
-
-  // If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
-  // if(error /* not needed: && exhaustive */
-
-  while (!stackInner.empty())
-    stackInner.pop();
-
-  return R.hasErrors();
-}
-
 std::stack<std::shared_ptr<elementStack::element>> reverse(const std::stack<std::shared_ptr<elementStack::element>> & stack)
 {
   std::stack<std::shared_ptr<elementStack::element>> reversed;
@@ -900,12 +493,12 @@ std::stack<std::shared_ptr<elementStack::element>> reverse(const std::stack<std:
   return reversed;
 }
 
-void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> & outerStack,
+void printElementStack(stateToGraphViz * stateGraphVis, const std::stack<std::shared_ptr<elementStack::element>> & outerStack,
                        const std::stack<std::shared_ptr<elementStack::element>> & innerStack, const state * loopBegin)
 {
   state * s = nullptr;
   unsigned int depth = 0;
-  graphVis->setIn(stateToGraphViz::PREFIX);
+  stateGraphVis->setIn(stateToGraphViz::PREFIX);
   auto reverseStack = reverse(outerStack);
   std::cout << "\n - Stack trace:\n";
   bool inCycle = false;
@@ -916,9 +509,9 @@ void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> 
     if (loopBegin && loopBegin->hash() == s->hash()) {
       std::cout << "    -- Loop beings here --\n    --\n";
       s->print();
-      graphVis->setIn(stateToGraphViz::CYCLE_BEGIN);
-      graphVis->printGraphViz(s, depth);
-      graphVis->setIn(stateToGraphViz::CYCLE);
+      stateGraphVis->setIn(stateToGraphViz::CYCLE_BEGIN);
+      stateGraphVis->printGraphViz(s, depth);
+      stateGraphVis->setIn(stateToGraphViz::CYCLE);
       std::cout << "    -- Loop begin repeated in full:\n";
       inCycle = true;
       continue;
@@ -926,7 +519,7 @@ void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> 
 
     if (inCycle) {
       s->print();
-      graphVis->printGraphViz(s, depth);
+      stateGraphVis->printGraphViz(s, depth);
     }
 
     // s->print();
@@ -943,7 +536,7 @@ void printElementStack(const std::stack<std::shared_ptr<elementStack::element>> 
   while (!reverseStack.empty()) {
     auto top = reverseStack.top();
     top->s->print();
-    graphVis->printGraphViz(top->s.get(), top->depth);
+    stateGraphVis->printGraphViz(top->s.get(), top->depth);
     reverseStack.pop();
   }
   std::cout << "\n\n ****\n";

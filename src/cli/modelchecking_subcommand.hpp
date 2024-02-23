@@ -13,7 +13,9 @@
 #include "ltl.hpp"
 
 #include "semantic.hpp"
+#include "ltlModelChecker.hpp"
 #include "explore.hpp"
+
 
 /// Collection of all options of Subcommand A.
 struct ModelCheckingOptions {
