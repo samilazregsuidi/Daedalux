@@ -1,4 +1,5 @@
 #include "formulaCreator.hpp"
+#include "ltl.hpp"
 #include "primitiveVariable.hpp"
 #include "state.hpp"
 #include <algorithm> // Include the necessary header file
@@ -287,4 +288,10 @@ formulaCreator::removeCommonPrefixes(const std::shared_ptr<trace> trace1, const 
   auto next_state2 = trace2->getStates().at(1);
   assert(!next_state1->isSame(next_state2.get()));
   return std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>(trace1, trace2);
+}
+
+std::string formulaCreator::formulaStringToNeverClaim(const std::string & formula)
+{
+  auto never_claim = transformLTLStringToNeverClaim(formula);
+  return never_claim;
 }

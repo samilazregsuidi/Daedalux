@@ -32,7 +32,6 @@ Makefile.in
 /stamp-h1
 
 config.h
-config.h.in
 config.log
 config.lt
 config.status

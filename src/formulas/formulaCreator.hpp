@@ -20,6 +20,8 @@ public:
   static std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>> removeCommonPrefixes(const std::shared_ptr<trace> trace1,
                                                                                         const std::shared_ptr<trace> trace2);
 
+  static std::string formulaStringToNeverClaim(const std::string & formula);
+
 private:
   static int getValueOfVariable(const std::shared_ptr<state> & state, const std::string & name);
 };
