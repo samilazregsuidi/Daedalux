@@ -9,7 +9,6 @@
 
 #include "elementStack.hpp"
 #include "reachabilityRelation.hpp"
-#include "traceReport.hpp"
 #include <stateToGraphViz.hpp>
 
 typedef char byte;

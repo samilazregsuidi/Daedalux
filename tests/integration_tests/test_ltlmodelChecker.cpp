@@ -41,7 +41,7 @@ TEST_F(LtlModelCheckerTest, liveness1ShouldBeSatisfied) { ASSERT_TRUE(isSatisfie
 
 TEST_F(LtlModelCheckerTest, liveness2ShouldBeSatisfied) { ASSERT_TRUE(isSatisfied(promela_ltl_model2)); }
 
-// TEST_F(LtlModelCheckerTest, liveness3ShouldBeSatisfied) { ASSERT_TRUE(isSatisfied(promela_ltl_model3)); }
+TEST_F(LtlModelCheckerTest, liveness3ShouldBeSatisfied) { ASSERT_TRUE(isSatisfied(promela_ltl_model3)); }
 
 // TEST_F(LtlModelCheckerTest, liveness4ShouldBeSatisfied) { ASSERT_TRUE(isSatisfied(promela_ltl_model4)); }
 
