@@ -11,13 +11,13 @@
 // ProcessTransitions are returned by the executables() function
 class programTransition : public transition {
 public:
-	programTransition(state* s, transition* progTrans);
+	programTransition(state* s, transition* procTrans);
 
 	programTransition(const programTransition* other);
 
 	~programTransition() override;
 	
-	transition* getProgTrans(void) const;
+	transition* getProcTrans(void) const;
 
 	transition* deepCopy(void) const override;
 
@@ -26,7 +26,7 @@ public:
 	void print(void) const override;
 
 public:		//
-	transition* progTrans;
+	transition* procTrans;
 };
 
 #endif

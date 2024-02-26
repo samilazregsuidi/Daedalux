@@ -228,17 +228,9 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 	return res;
 }
 
-transition* initState::createTransition(const fsmEdge* edge, program* s, process* proc, transition* response) {
-	
+transition* initState::createProcTransition(process* proc, const fsmEdge* edge) {
 	transition* res = new threadTransition(proc, edge);
-
-	if(response)
-		res = new rendezVousTransition(s, res, response);	
-	else
-		res = new programTransition(s, dynamic_cast<threadTransition*>(res));
-
 	if(edge->hasFeatures())
-		res = new featTransition(s, res, edge->getFeatures());
-	
+		res = new featTransition(proc, res, edge->getFeatures());
 	return res;
 }

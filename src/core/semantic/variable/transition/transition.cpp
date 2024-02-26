@@ -87,6 +87,7 @@ transition::~transition(){
 void transition::add(transition* t) {
 	if(t == nullptr)
 		return;
+	assert(t->parent == nullptr);
 	t->parent = this;
 	subTs.push_back(t);
 }

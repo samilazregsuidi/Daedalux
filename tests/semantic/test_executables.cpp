@@ -197,10 +197,14 @@ TEST_F(Executables, simpleExecutablesChanRDV)
   ASSERT_EQ(bar->getValue<primitiveVariable*>("x"), 0);
 
   auto progRDVExec = dynamic_cast<rendezVousTransition*>(rdv->getTransition(""));
+  ASSERT_EQ(progRDVExec->src, dynamic_cast<process*>(fooRDVExec->src)->getProgState());
+  ASSERT_EQ(progRDVExec, fooRDVExec->parent);
   ASSERT_EQ(progRDVExec->getQuestion(), fooRDVExec);
 
   progRDVExec->getResponse()->print();
 
+  ASSERT_EQ(progRDVExec->src, dynamic_cast<process*>(barRDVExec->src)->getProgState());
+  ASSERT_EQ(progRDVExec, barRDVExec->parent);
   ASSERT_EQ(progRDVExec->getResponse(), barRDVExec);
 
   //go the the next state

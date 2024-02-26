@@ -35,7 +35,7 @@ public:
 	
 	static state* createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl, const sysSymNode* sym = nullptr);
 
-	static transition* createTransition(const fsmEdge* edge, program* s, process* proc, transition* response = nullptr);
+	static transition* createProcTransition(process* proc, const fsmEdge* edge);
 };
 
 #endif

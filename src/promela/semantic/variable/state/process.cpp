@@ -8,6 +8,8 @@
 #include "process.hpp"
 #include "transition.hpp"
 #include "threadTransition.hpp"
+#include "rendezVousTransition.hpp"
+#include "progTransition.hpp"
 #include "program.hpp"
 
 #include "payload.hpp"
@@ -407,12 +409,17 @@ std::list<transition*> process::executables(void) const {
 					// After the recursive call, each transition in e_ is executable and its features satisfy the modified base FD.
 					// featuresOut contains all the outgoing features from now on, included the ones of the response that satisfy the base FD (those may not satisfy the modified FD, though).
 					// *allProductsOut == 1 if the outgoing features reference all the products.
-				
+
+
 					for(auto response : responses) {
 						//conjunct *= dynamic_cast<progTransition*>(response)->getEdge()->getFeatures();
 						//if((conjunct * s->stateMachine->getFD()).IsOne())
 						//res.push_back(new RVTransition(s, const_cast<process*>(this), edge, conjunct, dynamic_cast<progTransition*>(response)));
-						res.push_back(initState::createTransition(edge, s, const_cast<process*>(this), response));
+						assert(dynamic_cast<threadTransition*>(response) != nullptr);
+					
+						auto question = initState::createProcTransition(const_cast<process*>(this), edge);
+						auto rdv = new rendezVousTransition(s, question, response);
+						res.push_back(rdv);
 					}
 
 					chan->reset();
@@ -423,14 +430,30 @@ std::list<transition*> process::executables(void) const {
 						s->setExclusivity(this);
 				}
 			
+			} else if (edge->getExpression()->getType() == astNode::E_STMNT_CHAN_RCV) {
+
+				auto recv = initState::createProcTransition(const_cast<process*>(this), edge);
+
+				auto cSendStmnt = dynamic_cast<const stmntChanRecv*>(edge->getExpression());
+				auto chan = getChannel(cSendStmnt->getChan());
+
+				// channelSend has modified the value of HANDSHAKE and one other byte in the payload.
+				// These two will have to get back their original value.
+				// Also, channelSend has allocated memory to handshake_transit: it will have to be free'd.
+				if(chan->isRendezVous()) {
+					res.push_back(recv);
+				} else {
+					res.push_back(new programTransition(s, recv));
+				}
+
 			} else { 
 
 				//to wrap/abstract when I will have time
 				//if((conjunct * s->stateMachine->getFD()).IsOne())
 					//res.push_back(new progTransition(s, const_cast<process*>(this), edge, conjunct));
-				assert(edge->getExpression()->getType() != astNode::E_STMNT_CHAN_RCV || !edge->getFeatures());
+				//assert(edge->getExpression()->getType() != astNode::E_STMNT_CHAN_RCV || !edge->getFeatures());
 
-				res.push_back(initState::createTransition(edge, s, const_cast<process*>(this)));
+				res.push_back(new programTransition(s, initState::createProcTransition(const_cast<process*>(this), edge)));
 			}
 		}
 	}
@@ -496,7 +519,7 @@ Apply:
 				//assert(trans->getResponses().size() > 0);
 
 				// Send was a rendezvous request. We immediately try to complete this rendezvous.
-				//s->setHandShake({chan, this});
+				s->setHandShake({chan, this});
 				
 				// If the sender had the exclusivity, it lost it because of the rendezvous completion.
 				if(s->getExclusiveProc() == this)
@@ -744,7 +767,6 @@ void process::printCSVHeader(std::ostream &out) const {
 void process::printCSV(std::ostream &out) const {
 	out << getLocation() << ",";
 }
-
 
 void process::accept(stateVisitor* visitor) {
 	visitor->visit(this);

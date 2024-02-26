@@ -461,7 +461,7 @@ void program::apply(transition* trans) {
 	} else {
 
 		auto progTrans = dynamic_cast<programTransition*>(trans);
-		auto procTrans = dynamic_cast<threadTransition*>(progTrans->getProgTrans()); 
+		auto procTrans = dynamic_cast<threadTransition*>(progTrans->getProcTrans()); 
 		assert(procTrans);
 
 		//warning if "different" procs have the same pid i.e., dynamic proc creation
@@ -472,9 +472,6 @@ void program::apply(transition* trans) {
 
 		proc->apply(procTrans);
 
-
-		//that is ugly, should return a progtrans in the first place
-		trans = new programTransition(this, procTrans);
 		prob *= trans->prob;
 	}
 

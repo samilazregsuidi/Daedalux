@@ -165,7 +165,7 @@ std::list<arg> thread::getRArgs(const exprRArgList * rargs) const
       res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
       break;
     case astNode::E_RARG_VAR:
-      res.push_back(arg(dynamic_cast<primitiveVariable*> (getVariable(exp)->deepCopy())));
+      res.push_back(arg(dynamic_cast<primitiveVariable*>(getVariable(exp))));
       break;
     default:
       assert(false);
