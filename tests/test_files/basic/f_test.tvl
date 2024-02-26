@@ -1,0 +1,5 @@
+root TestFM {
+	group allOf  {
+		opt B1
+	}
+}

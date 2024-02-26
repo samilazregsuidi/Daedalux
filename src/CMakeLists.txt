@@ -38,11 +38,11 @@ add_link_options(
 )
 
 # Build CUDD library
-add_custom_target(CUDD_project
-	COMMAND sh install.sh
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
-	COMMENT "building CUDD"
-)
+#add_custom_target(CUDD_project
+#	COMMAND sh install.sh
+#	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
+#	COMMENT "building CUDD"
+#)
 
 # Build LTL2BA
 add_custom_target(LTL2BA_project
@@ -225,12 +225,13 @@ PUBLIC
 
 target_link_directories(daedalux_lib
 	PUBLIC
-	libs/cudd/cplusplus/.libs
-	libs/cudd/cudd/.libs
+
+	libs/cudd/lib
+	libs/cudd/cplusplus/.libs/
 	)
 
 target_link_libraries(daedalux_lib libobj.a libcudd.a)
-add_dependencies(daedalux_lib CUDD_project)
+#add_dependencies(daedalux_lib CUDD_project)
 add_dependencies(daedalux_lib LTL2BA_project)
 
 add_executable(daedalux
@@ -406,13 +407,14 @@ target_include_directories(daedalux
 
 target_link_directories(daedalux
 	PUBLIC
-	libs/cudd/cplusplus/.libs
-	libs/cudd/cudd/.libs
+
+	libs/cudd/lib
+	libs/cudd/cplusplus/.libs/
 	)
 
 target_link_libraries(daedalux libobj.a libcudd.a)
 
-add_dependencies(daedalux CUDD_project)
+#add_dependencies(daedalux CUDD_project)
 add_dependencies(daedalux LTL2BA_project)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libs/bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

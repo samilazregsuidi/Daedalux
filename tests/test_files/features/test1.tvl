@@ -1,0 +1,6 @@
+root Test {
+	group allOf  {
+		opt B1,
+		opt B2
+	}
+}
