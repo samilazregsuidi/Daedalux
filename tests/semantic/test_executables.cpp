@@ -55,11 +55,11 @@ protected:
                             od;\n\
                           }";
 
-  std::string helloComp =  "active test(){\n\
-                              byte s;\n\
+  std::string helloComp =  "active proctype test(){\n\
+                              short s;\n\
                               do\n\
+                              :: s = -1;\n\
                               :: s = 1;\n\
-                              :: s = 2;\n\
                               od;\n\
                             }\n\
                             system s1;\n\
@@ -218,8 +218,6 @@ TEST_F(Executables, simpleExecutablesChanRDV)
 
   auto x = state->getValue<primitiveVariable*>("bar.x");
   ASSERT_EQ(bar->getValue<primitiveVariable*>("x"), 1);
-
-
 }
 
 // TEST_F(Executables, simpleExecutablesChanBuf)
@@ -279,61 +277,67 @@ TEST_F(Executables, simpleExecutablesChanRDV)
 //   ASSERT_EQ(fooExec->getType(), astNode::E_STMNT_CHAN_SND);
 // }
 
-// TEST_F(Executables, simpleExecutablesComp)
-// {
-//   const TVL * tvl = nullptr;
-//   auto original_loader = std::make_unique<promela_loader>(helloComp, tvl);
-//   auto originalFSM = original_loader->getAutomata();
-//   // Create the initial state for both automata
-//   auto state = initState::createInitState(originalFSM.get(), tvl);
+TEST_F(Executables, simpleExecutablesComp)
+{
+  const TVL * tvl = nullptr;
+  auto original_loader = std::make_unique<promela_loader>(helloComp, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  // Create the initial state for both automata
+  auto state = initState::createInitState(originalFSM.get(), tvl);
 
-//   auto prog = state->getVariables().front();
-//   ASSERT_EQ(prog->getLocalName(), "");
-//   ASSERT_EQ(prog, state->getVariable(""));
+  auto prog1 = state->getVariables().front();
+  ASSERT_EQ(prog1->getLocalName(), "s1");
+  ASSERT_EQ(prog1, state->getVariable("s1"));
 
-//   process* test = dynamic_cast<process*>(state->getVariable("test"));
-//   ASSERT_EQ(test, prog->getVariable("test"));
-//   ASSERT_EQ(state->getValue<primitiveVariable*>("s"), 0);
-//   ASSERT_EQ(test->getLocation(), 3);
+  process* test = dynamic_cast<process*>(state->getVariable("s1.test"));
+  ASSERT_EQ(test, prog1->getVariable("test"));
+  ASSERT_EQ(state->getVariable("s1.test.s"), test->getVariable("s"));
+  ASSERT_EQ(state->getValue<primitiveVariable*>("s1.test.s"), 0);
+  ASSERT_EQ(test->getLocation(), 3);
 
-//   //get the executables
-//   auto execs = state->executables();
-//   // s = 1
-//   ASSERT_EQ(execs.size(), 1);
+  auto prog2 = state->getVariables().back();
+  ASSERT_EQ(prog2->getLocalName(), "s2");
+  ASSERT_EQ(prog2, state->getVariable("s2"));
+
+  test = dynamic_cast<process*>(state->getVariable("s2.test"));
+  ASSERT_EQ(test, prog2->getVariable("test"));
+  ASSERT_EQ(state->getVariable("s2.test.s"), test->getVariable("s"));
+  ASSERT_EQ(state->getValue<primitiveVariable*>("s2.test.s"), 0);
+
+  //get the executables
+
+  auto execs = state->executables();
+
+  // s = 1
+  ASSERT_EQ(execs.size(), 4);
+  for(auto exec : execs)
+  {
+    ASSERT_EQ(exec->src, state);
+  }
+
+  std::list<transition*>::iterator exec = execs.begin();
+  auto state11 = state->fire(*exec++);
+
+  ASSERT_EQ(state11->getVariable("s1")->getValue<primitiveVariable*>("test.s"), -1);
+  ASSERT_EQ(state11->getVariable("s2")->getValue<primitiveVariable*>("test.s"), -1);
+
+  ASSERT_EQ(dynamic_cast<process*>(state11->getVariable("s1.test"))->getLocation(), 3);
+  ASSERT_EQ(dynamic_cast<process*>(state11->getVariable("s2.test"))->getLocation(), 3);
+
+  auto state21 = state->fire(*exec++);
+
+  ASSERT_EQ(state21->getVariable("s1")->getVariable("test")->getValue<primitiveVariable*>("s"), 1);
+  ASSERT_EQ(state21->getVariable("s2")->getVariable("test")->getValue<primitiveVariable*>("s"), -1);
+
   
-//   auto exec = execs.front();
-//   ASSERT_EQ(exec->src, state);
 
-//   threadTransition* testExec = dynamic_cast<threadTransition*>(exec->getTransition("test"));
-//   ASSERT_EQ(testExec->src, test);
-//   ASSERT_EQ(testExec->getType(), astNode::E_STMNT_ASGN);
-//   ASSERT_EQ(testExec->getLineNb(), 4);
+  auto state12 = state->fire(*exec++);
 
-//   //go the the next state
-//   state = state->fire(exec);
-//   execs = state->executables();
-//   // s = 2
-//   ASSERT_EQ(execs.size(), 1);
+  ASSERT_EQ(state12->getValue<primitiveVariable*>("s1.test.s"), -1);
+  ASSERT_EQ(state12->getValue<primitiveVariable*>("s2.test.s"), 1);
 
-//   exec = execs.front();
-//   ASSERT_EQ(exec->src, state);
+  auto state22 = state->fire(*exec++);
 
-//   testExec = dynamic_cast<threadTransition*>(exec->getTransition("test"));
-//   ASSERT_NE(testExec->src, test);
-
-//   ASSERT_EQ(testExec->getType(), astNode::E_STMNT_ASGN);
-
-//   state = state->fire(exec);
-//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.s"), 2);
-//   execs = state->executables();
-//   // s == 2
-//   ASSERT_EQ(execs.size(), 1);
-//   exec = execs.front();
-  
-//   testExec = dynamic_cast<threadTransition*>(exec->getTransition("test"));
-//   ASSERT_EQ(testExec->getType(), astNode::E_STMNT_ASGN);
-  
-//   state = state->fire(exec);
-//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.s"), 2);
-
-// }
+  ASSERT_EQ(state22->getValue<primitiveVariable*>("s1.test.s"), 1);
+  ASSERT_EQ(state22->getValue<primitiveVariable*>("s2.test.s"), 1);
+}

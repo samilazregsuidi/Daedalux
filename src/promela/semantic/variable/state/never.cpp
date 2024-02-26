@@ -143,7 +143,7 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_RREF): 
 		{	
 			auto rref = dynamic_cast<const exprRemoteRef*>(node);
-			auto isAtLabel = dynamic_cast<thread*>(getVariable(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+			auto isAtLabel = dynamic_cast<thread*>(getVariableFromExpr(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
 			return isAtLabel;
 		}
 
@@ -186,9 +186,9 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_VARREF):
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
-			auto var = getVariable(varRef);
+			auto var = getVariableFromExpr(varRef);
 			if(!var) {
-				var = getVariable(varRef);
+				var = getVariableFromExpr(varRef);
 				assert(false);
 			}
 			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
@@ -198,7 +198,7 @@ int never::eval(const astNode* node, byte flag) const {
 		{
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
-			auto var = getVariable(varRefName);
+			auto var = getVariableFromExpr(varRefName);
 			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
 			return value;
 		}

@@ -146,7 +146,7 @@ int process::eval(const astNode* node, byte flag) const {
 
 		case(astNode::E_STMNT_CHAN_SND):
 		{
-			channel* chan = getChannel(dynamic_cast<const stmntChanSnd*>(node)->getChan());
+			channel* chan = getChannelFromExpr(dynamic_cast<const stmntChanSnd*>(node)->getChan());
 
 			if (chan->isRendezVous()) {
 				// We check if the rendezvous can be completed.
@@ -162,7 +162,7 @@ int process::eval(const astNode* node, byte flag) const {
 		{
 			auto chanRecvStmnt = dynamic_cast<const stmntChanRecv*>(node);
 			assert(chanRecvStmnt);
-			channel* chan = getChannel(chanRecvStmnt->getChan());
+			channel* chan = getChannelFromExpr(chanRecvStmnt->getChan());
 			assert(chan);
 
 			// Handshake request does not concern the channel or no message in the channel
@@ -217,7 +217,7 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_RREF): 
 		{	
 			auto rref = dynamic_cast<const exprRemoteRef*>(node);
-			return dynamic_cast<process*>(getVariable(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+			return dynamic_cast<process*>(getVariableFromExpr(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
 		}
 
 		case(astNode::E_EXPR_PLUS):
@@ -299,7 +299,7 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_LEN):
 		{
 			auto varRef = dynamic_cast<const exprUnary*>(node)->getExpr();
-			return getChannel(varRef)->len();
+			return getChannelFromExpr(varRef)->len();
 		}
 
 		case(astNode::E_EXPR_CONST):
@@ -320,14 +320,14 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_NEMPTY):
 		{
 			auto varRef = dynamic_cast<const exprUnary*>(node)->getExpr();
-			auto chanVar = getChannel(varRef);
+			auto chanVar = getChannelFromExpr(varRef);
 			return node->getType() == astNode::E_EXPR_EMPTY? chanVar->isEmpty() : !chanVar->isEmpty();
 		}
 
 		case(astNode::E_VARREF):
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
-			auto var = getVariable(varRef);
+			auto var = getVariableFromExpr(varRef);
 			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
 			return value;
 		}
@@ -335,7 +335,7 @@ int process::eval(const astNode* node, byte flag) const {
 		{
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
-			auto var = getVariable(varRefName);
+			auto var = getVariableFromExpr(varRefName);
 			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
 			return value;
 		}
@@ -384,7 +384,7 @@ std::list<transition*> process::executables(void) const {
 			if(edge->getExpression()->getType() == astNode::E_STMNT_CHAN_SND) {
 				
 				auto cSendStmnt = dynamic_cast<const stmntChanSnd*>(edge->getExpression());
-				auto chan = getChannel(cSendStmnt->getChan());
+				auto chan = getChannelFromExpr(cSendStmnt->getChan());
 				chan->send(getArgs(cSendStmnt->getArgList()));
 
 
@@ -435,7 +435,7 @@ std::list<transition*> process::executables(void) const {
 				auto recv = initState::createProcTransition(const_cast<process*>(this), edge);
 
 				auto cSendStmnt = dynamic_cast<const stmntChanRecv*>(edge->getExpression());
-				auto chan = getChannel(cSendStmnt->getChan());
+				auto chan = getChannelFromExpr(cSendStmnt->getChan());
 
 				// channelSend has modified the value of HANDSHAKE and one other byte in the payload.
 				// These two will have to get back their original value.
@@ -510,7 +510,7 @@ Apply:
 			// Increases by one unit the number of messages of this channel.
 			// If the channel was a rendezvous channel, _handshake_transit has been allocated.
 			auto sndStmnt = dynamic_cast<const stmntChanSnd*>(expression);
-			auto chan = getChannel(sndStmnt->getChan());
+			auto chan = getChannelFromExpr(sndStmnt->getChan());
 			chan->send(getArgs(sndStmnt->getArgList()));
 
 			if(chan->isRendezVous()) {
@@ -545,7 +545,7 @@ Apply:
 		case(astNode::E_STMNT_CHAN_RCV):
 		{
 			auto recvStmnt = dynamic_cast<const stmntChanRecv*>(expression);
-			auto chan = getChannel(recvStmnt->getChan());
+			auto chan = getChannelFromExpr(recvStmnt->getChan());
 			
 			if(chan->isRendezVous())
 				assert(s->hasHandShakeRequest() && s->getHandShakeRequestChan() == chan);
@@ -585,7 +585,7 @@ Apply:
 		case(astNode::E_STMNT_ASGN):
 		{
 			auto assign = dynamic_cast<const stmntAsgn*>(expression);
-			auto* lvalue = dynamic_cast<primitiveVariable*>(getVariable(assign->getVarRef()));
+			auto* lvalue = dynamic_cast<primitiveVariable*>(getVariableFromExpr(assign->getVarRef()));
 			expr* rvalue = assign->getAssign();
 			auto value = eval(rvalue, EVAL_EXPRESSION);
 			lvalue->setValue(value);
@@ -594,14 +594,14 @@ Apply:
 		case(astNode::E_STMNT_INCR):
 		{
 			auto incr = dynamic_cast<const stmntIncr*>(expression);
-			auto& var = *(dynamic_cast<primitiveVariable*>(getVariable(incr->getVarRef())));
+			auto& var = *(dynamic_cast<primitiveVariable*>(getVariableFromExpr(incr->getVarRef())));
 			++var;
 			break;
 		}
 		case(astNode::E_STMNT_DECR):
 		{
 			auto incr = dynamic_cast<const stmntDecr*>(expression);
-			auto& var = *(dynamic_cast<primitiveVariable*>(getVariable(incr->getVarRef())));
+			auto& var = *(dynamic_cast<primitiveVariable*>(getVariableFromExpr(incr->getVarRef())));
 			--var;
 			break;
 		}

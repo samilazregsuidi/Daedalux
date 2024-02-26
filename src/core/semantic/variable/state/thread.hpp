@@ -74,7 +74,7 @@ public:
 
   std::string getVarName(const expr * varExpr) const;
 
-  variable * getVariable(const expr * varExpr) const;
+  variable * getVariableFromExpr(const expr * varExpr) const;
 
   std::list<arg> getArgs(const exprArgList * args) const;
 
@@ -84,7 +84,7 @@ public:
 
   //std::list<const arg> getConstRArgs(const exprRArgList * rargs) const;
 
-  channel * getChannel(const expr * varExpr) const;
+  channel * getChannelFromExpr(const expr * varExpr) const;
 
   bool operator==(const variable * other) const override;
 

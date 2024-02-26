@@ -117,7 +117,7 @@ std::string thread::getVarName(const expr * varExpr) const
   return varName; // only to please compiler
 }
 
-variable * thread::getVariable(const expr * varExpr) const
+variable * thread::getVariableFromExpr(const expr * varExpr) const
 {
   auto varName = getVarName(varExpr);
   return variable::getVariable(varName);
@@ -138,7 +138,7 @@ std::list<arg> thread::getArgs(const exprArgList * args) const
     if (exp->getType() == astNode::E_EXPR_CONST)
       res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
     else
-      res.push_back(arg(dynamic_cast<primitiveVariable*> (getVariable(exp)->deepCopy())));
+      res.push_back(arg(dynamic_cast<primitiveVariable*> (getVariableFromExpr(exp))));
     args = args->getArgList();
   }
   return res;
@@ -165,7 +165,7 @@ std::list<arg> thread::getRArgs(const exprRArgList * rargs) const
       res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
       break;
     case astNode::E_RARG_VAR:
-      res.push_back(arg(dynamic_cast<primitiveVariable*>(getVariable(exp))));
+      res.push_back(arg(dynamic_cast<primitiveVariable*>(getVariableFromExpr(exp))));
       break;
     default:
       assert(false);
@@ -176,7 +176,7 @@ std::list<arg> thread::getRArgs(const exprRArgList * rargs) const
   return res;
 }
 
-channel * thread::getChannel(const expr * varExpr) const { return variable::getChannel(getVarName(varExpr)); }
+channel * thread::getChannelFromExpr(const expr * varExpr) const { return variable::getChannel(getVarName(varExpr)); }
 
 bool thread::isAccepting(void) const { return endstate() ? false : getFsmNodePointer()->getFlags() & fsmNode::N_ACCEPT; }
 
