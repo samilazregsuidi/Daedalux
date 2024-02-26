@@ -7,9 +7,8 @@ void ltlModelChecker::checkNeverClaim(std::shared_ptr<state> init)
   auto neverClaim = init->getNeverClaim();
   assert(neverClaim);
   auto neverTrans = neverClaim->transitions();
-  if (!neverClaim || neverClaim->nullstate() || neverTrans.size() == 0) {
-    printf("Problem with never claim. Please check the model, before running the model checker.\n");
-    assert(false);
+  if (neverClaim->nullstate() || neverTrans.size() == 0) {
+    throw std::runtime_error("Problem with never claim. Please check the model before running the model checker.");
   }
   transition::erase(neverTrans);
 }
@@ -38,8 +37,8 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
       printf("The inner search explored %lu states and re-explored %lu.\n", nbStatesExploredInner, nbStatesReExploredInner);
   }
   else {
-    /*auto _failProducts = R.getFailedProducts();
-    auto _nbErrors = R.nbErrors;
+    /*auto _failProducts = reachableStates.getFailedProducts();
+    auto _nbErrors = reachableStates.nbErrors;
     auto _allProductsFail = (tvl->getFeatureModelClauses() & ~_failProducts).IsZero();*/
     printf("\n");
     printf("Non Exhaustive search finished ");
@@ -69,23 +68,18 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
 byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles)
 {
   byte exhaustive = 0;
-
-  R.getStatus(stackOuter.top()->s.get());
-  R.init(stackOuter.top()->s.get());
+  reachableStates.getStatus(stackOuter.top()->s.get());
+  reachableStates.init(stackOuter.top()->s.get());
 
   // Execution continues as long as the
   //  - stack is not empty
   //  - no error was found (except in the exhaustive case)
-  while (!stackOuter.empty() && (!R.hasErrors() || exhaustive) /*&& !R.isComplete()*/) {
+  while (!stackOuter.empty() && (!reachableStates.hasErrors() || exhaustive) /*&& !reachableStates.isComplete()*/) {
     auto current = stackOuter.top();
     auto s_hash = current->s->hash();
 
     // Check for deadlock
-    if (current->s->getErrorMask() & state::ERR_DEADLOCK) {
-      printf("Found deadlock");
-      printElementStack(graphVis, stackOuter.stackElem);
-      assert(false);
-    }
+    checkForDeadlock(current->s, stackOuter);
 
     if (current->s->safetyPropertyViolation()) {
       // Safety property violated.
@@ -98,7 +92,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       printf("Safety property violated %lu.\n", s_hash);
       printElementStack(graphVis, stackOuter.stackElem);
 
-      R.addTraceViolation(current->s.get());
+      reachableStates.addTraceViolation(current->s.get());
 
       stackOuter.pop();
 
@@ -136,13 +130,13 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
 
         if (s_->getErrorMask() & state::ERR_ASSERT_FAIL) {
           // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
-          R.addTraceViolation(current->s.get());
+          reachableStates.addTraceViolation(current->s.get());
           // delete s_;
           s_ = nullptr;
         }
         else {
           // get the status before update!
-          auto status = R.getStatus(s_.get());
+          auto status = reachableStates.getStatus(s_.get());
           // graphVis->printGraphViz(s_, depth);
 
           if (status == STATES_SAME_S1_VISITED) {
@@ -171,8 +165,8 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
               break;
             }
 
-            R.update(s_.get());
-            // assert(R.getStatus(s_.get()) != status);
+            reachableStates.update(s_.get());
+            // assert(reachableStates.getStatus(s_.get()) != status);
             depth++;
             stackOuter.push(s_, depth);
           }
@@ -192,9 +186,9 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
           stackInner.push(s_ptr, depth);
 
           // error needs to be to the right, for otherwise lazy evaluation might cause the innerDFS call to be skipped
-          R.setDFS(reachabilityRelation::DFS_INNER);
+          reachableStates.setDFS(reachabilityRelation::DFS_INNER);
           innerDFS(stackInner, stackOuter);
-          R.setDFS(reachabilityRelation::DFS_OUTER);
+          reachableStates.setDFS(reachabilityRelation::DFS_OUTER);
           // it will have been destroyed when the innerDFS backtracked for the last time
           // delete current->s;
         }
@@ -212,14 +206,22 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
 
   emptyStack(stackOuter);
 
-  // TVL::printBool(R.getFailedProducts());
-  return R.hasErrors();
+  // TVL::printBool(reachableStates.getFailedProducts());
+  return reachableStates.hasErrors();
 }
 
 void ltlModelChecker::emptyStack(elementStack & stack)
 {
   while (!stack.empty()) {
     stack.pop();
+  }
+}
+
+void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const elementStack & stack)
+{
+  if (s->getErrorMask() & state::ERR_DEADLOCK) {
+    printElementStack(graphVis, stack.stackElem);
+    throw std::runtime_error("Deadlock found");
   }
 }
 
@@ -230,17 +232,13 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
   // Execution continues as long as the
   //  - stack is not empty
   //  - no error was found (except in the exhaustive case)
-  while (!stackInner.empty() && (!R.hasErrors() || exhaustive) /*&& !R.isComplete()*/) {
+  while (!stackInner.empty() && (!reachableStates.hasErrors() || exhaustive) /*&& !reachableStates.isComplete()*/) {
     auto current = stackInner.top();
 
     auto s_hash = current->s->hash();
 
     // Check for deadlock
-    if (current->s->getErrorMask() & state::ERR_DEADLOCK) {
-      printf("Found deadlock");
-      printElementStack(graphVis, stackOuter.stackElem);
-      assert(false);
-    }
+    checkForDeadlock(current->s, stackOuter);
 
     // If we have explored all transitions of the state (!current->E_never; see "struct stackElt"
     // in stack.h), we check whether the state is accepting and start a backlink search if it is;
@@ -278,19 +276,19 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
         printElementStack(graphVis, stackOuter.stackElem, stackInner.stackElem, s_.get());
         stackInner.pop();
 
-        R.addTraceViolation(current->s.get());
+        reachableStates.addTraceViolation(current->s.get());
       }
       else {
 
         // get the status before update!
-        auto status = R.getStatus(s_.get());
+        auto status = reachableStates.getStatus(s_.get());
 
         // graphVis->printGraphViz(s_, depth);
 
-        auto lastFoundIn = R.lastFoundIn(s_.get());
+        auto lastFoundIn = reachableStates.lastFoundIn(s_.get());
         // update put to inner if outer
-        R.update(s_.get());
-        assert(R.lastFoundIn(s_.get()) == reachabilityRelation::DFS_INNER);
+        reachableStates.update(s_.get());
+        assert(reachableStates.lastFoundIn(s_.get()) == reachabilityRelation::DFS_INNER);
 
         if (status == STATES_SAME_S1_VISITED) {
           // printf("         - inner state %lu already visited.\n", s_hash);
@@ -317,8 +315,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
         }
         else {
           printElementStack(graphVis, stackOuter.stackElem, stackInner.stackElem, s_.get());
-          printf("Bug! The above state was found during the inner DFS but not during the outer! Aborting.\n");
-          assert(false);
+          throw std::runtime_error("Bug! The above state was found during the inner DFS but not during the outer! Aborting.");
         }
         // fresh state
 
@@ -332,12 +329,12 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
   // if(error /* not needed: && exhaustive */
   emptyStack(stackInner);
 
-  return R.hasErrors();
+  return reachableStates.hasErrors();
 }
 
 void ltlModelChecker::resetCounters()
 {
-  R = reachabilityRelation();
+  reachableStates = reachabilityRelation();
   nbStatesReExplored = 0;
   nbStatesExplored = 0;
   nbStatesStops = 0;

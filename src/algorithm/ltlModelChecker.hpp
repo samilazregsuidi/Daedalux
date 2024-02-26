@@ -20,10 +20,10 @@ public:
   byte outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles = false);
   byte innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles = false);
 
-  reachabilityRelation getReachabilityRelation() const { return R; }
+  reachabilityRelation getReachabilityRelation() const { return reachableStates; }
 
 private:
-  reachabilityRelation R;
+  reachabilityRelation reachableStates;
   stateToGraphViz * graphVis;
   unsigned long nbStatesExplored = 1; // Total of distinct states (without features) explored
   unsigned long nbStatesReExplored =
@@ -33,6 +33,7 @@ private:
   unsigned long nbStatesReExploredInner = 0; // As before, but for inner search.
   unsigned long depth = 0;                   // Current exploration depth (inner and outer)
 
+  void checkForDeadlock(std::shared_ptr<state> state, const elementStack & stack);
   void checkNeverClaim(std::shared_ptr<state> init);
   void resetCounters();
   void emptyStack(elementStack & stack);

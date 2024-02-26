@@ -324,7 +324,9 @@ reachabilityRelation::stateToRState::stateToRState(state* s, dfs dfsIn) {
 	s->accept(this);
 }
     
-void reachabilityRelation::stateToRState::visit(state* s) { assert(false); }
+void reachabilityRelation::stateToRState::visit(state* s) { 
+	throw std::runtime_error("stateToRState::visit(state* s) should never be called");
+ }
 void reachabilityRelation::stateToRState::visit(process* s) {}
 void reachabilityRelation::stateToRState::visit(program* s) {}
 void reachabilityRelation::stateToRState::visit(never* s) {}
@@ -346,7 +348,7 @@ void reachabilityRelation::stateToRState::visit(featured* s) {
 		res->outerFeatures = s->getFeatures();
 		res->innerFeatures = TVL::getMgr()->addZero();
 	} else {
-		assert(false);
+		throw std::runtime_error("stateToRState::visit(featured* s) should only be called during outer DFS");
 	}
 }
 
