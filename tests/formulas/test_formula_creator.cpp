@@ -109,7 +109,19 @@ TEST_F(FormulaCreatorTest, groupStates_singleState)
   const std::vector<std::shared_ptr<state>> states = std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr};
 
   auto result = formulaCreator::groupStatesByFormula(states);
-  auto expected_result = std::make_shared<BooleanConstant>(true);
+  auto var_a = std::make_shared<VariableFormula>("a");
+  auto var_b = std::make_shared<VariableFormula>("b");
+  auto var_c = std::make_shared<VariableFormula>("c");
+  auto var_d = std::make_shared<VariableFormula>("d");
+  auto formula_1 =
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false)));
+  auto formula_2 =
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false)));
+  auto formula_3 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
+  auto formula_4 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
+
+  std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, formula_4};
+  auto expected_result = formulaCreator::groupFormulas(formulas, "&&");
   ASSERT_TRUE(result->isEquivalent(expected_result));
 }
 

@@ -252,6 +252,8 @@ std::list<variable *> variable::getAllVisibleVariables(void) const
     auto subVars = var->getAllVisibleVariables();
     res.insert(res.end(), subVars.begin(), subVars.end());
   }
+  // Sort the list of variables based on their local name
+  res.sort([](variable * a, variable * b) { return a->getLocalName() < b->getLocalName(); });
   return res;
 }
 
