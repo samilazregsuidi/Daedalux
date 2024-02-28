@@ -102,3 +102,28 @@ bool trace::containState(const std::shared_ptr<state> s) const
   }
   return false;
 }
+
+// std::map<std::string, std::pair<int, int>> trace::getMinMaxValues() const
+// {
+//   std::map<std::string, std::pair<int, int>> result;
+//   for (auto st : this->states) {
+//     auto variables = st->getVariables();
+//     for (auto var : variables) {
+//       auto name = var->getFullName();
+//       auto value = var->second->getValue();
+//       if (result.find(name) == result.end()) {
+//         result[name] = std::pair<int, int>(value, value);
+//       } else {
+//         auto current = result[name];
+//         if (value < current.first) {
+//           current.first = value;
+//         }
+//         if (value > current.second) {
+//           current.second = value;
+//         }
+//         result[name] = current;
+//       }
+//     }
+//   }
+//   return result;
+// }

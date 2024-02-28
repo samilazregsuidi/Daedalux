@@ -16,8 +16,9 @@ protected:
   {
     // Common teardown code that will be called after each test
   }
-  std::string test1 = "/test_files/mutants/array.pml";
-  std::string test1_mutant = "/test_files/mutants/array_mutant.pml";
+  std::string basic_array_model = "/test_files/basic/array.pml";
+  std::string array_model = "/test_files/mutants/array.pml";
+  std::string array_model_mutant = "/test_files/mutants/array_mutant.pml";
   std::string minepump = "/models/minepump/minepump.pml";
   std::string minepump_mutant = "/models/minepump/mutants/mutant_1.pml";
   std::string current_path = std::filesystem::current_path();
@@ -26,7 +27,7 @@ protected:
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + basic_array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
 
@@ -39,7 +40,7 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM)
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM_IgnoreCommonPrefix)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + basic_array_model;
   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   auto trace_size = 15;
@@ -53,11 +54,11 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM_IgnoreCommonPrefix)
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
+  auto file_path_mutant = current_path + array_model_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -69,11 +70,11 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM)
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
+  auto file_path_mutant = current_path + array_model_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 15;
@@ -88,11 +89,11 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix
 TEST_F(TraceGeneratorTest, TraceReport_DifferentFSM)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
+  auto file_path_mutant = current_path + array_model_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -109,11 +110,11 @@ TEST_F(TraceGeneratorTest, TraceReport_DifferentFSM)
 TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
+  auto file_path_mutant = current_path + array_model_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -146,11 +147,11 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
 TEST_F(TraceGeneratorTest, RemoveCommonPrefixes_TheTwoMethodShouldReturnTheSameResult)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
+  auto file_path_mutant = current_path + array_model_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -169,11 +170,11 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes_TheTwoMethodShouldReturnTheSameR
 TEST_F(TraceGeneratorTest, DiscriminateBetweenTrace)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
+  auto file_path = current_path + array_model;
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
+  auto file_path_mutant = current_path + array_model_mutant;
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -183,43 +184,3 @@ TEST_F(TraceGeneratorTest, DiscriminateBetweenTrace)
   auto bad_trace = *traceReport->getBadTraces().begin();
   good_trace->findDistinguishingFormula(bad_trace);
 }
-
-// TEST_F(TraceGeneratorTest, interactiveDebuggingHelloWorld)
-// {
-//   const TVL * tvl = nullptr;
-//   auto file_path = current_path + test1;
-//   auto original_loader = new promela_loader(file_path, tvl);
-//   auto originalFSM = original_loader->getAutomata();
-//   delete original_loader;
-//   auto trace_size = 10;
-//   auto trace = interactiveDebugging(originalFSM, 10, tvl);
-//   ASSERT_EQ(trace->size(), trace_size);
-// }
-
-// TEST_F(TraceGeneratorTest, interactiveDebuggingMinepump)
-// {
-//   const TVL * tvl = nullptr;
-//   auto file_path = current_path + minepump;
-//   auto original_loader = new promela_loader(file_path, tvl);
-//   auto originalFSM = original_loader->getAutomata();
-//   delete original_loader;
-//   auto trace_size = 10;
-//   auto trace = interactiveDebugging(originalFSM, 10, tvl);
-//   ASSERT_EQ(trace->size(), trace_size);
-// }
-
-// TEST_F(TraceGeneratorTest, SimpleTraceMinepump)
-// {
-//   const TVL * tvl = nullptr;
-//   auto file_path = current_path + minepump;
-//   auto original_loader = new promela_loader(file_path, tvl);
-//   auto originalFSM = original_loader->getAutomata();
-//   delete original_loader;
-
-//   // Load the mutant
-//   auto file_path_mutant = current_path + minepump_mutant;
-//   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
-//   auto mutantFSM = mutant_loader->getAutomata();
-//   // Create the initial state for both automata
-//   generateNegativeTraces(originalFSM, mutantFSM, 10);
-// }

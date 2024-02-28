@@ -1,15 +1,16 @@
 #include "formulaCreator.hpp"
+#include "formula.hpp"
 #include "ltl.hpp"
 #include "primitiveVariable.hpp"
 #include "state.hpp"
-#include <algorithm> // Include the necessary header file
+#include <algorithm>
 #include <iostream>
-#include <iterator> // Include the necessary header file
-#include <numeric>
+#include <iterator> // for std::begin, std::end
+#include <numeric>  // for std::accumulate
 #include <sstream>
 
-std::string formulaCreator::distinguishTraces(const std::shared_ptr<trace> & include_trace,
-                                              const std::shared_ptr<trace> & exclude_trace)
+std::shared_ptr<formula> formulaCreator::distinguishTraces(const std::shared_ptr<trace> & include_trace,
+                                                           const std::shared_ptr<trace> & exclude_trace)
 {
   std::shared_ptr<state> previous_state_current = nullptr;
   std::shared_ptr<state> previous_state_other = nullptr;
@@ -24,8 +25,8 @@ std::string formulaCreator::distinguishTraces(const std::shared_ptr<trace> & inc
   auto successor1 = successor1_vec.front();
   auto successor2 = successor2_vec.front();
   successor1->printDelta(successor2.get());
-  distinguishStates(successor1_vec, successor2_vec);
-  return "";
+  auto distinguishingFormula = distinguishStates(successor1_vec, successor2_vec);
+  return distinguishingFormula;
 }
 
 std::unordered_map<std::string, std::map<int, std::vector<std::shared_ptr<state>>>>
@@ -48,7 +49,47 @@ formulaCreator::buildVariableValueMap(const std::vector<std::shared_ptr<state>> 
   return variable_val_map;
 }
 
-void formulaCreator::groupStates(const std::vector<std::shared_ptr<state>> & states)
+std::shared_ptr<formula> formulaCreator::makeRangeFormula(std::string name, int smallestValue, int largestValue){
+  assert(smallestValue <= largestValue);
+  auto formulaVar = std::make_shared<VariableFormula>(name);
+  auto largestValueFormula = std::make_shared<NumberConstant>(largestValue);
+  auto smallestValueFormula = std::make_shared<NumberConstant>(smallestValue);
+  auto largerThanFormula = std::make_shared<LargerEqualsFormula>(formulaVar, smallestValueFormula);
+  auto smallerThanFormula = std::make_shared<SmallerEqualsFormula>(formulaVar, largestValueFormula);
+  auto local_formula = std::make_shared<AndFormula>(largerThanFormula, smallerThanFormula);
+  auto parent_formula = std::make_shared<ParenthesisFormula>(local_formula);
+  return parent_formula;
+}
+
+std::shared_ptr<formula> formulaCreator::makeEqualFormula(std::string name, int value){
+  auto formulaVar = std::make_shared<VariableFormula>(name);
+  auto valueFormula = std::make_shared<NumberConstant>(value);
+  auto local_formula = std::make_shared<EqualsFormula>(formulaVar, valueFormula);
+  return local_formula;
+}
+
+std::shared_ptr<formula> formulaCreator::makeBooleanEqualFormula(std::string name, bool value){
+  auto formulaVar = std::make_shared<VariableFormula>(name);
+  auto valueFormula = std::make_shared<BooleanConstant>(value);
+  auto local_formula = std::make_shared<EqualsFormula>(formulaVar, valueFormula);
+  return local_formula;
+}
+
+int largestValue(const std::map<int, std::vector<std::shared_ptr<state>>> & values)
+{
+  auto largestElement =
+      std::max_element(values.begin(), values.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
+  return largestElement->first;
+}
+
+int smallestValue(const std::map<int, std::vector<std::shared_ptr<state>>> & values)
+{
+  auto smallestElement =
+      std::min_element(values.begin(), values.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
+  return smallestElement->first;
+}
+
+std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<std::shared_ptr<state>> & states)
 {
   // The vector of states must not be empty.
   assert(states.size() > 0);
@@ -56,36 +97,51 @@ void formulaCreator::groupStates(const std::vector<std::shared_ptr<state>> & sta
   auto variable_val_map = buildVariableValueMap(states);
 
   // We need to create a formula that groups the states based on the value of the variable.
-  std::string formula = "";
+  auto formulas = std::vector<std::shared_ptr<formula>>();
   // Loop through the variables and create the formula.
   for (auto var : variables) {
     auto name = var->getLocalName();
     auto values = variable_val_map[name];
-    if (values.size() <= 1) {
-      // The variable has the same value in all states.
-      variable_val_map.erase(name);
+    if (values.size() == 1) {
+      // The variable has the same value in all states. It is an invariant.
+      auto value = values.begin()->first;
+      auto localFormula = makeEqualFormula(name, value);
+      formulas.push_back(localFormula);
       // We do not need to consider this variable.
       continue;
     }
-    auto largestElement =
-        std::max_element(values.begin(), values.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-
-    auto smallestElement =
-        std::min_element(values.begin(), values.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-
-    const int largestValue = largestElement->first;
-    const int smallestValue = smallestElement->first;
-
-    // The variable has different values in the states.
-    std::cout << "The variable " << name << " has different values in the states." << std::endl;
-    std::cout << "The biggest value is " << largestValue << " and the smallest value is " << smallestValue << std::endl;
-
-    formula += "(";
-    for (auto value : values) {
-      formula += name + " = " + std::to_string(value.first) + " || ";
+    if (isBooleanVariable(states.front(), name)) {
+      // We can only have one value in the include and exclude states as the variable is boolean.
+      if (values.size() > 1) {
+        std::cout << "The boolean variable " << name << " is changing in the states, so it cannot be used to group the states."
+                  << std::endl;
+      }else{
+        auto value = values.begin()->first;
+        bool isTrue = value == 1;
+        auto localFormula = makeBooleanEqualFormula(name, isTrue);
+        formulas.push_back(localFormula);
+      }
+      continue;
+    }
+    const int largest_Value = largestValue(values);
+    const int smallest_Value = smallestValue(values);
+    // If the difference between the largest and smallest value is equal to the number of states, we can create a range
+    if (largest_Value - smallest_Value == (int)(values.size() - 1)) {
+      auto rangeFormula = makeRangeFormula(name, smallest_Value, largest_Value);
+      formulas.push_back(rangeFormula);
+    }else{
+      auto subformulas = std::vector<std::shared_ptr<formula>>();
+      for (auto value : values) {
+        auto localFormula = makeEqualFormula(name, value.first);
+        subformulas.push_back(localFormula);
+      }
+      auto local_formula = groupFormulas(subformulas, "||");
+      auto parent_formula = std::make_shared<ParenthesisFormula>(local_formula);
+      formulas.push_back(parent_formula);
     }
   }
-  std::cout << "The formula is " << formula << std::endl;
+  auto result_formula = groupFormulas(formulas, "&&");
+  return result_formula;
 }
 
 struct overlapResult {
@@ -101,32 +157,27 @@ overlapResult values_overlap(const std::map<int, std::vector<std::shared_ptr<sta
                              const std::map<int, std::vector<std::shared_ptr<state>>> & values2)
 {
   bool value_ranges_overlap = false;
-  auto largestElement_range1 =
-      std::max_element(values1.begin(), values1.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-  auto smallestElement_range1 =
-      std::min_element(values1.begin(), values1.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-  auto largestElement_range2 =
-      std::max_element(values2.begin(), values2.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-  auto smallestElement_range2 =
-      std::min_element(values2.begin(), values2.end(), [](const auto & a, const auto & b) { return a.first < b.first; });
-  if (largestElement_range1->first >= smallestElement_range2->first &&
-      smallestElement_range2->first <= smallestElement_range1->first) {
+  auto largestValue_range1 = largestValue(values1);
+  auto smallestValue_range1 = smallestValue(values1);
+  auto largestValue_range2 = largestValue(values2);
+  auto smallestValue_range2 = smallestValue(values2);
+  if (largestValue_range1 >= smallestValue_range2 &&
+      smallestValue_range2 <= smallestValue_range1) {
     value_ranges_overlap = true;
   }
-  if (largestElement_range2->first >= smallestElement_range1->first &&
-      largestElement_range2->first <= largestElement_range1->first) {
+  if (largestValue_range2 >= smallestValue_range1 &&
+      largestValue_range2 <= largestValue_range1) {
     value_ranges_overlap = true;
   }
-
   overlapResult result;
   result.value_ranges_overlap = value_ranges_overlap;
   if (!value_ranges_overlap) {
-    if (largestElement_range1->first > largestElement_range2->first) {
-      result.boundary_value = largestElement_range2->first;
+    if (largestValue_range1 > largestValue_range2) {
+      result.boundary_value = largestValue_range2;
       result.is_larger = false;
     }
     else {
-      result.boundary_value = smallestElement_range2->first;
+      result.boundary_value = smallestValue_range2;
       result.is_larger = true;
     }
   }
@@ -146,13 +197,13 @@ remove_duplicated_values(const std::map<int, std::vector<std::shared_ptr<state>>
   return new_values;
 }
 
-void formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>> include_states,
-                                       const std::vector<std::shared_ptr<state>> exclude_states)
+/// @brief Create a formula that distinguishes the states in include_states from the states in exclude_states.
+/// @param include_states states to include in the formula
+/// @param exclude_states states to exclude from the formula
+/// @return a formula that distinguishes the states in include_states from the states in exclude_states
+std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>> include_states,
+                                                           const std::vector<std::shared_ptr<state>> exclude_states)
 {
-  // We need to create a formula that distinguishes the states in include_states from the states in exclude_states.
-  // We need to group the states based on the value of the variables.
-  // We need to create a formula that distinguishes the states in include_states from the states in exclude_states.
-  // We need to group the states based on the value of the variables.
   auto include_variable_val_map = buildVariableValueMap(include_states);
   auto exclude_variable_val_map = buildVariableValueMap(exclude_states);
   // The two maps should have the same keys.
@@ -162,8 +213,7 @@ void formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>>
     assert(exclude_variable_val_map.find(name) != exclude_variable_val_map.end());
   }
   // We need to create a formula that groups the states based on the value of the variable.
-  std::string formula = "";
-  std::vector<std::string> subformulas;
+  std::vector<std::shared_ptr<formula>> subformulas;
   auto not_distinguishing_variables = std::vector<std::string>();
 
   // Loop through the variables and create the formula.
@@ -171,7 +221,6 @@ void formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>>
     auto variableName = var.first;
     auto include_values = var.second;
     auto exclude_values = exclude_variable_val_map[variableName];
-
     auto values_only_in_include = remove_duplicated_values(include_values, exclude_values);
     auto values_only_in_exclude = remove_duplicated_values(exclude_values, include_values);
 
@@ -182,79 +231,69 @@ void formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>>
       continue;
     }
 
-    std::string subFormula = "(";
+    auto variableFormula = std::make_shared<VariableFormula>(variableName);
+
+    if (isBooleanVariable(include_states.front(), variableName)) {
+      // We can only have one value in the include and exclude states as the variable is boolean.
+      assert(values_only_in_include.size() <= 1 && values_only_in_exclude.size() <= 1);
+      auto addFormula = [&](bool include, const auto & values) {
+        if (!values.empty()) {
+          auto value = values.begin()->first;
+          bool isTrue = value == 1;
+          bool booleanValue = include ? isTrue : !isTrue;
+          auto booleanFormula = std::make_shared<BooleanConstant>(booleanValue);
+          std::shared_ptr<formula> form = std::make_shared<EqualsFormula>(variableFormula, booleanFormula);
+          subformulas.push_back(form);
+        }
+      };
+      if (values_only_in_include.size() == 1) {
+        addFormula(true, values_only_in_include);
+      }
+      else if (values_only_in_exclude.size() == 1) {
+        addFormula(false, values_only_in_exclude);
+      }
+      continue;
+    }
 
     auto value_ranges_overlap = values_overlap(include_values, exclude_values);
     if (value_ranges_overlap.value_ranges_overlap) {
-      std::cout << "The variable " << variableName
-                << " has overlapping values, so we need to distinguish them based on the values." << std::endl;
-      for (auto value : values_only_in_include) {
-        subFormula += variableName + " = " + std::to_string(value.first) + " || ";
-      }
-      for (auto value : values_only_in_exclude) {
-        subFormula += variableName + " != " + std::to_string(value.first) + " || ";
-      }
+      // The value ranges overlap. They should be distinguished based on the values.
+      auto createFormulas = [&](std::map<int, std::vector<std::shared_ptr<state>>> values, bool include) {
+        for (auto value : values) {
+          auto valueFormula = std::make_shared<NumberConstant>(value.first);
+          if (include) {
+            auto localFormula = makeEqualFormula(variableName, value.first);
+            subformulas.push_back(localFormula);
+          }
+          else {
+            auto localFormula = std::make_shared<NotEqualsFormula>(variableFormula, valueFormula);
+            subformulas.push_back(localFormula);
+          }
+        }
+      };
+      createFormulas(values_only_in_include, true);
+      createFormulas(values_only_in_exclude, false);
     }
     else {
-      std::cout << "The two value ranges for the variable " << variableName
-                << " do not overlap. Meaning a boundary "
-                   "condition can be used to distinguish the states."
-                << std::endl;
-      if (value_ranges_overlap.is_larger) {
-        subFormula += variableName + " > " + std::to_string(value_ranges_overlap.boundary_value);
-      }
-      else {
-        subFormula += variableName + " < " + std::to_string(value_ranges_overlap.boundary_value);
-      }
+      // The value ranges do not overlap - they can be distinguished using a comparison formula such as larger than or
+      auto valueFormula = std::make_shared<NumberConstant>(value_ranges_overlap.boundary_value);
+      auto localFormula = value_ranges_overlap.is_larger ? std::make_shared<LargerEqualsFormula>(variableFormula, valueFormula)
+                                                         : std::make_shared<LargerEqualsFormula>(valueFormula, variableFormula);
+      subformulas.push_back(localFormula);
     }
-    subFormula += ")";
-    subformulas.push_back(subFormula);
   }
 
-  if (not_distinguishing_variables.size() == include_variable_val_map.size()) {
-    std::cout << "The states cannot be distinguished based on the variables." << std::endl;
+  if (not_distinguishing_variables.size() == include_variable_val_map.size() || subformulas.empty()) {
+    std::cout << "The states cannot be distinguished based on the variables. It is possible that the states are the same. I am "
+                 "returning a false formula."
+              << std::endl;
+    return std::make_shared<BooleanConstant>(false);
   }
-  else {
-    std::cout << "The states can be distinguished based on the variables." << std::endl;
-    formula = std::accumulate(std::begin(subformulas), std::end(subformulas), std::string(),
-                              [](std::string & ss, std::string & s) { return ss.empty() ? s : ss + " && " + s; });
-  }
-
-  std::cout << "The formula is " << formula << std::endl;
-}
-
-int formulaCreator::getValueOfVariable(const std::shared_ptr<state> & state, const std::string & name)
-{
-  auto variable = state->getVariable(name);
-  primitiveVariable * casted_variable = nullptr;
-  auto value = 0;
-  switch (variable->getType()) {
-  case variable::V_BOOL:
-  case variable::V_BIT:
-  case variable::V_BYTE:
-  case variable::V_PID:
-  case variable::V_CID:
-  case variable::V_SHORT:
-  case variable::V_INT:
-    casted_variable = dynamic_cast<primitiveVariable *>(variable);
-    assert(casted_variable);
-    value = casted_variable->getValue();
-    break;
-  case variable::V_MTYPE:
-  case variable::V_CMTYPE:
-    casted_variable = dynamic_cast<primitiveVariable *>(variable);
-    assert(casted_variable);
-    value = casted_variable->getValue();
-    break;
-  case variable::V_UTYPE:
-    casted_variable = dynamic_cast<primitiveVariable *>(variable);
-    assert(casted_variable);
-    // value = casted_variable->getValue();
-    break;
-  default:
-    break;
-  }
-  return value;
+  // We need to create a formula that groups the states based on the value of the variable.
+  auto combinedFormula = groupFormulas(subformulas, "&&");
+  // Make it to an always formula.
+  auto globalFormula = std::make_shared<GloballyFormula>(combinedFormula);
+  return globalFormula;
 }
 
 std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>
@@ -294,4 +333,76 @@ std::string formulaCreator::formulaStringToNeverClaim(const std::string & formul
 {
   auto never_claim = transformLTLStringToNeverClaim(formula);
   return never_claim;
+}
+
+bool formulaCreator::isBooleanVariable(const std::shared_ptr<state> & state, const std::string & name)
+{
+  auto variable = state->getVariable(name);
+  auto type = variable->getType();
+  return type == variable::V_BOOL || type == variable::V_BIT;
+}
+
+int formulaCreator::getValueOfVariable(const std::shared_ptr<state> & state, const std::string & name)
+{
+  auto variable = state->getVariable(name);
+  primitiveVariable * casted_variable = nullptr;
+  auto value = 0;
+  switch (variable->getType()) {
+  case variable::V_BOOL:
+  case variable::V_BIT:
+  case variable::V_BYTE:
+  case variable::V_PID:
+  case variable::V_CID:
+  case variable::V_SHORT:
+  case variable::V_INT:
+    casted_variable = dynamic_cast<primitiveVariable *>(variable);
+    assert(casted_variable);
+    value = casted_variable->getValue();
+    break;
+  case variable::V_MTYPE:
+  case variable::V_CMTYPE:
+    // Need to implement
+    casted_variable = dynamic_cast<primitiveVariable *>(variable);
+    assert(casted_variable);
+    value = casted_variable->getValue();
+    break;
+  case variable::V_UTYPE:
+    // Need to implement
+    casted_variable = dynamic_cast<primitiveVariable *>(variable);
+    assert(casted_variable);
+    // value = casted_variable->getValue();
+    break;
+  default:
+    break;
+  }
+  return value;
+}
+
+std::shared_ptr<formula> formulaCreator::groupFormulas(const std::vector<std::shared_ptr<formula>> & formulas,
+                                                       const std::string & operatorSymbol)
+{
+  if (operatorSymbol != "&&" && operatorSymbol != "||") {
+    throw std::invalid_argument("The operator must be '&&' or '||'");
+  }
+  if (formulas.empty()) {
+    std::cout << "The vector of formulas is empty. I am returning a true formula." << std::endl;
+    return std::make_shared<BooleanConstant>(true);
+  }
+  if (formulas.size() == 1) {
+    return formulas.front();
+  }
+  if (operatorSymbol == "&&") {
+    auto formula = std::make_shared<AndFormula>(formulas.front(), formulas.at(1));
+    for (size_t i = 2; i < formulas.size(); i++) {
+      formula = std::make_shared<AndFormula>(formula, formulas.at(i));
+    }
+    return formula;
+  }
+  else {
+    auto formula = std::make_shared<OrFormula>(formulas.front(), formulas.at(1));
+    for (size_t i = 2; i < formulas.size(); i++) {
+      formula = std::make_shared<OrFormula>(formula, formulas.at(i));
+    }
+    return formula;
+  }
 }

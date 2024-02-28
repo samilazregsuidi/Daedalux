@@ -19,7 +19,7 @@ protected:
     // Common teardown code that will be called after each test
   }
   std::unique_ptr<traceReport> report;
-  std::string array_model = "/test_files/mutants/array.pml";
+  std::string array_model = "/test_files/basic/array.pml";
   std::string current_path = std::filesystem::current_path();
 };
 
@@ -66,7 +66,7 @@ TEST_F(TraceReportTest, AddGoodTraceAndGetGoodTraces)
   ASSERT_TRUE(goodTraces.count(t2) > 0);
 }
 
-TEST_F(TraceReportTest, TraceOArrayLong)
+TEST_F(TraceReportTest, TraceOfArrayLong)
 {
   const TVL * tvl = nullptr;
   auto length = 10;

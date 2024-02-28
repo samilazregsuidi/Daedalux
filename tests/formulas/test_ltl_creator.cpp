@@ -1,4 +1,4 @@
-#include "../src/core/logic/ltl.hpp"
+#include "../../src/core/logic/ltl.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -7,6 +7,7 @@
 #include <iterator>
 #include <memory>
 #include <string>
+#include <iostream>
 
 // Define a fixture for the tests
 class LTLTransformerTest : public ::testing::Test {
@@ -20,6 +21,13 @@ protected:
   std::string flows_model = "/test_files/appendClaimTest/flows.pml";
   std::string current_path = std::filesystem::current_path();
 
+  bool compareLines(std::string & line1, std::string & line2)
+  {
+    line1.erase(remove(line1.begin(), line1.end(), ' '), line1.end());
+    line2.erase(remove(line2.begin(), line2.end(), ' '), line2.end());
+    return line1.compare(line2) == 0;
+  }
+
   bool compareFiles(const std::string & filePath1, const std::string & filePath2)
   {
     std::ifstream file1(filePath1), file2(filePath2);
@@ -29,14 +37,16 @@ protected:
       std::cerr << "Error opening one of the files." << std::endl;
       return false;
     }
-
+    int line_number = 0;
     while (!file1.eof() || !file2.eof()) {
       std::getline(file1, line1);
       std::getline(file2, line2);
-
-      if (file1.eof() != file2.eof() || line1 != line2) {
+      auto equal = compareLines(line1, line2);
+      auto equal_eof = file1.eof() == file2.eof();
+      if (!equal_eof || !equal) {
         return false; // Files are different
       }
+      line_number++;
     }
     return true; // Files are identical
   }
@@ -48,9 +58,7 @@ TEST_F(LTLTransformerTest, formulaStringToNeverClaim_Globally)
   auto result = transformLTLStringToNeverClaim(formula);
   std::string expected_result =
       "never{/*!([](x))*/\nT0_init:\n\tif\n\t::(1)->gotoT0_init\n\t::(!x)->gotoaccept_all\n\tfi;\naccept_all:\n\tskip\n}\n";
-  expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
-  result.erase(remove(result.begin(), result.end(), ' '), result.end());
-  ASSERT_EQ(result, expected_result);
+  ASSERT_TRUE(compareLines(result, expected_result));
 }
 
 TEST_F(LTLTransformerTest, formulaStringToNeverClaim_Finally)
@@ -58,9 +66,7 @@ TEST_F(LTLTransformerTest, formulaStringToNeverClaim_Finally)
   auto formula = "<>(x)";
   auto result = transformLTLStringToNeverClaim(formula);
   std::string expected_result = "never{/*!(<>(x))*/\naccept_init:\n\tif\n\t::(!x)->gotoaccept_init\n\tfi;\n}\n";
-  expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
-  result.erase(remove(result.begin(), result.end(), ' '), result.end());
-  ASSERT_EQ(result, expected_result);
+  ASSERT_TRUE(compareLines(result, expected_result));
 }
 
 TEST_F(LTLTransformerTest, formulaStringToNeverClaim_Liveness)
@@ -70,9 +76,7 @@ TEST_F(LTLTransformerTest, formulaStringToNeverClaim_Liveness)
   std::string expected_result = "never{/*!([]((!(x))-><>x))*/"
                                 "\nT0_init:\n\tif\n\t::(1)->gotoT0_init\n\t::(!x)->gotoaccept_S2\n\tfi;\naccept_S2:\n\tif\n\t::"
                                 "(!x)->gotoaccept_S2\n\tfi;\n}\n";
-  expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
-  result.erase(remove(result.begin(), result.end(), ' '), result.end());
-  ASSERT_EQ(result, expected_result);
+  ASSERT_TRUE(compareLines(result, expected_result));
 }
 
 TEST_F(LTLTransformerTest, AppendNeverClaim_Globally)

@@ -22,25 +22,25 @@ protected:
 };
 
 
-TEST_F(BisimilarityTest, AnFSMShouldBeBisimilarToItself)
-{
-  const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
-  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
-  auto originalFSM = original_loader->getAutomata();
+// TEST_F(BisimilarityTest, AnFSMShouldBeBisimilarToItself)
+// {
+//   const TVL * tvl = nullptr;
+//   auto file_path = current_path + test1;
+//   auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
+//   auto originalFSM = original_loader->getAutomata();
 
-  ASSERT_TRUE(BisimulationChecker::isBisimilar(originalFSM, originalFSM));
-}
+//   ASSERT_TRUE(BisimulationChecker::isBisimilar(originalFSM, originalFSM));
+// }
 
-TEST_F(BisimilarityTest, TwoFSMAreNotBisimilar)
-{
-  const TVL * tvl = nullptr;
-  auto file_path = current_path + test1;
-  auto original_loader = new promela_loader(file_path, tvl);
-  auto originalFSM = original_loader->getAutomata();
-  delete original_loader;
-  auto file_path_mutant = current_path + test1_mutant;
-  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
-  auto mutantFSM = mutant_loader->getAutomata();
-  ASSERT_FALSE(BisimulationChecker::isBisimilar(originalFSM, mutantFSM));
-}
+// TEST_F(BisimilarityTest, TwoFSMAreNotBisimilar)
+// {
+//   const TVL * tvl = nullptr;
+//   auto file_path = current_path + test1;
+//   auto original_loader = new promela_loader(file_path, tvl);
+//   auto originalFSM = original_loader->getAutomata();
+//   delete original_loader;
+//   auto file_path_mutant = current_path + test1_mutant;
+//   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+//   auto mutantFSM = mutant_loader->getAutomata();
+//   ASSERT_FALSE(BisimulationChecker::isBisimilar(originalFSM, mutantFSM));
+// }

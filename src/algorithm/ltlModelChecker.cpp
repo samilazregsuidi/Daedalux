@@ -5,7 +5,9 @@
 void ltlModelChecker::checkNeverClaim(std::shared_ptr<state> init)
 {
   auto neverClaim = init->getNeverClaim();
-  assert(neverClaim);
+  if (!neverClaim) {
+    throw std::runtime_error("No never claim found. Please check the model before running the model checker.");
+  }
   auto neverTrans = neverClaim->transitions();
   if (neverClaim->nullstate() || neverTrans.size() == 0) {
     throw std::runtime_error("Problem with never claim. Please check the model before running the model checker.");

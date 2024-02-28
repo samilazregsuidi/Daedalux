@@ -63,7 +63,6 @@ std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> origin
       std::cout << "No more transitions to fire - the trace is complete." << std::endl;
       break;
     }
-
     if (same_prefix) {
       different_states = distinct_states(post_states_original, post_states_mutant);
       // If the mutant automata has a state that the original automata does not have - go to that state

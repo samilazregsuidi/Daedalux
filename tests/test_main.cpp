@@ -13,7 +13,6 @@
 
 #include "test_ADDutils.cpp"
 
-#include "test_ltl_creator.cpp"
 
 
 // VISUALIZER - TESTS
@@ -36,13 +35,12 @@
 #include "integration_tests/test_most_similar_trans.cpp"
 #include "integration_tests/test_trace_generator.cpp"
 #include "integration_tests/test_bisimulation.cpp"
-
-#include "integration_tests/test_formula_creator.cpp"
 #include "integration_tests/test_mutant_handling.cpp"
 
-// Add your test files here
-
-
+// FORMULA - TESTS
+#include "formulas/test_formula_creator.cpp"
+#include "formulas/test_ltl_creator.cpp"
+#include "formulas/test_formula.cpp"
 
 int main(int argc, char **argv) {
     // Initialize Google Test framework

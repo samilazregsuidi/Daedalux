@@ -239,6 +239,20 @@ std::list<variable *> variable::getAllVariables(void) const
   return res;
 }
 
+std::list<variable *> variable::getAllVisibleVariables(void) const
+{
+  std::list<variable *> res;
+  for (auto var : varList) {
+    auto name = var->getLocalName();
+    if(name[0] != '_'){
+      res.push_back(var);
+      auto subVars = var->getAllVariables();
+      res.insert(res.end(), subVars.begin(), subVars.end());
+    }
+  }
+  return res;
+}
+
 variable::operator std::string(void) const
 {
   std::string res;
@@ -294,7 +308,7 @@ float variable::delta(const variable * v2) const
 
   for (auto var : varList) {
     auto name = var->getLocalName();
-    //std::cout << "name: " << name << std::endl;
+    // std::cout << "name: " << name << std::endl;
     auto v = v2->getVariable(name);
     res += var->delta(v);
   }
@@ -332,10 +346,10 @@ void variable::addRawBytes(size_t size) { rawBytes += size; }
 variable * variable::getVariable(const std::string & name) const
 {
   size_t pos = name.find(".");
-  if(pos != std::string::npos) {
+  if (pos != std::string::npos) {
     auto subScope = name.substr(0, pos);
     variable * var = getVariable(subScope);
-    if(var == nullptr) {
+    if (var == nullptr) {
       std::cout << subScope << " not found. " << std::endl;
       assert(false);
     }
@@ -355,7 +369,8 @@ variable * variable::getVariable(const std::string & name) const
     for (auto scope : varList) {
       auto v = scope->getVariableDownScoping(name);
       if (v) {
-        assert(!found);
+        if (found)
+          throw std::runtime_error("Variable " + name + " is ambiguous, and is defined in multiple scopes.");
         found = true;
         var = v;
       }
@@ -365,20 +380,21 @@ variable * variable::getVariable(const std::string & name) const
   return var;
 }
 
-variable* variable::getVariableDownScoping(const std::string& name) const {
-	std::map<std::string, variable*>::const_iterator resIt = varMap.find(name);
-	if(resIt != varMap.cend())
-		return resIt->second;
-	
-	variable* var = nullptr;
-	for (auto scope : varList) {
-		auto v = scope->getVariableDownScoping(name);
-		if(v) {
-			var = v;
-			break;
-		}
-	}
-	return var;
+variable * variable::getVariableDownScoping(const std::string & name) const
+{
+  std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
+  if (resIt != varMap.cend())
+    return resIt->second;
+
+  variable * var = nullptr;
+  for (auto scope : varList) {
+    auto v = scope->getVariableDownScoping(name);
+    if (v) {
+      var = v;
+      break;
+    }
+  }
+  return var;
 }
 
 channel * variable::getChannel(const std::string & name) const

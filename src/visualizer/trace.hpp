@@ -108,6 +108,8 @@ public:
     return true;
   }
 
+  // std::map<std::string, std::pair<int, int>> getMinMaxValues() const;
+
   friend bool operator!=(const trace & lhs, const trace & rhs) { return !(lhs == rhs); }
 };
 

@@ -1,5 +1,6 @@
 
 #include "../core/semantic/variable/state/state.hpp"
+#include "../formulas/formula.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,11 +18,11 @@ public:
 
   std::pair<std::vector<std::string>, std::vector<std::string>> killMutants(void);
 
-  void analyzeSpecification(unsigned int number_of_mutants, unsigned int trace_size);
+  void enhanceSpecification(unsigned int number_of_mutants, unsigned int trace_size);
 
   void createMutants(unsigned int number_of_mutants);
 
-  void analyzeMutants(unsigned int number_of_mutants);
+  std::map<std::string, std::shared_ptr<formula>> analyzeMutants(unsigned int number_of_mutants);
 
   std::vector<std::string> getMutantFilePaths() { return mutant_file_paths; }
   std::string getOriginalFilePath() { return original_file_path; }

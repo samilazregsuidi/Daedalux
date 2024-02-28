@@ -10,6 +10,7 @@
 #include "state.hpp"
 
 #include "stateVisitor.hpp"
+#include <iostream>
 
 /**
  * Adds the global variables in the memory chunk.
@@ -62,12 +63,14 @@ std::list<state*> state::Post(void) const {
 	for(auto t : executables())
 		res.push_back(fire(t));
 	
-
 	//check if it is a deadlock state
-	if(getNeverClaim()) {
-		auto neverTs = getNeverClaim()->executables();
-		if(res.empty() && !neverTs.empty())
+	auto neverClaim = getNeverClaim();
+	if(neverClaim) {
+		auto neverTs = neverClaim->executables();
+		if(res.empty() && !neverTs.empty()){
+			std::cout << "Deadlock detected because of never claim" << std::endl;
 			this->errorMask |= ERR_DEADLOCK;
+		}
 		transition::erase(neverTs);
 	}
 	return res;

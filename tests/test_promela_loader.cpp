@@ -32,11 +32,6 @@ protected:
 // Test case for loading a valid Promela file
 TEST_F(PromelaLoaderTest, LoadValidPromelaFileFlows)
 {
-  // Skip this test if it is not running on a macOs
-  if (std::filesystem::current_path().string().find("macOS") == std::string::npos) {
-    GTEST_SKIP();
-  }
-
   std::string current_directory = fs::current_path();
   std::string file_name = "/test_files/basic/flows.pml";
   std::string file_path = current_directory + file_name;
@@ -119,24 +114,3 @@ TEST_F(PromelaLoaderTest, LoadWindowsPromelaFile)
   auto initialStates = automata->getInitNodes();
   EXPECT_EQ(initialStates.size(), 2);
 }
-
-// Test case for loading Elevator Promela file
-// TEST_F(PromelaLoaderTest, LoadElevatorPromelaFile) {
-
-//     std::string current_directory = fs::current_path();
-//     std::string file_name = "/models/elevator/elevator.pml";
-//     std::string file_path = current_directory + file_name;
-//     const TVL* tvl = nullptr;
-//     auto loader = std::make_unique<promela_loader>(file_path, tvl);
-
-//     auto automata = loader->getAutomata();
-
-//     int numNodes = automata->getNodes().size();
-//     int numTransitions = automata->getTransitions().size();
-
-//     EXPECT_EQ(automata->getNodes().size(), 46);
-//     EXPECT_EQ(automata->getTransitions().size(), 67);
-
-//     auto initialStates = automata->getInitNodes();
-//     EXPECT_EQ(initialStates.size(), 5);
-// }

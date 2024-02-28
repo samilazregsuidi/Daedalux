@@ -15,15 +15,18 @@ protected:
   {
     // Common teardown code that will be called after each test
   }
-  std::string test1 = "/test_files/mutants/array.pml";
-  std::string test1_mutant = "/test_files/mutants/array_mutant.pml";
+
+  std::string array_model = "/test_files/mutants/array.pml";
+  std::string array_model_mutant = "/test_files/mutants/array_mutant.pml";
+  std::string array_model_never = "/test_files/mutants/array_never.pml";
+  std::string array_model_mutant_never = "/test_files/mutants/array_mutant_never.pml";
   std::string flows_model = "/test_files/basic/flows.pml";
   std::string current_path = std::filesystem::current_path();
 };
 
 TEST_F(MutantHandlerTest, mutant_generation_array)
 {
-  auto original_file_path = current_path + test1;
+  auto original_file_path = current_path + array_model_never;
   MutantAnalyzer mutantAnalyzer(original_file_path);
   auto number_of_mutants = 5;
   mutantAnalyzer.createMutants(number_of_mutants);
@@ -70,8 +73,8 @@ TEST_F(MutantHandlerTest, mutant_generation_flows)
 
 TEST_F(MutantHandlerTest, analyzeMutants)
 {
-  auto original_file_path = current_path + test1;
-  auto mutant_file_path = current_path + test1_mutant;
+  auto original_file_path = current_path + array_model_never;
+  auto mutant_file_path = current_path + array_model_mutant_never;
   MutantAnalyzer mutantAnalyzer(original_file_path, {mutant_file_path});
   auto trace_length = 15;
   mutantAnalyzer.analyzeMutants(trace_length);
@@ -84,23 +87,37 @@ TEST_F(MutantHandlerTest, analyzeMutants)
   }
 }
 
-// TEST_F(MutantHandlerTest, analyzeSpecification)
-// {
-//   auto original_file_path = current_path + flows_model;
-//   MutantAnalyzer mutantAnalyzer(original_file_path);
-//   auto number_of_mutants = 5;
-//   auto trace_length = 15;
-//   mutantAnalyzer.analyzeSpecification(number_of_mutants, trace_length);
-// }
-
 TEST_F(MutantHandlerTest, test_mutant_killing)
 {
   // TODO: No done yet
-  auto original_file_path = current_path + test1;
-  auto mutant_file_path = current_path + test1_mutant;
+  auto original_file_path = current_path + array_model_never;
+  auto mutant_file_path = current_path + array_model_mutant_never;
   std::vector<std::string> mutants = {mutant_file_path};
   MutantAnalyzer mutantAnalyzer = MutantAnalyzer(original_file_path, mutants);
   // auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
   // ASSERT_EQ(killed_mutants.size(), 0);
   // ASSERT_EQ(alive_mutants.size(), 1);
 }
+
+TEST_F(MutantHandlerTest, enhanceSpecification_neverClaimExists)
+{
+  auto original_file_path = current_path + array_model_never;
+  auto mutant_file_path = current_path + array_model_mutant_never;
+  std::vector<std::string> mutants = {mutant_file_path};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+}
+
+TEST_F(MutantHandlerTest, enhanceSpecification_NoNeverClaimExists)
+{
+  auto original_file_path = current_path + array_model;
+  auto mutant_file_path = current_path + array_model_mutant;
+  std::vector<std::string> mutants = {mutant_file_path};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+}
+
