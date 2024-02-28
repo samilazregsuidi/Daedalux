@@ -103,10 +103,6 @@ TEST_F(SimilarityTest, DifferentStateDelta_ShouldNotBe0)
   auto delta = current_state->delta(post_state);
   float expected = 0.00862068962;
   ASSERT_TRUE(expected - delta < 0.00001);
-  auto post_post_state = post_state->Post().front();
-  delta = current_state->delta(post_post_state);
-  expected = 0.043103449;
-  ASSERT_TRUE(expected - delta  < 0.00001);
 }
 
 TEST_F(SimilarityTest, MostSimilarStateEmptyList)

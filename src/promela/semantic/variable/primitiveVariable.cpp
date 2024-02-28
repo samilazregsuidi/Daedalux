@@ -68,17 +68,23 @@ int primitiveVariable::operator=(const primitiveVariable & rvalue)
 
 int primitiveVariable::operator=(const arg & rvalue)
 {
+  const primitiveVariable * var = nullptr;
   switch (rvalue.type) {
   case arg::VAL:
     setValue(rvalue.data.value);
     break;
 
   case arg::VAR:
-    auto var = dynamic_cast<const primitiveVariable *>(rvalue.data.variable);
+    var = dynamic_cast<const primitiveVariable *>(rvalue.data.variable);
     assert(var);
     setValue(rvalue.data.variable->getValue());
     break;
+
+  default:
+      assert(false);
+      break;
   }
+  return -1;
 }
 
 int primitiveVariable::operator++(void)
