@@ -181,18 +181,15 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
   ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get()));
   auto result = formulaCreator::groupStatesByFormula(states);
 
-  auto var_a = std::make_shared<VariableFormula>("a");
   auto var_b = std::make_shared<VariableFormula>("b");
+  auto var_c = std::make_shared<VariableFormula>("c");
+  auto var_d = std::make_shared<VariableFormula>("d");
   auto formula_1 =
-      std::make_shared<AndFormula>(std::make_shared<LargerEqualsFormula>(var_a, std::make_shared<NumberConstant>(0)),
-                                   std::make_shared<SmallerEqualsFormula>(var_a, std::make_shared<NumberConstant>(1)));
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false)));
+  auto formula_2 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
+  auto formula_3 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
 
-  auto formula_1_par = std::make_shared<ParenthesisFormula>(formula_1);
-  auto formula_2 =
-      std::make_shared<AndFormula>(std::make_shared<LargerEqualsFormula>(var_b, std::make_shared<NumberConstant>(0)),
-                                   std::make_shared<SmallerEqualsFormula>(var_b, std::make_shared<NumberConstant>(1)));
-  auto formula_2_par = std::make_shared<ParenthesisFormula>(formula_2);
-  std::vector<std::shared_ptr<formula>> formulas = {formula_1_par, formula_2_par};
+  std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3};
 
   auto expected_result = formulaCreator::groupFormulas(formulas, "&&");
   std::cout << "Result: " << result->toFormula() << std::endl;

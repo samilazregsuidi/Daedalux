@@ -128,7 +128,7 @@ std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::ki
       is_killed = mc->check(fsm_mutant.get(), nullptr);
     }
     catch (const std::exception & e) {
-      std::cerr << e.what() << '\n';
+    std::cerr << e.what() << '\n';
     }
 
     // If the mutant is killed, add it to the list of killed mutants and add it to the list of surviving mutants otherwise

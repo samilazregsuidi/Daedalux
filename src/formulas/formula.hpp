@@ -47,7 +47,13 @@ public:
 
 class VariableFormula : public LeafFormula {
 public:
-  VariableFormula(const std::string & name) : name(name) {}
+  VariableFormula(const std::string & name) : name(name)
+  {
+    if (name.empty()) {
+      throw std::invalid_argument("Variable name cannot be empty");
+    }
+  }
+
   ~VariableFormula() = default;
 
   std::string toFormula() const { return name; }
@@ -186,7 +192,8 @@ private:
 
 class NextFormula : public UnaryFormula {
 public:
-  NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula) {
+  NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
+  {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
     if (!subformulaAsParenthesis) {
@@ -201,7 +208,8 @@ private:
 
 class GloballyFormula : public UnaryFormula {
 public:
-  GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula) {
+  GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
+  {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
     if (!subformulaAsParenthesis) {
@@ -217,7 +225,8 @@ private:
 
 class FinallyFormula : public UnaryFormula {
 public:
-  FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)  {
+  FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
+  {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
     if (!subformulaAsParenthesis) {

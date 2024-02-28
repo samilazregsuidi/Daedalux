@@ -244,11 +244,13 @@ std::list<variable *> variable::getAllVisibleVariables(void) const
   std::list<variable *> res;
   for (auto var : varList) {
     auto name = var->getLocalName();
-    if(name[0] != '_'){
+    auto isProcess = dynamic_cast<process *>(var);
+    auto isUtype = dynamic_cast<utypeVar *>(var);
+    if (name[0] != '_' && name != "np_" && name != "k" && name != "" && !isProcess && !isUtype) {
       res.push_back(var);
-      auto subVars = var->getAllVariables();
-      res.insert(res.end(), subVars.begin(), subVars.end());
     }
+    auto subVars = var->getAllVisibleVariables();
+    res.insert(res.end(), subVars.begin(), subVars.end());
   }
   return res;
 }
