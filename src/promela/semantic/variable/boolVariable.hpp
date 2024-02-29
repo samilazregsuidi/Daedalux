@@ -5,21 +5,21 @@
 
 class boolSymNode;
 
-class boolVar : public primitiveVariable {
+class boolVar : public primitive<bool> {
 public:
-	boolVar(const boolSymNode* sym, unsigned int index =  0);
+	boolVar(const std::string& name);
 
 	variable* deepCopy(void) const override;
 
 	~boolVar() override {}
 
-	int operator ++ (void) override;
+	bool operator ++ (void) override;
 
-	int operator -- (void) override;
+	bool operator -- (void) override;
 
-	int operator ++ (int) override;
+	bool operator ++ (int) override;
 
-	int operator -- (int) override;
+	bool operator -- (int) override;
 
 	bool operator == (bool value) const;
 
@@ -30,8 +30,6 @@ public:
 	void printDelta(const variable* other) const override;
 
 	operator std::string(void) const override;
-
-	operator bool(void) const;
 
 	void print(void) const override;
 

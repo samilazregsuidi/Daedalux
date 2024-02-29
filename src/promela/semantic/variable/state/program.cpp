@@ -115,14 +115,14 @@ void program::assign(const variable* sc) {
 	variable::assign(sc);
 	assert(sc->getVariables().size());
 
-	/*if(handShakeChan) {
+	if(handShakeChan) {
 		handShakeChan = getChannel(handShakeChan->getLocalName());
 		assert(handShakeChan);
 	}
 	if(handShakeProc) {
 		handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
 		assert(handShakeProc);
-	}*/
+	}
 	if(exclusiveProc) {
 		exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
 		assert(exclusiveProc);

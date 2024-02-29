@@ -45,7 +45,13 @@ public:
 		V_BYTE,
 		V_PID,
 		V_SHORT,
+		V_USHORT,
 		V_INT,
+		V_UINT,
+		V_LONG,
+		V_ULONG,
+		V_FLOAT,
+		V_DOUBLE,
 		V_UNSGN, 	// not supported yet
 		V_MTYPE,
 		V_CLOCK ,	// dense time clock - supports RT?
@@ -70,6 +76,15 @@ public:
 		V_VARIANT
 	};
 
+	template <Type type> struct bounds {
+		static const int min;
+		static const int max;
+	};
+
+	template <Type type> struct size {
+		static const int value;
+	};
+
 	variable(Type type, const std::string& name = std::string());
 
 	variable(const variable& other);
@@ -83,22 +98,6 @@ public:
 	/****************************************************/
 
 	virtual void init(void);
-
-	/*virtual void setValue(int value) = 0;
-	
-	virtual int getValue(void) const = 0;
-
-	virtual int operator = (const variable& rvalue) = 0;
-
-	virtual int operator ++ (void) = 0;
-
-	virtual int operator -- (void) = 0;
-
-	virtual int operator ++ (int) = 0;
-
-	virtual int operator -- (int) = 0;
-
-	*/
 
 	virtual bool operator == (const variable* other) const;
 
@@ -207,7 +206,6 @@ public:
 
 	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
-
 	virtual unsigned long hash(void) const;
 
 	virtual float delta(const variable* v2) const;
@@ -221,6 +219,10 @@ public:
 	/*********************************************************/
 
 	static Type getVarType(symbol::Type type);
+
+	static size_t getUpperBound(variable::Type type);
+
+	static size_t getLowerBound(variable::Type type);
 
 	static unsigned int vidCounter;
 

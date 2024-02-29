@@ -27,6 +27,8 @@ class initState {
 public:
 	static state* createInitState(const fsm* automata, const TVL* tvl);
 
+	static variable* createPrimitive(const std::string& name, const varSymNode* sym);
+
 	static std::list<variable*> addVariables(variable* v, const varSymNode* sym);
 
 	static process* createProcess(const fsm* stateMachine, const seqSymNode* procType, byte pid, unsigned int index);

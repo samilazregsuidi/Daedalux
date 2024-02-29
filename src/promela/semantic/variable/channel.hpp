@@ -70,7 +70,7 @@ private:
 	void len(byte newLen);
 };
 
-class CIDVar : public primitiveVariable {
+class CIDVar : public primitive<unsigned char> {
 public:
 	CIDVar(const cidSymNode* sym, unsigned int bound =  0);
 

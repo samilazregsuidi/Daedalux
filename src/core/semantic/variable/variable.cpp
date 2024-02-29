@@ -76,6 +76,126 @@ variable::Type variable::getVarType(symbol::Type type)
   return V_NA;
 }
 
+template <> struct variable::bounds<variable::V_BIT> {
+    static const int min = 0;
+    static const int max = 1;
+};
+
+template <> struct variable::size<variable::V_BIT> {
+    static const int value = 1;
+};
+
+template <> struct variable::bounds<variable::V_BOOL> {
+    static const int min = 0;
+    static const int max = 1;
+};
+
+template <> struct variable::size<variable::V_BOOL> {
+    static const int value = 1;
+};
+
+template <> struct variable::bounds<variable::V_BYTE> {
+    static const int min = 0;
+    static const int max = 255;
+};
+
+template <> struct variable::size<variable::V_BYTE> {
+    static const int value = 1;
+};
+
+template <> struct variable::bounds<variable::V_SHORT> {
+		static const int min = -32768;
+		static const int max = 32767;
+};
+
+template <> struct variable::size<variable::V_SHORT> {
+    static const int value = 2;
+};
+
+template <> struct variable::bounds<variable::V_INT> {
+		static const int min = -2147483648;
+		static const int max = 2147483647;
+};
+
+template <> struct variable::size<variable::V_INT> {
+    static const int value = 4;
+};
+
+template <> struct variable::bounds<variable::V_PID> {
+    static const int min = 0;
+    static const int max = 255;
+};
+
+template <> struct variable::size<variable::V_PID> {
+    static const int value = 1;
+};
+
+template <> struct variable::bounds<variable::V_MTYPE> {
+    static const int min = 0;
+    static const int max = 255;
+};
+
+template <> struct variable::size<variable::V_MTYPE> {
+    static const int value = 1;
+};
+
+template <> struct variable::bounds<variable::V_CID> {
+    static const int min = 0;
+    static const int max = 255;
+};
+
+template <> struct variable::size<variable::V_CID> {
+    static const int value = 1;
+};
+
+size_t variable::getLowerBound(variable::Type type) { 
+  switch (type) {
+  case V_BIT:
+    return bounds<V_BIT>::min;
+  case V_BOOL:
+    return bounds<V_BOOL>::min;
+  case V_BYTE:
+    return bounds<V_BYTE>::min;
+  case V_SHORT:
+    return bounds<V_SHORT>::min;
+  case V_INT:
+    return bounds<V_INT>::min;
+  case V_PID:
+    return bounds<V_PID>::min;
+  case V_MTYPE:
+    return bounds<V_MTYPE>::min;
+  case V_CID: 
+    return bounds<V_CID>::min;
+  default:
+    assert(false);
+    return -1;
+  }
+}
+
+size_t variable::getUpperBound(variable::Type type) { 
+  switch (type) {
+  case V_BIT:
+    return bounds<V_BIT>::max;
+  case V_BOOL:
+    return bounds<V_BOOL>::max;
+  case V_BYTE:
+    return bounds<V_BYTE>::max;
+  case V_SHORT:
+    return bounds<V_SHORT>::max;
+  case V_INT:
+    return bounds<V_INT>::max;
+  case V_PID:
+    return bounds<V_PID>::max;
+  case V_MTYPE:
+    return bounds<V_MTYPE>::max;
+  case V_CID: 
+    return bounds<V_CID>::max;
+  default:
+    assert(false);
+    return -1;
+  }
+}
+
 unsigned int variable::vidCounter = 0;
 
 variable::variable(Type varType, const std::string & name)
@@ -146,20 +266,6 @@ void variable::assign(const variable * sc)
   if (parent) {
     assert(parent == sc->getParent());
   }
-  else {
-    //?
-    assert(false);
-  }
-
-  /*if(hasVariables()){
-          std::list<variable*> newFields;
-          for(auto varSubField : getVariables()) {
-                  auto field = sc->getVariable(varSubField->getLocalName());
-                  assert(field);
-                  newFields.push_back(field);
-          }
-          varList = newFields;
-  }*/
 }
 
 void variable::init(void)

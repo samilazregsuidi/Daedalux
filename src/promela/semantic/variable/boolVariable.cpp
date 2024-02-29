@@ -3,41 +3,28 @@
 
 #include "boolSymNode.hpp"
 
-boolVar::boolVar(const boolSymNode* sym, unsigned int index)
-	: primitiveVariable(sym, index)
-{
-}
+boolVar::boolVar(const std::string& name) 
+  : primitive<bool>(name, variable::V_BOOL)
+  {}
 
 variable* boolVar::deepCopy(void) const {
 	return new boolVar(*this);
 }
 
-int boolVar::operator ++ (void) {
+bool boolVar::operator ++ (void) {
 	assert(false);
 }
 
-int boolVar::operator -- (void) {
+bool boolVar::operator -- (void) {
 	assert(false);
 }
 
-int boolVar::operator ++ (int) {
+bool boolVar::operator ++ (int) {
 	assert(false);
 }
 
-int boolVar::operator -- (int) {
+bool boolVar::operator -- (int) {
 	assert(false);
-}
-
-bool boolVar::operator == (bool value) const {
-	return getValue() == value;
-}
-
-bool boolVar::operator != (bool value) const {
-	return getValue() != value;
-}
-
-boolVar::operator bool(void) const {
-	return getValue() != 0? true : false;
 }
 
 float boolVar::delta(const variable* other) const {
@@ -70,7 +57,7 @@ void boolVar::print(void) const {
 }
 
 void boolVar::printTexada(void) const {
-	if(varSym->isPredefined())
+	if(predef)
 		return;
 
 	auto val = getValue() ? "true" : "false";
@@ -78,13 +65,13 @@ void boolVar::printTexada(void) const {
 }
 
 void boolVar::printCSVHeader(std::ostream &out) const {
-	if(varSym->isPredefined())
+	if(predef)
 		return;
 	out << getFullName() << ",";
 }
 
 void boolVar::printCSV(std::ostream &out) const {
-	if(varSym->isPredefined())
+	if(predef)
 		return;
 	auto val = getValue() ? "true" : "false";
 	out << val << ",";

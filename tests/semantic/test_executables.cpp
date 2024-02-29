@@ -8,7 +8,7 @@
 #include "../../src/core/automata/fsmNode.hpp"
 
 // Define a fixture for the tests
-class Executables : public ::testing::Test {
+class ExecutableTests : public ::testing::Test {
 protected:
   void SetUp() override {}
 
@@ -67,7 +67,7 @@ protected:
 };
 
 
-TEST_F(Executables, simpleExecutables)
+TEST_F(ExecutableTests, simpleExecutables)
 {
   const TVL * tvl = nullptr;
   auto original_loader = std::make_unique<promela_loader>(helloWorld, tvl);
@@ -154,7 +154,7 @@ TEST_F(Executables, simpleExecutables)
   ASSERT_EQ(state1->getValue<primitiveVariable*>("test.s"), 1);
 }
 
-TEST_F(Executables, simpleExecutablesChanRDV)
+TEST_F(ExecutableTests, simpleExecutablesChanRDV)
 {
   const TVL * tvl = nullptr;
   auto original_loader = std::make_unique<promela_loader>(helloChanRDV, tvl);
@@ -220,7 +220,7 @@ TEST_F(Executables, simpleExecutablesChanRDV)
   ASSERT_EQ(bar->getValue<primitiveVariable*>("x"), 1);
 }
 
-// TEST_F(Executables, simpleExecutablesChanBuf)
+// TEST_F(ExecutableTests, simpleExecutablesChanBuf)
 // {
 //   const TVL * tvl = nullptr;
 //   auto original_loader = std::make_unique<promela_loader>(helloChanBuf, tvl);
@@ -277,7 +277,7 @@ TEST_F(Executables, simpleExecutablesChanRDV)
 //   ASSERT_EQ(fooExec->getType(), astNode::E_STMNT_CHAN_SND);
 // }
 
-TEST_F(Executables, simpleExecutablesComp)
+TEST_F(ExecutableTests, simpleExecutablesComp)
 {
   const TVL * tvl = nullptr;
   auto original_loader = std::make_unique<promela_loader>(helloComp, tvl);
@@ -329,15 +329,24 @@ TEST_F(Executables, simpleExecutablesComp)
   ASSERT_EQ(state21->getVariable("s1")->getVariable("test")->getValue<primitiveVariable*>("s"), 1);
   ASSERT_EQ(state21->getVariable("s2")->getVariable("test")->getValue<primitiveVariable*>("s"), -1);
 
-  
+  auto oneLoc = dynamic_cast<process*>(state21->getVariable("s1.test"))->getLocation();
+
+  ASSERT_EQ(dynamic_cast<process*>(state21->getVariable("s1.test"))->getLocation(), 3);
+  ASSERT_EQ(dynamic_cast<process*>(state21->getVariable("s2.test"))->getLocation(), 3);
 
   auto state12 = state->fire(*exec++);
 
   ASSERT_EQ(state12->getValue<primitiveVariable*>("s1.test.s"), -1);
   ASSERT_EQ(state12->getValue<primitiveVariable*>("s2.test.s"), 1);
 
+  ASSERT_EQ(dynamic_cast<process*>(state12->getVariable("s1.test"))->getLocation(), 3);
+  ASSERT_EQ(dynamic_cast<process*>(state12->getVariable("s2.test"))->getLocation(), 3);
+
   auto state22 = state->fire(*exec++);
 
   ASSERT_EQ(state22->getValue<primitiveVariable*>("s1.test.s"), 1);
   ASSERT_EQ(state22->getValue<primitiveVariable*>("s2.test.s"), 1);
+
+  ASSERT_EQ(dynamic_cast<process*>(state22->getVariable("s1.test"))->getLocation(), 3);
+  ASSERT_EQ(dynamic_cast<process*>(state22->getVariable("s2.test"))->getLocation(), 3);
 }

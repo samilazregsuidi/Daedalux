@@ -13,7 +13,7 @@ primitiveVariable::primitiveVariable(const varSymNode * const varSym, unsigned i
       varSym(varSym), index(index)
 {
   isPredef = varSym->isHidden();
-  isHidden = varSym->isPredefined();
+  isHidden = isPredefined;
   // assert(varSym && (varSym->getType() == symbol::T_INT || varSym->getType() == symbol::T_BIT || varSym->getType() ==
   // symbol::T_BYTE || varSym->getType() == symbol::T_SHORT));
 }
@@ -55,9 +55,9 @@ void primitiveVariable::init(void)
   variable::init();
 }
 
-bool primitiveVariable::isGlobal(void) const { return varSym->isGlobal(); }
+bool primitiveVariable::isGlobal(void) const { return global; }
 
-size_t primitiveVariable::getSizeOf(void) const { return varSym->getTypeSize(); }
+size_t primitiveVariable::getSizeOf(void) const { return ; }
 
 int primitiveVariable::operator=(const primitiveVariable & rvalue)
 {
@@ -84,7 +84,7 @@ int primitiveVariable::operator=(const arg & rvalue)
 int primitiveVariable::operator++(void)
 {
   auto temp = getValue();
-  auto bound = varSymNode::getUpperBound(varSym->getType());
+  auto bound = variable::getUpperBound(getType());
   if (temp < bound) {
     setValue(temp + 1);
     return temp + 1;
@@ -95,7 +95,7 @@ int primitiveVariable::operator++(void)
 int primitiveVariable::operator--(void)
 {
   auto temp = getValue();
-  if (temp - 1 >= varSymNode::getLowerBound(varSym->getType())) {
+  if (temp - 1 >= variable::getLowerBound(getType())) {
     setValue(temp - 1);
     return temp - 1;
   }
@@ -105,7 +105,7 @@ int primitiveVariable::operator--(void)
 int primitiveVariable::operator++(int)
 {
   auto temp = getValue();
-  if (temp + 1 <= varSymNode::getUpperBound(varSym->getType()))
+  if (temp + 1 <= variable::getUpperBound(getType()))
     setValue(temp + 1);
   return temp;
 }
@@ -113,7 +113,7 @@ int primitiveVariable::operator++(int)
 int primitiveVariable::operator--(int)
 {
   auto temp = getValue();
-  if (temp - 1 >= varSymNode::getLowerBound(varSym->getType()))
+  if (temp - 1 >= variable::getLowerBound(getType()))
     setValue(temp - 1);
   return temp;
 }
@@ -181,8 +181,8 @@ std::list<variable *> primitiveVariable::getDelta(const variable * other) const
 void primitiveVariable::setValue(int value)
 {
   assert(getPayload());
-  assert(value >= varSymNode::getLowerBound(varSym->getType()));
-  assert(value <= varSymNode::getUpperBound(varSym->getType()));
+  assert(value >= variable::getLowerBound(getType()));
+  assert(value <= variable::getUpperBound(getType()));
   getPayload()->setValue(getOffset(), value, getType());
   assert(getValue() == value);
 }
@@ -191,7 +191,7 @@ int primitiveVariable::getValue(void) const
 {
   assert(getPayload());
   auto value = getPayload()->getValue(getOffset(), getType());
-  // assert(value >= varSymNode::getLowerBound(varSym->getType()) && value <= varSymNode::getUpperBound(varSym->getType()));
+  // assert(value >= variable::getLowerBound(getType()) && value <= variable::getUpperBound(getType()));
   return value;
 }
 
@@ -219,7 +219,7 @@ void primitiveVariable::print(void) const
 void primitiveVariable::printTexada(void) const
 {
   assert(getPayload());
-  if (varSym->isPredefined())
+  if (isPredefined)
     return;
 
   auto value = getPayload()->getValue(getOffset(), getType());
@@ -231,7 +231,7 @@ void primitiveVariable::printTexada(void) const
 void primitiveVariable::printCSVHeader(std::ostream & out) const
 {
   assert(getPayload());
-  if (varSym->isPredefined())
+  if (isPredefined)
     return;
 
   out << getFullName() + ",";
@@ -241,7 +241,7 @@ void primitiveVariable::printCSVHeader(std::ostream & out) const
 void primitiveVariable::printCSV(std::ostream & out) const
 {
   assert(getPayload());
-  if (varSym->isPredefined())
+  if (isPredefined)
     return;
 
   auto value = getPayload()->getValue(getOffset(), getType());
@@ -252,45 +252,15 @@ void primitiveVariable::printCSV(std::ostream & out) const
 
 /*************************************************************************************************/
 
-constVar::constVar(int value, variable::Type type, int lineNb) : primitiveVariable(type), value(value), lineNb(lineNb)
-{
-  assert(false); // sizeOf +=
-}
-
-void constVar::setValue(int val)
-{
-  value = val;
-  assert(false);
-}
-
-int constVar::getValue(void) const { return value; }
-
-int constVar::operator=(const primitiveVariable & rvalue)
-{
-  value = rvalue.getValue();
-  assert(false);
-}
-
-int constVar::operator++(void) { assert(false); }
-
-int constVar::operator--(void) { assert(false); }
-
-int constVar::operator++(int) { assert(false); }
-
-int constVar::operator--(int) { assert(false); }
-
-variable * constVar::deepCopy(void) const
-{
-  constVar * copy = new constVar(*this);
-  // warning shared payload!
-  return copy;
-}
-
-/******************************************************************************************************/
-
 #include "process.hpp"
 
-PIDVar::PIDVar(const pidSymNode * sym, unsigned int bound) : primitiveVariable(sym, bound), ref(nullptr) {}
+PIDVar::PIDVar(const std::string& name, process * ref) 
+  : primitive<unsigned char>(name, variable::V_PID)
+  ,  ref(ref)
+  {
+    assert(ref);
+    value = ref->getPid();
+  }
 
 variable * PIDVar::deepCopy(void) const
 {

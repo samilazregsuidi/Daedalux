@@ -32,6 +32,9 @@
 #include "expToADD.hpp"
 
 state* initState::createInitState(const fsm* automata, const TVL* tvl) {
+
+	variable::vidCounter = 0;
+
 	auto sysTable = automata->getSystemSymTab();
 	auto compS = new composite("sys");
 
@@ -56,6 +59,65 @@ state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 	return compS;
 }
 
+variable* initState::createPrimitive(const std::string& name, const varSymNode* sym) {
+	
+	auto initValue = 0;
+	auto initExpr = sym->getInitExpr();
+	if (initExpr) {
+		auto initExprConst = dynamic_cast<exprConst *>(initExpr);
+		// init expr should be const and const only!
+		assert(initExprConst);
+		initValue = initExprConst->getCstValue();
+	}
+	
+	switch(sym->getType())
+	{
+	case symbol::T_BOOL:
+		return new boolVar(name);
+	case symbol::T_BIT:
+		assert(false);
+	case symbol::T_BYTE:
+		return new byteVar(name);
+	case symbol::T_SHORT:
+		return new shortVar(name);
+	case symbol::T_INT:
+		return new intVar(name);
+	case symbol::T_UNSGN: 	// not supported yet
+		assert(false);
+	case symbol::T_MTYPE:
+		assert(false);
+	case symbol::T_MTYPE_DEF:
+		assert(false);
+	case symbol::T_CMTYPE:
+		assert(false);
+	case symbol::T_UTYPE:	// Type of variable is a user type (basically, a case symbol::T_TDEF record is being used as the type): utype points to the type record
+		assert(false);
+	case symbol::T_CHAN:		// Channel: capacity used; children denote message fields
+		assert(false);
+	case symbol::T_CID:		// Channel reference; capacity and children are not used.
+		assert(false);
+	case symbol::T_PID:
+		assert(false);
+	case symbol::T_TDEF:		// Type definition: children denote fields of type
+		assert(false);
+	case symbol::T_INIT:
+		assert(false);
+	case symbol::T_PTYPE:		// ProcType: fsm field used; bound denotes the number of initially active processes
+		assert(false);
+	case symbol::T_INLINE:
+		assert(false);
+	case symbol::T_NEVER:	// Never claim
+		assert(false);
+	default:
+		assert(false);
+	}
+
+
+
+	return nullptr;
+
+}
+
 std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym) {
 	assert(sym);
 
@@ -68,19 +130,51 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 	case symbol::T_BOOL:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new boolVar(dynamic_cast<const boolSymNode*>(sym), i);
+			
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = createPrimitive(name, sym);
+			
 			v->_addVariable(var);
 			res.push_back(var);
 		}
 		return res;
 	}
 	case symbol::T_BIT:
+	{
+		assert(false);
+		for(unsigned int i = 0; i < sym->getBound(); ++i) {
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new primitive<unsigned char>(name, variable::V_BYTE);
+			v->_addVariable(var);
+			res.push_back(var);
+		}
+		return res;
+	}
 	case symbol::T_BYTE:
+	{
+		for(unsigned int i = 0; i < sym->getBound(); ++i) {
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new primitive<unsigned char>(name, variable::V_BYTE);
+			v->_addVariable(var);
+			res.push_back(var);
+		}
+		return res;
+	}
 	case symbol::T_SHORT:
+	{
+		for(unsigned int i = 0; i < sym->getBound(); ++i) {
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new primitive<short>(name, variable::V_SHORT);
+			v->_addVariable(var);
+			res.push_back(var);
+		}
+		return res;
+	}
 	case symbol::T_INT:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new primitiveVariable(sym, i);
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new primitive<int>(name, variable::V_INT);
 			v->_addVariable(var);
 			res.push_back(var);
 		}
@@ -140,6 +234,7 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 	case symbol::T_CID:		// Channel reference; capacity and children are not used.
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
 			auto var = new CIDVar(dynamic_cast<const cidSymNode*>(sym), i);
 			v->_addVariable(var);
 			res.push_back(var);
@@ -149,7 +244,8 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 	case symbol::T_PID:
 	{
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new PIDVar(dynamic_cast<const pidSymNode*>(sym), i);
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new PIDVar(name, i);
 			v->_addVariable(var);
 			res.push_back(var);
 		}
