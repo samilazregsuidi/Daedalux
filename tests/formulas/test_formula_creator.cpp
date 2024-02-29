@@ -117,8 +117,10 @@ TEST_F(FormulaCreatorTest, groupStates_singleState)
       std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false)));
   auto formula_2 =
       std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false)));
-  auto formula_3 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
-  auto formula_4 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
+  auto formula_3 =
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
+  auto formula_4 =
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
 
   std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, formula_4};
   auto expected_result = formulaCreator::groupFormulas(formulas, "&&");
@@ -198,8 +200,10 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
   auto var_d = std::make_shared<VariableFormula>("d");
   auto formula_1 =
       std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false)));
-  auto formula_2 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
-  auto formula_3 = std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
+  auto formula_2 =
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
+  auto formula_3 =
+      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
 
   std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3};
 
@@ -225,7 +229,6 @@ TEST_F(FormulaCreatorTest, distinguishStates_array_same_states)
 
   ASSERT_EQ(include_states.size(), 2);
   auto result = formulaCreator::distinguishStates(include_states, include_states);
-
   auto expected_result = std::make_shared<BooleanConstant>(false);
   std::cout << "Result: " << result->toFormula() << std::endl;
   std::cout << "Expected: " << expected_result->toFormula() << std::endl;
@@ -252,9 +255,9 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
   const std::vector<std::shared_ptr<state>> exclude_states =
       std::vector<std::shared_ptr<state>>{next_next_state_ptr, next_next_next_state_ptr};
 
-  ASSERT_EQ(include_states.size(), 2);
   ASSERT_EQ(exclude_states.size(), 2);
-  auto result = formulaCreator::distinguishStates(include_states, exclude_states);
+  bool temporal = true;
+  auto result = formulaCreator::distinguishStates(include_states, exclude_states, temporal);
   auto array_1 = std::make_shared<VariableFormula>("array[1]");
   auto array_2 = std::make_shared<VariableFormula>("array[2]");
   auto array_3 = std::make_shared<VariableFormula>("array[3]");
@@ -294,7 +297,8 @@ TEST_F(FormulaCreatorTest, distinguishStates_flows)
   auto include_state = include_states.front();
   auto exclude_state = exclude_states.front();
   ASSERT_FALSE(include_state->isSame(exclude_state.get()));
-  auto result = formulaCreator::distinguishStates(include_states, exclude_states);
+  bool temporal = true;
+  auto result = formulaCreator::distinguishStates(include_states, exclude_states, temporal);
   auto var_a = std::make_shared<VariableFormula>("a");
   auto form = std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false));
   auto expected_result = std::make_shared<GloballyFormula>(form);
@@ -305,10 +309,12 @@ TEST_F(FormulaCreatorTest, formulaFromTrace)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -328,7 +334,7 @@ TEST_F(FormulaCreatorTest, formulaFromTrace)
 TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Globally)
 {
   auto formula = "[](x)";
-  auto result = formulaCreator::formulaStringToNeverClaim(formula);
+  auto result = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
   std::string expected_result =
       "never{/*!([](x))*/\nT0_init:\n\tif\n\t::(1)->gotoT0_init\n\t::(!x)->gotoaccept_all\n\tfi;\naccept_all:\n\tskip\n}\n";
   expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
@@ -339,7 +345,7 @@ TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Globally)
 TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Finally)
 {
   auto formula = "<>(x)";
-  auto result = formulaCreator::formulaStringToNeverClaim(formula);
+  auto result = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
   std::string expected_result = "never{/*!(<>(x))*/\naccept_init:\n\tif\n\t::(!x)->gotoaccept_init\n\tfi;\n}\n";
   expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
   result.erase(remove(result.begin(), result.end(), ' '), result.end());
@@ -349,7 +355,7 @@ TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Finally)
 TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Liveness)
 {
   auto formula = "[]((!(x)) -> <>x)";
-  auto result = formulaCreator::formulaStringToNeverClaim(formula);
+  auto result = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
   std::string expected_result = "never{/*!([]((!(x))-><>x))*/"
                                 "\nT0_init:\n\tif\n\t::(1)->gotoT0_init\n\t::(!x)->gotoaccept_S2\n\tfi;\naccept_S2:\n\tif\n\t::"
                                 "(!x)->gotoaccept_S2\n\tfi;\n}\n";
@@ -360,7 +366,7 @@ TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Liveness)
 
 // TEST_F(FormulaCreatorTest, formulaFromTrace)
 // {
-//   auto result = formulaCreator::formulaStringToNeverClaim(formula);
+//   auto result = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
 //   std::cout << "Result: " << result << std::endl;
 //   std::string expected_result = "never{/*!(<>(x))*/\naccept_init:\n\tif\n\t::(!x)->gotoaccept_init\n\tfi;\n}\n";
 //   expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
@@ -370,7 +376,7 @@ TEST_F(FormulaCreatorTest, formulaStringToNeverClaim_Liveness)
 
 // TEST_F(FormulaCreatorTest, formulaFromTrace)
 // {
-//   auto result = formulaCreator::formulaStringToNeverClaim(formula);
+//   auto result = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
 //   expected_result.erase(remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
 //   result.erase(remove(result.begin(), result.end(), ' '), result.end());
 //   ASSERT_EQ(result, expected_result);

@@ -71,7 +71,7 @@ TEST_F(MutantHandlerTest, mutant_generation_flows)
   }
 }
 
-TEST_F(MutantHandlerTest, analyzeMutants)
+TEST_F(MutantHandlerTest, AnalyzeMutants)
 {
   auto original_file_path = current_path + array_model_never;
   auto mutant_file_path = current_path + array_model_mutant_never;
@@ -87,37 +87,20 @@ TEST_F(MutantHandlerTest, analyzeMutants)
   }
 }
 
-TEST_F(MutantHandlerTest, test_mutant_killing)
-{
-  // TODO: No done yet
-  auto original_file_path = current_path + array_model_never;
-  auto mutant_file_path = current_path + array_model_mutant_never;
-  std::vector<std::string> mutants = {mutant_file_path};
-  MutantAnalyzer mutantAnalyzer = MutantAnalyzer(original_file_path, mutants);
-  // auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  // ASSERT_EQ(killed_mutants.size(), 0);
-  // ASSERT_EQ(alive_mutants.size(), 1);
-}
-
-TEST_F(MutantHandlerTest, enhanceSpecification_neverClaimExists)
-{
-  auto original_file_path = current_path + array_model_never;
-  auto mutant_file_path = current_path + array_model_mutant_never;
-  std::vector<std::string> mutants = {mutant_file_path};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-}
-
-TEST_F(MutantHandlerTest, enhanceSpecification_NoNeverClaimExists)
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants)
 {
   auto original_file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
   auto mutant_file_path = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
   std::vector<std::string> mutants = {mutant_file_path};
   MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
   auto number_of_mutants = 5;
   auto trace_length = 15;
   mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 1);
+  ASSERT_TRUE(alive_mutants.empty());
 }
 

@@ -9,25 +9,6 @@
 #include <numeric>  // for std::accumulate
 #include <sstream>
 
-std::shared_ptr<formula> formulaCreator::distinguishTraces(const std::shared_ptr<trace> & include_trace,
-                                                           const std::shared_ptr<trace> & exclude_trace)
-{
-  std::shared_ptr<state> previous_state_current = nullptr;
-  std::shared_ptr<state> previous_state_other = nullptr;
-  auto [include_trace_short, exclude_trace_short] = removeCommonPrefixes(include_trace, exclude_trace);
-  auto state1 = include_trace_short->getStates().front();
-  auto state2 = exclude_trace_short->getStates().front();
-  assert(state1->isSame(state2.get()));
-  auto successors1 = state1->Post();
-  auto successors2 = state2->Post();
-  auto successor1_vec = std::vector<std::shared_ptr<state>>(successors1.begin(), successors1.end());
-  auto successor2_vec = std::vector<std::shared_ptr<state>>(successors2.begin(), successors2.end());
-  auto successor1 = successor1_vec.front();
-  auto successor2 = successor2_vec.front();
-  successor1->printDelta(successor2.get());
-  auto distinguishingFormula = distinguishStates(successor1_vec, successor2_vec);
-  return distinguishingFormula;
-}
 
 std::unordered_map<std::string, std::map<int, std::vector<std::shared_ptr<state>>>>
 formulaCreator::buildVariableValueMap(const std::vector<std::shared_ptr<state>> & states)
@@ -48,6 +29,28 @@ formulaCreator::buildVariableValueMap(const std::vector<std::shared_ptr<state>> 
   }
   return variable_val_map;
 }
+
+std::shared_ptr<formula> formulaCreator::distinguishTraces(const std::shared_ptr<trace> & include_trace,
+                                                           const std::shared_ptr<trace> & exclude_trace)
+{
+  std::shared_ptr<state> previous_state_current = nullptr;
+  std::shared_ptr<state> previous_state_other = nullptr;
+  auto [include_trace_short, exclude_trace_short] = removeCommonPrefixes(include_trace, exclude_trace);
+  auto state1 = include_trace_short->getStates().front();
+  auto state2 = exclude_trace_short->getStates().front();
+  assert(state1->isSame(state2.get()));
+  auto successors1 = state1->Post();
+  auto successors2 = state2->Post();
+  auto successor1_vec = std::vector<std::shared_ptr<state>>(successors1.begin(), successors1.end());
+  auto successor2_vec = std::vector<std::shared_ptr<state>>(successors2.begin(), successors2.end());
+  auto successor1 = successor1_vec.front();
+  auto successor2 = successor2_vec.front();
+  successor1->printDelta(successor2.get());
+  auto distinguishingFormula = distinguishStates(successor1_vec, successor2_vec, false);
+  auto finallyFormula = std::make_shared<FinallyFormula>(distinguishingFormula);
+  return finallyFormula;
+}
+
 
 std::shared_ptr<formula> formulaCreator::makeRangeFormula(std::string name, int smallestValue, int largestValue)
 {
@@ -208,9 +211,11 @@ remove_duplicated_values(const std::map<int, std::vector<std::shared_ptr<state>>
 /// @brief Create a formula that distinguishes the states in include_states from the states in exclude_states.
 /// @param include_states states to include in the formula
 /// @param exclude_states states to exclude from the formula
+/// @param temporal if true, the formula covers the entire trace, otherwise it covers states at a specific time
 /// @return a formula that distinguishes the states in include_states from the states in exclude_states
 std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>> include_states,
-                                                           const std::vector<std::shared_ptr<state>> exclude_states)
+                                                           const std::vector<std::shared_ptr<state>> exclude_states,
+                                                            bool temporal)
 {
   auto include_variable_val_map = buildVariableValueMap(include_states);
   auto exclude_variable_val_map = buildVariableValueMap(exclude_states);
@@ -247,10 +252,8 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
       auto addFormula = [&](bool include, const auto & values) {
         if (!values.empty()) {
           auto value = values.begin()->first;
-          bool isTrue = value == 1;
-          bool booleanValue = include ? isTrue : !isTrue;
-          auto booleanFormula = std::make_shared<BooleanConstant>(booleanValue);
-          std::shared_ptr<formula> form = std::make_shared<EqualsFormula>(variableFormula, booleanFormula);
+          bool isTrue = include ? value == 1 : value == 0;
+          auto form = makeBooleanEqualFormula(variableName, isTrue);
           subformulas.push_back(form);
         }
       };
@@ -268,12 +271,12 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
       // The value ranges overlap. They should be distinguished based on the values.
       auto createFormulas = [&](std::map<int, std::vector<std::shared_ptr<state>>> values, bool include) {
         for (auto value : values) {
-          auto valueFormula = std::make_shared<NumberConstant>(value.first);
           if (include) {
             auto localFormula = makeEqualFormula(variableName, value.first);
             subformulas.push_back(localFormula);
           }
           else {
+            auto valueFormula = std::make_shared<NumberConstant>(value.first);
             auto localFormula = std::make_shared<NotEqualsFormula>(variableFormula, valueFormula);
             subformulas.push_back(localFormula);
           }
@@ -300,8 +303,11 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
   // We need to create a formula that groups the states based on the value of the variable.
   auto combinedFormula = groupFormulas(subformulas, "&&");
   // Make it to an always formula.
-  auto globalFormula = std::make_shared<GloballyFormula>(combinedFormula);
-  return globalFormula;
+  if (temporal) {
+    auto globalFormula = std::make_shared<GloballyFormula>(combinedFormula);
+    return globalFormula;
+  }
+  return combinedFormula;
 }
 
 std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>
@@ -337,12 +343,6 @@ formulaCreator::removeCommonPrefixes(const std::shared_ptr<trace> trace1, const 
   return std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>(trace1, trace2);
 }
 
-std::string formulaCreator::formulaStringToNeverClaim(const std::string & formula)
-{
-  auto never_claim = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
-  return never_claim;
-}
-
 bool formulaCreator::isBooleanVariable(const std::shared_ptr<state> & state, const std::string & name)
 {
   auto variable = state->getVariable(name);
@@ -376,8 +376,8 @@ int formulaCreator::getValueOfVariable(const std::shared_ptr<state> & state, con
     break;
   case variable::V_UTYPE:
     // Need to implement
-    casted_variable = dynamic_cast<primitiveVariable *>(variable);
-    assert(casted_variable);
+    // casted_variable = dynamic_cast<uTypeVar *>(variable);
+    // assert(casted_variable);
     // value = casted_variable->getValue();
     break;
   default:
@@ -399,7 +399,7 @@ std::shared_ptr<formula> formulaCreator::groupFormulas(const std::vector<std::sh
   if (formulas.size() == 1) {
     return formulas.front();
   }
-  if (operatorSymbol == "&&") {
+ if (operatorSymbol == "&&") {
     auto formula = std::make_shared<AndFormula>(formulas.front(), formulas.at(1));
     for (size_t i = 2; i < formulas.size(); i++) {
       formula = std::make_shared<AndFormula>(formula, formulas.at(i));

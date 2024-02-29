@@ -103,19 +103,15 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   // Simplify the formula using the OWL tool
   // TODO implement
 
-  auto formula_string = combined_formula->promelaFormula();
-  auto definition_string = combined_formula->getDefinition();
+  std::string formula_string = combined_formula->promelaFormula();
+  std::string definition_string = combined_formula->getDefinition();
 
   // Append the formula to both the original and the mutant files
-  std::vector<std::string> files = {original_file_path};
-  // Add mutant file paths to the list of files
-  for (auto mutant_file_path : mutant_file_paths) {
-    files.push_back(mutant_file_path);
-  }
-  for (auto filePath : files) {
+  LTLClaimsProcessor::renewClaimOfFile(original_file_path, definition_string, formula_string);
+
+  for (auto filePath : mutant_file_paths) {
     LTLClaimsProcessor::renewClaimOfFile(filePath, definition_string, formula_string);
   }
-
 
   // Add the formula to the property file - for now, just print it
   std::cout << "The enhanced specification is " << combined_formula->toFormula() << std::endl;
@@ -131,6 +127,19 @@ std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::ki
   auto killed_mutants = std::vector<std::string>();
   auto surviving_mutants = std::vector<std::string>();
   ltlModelChecker * mc = new ltlModelChecker();
+  // Ensure that the original model survives
+  promela_loader * promela_original = new promela_loader(original_file_path, nullptr);
+  std::shared_ptr<fsm> fsm_original = promela_original->getAutomata();
+  delete promela_original;
+  bool is_killed_original = false;
+  try {
+    is_killed_original = mc->check(fsm_original.get(), nullptr);
+    std::cout << "Original program is killed: " << is_killed_original << std::endl;
+  }
+  catch (const std::exception & e) {
+    std::cerr << e.what() << '\n';
+  }
+
   // One by one, check whether the already specified properties kill the mutants
   for (auto mutant_file_path : mutant_file_paths) {
     // Load promela files using smart pointers

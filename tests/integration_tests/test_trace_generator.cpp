@@ -55,10 +55,12 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -71,10 +73,12 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 15;
@@ -90,10 +94,12 @@ TEST_F(TraceGeneratorTest, TraceReport_DifferentFSM)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -111,10 +117,12 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -148,10 +156,12 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes_TheTwoMethodShouldReturnTheSameR
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
@@ -171,10 +181,12 @@ TEST_F(TraceGeneratorTest, DiscriminateBetweenTrace)
 {
   const TVL * tvl = nullptr;
   auto file_path = current_path + array_model;
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
   auto file_path_mutant = current_path + array_model_mutant;
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
   auto trace_size = 12;
