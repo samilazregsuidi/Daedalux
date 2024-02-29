@@ -339,7 +339,7 @@ formulaCreator::removeCommonPrefixes(const std::shared_ptr<trace> trace1, const 
 
 std::string formulaCreator::formulaStringToNeverClaim(const std::string & formula)
 {
-  auto never_claim = transformLTLStringToNeverClaim(formula);
+  auto never_claim = LTLClaimsProcessor::transformLTLStringToNeverClaim(formula);
   return never_claim;
 }
 

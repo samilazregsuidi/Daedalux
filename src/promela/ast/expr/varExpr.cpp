@@ -82,8 +82,7 @@ symbol* exprVarRefName::resolve(symTable *global, symTable *subField) {
 	} 
 	
 	if(!sym) {
-		std::cout<< "unknown symbol : "<< symName << " at line "<<lineNb<<"\n";
-		assert(false);
+		throw std::runtime_error("unknown symbol : " + symName + " at line " + std::to_string(lineNb));
 	}
 
 	assert(getExprType() == symbol::T_NA);

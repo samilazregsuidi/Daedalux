@@ -103,6 +103,20 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   // Simplify the formula using the OWL tool
   // TODO implement
 
+  auto formula_string = combined_formula->promelaFormula();
+  auto definition_string = combined_formula->getDefinition();
+
+  // Append the formula to both the original and the mutant files
+  std::vector<std::string> files = {original_file_path};
+  // Add mutant file paths to the list of files
+  for (auto mutant_file_path : mutant_file_paths) {
+    files.push_back(mutant_file_path);
+  }
+  for (auto filePath : files) {
+    LTLClaimsProcessor::renewClaimOfFile(filePath, definition_string, formula_string);
+  }
+
+
   // Add the formula to the property file - for now, just print it
   std::cout << "The enhanced specification is " << combined_formula->toFormula() << std::endl;
   std::cout << "The definition of the enhanced specification is " << combined_formula->getDefinition() << std::endl;
@@ -120,15 +134,16 @@ std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::ki
   // One by one, check whether the already specified properties kill the mutants
   for (auto mutant_file_path : mutant_file_paths) {
     // Load promela files using smart pointers
-    std::unique_ptr<promela_loader> loader_mutant = std::make_unique<promela_loader>(mutant_file_path, nullptr);
+    promela_loader * loader_mutant = new promela_loader(mutant_file_path, nullptr);
     std::shared_ptr<fsm> fsm_mutant = loader_mutant->getAutomata();
+    delete loader_mutant;
 
     bool is_killed = false;
     try {
       is_killed = mc->check(fsm_mutant.get(), nullptr);
     }
     catch (const std::exception & e) {
-    std::cerr << e.what() << '\n';
+      std::cerr << e.what() << '\n';
     }
 
     // If the mutant is killed, add it to the list of killed mutants and add it to the list of surviving mutants otherwise
@@ -154,7 +169,6 @@ void MutantAnalyzer::createMutants(unsigned int number_of_mutants)
   // Folder of the original program
   std::string folder = original_file_path.substr(0, original_file_path.find_last_of("/"));
   std::string mutant_folder = folder + "/mutants";
-  // std::string property_file_name = opt.property_file.substr(opt.input_file.find_last_of("/") + 1);
 
   // Write original program to file so that it can be used by the mutation operators
   // Create folder for mutants if it does not exist
@@ -162,10 +176,14 @@ void MutantAnalyzer::createMutants(unsigned int number_of_mutants)
     std::filesystem::create_directory(mutant_folder);
     std::cout << "Created folder " << mutant_folder << " for mutants" << std::endl;
   }
+  else {
+    std::cout << "Folder " << mutant_folder << " for mutants already exists. Deleting it and creating a new one" << std::endl;
+    std::filesystem::remove_all(mutant_folder);
+    std::filesystem::create_directory(mutant_folder);
+  }
 
   std::ofstream output;
   output.open(mutant_folder + "/original.pml");
-  //   output << "#include \"../" << property_file_name << "\"" << std::endl << std::endl;
   output << stmnt::string(program);
   output.close();
 
@@ -180,7 +198,6 @@ void MutantAnalyzer::createMutants(unsigned int number_of_mutants)
 
 std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants(unsigned int trace_size)
 {
-  std::cout << "Analyzing mutants" << std::endl;
   // Load original promela file
   auto original_loader = new promela_loader(original_file_path, nullptr);
   auto originalFSM = original_loader->getAutomata();
@@ -207,8 +224,6 @@ std::string MutantAnalyzer::createMutant(int mutant_number, stmnt * program, std
   std::string name = "mutant_" + std::to_string(mutant_number);
   std::string file_name = mutant_folder + "/" + name + ".pml";
   std::ofstream output;
-  // Write property file to mutant folder as well
-  //   output << "#include \"../" << property_file_name << "\"" << std::endl << std::endl;
   output.open(file_name);
   output << stmnt::string(copy);
   output.close();

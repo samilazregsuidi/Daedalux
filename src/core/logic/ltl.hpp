@@ -3,10 +3,11 @@
 
 #include <string>
 
-std::string transformLTLStringToNeverClaim(const std::string & ltl);
-
-int appendClaim(const std::string & file, const std::string & path, const std::string & ltl, std::string & error);
-
-int appendClaimToFile(const std::string & file, const std::string & ltl);
-
+class LTLClaimsProcessor {
+public:
+    static std::string transformLTLStringToNeverClaim(const std::string &ltl);
+    static int appendClaim(const std::string &file, const std::string &path, const std::string &ltl, std::string &error);
+    static int appendClaimToFile(const std::string &file, const std::string &ltl);
+    static int renewClaimOfFile(const std::string& file, const std::string& definitions, const std::string& ltl);
+};
 #endif

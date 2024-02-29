@@ -30,7 +30,7 @@ public:
   std::string neverClaim() const
   {
     auto ltl_formula = promelaFormula();
-    return transformLTLStringToNeverClaim(ltl_formula);
+    return LTLClaimsProcessor::transformLTLStringToNeverClaim(ltl_formula);
   }
 };
 
