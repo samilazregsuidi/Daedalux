@@ -164,7 +164,7 @@ public:
 
 	virtual std::list<variable *> getAllVariables(void) const;
 
-	virtual std::list<variable *> getAllVisibleVariables(void) const;
+	virtual std::list<variable *> getAllVisibleVariables(bool excludeLocal = true)  const;
 
 	virtual channel* getChannel(const std::string& name) const;
 

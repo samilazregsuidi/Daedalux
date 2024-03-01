@@ -239,14 +239,39 @@ std::list<variable *> variable::getAllVariables(void) const
   return res;
 }
 
-std::list<variable *> variable::getAllVisibleVariables(void) const
+std::list<variable *> variable::getAllVisibleVariables(bool excludeLocal) const
 {
   std::list<variable *> res;
   for (auto var : varList) {
     auto name = var->getLocalName();
     auto isProcess = dynamic_cast<process *>(var);
     auto isUtype = dynamic_cast<utypeVar *>(var);
-    if (name[0] != '_' && name != "np_" && name != "k" && name != "" && !isProcess && !isUtype) {
+    if (var->isPredef || var->isHidden) {
+      // Internal variables and hidden variables are not visible
+      continue;
+    }
+    if (isProcess && excludeLocal) {
+      // Process variables are not visible if we are excluding local variables
+      continue;
+    }
+    if (isUtype) {
+      auto subVars = var->getAllVisibleVariables();
+      for (auto subVar : subVars) {
+        auto isSubUType = dynamic_cast<utypeVar *>(subVar);
+        if (isSubUType) {
+          // If the sub-variable is a utype, we need to get all its sub-variables
+          auto subVisibleVariables = subVar->getAllVisibleVariables();
+          res.insert(res.end(), subVisibleVariables.begin(), subVisibleVariables.end());
+        }
+        else {
+          // Otherwise, we just add the sub-variable to the list of visible variables
+          res.push_back(subVar);
+        }
+      }
+      continue;
+    }
+    if (name != "") {
+      // If the variable has a name, we add it to the list of visible variables
       res.push_back(var);
     }
     auto subVars = var->getAllVisibleVariables();
