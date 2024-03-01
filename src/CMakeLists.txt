@@ -37,18 +37,35 @@ add_link_options(
 	${ASAN}
 )
 
-# Build CUDD library
-add_custom_target(CUDD_project
-	COMMAND sh install.sh
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
-	COMMENT "building CUDD"
+set(MARKER_FILE "${CMAKE_BINARY_DIR}/cudd_build.marker")
+
+# Define a custom command that depends on your marker file
+add_custom_command(
+    OUTPUT ${MARKER_FILE}
+    COMMAND sh install.sh
+    COMMAND ${CMAKE_COMMAND} -E touch ${MARKER_FILE}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
+    COMMENT "Building CUDD"
 )
 
+# Add a custom target that depends on the marker file
+add_custom_target(CUDD_project DEPENDS ${MARKER_FILE})
+
 # Build LTL2BA
-add_custom_target(LTL2BA_project
-	COMMAND sh install.sh
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/ltl2ba
-	COMMENT "building LTL2BA"
+set(MARKER_FILE_LTL2BA "${CMAKE_BINARY_DIR}/ltl2ba_build.marker")
+
+# Define a custom command that generates the marker file
+add_custom_command(
+    OUTPUT ${MARKER_FILE_LTL2BA}
+    COMMAND sh install.sh
+    COMMAND ${CMAKE_COMMAND} -E touch ${MARKER_FILE_LTL2BA}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/ltl2ba
+    COMMENT "Building LTL2BA"
+)
+
+# Create a custom target that depends on the custom command
+add_custom_target(LTL2BA_project ALL
+    DEPENDS ${MARKER_FILE_LTL2BA}
 )
 
 # Create a library from the source files
