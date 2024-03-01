@@ -308,6 +308,7 @@ Apply:
 				assert(false);
 				//if(!_assertViolation) _assertViolation = 1;
 			}
+			addError(ERR_ASSERT_FAIL);
 			//assert(false);
 			break;
 		}

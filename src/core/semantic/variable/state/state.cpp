@@ -62,17 +62,23 @@ std::list<state*> state::Post(void) const {
 	std::list<state*> res;
 	for(auto t : executables())
 		res.push_back(fire(t));
-	
-	//check if it is a deadlock state
-	auto neverClaim = getNeverClaim();
-	if(neverClaim) {
-		auto neverTs = neverClaim->executables();
-		if(res.empty() && !neverTs.empty()){
-			std::cout << "Deadlock detected because of never claim" << std::endl;
+
+	if(res.empty()) {
+		auto neverClaim = getNeverClaim();
+		std::list<transition*> neverTs;
+		if(neverClaim)
+			neverTs = neverClaim->executables();
+		
+		if(neverClaim && neverTs.empty()){
+			std::cout << "Never Claim Deadlock detected" << std::endl;
 			this->errorMask |= ERR_PROPERTY_VIOLATION;
+		} else {
+			std::cout << "Deadlock detected" << std::endl;
+			this->errorMask |= ERR_DEADLOCK;
 		}
 		transition::erase(neverTs);
 	}
+
 	return res;
 }
 
