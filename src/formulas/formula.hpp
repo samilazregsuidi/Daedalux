@@ -272,6 +272,9 @@ public:
     return sameOperator && sameLeft && sameRight;
   }
 
+  void setLeft(const std::shared_ptr<formula> & newLeft) { left = newLeft; }
+  void setRight(const std::shared_ptr<formula> & newRight) { right = newRight; }
+
   virtual std::string getOperator() const = 0;
 
 private:
@@ -281,7 +284,18 @@ private:
 
 class ImpliesFormula : public BinaryFormula {
 public:
-  ImpliesFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right) {}
+  ImpliesFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right)
+  {
+    // Cast the subformula to a ParenthesisFormula if it is not already one
+    auto leftAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(left);
+    if (!leftAsParenthesis) {
+      setLeft(std::make_shared<ParenthesisFormula>(left));
+    }
+    auto rightAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(right);
+    if (!rightAsParenthesis) {
+      setRight(std::make_shared<ParenthesisFormula>(right));
+    }
+  }
   ~ImpliesFormula() = default;
 
 private:
@@ -290,7 +304,18 @@ private:
 
 class IffFormula : public BinaryFormula {
 public:
-  IffFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right) {}
+  IffFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right)
+  {
+    // Cast the subformula to a ParenthesisFormula if it is not already one
+    auto leftAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(left);
+    if (!leftAsParenthesis) {
+      setLeft(std::make_shared<ParenthesisFormula>(left));
+    }
+    auto rightAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(right);
+    if (!rightAsParenthesis) {
+      setRight(std::make_shared<ParenthesisFormula>(right));
+    }
+  }
   ~IffFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas

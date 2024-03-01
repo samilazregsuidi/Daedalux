@@ -113,6 +113,7 @@ int LTLClaimsProcessor::removeClaimFromFile(const std::string & file)
   if (!ftarget.is_open()) {
     throw std::runtime_error("Could not open the target file for writing.\n");
   }
-  ftarget << content << "\n";
+  ftarget << content;
+  ftarget.close();
   return 1;
 }

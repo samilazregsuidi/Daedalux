@@ -113,17 +113,13 @@ TEST_F(FormulaCreatorTest, groupStates_singleState)
   auto var_b = std::make_shared<VariableFormula>("b");
   auto var_c = std::make_shared<VariableFormula>("c");
   auto var_d = std::make_shared<VariableFormula>("d");
-  auto formula_1 =
-      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false)));
-  auto formula_2 =
-      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false)));
-  auto formula_3 =
-      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false)));
-  auto formula_4 =
-      std::make_shared<GloballyFormula>(std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false)));
+  auto formula_1 = std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false));
+  auto formula_2 = std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false));
+  auto formula_3 = std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false));
+  auto formula_4 = std::make_shared<EqualsFormula>(var_d, std::make_shared<BooleanConstant>(false));
 
   std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, formula_4};
-  auto expected_result = formulaCreator::groupFormulas(formulas, "&&");
+  auto expected_result = formulaCreator::combineFormulas(formulas, "&&");
   ASSERT_TRUE(result->isEquivalent(expected_result));
 }
 
@@ -167,14 +163,14 @@ TEST_F(FormulaCreatorTest, groupStates_array)
   auto equal_3 = std::make_shared<EqualsFormula>(i, std::make_shared<NumberConstant>(3));
   auto equal_4 = std::make_shared<EqualsFormula>(i, std::make_shared<NumberConstant>(4));
   std::vector<std::shared_ptr<formula>> equal_formulas = {equal_1, equal_2, equal_3, equal_4};
-  auto formula4 = formulaCreator::groupFormulas(equal_formulas, "||");
+  auto formula4 = formulaCreator::combineFormulas(equal_formulas, "||");
 
   auto formula_1_par = std::make_shared<ParenthesisFormula>(formula_1);
   auto formula_2_par = std::make_shared<ParenthesisFormula>(formula_2);
   auto formula_3_par = std::make_shared<ParenthesisFormula>(formula_3);
   auto formula4_par = std::make_shared<ParenthesisFormula>(formula4);
   std::vector<std::shared_ptr<formula>> formulas = {formula_1_par, formula_2_par, formula_3_par, formula4_par};
-  auto expected_result = formulaCreator::groupFormulas(formulas, "&&");
+  auto expected_result = formulaCreator::combineFormulas(formulas, "&&");
   ASSERT_TRUE(result->isEquivalent(expected_result));
 }
 
@@ -193,7 +189,8 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
 
   ASSERT_EQ(states.size(), 2);
   ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get()));
-  auto result = formulaCreator::groupStatesByFormula(states);
+  bool temporal = true;
+  auto result = formulaCreator::groupStatesByFormula(states, temporal);
 
   auto var_b = std::make_shared<VariableFormula>("b");
   auto var_c = std::make_shared<VariableFormula>("c");
@@ -207,7 +204,7 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
 
   std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3};
 
-  auto expected_result = formulaCreator::groupFormulas(formulas, "&&");
+  auto expected_result = formulaCreator::combineFormulas(formulas, "&&");
   std::cout << "Result: " << result->toFormula() << std::endl;
   std::cout << "Expected: " << expected_result->toFormula() << std::endl;
   // TODO look at this
@@ -269,7 +266,7 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
   auto formula_4 = std::make_shared<LargerEqualsFormula>(i, std::make_shared<NumberConstant>(3));
 
   std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, formula_4};
-  auto form = formulaCreator::groupFormulas(formulas, "&&");
+  auto form = formulaCreator::combineFormulas(formulas, "&&");
   auto expected_result = std::make_shared<GloballyFormula>(form);
   std::cout << "Result: " << result->toFormula() << std::endl;
   std::cout << "Expected: " << expected_result->toFormula() << std::endl;

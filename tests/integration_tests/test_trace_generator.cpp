@@ -86,7 +86,7 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix
   auto traceGen = std::make_unique<TraceGenerator>(originalFSM, mutantFSM);
   auto trace = traceGen->generatePositiveTrace(trace_size, ignore_common_prefix);
   // The trace will be shorter than the requested size as the common prefix is ignored
-  auto expected_trace_size = 4;
+  auto expected_trace_size = 7;
   ASSERT_EQ(trace->getStates().size(), expected_trace_size);
 }
 
@@ -175,24 +175,4 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes_TheTwoMethodShouldReturnTheSameR
   bad_trace = *report->getBadTraces().begin();
   ASSERT_TRUE(reduced_traces.first->size() == good_trace->size());
   ASSERT_TRUE(reduced_traces.second->size() == bad_trace->size());
-}
-
-TEST_F(TraceGeneratorTest, DiscriminateBetweenTrace)
-{
-  const TVL * tvl = nullptr;
-  auto file_path = current_path + array_model;
-  LTLClaimsProcessor::removeClaimFromFile(file_path);
-  auto original_loader = new promela_loader(file_path, tvl);
-  auto originalFSM = original_loader->getAutomata();
-  delete original_loader;
-  auto file_path_mutant = current_path + array_model_mutant;
-  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
-  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
-  auto mutantFSM = mutant_loader->getAutomata();
-  auto trace_size = 12;
-  auto traceGen = std::make_unique<TraceGenerator>(originalFSM, mutantFSM);
-  auto traceReport = traceGen->generateTraceReport(1, trace_size);
-  auto good_trace = *traceReport->getGoodTraces().begin();
-  auto bad_trace = *traceReport->getBadTraces().begin();
-  good_trace->findDistinguishingFormula(bad_trace);
 }

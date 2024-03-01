@@ -11,7 +11,7 @@
 class formulaCreator {
 public:
   static std::string distinguishStates(const std::shared_ptr<state> & state1, const std::shared_ptr<state> & state2);
-  static std::shared_ptr<formula> groupStatesByFormula(const std::vector<std::shared_ptr<state>> & states);
+  static std::shared_ptr<formula> groupStatesByFormula(const std::vector<std::shared_ptr<state>> & states, bool temporal = false);
   static std::unordered_map<std::string, std::map<int, std::vector<std::shared_ptr<state>>>>
   buildVariableValueMap(const std::vector<std::shared_ptr<state>> & states);
   static std::shared_ptr<formula> distinguishTraces(const std::shared_ptr<trace> & include_trace, const std::shared_ptr<trace> & exclude_trace);
@@ -22,7 +22,7 @@ public:
 
   static std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>> removeCommonPrefixes(const std::shared_ptr<trace> trace1,
                                                                                         const std::shared_ptr<trace> trace2);
-  static std::shared_ptr<formula> groupFormulas(const std::vector<std::shared_ptr<formula>> & formulas,
+  static std::shared_ptr<formula> combineFormulas(const std::vector<std::shared_ptr<formula>> & formulas,
                                                                 const std::string & operatorSymbol);
 private:
   static bool isBooleanVariable(const std::shared_ptr<state> & state, const std::string & name);

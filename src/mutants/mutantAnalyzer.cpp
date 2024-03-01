@@ -73,7 +73,6 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   std::cout << "Enhance specification using mutation testing" << std::endl;
   // Create mutants
   // createMutants(number_of_mutants);
-
   // Filter out bisimilar mutants
   // TODO implement - not sure how to do this yet - SAMI might be able to help with this
 
@@ -98,10 +97,9 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   }
 
   // Combine formulas using the && operator
-  auto combined_formula = formulaCreator::groupFormulas(formulas_vector, "&&");
+  auto combined_formula = formulaCreator::combineFormulas(formulas_vector, "&&");
 
   // Simplify the formula using the OWL tool
-  // TODO implement
 
   std::string formula_string = combined_formula->promelaFormula();
   std::string definition_string = combined_formula->getDefinition();
@@ -115,8 +113,23 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
 
   // Add the formula to the property file - for now, just print it
   std::cout << "The enhanced specification is " << combined_formula->toFormula() << std::endl;
-  std::cout << "The definition of the enhanced specification is " << combined_formula->getDefinition() << std::endl;
-  std::cout << "The never claim of the enhanced specification is " << combined_formula->neverClaim() << std::endl;
+}
+
+bool checkPromelaModel(const std::string & file_path)
+{
+  promela_loader * loader = new promela_loader(file_path, nullptr);
+  ltlModelChecker * mc = new ltlModelChecker();
+  std::shared_ptr<fsm> fsm = loader->getAutomata();
+  delete loader;
+  bool model_correct = true;
+  try {
+    model_correct = mc->check(fsm.get(), nullptr);
+  }
+  catch (const std::exception & e) {
+    std::cerr << e.what() << '\n';
+  }
+  delete mc;
+  return model_correct;
 }
 
 //*
@@ -126,46 +139,20 @@ std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::ki
 {
   auto killed_mutants = std::vector<std::string>();
   auto surviving_mutants = std::vector<std::string>();
-  ltlModelChecker * mc = new ltlModelChecker();
-  // Ensure that the original model survives
-  promela_loader * promela_original = new promela_loader(original_file_path, nullptr);
-  std::shared_ptr<fsm> fsm_original = promela_original->getAutomata();
-  delete promela_original;
-  bool is_killed_original = false;
-  try {
-    is_killed_original = mc->check(fsm_original.get(), nullptr);
-    std::cout << "Original program is killed: " << is_killed_original << std::endl;
-  }
-  catch (const std::exception & e) {
-    std::cerr << e.what() << '\n';
-  }
-
   // One by one, check whether the already specified properties kill the mutants
   for (auto mutant_file_path : mutant_file_paths) {
-    // Load promela files using smart pointers
-    promela_loader * loader_mutant = new promela_loader(mutant_file_path, nullptr);
-    std::shared_ptr<fsm> fsm_mutant = loader_mutant->getAutomata();
-    delete loader_mutant;
-
-    bool is_killed = false;
-    try {
-      is_killed = mc->check(fsm_mutant.get(), nullptr);
-    }
-    catch (const std::exception & e) {
-      std::cerr << e.what() << '\n';
-    }
-
+    // Check whether the mutant is correct
+    bool model_correct = checkPromelaModel(mutant_file_path);
     // If the mutant is killed, add it to the list of killed mutants and add it to the list of surviving mutants otherwise
-    if (is_killed) {
-      std::cout << "Mutant " << mutant_file_path << " is killed" << std::endl;
-      killed_mutants.push_back(mutant_file_path);
-    }
-    else {
+    if (model_correct) {
       std::cout << "Mutant " << mutant_file_path << " is surviving" << std::endl;
       surviving_mutants.push_back(mutant_file_path);
     }
+    else {
+      std::cout << "Mutant " << mutant_file_path << " is killed" << std::endl;
+      killed_mutants.push_back(mutant_file_path);
+    }
   }
-  delete mc;
   return std::make_pair(killed_mutants, surviving_mutants);
 }
 

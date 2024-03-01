@@ -34,7 +34,7 @@ elementStack::element::element(std::shared_ptr<state> s, unsigned int depth)
 
 
 void elementStack::push(std::shared_ptr<state> s, int depth){
-	std::shared_ptr<element> elem(new element(s, depth));
+	std::shared_ptr<element> elem = std::make_shared<element>(s, depth);
 	stackElem.push(elem);
 	setElem.insert(s->hash());
 }

@@ -9,7 +9,6 @@
 #include <numeric>  // for std::accumulate
 #include <sstream>
 
-
 std::unordered_map<std::string, std::map<int, std::vector<std::shared_ptr<state>>>>
 formulaCreator::buildVariableValueMap(const std::vector<std::shared_ptr<state>> & states)
 {
@@ -45,12 +44,16 @@ std::shared_ptr<formula> formulaCreator::distinguishTraces(const std::shared_ptr
   auto successor2_vec = std::vector<std::shared_ptr<state>>(successors2.begin(), successors2.end());
   auto successor1 = successor1_vec.front();
   auto successor2 = successor2_vec.front();
-  successor1->printDelta(successor2.get());
+  //successor1->printDelta(successor2.get());
   auto distinguishingFormula = distinguishStates(successor1_vec, successor2_vec, false);
   auto finallyFormula = std::make_shared<FinallyFormula>(distinguishingFormula);
-  return finallyFormula;
+  auto nextFormula = std::make_shared<NextFormula>(finallyFormula);
+  // Maybe I should include the common state in the formula.
+  auto commonStateFormula = groupStatesByFormula({state1});
+  // Make it to an always (State1 -> Next (distinguishingFormula)) formula.
+  auto alwaysFormula = std::make_shared<GloballyFormula>(std::make_shared<ImpliesFormula>(commonStateFormula, nextFormula));
+  return alwaysFormula;
 }
-
 
 std::shared_ptr<formula> formulaCreator::makeRangeFormula(std::string name, int smallestValue, int largestValue)
 {
@@ -97,10 +100,15 @@ int smallestValue(const std::map<int, std::vector<std::shared_ptr<state>>> & val
 
 bool isConstant(const std::map<int, std::vector<std::shared_ptr<state>>> & values) { return values.size() == 1; }
 
-std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<std::shared_ptr<state>> & states)
+std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<std::shared_ptr<state>> & states, bool temporal)
 {
   // The vector of states must not be empty.
-  assert(states.size() > 0);
+  if (states.size() == 0) {
+    throw std::invalid_argument("The vector of states is empty.");
+  }
+  if (states.size() == 1 && temporal) {
+    throw std::invalid_argument("The vector of states has only one state, so it cannot be used to create a temporal formula.");
+  }
   auto variables = states.front()->getAllVisibleVariables();
   auto variable_val_map = buildVariableValueMap(states);
 
@@ -115,8 +123,13 @@ std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<
       // The variable has the same value in all states. It is an invariant/global formula.
       auto value = values.begin()->first;
       auto localFormula = isBoolean ? makeBooleanEqualFormula(name, value) : makeEqualFormula(name, value);
-      auto globalFormula = std::make_shared<GloballyFormula>(localFormula);
-      formulas.push_back(globalFormula);
+      if (temporal) {
+        auto globalFormula = std::make_shared<GloballyFormula>(localFormula);
+        formulas.push_back(globalFormula);
+      }
+      else {
+        formulas.push_back(localFormula);
+      }
     }
     else {
       if (isBoolean) {
@@ -132,7 +145,7 @@ std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<
         }
       }
       else {
-        // The variable is not boolean, but it is a number. 
+        // The variable is not boolean, but it is a number.
         const int largest_Value = largestValue(values);
         const int smallest_Value = smallestValue(values);
         // If the difference between the largest and smallest value is equal to the number of states, we can create a range
@@ -146,14 +159,14 @@ std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<
             auto localFormula = makeEqualFormula(name, value.first);
             subformulas.push_back(localFormula);
           }
-          auto local_formula = groupFormulas(subformulas, "||");
+          auto local_formula = combineFormulas(subformulas, "||");
           auto parent_formula = std::make_shared<ParenthesisFormula>(local_formula);
           formulas.push_back(parent_formula);
         }
       }
     }
   }
-  auto result_formula = groupFormulas(formulas, "&&");
+  auto result_formula = combineFormulas(formulas, "&&");
   return result_formula;
 }
 
@@ -215,7 +228,7 @@ remove_duplicated_values(const std::map<int, std::vector<std::shared_ptr<state>>
 /// @return a formula that distinguishes the states in include_states from the states in exclude_states
 std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>> include_states,
                                                            const std::vector<std::shared_ptr<state>> exclude_states,
-                                                            bool temporal)
+                                                           bool temporal)
 {
   auto include_variable_val_map = buildVariableValueMap(include_states);
   auto exclude_variable_val_map = buildVariableValueMap(exclude_states);
@@ -301,7 +314,7 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
     return std::make_shared<BooleanConstant>(false);
   }
   // We need to create a formula that groups the states based on the value of the variable.
-  auto combinedFormula = groupFormulas(subformulas, "&&");
+  auto combinedFormula = combineFormulas(subformulas, "&&");
   // Make it to an always formula.
   if (temporal) {
     auto globalFormula = std::make_shared<GloballyFormula>(combinedFormula);
@@ -386,8 +399,8 @@ int formulaCreator::getValueOfVariable(const std::shared_ptr<state> & state, con
   return value;
 }
 
-std::shared_ptr<formula> formulaCreator::groupFormulas(const std::vector<std::shared_ptr<formula>> & formulas,
-                                                       const std::string & operatorSymbol)
+std::shared_ptr<formula> formulaCreator::combineFormulas(const std::vector<std::shared_ptr<formula>> & formulas,
+                                                         const std::string & operatorSymbol)
 {
   if (operatorSymbol != "&&" && operatorSymbol != "||") {
     throw std::invalid_argument("The operator must be '&&' or '||'");
@@ -399,7 +412,7 @@ std::shared_ptr<formula> formulaCreator::groupFormulas(const std::vector<std::sh
   if (formulas.size() == 1) {
     return formulas.front();
   }
- if (operatorSymbol == "&&") {
+  if (operatorSymbol == "&&") {
     auto formula = std::make_shared<AndFormula>(formulas.front(), formulas.at(1));
     for (size_t i = 2; i < formulas.size(); i++) {
       formula = std::make_shared<AndFormula>(formula, formulas.at(i));

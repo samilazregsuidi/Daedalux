@@ -160,7 +160,7 @@ int never::eval(const astNode* node, byte flag) const {
 			return (eval(binaryExpr->getLeftExpr(), flag) <= eval(binaryExpr->getRightExpr(), flag));
 
 		case(astNode::E_EXPR_EQ): {
-			std::cout << std::string(*binaryExpr->getLeftExpr()) << "(" << eval(binaryExpr->getLeftExpr(), flag) << ") == " << std::string(*binaryExpr->getRightExpr()) << "(" << eval(binaryExpr->getRightExpr(), flag) << ")" << std::endl;
+			//std::cout << std::string(*binaryExpr->getLeftExpr()) << "(" << eval(binaryExpr->getLeftExpr(), flag) << ") == " << std::string(*binaryExpr->getRightExpr()) << "(" << eval(binaryExpr->getRightExpr(), flag) << ")" << std::endl;
 			//auto sanity = (eval(binaryExpr->getLeftExpr(), flag) == eval(binaryExpr->getRightExpr(), flag));
 			return (eval(binaryExpr->getLeftExpr(), flag) == eval(binaryExpr->getRightExpr(), flag));
 		}
