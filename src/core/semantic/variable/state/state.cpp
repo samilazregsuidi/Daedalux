@@ -69,7 +69,7 @@ std::list<state*> state::Post(void) const {
 		auto neverTs = neverClaim->executables();
 		if(res.empty() && !neverTs.empty()){
 			std::cout << "Deadlock detected because of never claim" << std::endl;
-			this->errorMask |= ERR_DEADLOCK;
+			this->errorMask |= ERR_PROPERTY_VIOLATION;
 		}
 		transition::erase(neverTs);
 	}

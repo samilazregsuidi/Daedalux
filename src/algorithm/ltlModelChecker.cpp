@@ -221,9 +221,14 @@ void ltlModelChecker::emptyStack(elementStack & stack)
 
 void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const elementStack & stack)
 {
-  if (s->getErrorMask() & state::ERR_DEADLOCK) {
+  auto errorMask = s->getErrorMask();
+  if (errorMask & state::ERR_DEADLOCK) {
     printElementStack(graphVis, stack.stackElem);
     throw std::runtime_error("Deadlock found");
+  }
+  else if (errorMask & state::ERR_PROPERTY_VIOLATION) {
+    std::cout << "Property violated" << std::endl;
+    s->print();
   }
 }
 

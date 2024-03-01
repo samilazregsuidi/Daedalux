@@ -54,6 +54,7 @@ public:
 
 	static const unsigned int ERR_DEADLOCK = 0x1;
 	static const unsigned int ERR_ASSERT_FAIL = 0x2;
+	static const unsigned int ERR_PROPERTY_VIOLATION = 0x4;
 
 	state(variable::Type type, const std::string& name = "");
 
