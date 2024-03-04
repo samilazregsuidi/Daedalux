@@ -2,16 +2,17 @@
 #define PRIMITIVE_VARIABLE_H
 
 #include "variable.hpp"
+#include "payload.hpp"
 
-class variable;
+#include <limits>
 
 struct arg {
   
-  arg(variable * variable) 
-    : type(VAR) { data.variable = variable; }
+  arg(variable * var) 
+    : type(VAR) { data.var = var; }
   
-  arg(int value) 
-    : type(VAL) { data.value = value; }
+  arg(int val) 
+    : type(VAL) { data.val = val; }
   
   enum {
     VAR,
@@ -19,8 +20,8 @@ struct arg {
   } type;
 
   union {
-    variable * variable;
-    int value;
+    variable * var;
+    int val;
   } data;
 };
 
@@ -32,40 +33,25 @@ template <class T> class primitive : public variable {
 public:
 
   primitive(const std::string& name, Type varType, T initValue = 0)
-    : variable(varType) 
-    , name(name)
+    : variable(varType, name) 
     , initValue(initValue)
     , value(0)
-    , global(false)
-    , predef(false) 
   {}
 
   primitive(const primitive<T> & other)
     : variable(other)
     , initValue(other.initValue)
     , value(other.value)
-    , global(other.global)
-    , predef(other.predef)
   {}
 
   primitive(const primitive<T> * other)
     : variable(other)
     , initValue(other->initValue)
-    , value(other->value) 
-    , global(other->global)
-    , predef(other->predef)
+    , value(other->value)
   {}
 
-  variable * deepCopy(void) const override {
+  primitive<T>* deepCopy(void) const override {
     return new primitive<T>(this);
-  }
-
-  bool isGlobal(void) const override {
-    return global;
-  }
-
-  bool isPredef(void) const {
-    return predef;
   }
 
   size_t getSizeOf(void) const override {
@@ -109,7 +95,24 @@ public:
     return res;
   }
 
-  virtual T operator=(const arg & rvalue);
+  virtual T operator=(const arg & rvalue) {
+    const primitive<T> * var = nullptr;
+    switch (rvalue.type) {
+    case arg::VAL:
+      setValue(rvalue.data.val);
+      break;
+
+    case arg::VAR:
+      var = dynamic_cast<const primitive<T> *>(rvalue.data.var);
+      assert(var);
+      setValue(rvalue.data.var);
+      break;
+
+    default:
+      assert(false);
+    }
+    return getValue();
+  }
 
   virtual T operator++(void) {
     T temp = getValue();
@@ -167,8 +170,8 @@ public:
     if (!cast)
       return 1;
 
-    float value = getPayload()->getValue(getOffset(), getType());
-    float otherValue = cast->getPayload()->getValue(cast->getOffset(), cast->getType());
+    float value = getPayload()->getValue<T>(getOffset());
+    float otherValue = cast->getPayload()->getValue<T>(cast->getOffset());
 
     float diff = std::abs(value - otherValue);
     auto delta = 1.0 - (1.0 / (diff + 1.0));
@@ -199,7 +202,7 @@ public:
     if (delta > 0.00000001) {
       auto name = getFullName();
       auto value = getPayload()->getValue<T>(getOffset());
-      auto otherValue = cast->getPayload()->getValue(cast->getOffset(), cast->getType());
+      auto otherValue = cast->getPayload()->getValue<T>(cast->getOffset());
       auto OtherName = cast->getFullName();
       printf("%s = %d, %s = %d, delta = %f\n", name.c_str(), value, OtherName.c_str(), otherValue, delta);
     }
@@ -224,10 +227,10 @@ public:
 
   virtual void printTexada(void) const override {
     assert(getPayload());
-    if (predef)
+    if (isPredef())
       return;
 
-    auto value = getPayload()->getValue(getOffset(), getType());
+    auto value = getPayload()->getValue<T>(getOffset());
     printf("%s = %d\n", getFullName().c_str(), value);
 
     variable::printTexada();
@@ -235,7 +238,7 @@ public:
 
   virtual void printCSV(std::ostream & out) const override {
     assert(getPayload());
-    if (predef)
+    if (isPredef())
       return;
 
     out << getFullName() + ",";
@@ -244,10 +247,10 @@ public:
 
   virtual void printCSVHeader(std::ostream & out) const override {
     assert(getPayload());
-    if (predef)
+    if (isPredef())
       return;
 
-    auto value = getPayload()->getValue(getOffset(), getType());
+    auto value = getPayload()->getValue<T>(getOffset());
     out << std::to_string(value) + ",";
 
     variable::printCSV(out);
@@ -256,8 +259,6 @@ public:
 protected:
   T initValue;
   T value;
-  bool global;
-  bool predef;
 };
 
 class bitVar : public primitive<unsigned char> {
@@ -265,6 +266,10 @@ public:
   bitVar(const std::string& name, unsigned char initValue = 0) 
   : primitive<unsigned char>(name, variable::V_BIT, initValue)
   {}
+
+  bitVar* deepCopy(void) const override {
+    return new bitVar(*this);
+  }
 };
 
 class byteVar : public primitive<unsigned char> {
@@ -272,6 +277,10 @@ public:
   byteVar(const std::string& name, unsigned char initValue = 0) 
   : primitive<unsigned char>(name, variable::V_BYTE, initValue)
   {}
+
+  byteVar* deepCopy(void) const override {
+    return new byteVar(*this);
+  }
 };
 
 class shortVar : public primitive<short> {
@@ -279,6 +288,10 @@ public:
   shortVar(const std::string& name, short initValue = 0) 
   : primitive<short>(name, variable::V_SHORT, initValue)
   {}
+
+  shortVar* deepCopy(void) const override {
+    return new shortVar(*this);
+  }
 };
 
 class ushortVar : public primitive<unsigned short> {
@@ -286,6 +299,10 @@ public:
   ushortVar(const std::string& name, unsigned short initValue = 0) 
   : primitive<unsigned short>(name, variable::V_USHORT, initValue)
   {}
+
+  ushortVar* deepCopy(void) const override {
+    return new ushortVar(*this);
+  }
 };
 
 class intVar : public primitive<int> {
@@ -293,6 +310,10 @@ public:
   intVar(const std::string& name, int initValue = 0) 
   : primitive<int>(name, variable::V_INT, initValue)
   {}
+
+  intVar* deepCopy(void) const override {
+    return new intVar(*this);
+  }
 };
 
 class uintVar : public primitive<unsigned int> {
@@ -300,6 +321,10 @@ public:
   uintVar(const std::string& name, unsigned int initValue = 0) 
   : primitive<unsigned int>(name, variable::V_UINT, initValue)
   {}
+
+  uintVar* deepCopy(void) const override {
+    return new uintVar(*this);
+  }
 };
 
 class longVar : public primitive<long> {
@@ -307,6 +332,10 @@ public:
   longVar(const std::string& name, long initValue = 0) 
   : primitive<long>(name, variable::V_LONG, initValue)
   {}
+
+  longVar* deepCopy(void) const override {
+    return new longVar(*this);
+  }
 };
 
 class ulongVar : public primitive<unsigned long> {
@@ -314,6 +343,10 @@ public:
   ulongVar(const std::string& name, unsigned long initValue = 0) 
   : primitive<unsigned long>(name, variable::V_ULONG, initValue)
   {}
+
+  ulongVar* deepCopy(void) const override {
+    return new ulongVar(*this);
+  }
 };
 
 class floatVar : public primitive<float> {
@@ -321,6 +354,10 @@ public:
   floatVar(const std::string& name, float initValue = 0) 
   : primitive<float>(name, variable::V_FLOAT, initValue)
   {}
+
+  floatVar* deepCopy(void) const override {
+    return new floatVar(*this);
+  }
 };
 
 class doubleVar : public primitive<double> {
@@ -328,24 +365,10 @@ public:
   doubleVar(const std::string& name, double initValue = 0) 
   : primitive<double>(name, variable::V_DOUBLE, initValue)
   {}
-};
 
-class process;
-
-class PIDVar : public primitive<unsigned char> {
-public:
-  PIDVar(const std::string& name, process* ref);
-
-  variable * deepCopy(void) const override;
-
-  process * getRefProcess(void) const;
-
-  void setRefProcess(process * newRef);
-
-  void assign(const variable * sc) override;
-
-private:
-  process * ref;
+  doubleVar* deepCopy(void) const override {
+    return new doubleVar(*this);
+  }
 };
 
 #endif

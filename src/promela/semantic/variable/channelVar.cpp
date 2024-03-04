@@ -7,8 +7,8 @@
 
 #include "initState.hpp"
 
-channel::channel(const chanSymNode* chanSym, unsigned int index)
-	: primitiveVariable(chanSym, index)
+channel::channel(const std::string& name, size_t capacity)
+	: stackVar(name, capacity)
 {
 	if(chanSym->getBound() > 1)
 		name += "["+std::to_string(index)+"]";

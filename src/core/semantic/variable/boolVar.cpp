@@ -1,30 +1,12 @@
-#include "boolVariable.hpp"
+#include "boolVar.hpp"
 #include <cstdio>
-
-#include "boolSymNode.hpp"
 
 boolVar::boolVar(const std::string& name) 
   : primitive<bool>(name, variable::V_BOOL)
   {}
 
-variable* boolVar::deepCopy(void) const {
+boolVar* boolVar::deepCopy(void) const {
 	return new boolVar(*this);
-}
-
-bool boolVar::operator ++ (void) {
-	assert(false);
-}
-
-bool boolVar::operator -- (void) {
-	assert(false);
-}
-
-bool boolVar::operator ++ (int) {
-	assert(false);
-}
-
-bool boolVar::operator -- (int) {
-	assert(false);
 }
 
 float boolVar::delta(const variable* other) const {

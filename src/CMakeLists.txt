@@ -68,14 +68,16 @@ add_library(daedalux_lib STATIC
 	core/semantic/payload.cpp
 	core/semantic/variable/variable.cpp
 	core/semantic/variable/variableDecorator.cpp
+	core/semantic/variable/boolVar.cpp
+	#core/semantic/variable/stackVar.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
 	core/semantic/variable/state/composite.cpp
 	core/semantic/variable/state/thread.cpp
 	core/semantic/variable/transition/transition.cpp
+	core/semantic/variable/transition/threadTransition.cpp
 	core/semantic/variable/transition/compositeTransition.cpp
 	core/semantic/variable/transition/rendezVousTransition.cpp
-	core/semantic/variable/transition/threadTransition.cpp
 	core/semantic/variable/transition/deleteTransVisitor.cpp
 	core/semantic/variable/state/initState.cpp
 
@@ -123,16 +125,14 @@ add_library(daedalux_lib STATIC
 	promela/ast/expr/constExpr.cpp
 	promela/ast/expr/argExpr.cpp
 	promela/ast/expr/temporalExpr.cpp	
-	
-	promela/semantic/variable/primitiveVariable.cpp
-	promela/semantic/variable/utypeVariable.cpp
-	promela/semantic/variable/boolVariable.cpp
-	promela/semantic/variable/mtypeVariable.cpp
-	promela/semantic/variable/channel.cpp
-	promela/semantic/variable/state/process.cpp
-	promela/semantic/variable/state/never.cpp
-	promela/semantic/variable/state/program.cpp	
-	promela/semantic/variable/transition/progTransition.cpp
+
+	#promela/semantic/variable/mtypeVar.cpp
+	#promela/semantic/variable/channelVar.cpp
+	#promela/semantic/variable/pidVar.cpp
+	#promela/semantic/variable/state/process.cpp
+	#promela/semantic/variable/state/never.cpp
+	#promela/semantic/variable/state/program.cpp
+	#promela/semantic/variable/transition/progTransition.cpp
 
 	promela/parser/${Parser}
 	promela/parser/${Lexer}
@@ -150,14 +150,14 @@ add_library(daedalux_lib STATIC
 	algorithm/traceGenerator.cpp
 	algorithm/bisimulationChecker.cpp
 
-	mutants/mutantAnalyzer.cpp
-
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp
 	visualizer/traceReport.cpp
 
+	mutants/mutantAnalyzer.cpp
+
 	formulas/formulaCreator.cpp
-)
+	)
 
 target_include_directories(daedalux_lib
 PUBLIC
@@ -250,6 +250,8 @@ add_executable(daedalux
 	core/semantic/payload.cpp
 	core/semantic/variable/variable.cpp
 	core/semantic/variable/variableDecorator.cpp
+	core/semantic/variable/boolVar.cpp
+	#core/semantic/variable/stackVar.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
 	core/semantic/variable/state/composite.cpp
@@ -306,15 +308,13 @@ add_executable(daedalux
 	promela/ast/expr/argExpr.cpp
 	promela/ast/expr/temporalExpr.cpp	
 	
-	promela/semantic/variable/primitiveVariable.cpp
-	promela/semantic/variable/utypeVariable.cpp
-	promela/semantic/variable/boolVariable.cpp
-	promela/semantic/variable/mtypeVariable.cpp
-	promela/semantic/variable/channel.cpp
-	promela/semantic/variable/state/process.cpp
-	promela/semantic/variable/state/never.cpp
-	promela/semantic/variable/state/program.cpp
-	promela/semantic/variable/transition/progTransition.cpp
+	#promela/semantic/variable/mtypeVar.cpp
+	#promela/semantic/variable/channelVar.cpp
+	#promela/semantic/variable/pidVar.cpp
+	#promela/semantic/variable/state/process.cpp
+	#promela/semantic/variable/state/never.cpp
+	#promela/semantic/variable/state/program.cpp
+	#promela/semantic/variable/transition/progTransition.cpp
 
 	promela/parser/${Parser}
 	promela/parser/${Lexer}

@@ -4,29 +4,19 @@
 #include <string>
 #include <list>
 
-#include "primitiveVariable.hpp"
+#include "stackVar.hpp"
 
-class channel : public primitiveVariable {
+class channel : private stackVar {
 public:
-	channel(const chanSymNode* sym, unsigned int bound =  0);
+	channel(const std::string& name, size_t capacity = 0);
 
 	channel(const channel* other);
 
-	variable* deepCopy(void) const override;
+	channel* deepCopy(void) const override;
 
 	~channel() override;
 
 	size_t getSizeOf(void) const override;
-
-	/*int operator = (const primitiveVariable& rvalue) override;
-
-	int operator ++ (void) override;
-
-	int operator -- (void) override;
-
-	int operator ++ (int) override;
-
-	int operator -- (int) override;*/
 
 	bool operator == (const variable* other) const override;
 
@@ -74,7 +64,7 @@ class CIDVar : public primitive<unsigned char> {
 public:
 	CIDVar(const cidSymNode* sym, unsigned int bound =  0);
 
-	variable* deepCopy(void) const override;
+	CIDVar* deepCopy(void) const override;
 
 	channel* getRefChannel(void) const;
 	

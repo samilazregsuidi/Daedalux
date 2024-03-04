@@ -20,21 +20,6 @@ class exprRArgList;
 
 class channel;
 
-class primitiveVariable;
-class boolVar;
-
-template <typename T> struct return_value {
-	using type = T;
-};
-
-template <> struct return_value<primitiveVariable*> {
-	using type = int;
-};
-
-template <> struct return_value<boolVar*> {
-	using type = bool;
-};
-
 class variable {
 public:
 
@@ -55,6 +40,7 @@ public:
 		V_UNSGN, 	// not supported yet
 		V_MTYPE,
 		V_CLOCK ,	// dense time clock - supports RT?
+		V_STACK,
 		V_MTYPE_DEF,
 		V_CMTYPE,
 
@@ -74,15 +60,6 @@ public:
 		V_COMP_S,
 
 		V_VARIANT
-	};
-
-	template <Type type> struct bounds {
-		static const int min;
-		static const int max;
-	};
-
-	template <Type type> struct size {
-		static const int value;
 	};
 
 	variable(Type type, const std::string& name = std::string());
@@ -105,13 +82,23 @@ public:
 
 	/****************************************************/
 
+	virtual void setGlobal(bool global);
+
+	virtual void setPredef(bool predef);
+
+	virtual void setHidden(bool hidden);
+
+	virtual bool isGlobal(void) const;
+
+	virtual bool isPredef(void) const;
+
+	virtual bool isHidden(void) const;
+
 	virtual std::string getFullName(void) const;
 
 	virtual std::string getLocalName(void) const;
 
 	virtual variable::Type getType(void) const;
-
-	virtual bool isGlobal(void) const;
 
 	virtual void assign(const variable* sc);
 
@@ -163,6 +150,10 @@ public:
 
 	virtual std::list<variable *> getAllVariables(void) const;
 
+	virtual std::map<std::string, variable*> getVariablseMap(void) const;
+
+	virtual std::list<variable *> getVariablesList(void) const;
+
 	virtual channel* getChannel(const std::string& name) const;
 
 	virtual void clearVariables(void);
@@ -197,12 +188,7 @@ public:
 		return res;
 	}
 
-	template <class T> typename return_value<T>::type getValue(const std::string& name) const {
-		auto var = getVariable(name);
-		if(var != nullptr)
-			return (dynamic_cast<T>(var))->getValue();
-		assert(false);
-	}
+	
 
 	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
@@ -227,7 +213,7 @@ public:
 	static unsigned int vidCounter;
 
 
-public:
+protected:
 	std::string name;
 	variable* parent;
 	unsigned int vid;
@@ -238,8 +224,9 @@ public:
 	//size_t sizeOf;
 	size_t offset;
 	payload* payLoad;
-	bool isHidden;
-	bool isPredef;
+	bool hidden;
+	bool predef;
+	bool global;
 };
 
 #endif

@@ -3,14 +3,16 @@
 #include <string.h>
 #include <time.h>
 
-#include "program.hpp"
+
 #include "rendezVousTransition.hpp"
 #include "thread.hpp"
 #include "transition.hpp"
 
-#include "channel.hpp"
 #include "payload.hpp"
 #include "variable.hpp"
+
+#include "primitiveVar.hpp"
+#include "pidVar.hpp"
 
 #include "ast.hpp"
 #include "automata.hpp"
@@ -138,7 +140,7 @@ std::list<arg> thread::getArgs(const exprArgList * args) const
     if (exp->getType() == astNode::E_EXPR_CONST)
       res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
     else
-      res.push_back(arg(dynamic_cast<primitiveVariable*> (getVariableFromExpr(exp))));
+      res.push_back(arg(dynamic_cast<variable*> (getVariableFromExpr(exp))));
     args = args->getArgList();
   }
   return res;
@@ -165,7 +167,7 @@ std::list<arg> thread::getRArgs(const exprRArgList * rargs) const
       res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
       break;
     case astNode::E_RARG_VAR:
-      res.push_back(arg(dynamic_cast<primitiveVariable*>(getVariableFromExpr(exp))));
+      res.push_back(arg(dynamic_cast<variable*>(getVariableFromExpr(exp))));
       break;
     default:
       assert(false);

@@ -41,6 +41,26 @@ void stateDecorator::assign(const variable* sc) {
 	wrappee->assign(sc);
 }
 
+bool stateDecorator::isPredef(void) const {
+	return wrappee->isPredef();
+}
+
+void stateDecorator::setPredef(bool predef) {
+	wrappee->setPredef(predef);
+}
+
+void stateDecorator::setHidden(bool hidden) {
+	wrappee->setHidden(hidden);
+}
+
+bool stateDecorator::isHidden(void) const {
+	return wrappee->isHidden();
+}
+
+void stateDecorator::setGlobal(bool global) {
+	wrappee->setGlobal(global);
+}
+
 bool stateDecorator::isGlobal(void) const {
 	return wrappee->isGlobal();
 }
@@ -77,15 +97,15 @@ unsigned int stateDecorator::getVariableId(void) const {
 void stateDecorator::_addVariable(variable* var) {
 	wrappee->_addVariable(var);
 	//need copy for getTVariable for ex.
-	varList = wrappee->varList;
-	varMap = wrappee->varMap;
+	varList = wrappee->getVariablesList();
+	varMap = wrappee->getVariablesMap();
 }
 
 void stateDecorator::_rmVariable(const variable* var) {
 	wrappee->_rmVariable(var);
 	//need copy for getTVariable for ex.
-	varList = wrappee->varList;
-	varMap = wrappee->varMap;
+	varList = wrappee->getVariablesList();
+	varMap = wrappee->getVariablesMap();
 }
 
 bool stateDecorator::hasVariables(void) const {

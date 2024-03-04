@@ -3,12 +3,8 @@
 #include <iterator>
 
 #include "payload.hpp"
-#include "process.hpp"
 
-#include "boolVariable.hpp"
-#include "channel.hpp"
-#include "mtypeVariable.hpp"
-#include "utypeVariable.hpp"
+#include "channelVar.hpp"
 
 #include "argExpr.hpp"
 #include "constExpr.hpp"
@@ -76,78 +72,6 @@ variable::Type variable::getVarType(symbol::Type type)
   return V_NA;
 }
 
-template <> struct variable::bounds<variable::V_BIT> {
-    static const int min = 0;
-    static const int max = 1;
-};
-
-template <> struct variable::size<variable::V_BIT> {
-    static const int value = 1;
-};
-
-template <> struct variable::bounds<variable::V_BOOL> {
-    static const int min = 0;
-    static const int max = 1;
-};
-
-template <> struct variable::size<variable::V_BOOL> {
-    static const int value = 1;
-};
-
-template <> struct variable::bounds<variable::V_BYTE> {
-    static const int min = 0;
-    static const int max = 255;
-};
-
-template <> struct variable::size<variable::V_BYTE> {
-    static const int value = 1;
-};
-
-template <> struct variable::bounds<variable::V_SHORT> {
-		static const int min = -32768;
-		static const int max = 32767;
-};
-
-template <> struct variable::size<variable::V_SHORT> {
-    static const int value = 2;
-};
-
-template <> struct variable::bounds<variable::V_INT> {
-		static const int min = -2147483648;
-		static const int max = 2147483647;
-};
-
-template <> struct variable::size<variable::V_INT> {
-    static const int value = 4;
-};
-
-template <> struct variable::bounds<variable::V_PID> {
-    static const int min = 0;
-    static const int max = 255;
-};
-
-template <> struct variable::size<variable::V_PID> {
-    static const int value = 1;
-};
-
-template <> struct variable::bounds<variable::V_MTYPE> {
-    static const int min = 0;
-    static const int max = 255;
-};
-
-template <> struct variable::size<variable::V_MTYPE> {
-    static const int value = 1;
-};
-
-template <> struct variable::bounds<variable::V_CID> {
-    static const int min = 0;
-    static const int max = 255;
-};
-
-template <> struct variable::size<variable::V_CID> {
-    static const int value = 1;
-};
-
 size_t variable::getLowerBound(variable::Type type) { 
   switch (type) {
   case V_BIT:
@@ -200,14 +124,14 @@ unsigned int variable::vidCounter = 0;
 
 variable::variable(Type varType, const std::string & name)
     : name(name), parent(nullptr), vid(++vidCounter), varType(varType), rawBytes(0), offset(0), payLoad(nullptr),
-      isHidden(false), isPredef(false)
+      hidden(false), predef(false), global(false)
 {
 }
 
 variable::variable(const variable & other)
     : name(other.name), parent(other.parent), vid(other.vid), varType(other.varType), rawBytes(other.rawBytes),
-      varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), isHidden(other.isHidden),
-      isPredef(other.isPredef)
+      varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), hidden(other.hidden),
+      predef(other.predef), global(other.global)
 {
 }
 
@@ -255,11 +179,17 @@ variable::~variable()
 
 variable::Type variable::getType(void) const { return varType; }
 
-bool variable::isGlobal(void) const
-{
-  assert(false);
-  return false;
-}
+void variable::setGlobal(bool isGlobal) { global = isGlobal; }
+
+bool variable::isGlobal(void) const { return global; }
+
+void variable::setPredef(bool isPredef) { predef = isPredef; }
+
+bool variable::isPredef(void) const { return predef; }
+
+void variable::setHidden(bool isHidden) { hidden = isHidden; }
+
+bool variable::isHidden(void) const { return hidden; }
 
 void variable::assign(const variable * sc)
 {
@@ -509,6 +439,8 @@ channel * variable::getChannel(const std::string & name) const
 }
 
 std::map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
+
+std::list<variable *> variable::getVariablesList(void) const { return varList; }
 
 size_t variable::getSizeOf(void) const
 {

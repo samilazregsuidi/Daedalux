@@ -43,7 +43,17 @@ public:
 
 	variable::Type getType(void) const override;
 
+	void setGlobal(bool global) override;
+
 	bool isGlobal(void) const override;
+
+	void setPredef(bool predef) override;
+
+	bool isPredef(void) const override;
+
+	void setHidden(bool hidden) override;
+
+	bool isHidden(void) const override;
 
 	void assign(const variable* sc) override;
 

@@ -18,20 +18,6 @@ public:
 
 	/****************************************************/
 
-	/*virtual void setValue(int value) = 0;
-	
-	virtual int getValue(void) const = 0;
-
-	virtual int operator = (const variable& rvalue) = 0;
-
-	virtual int operator ++ (void) = 0;
-
-	virtual int operator -- (void) = 0;
-
-	virtual int operator ++ (int) = 0;
-
-	virtual int operator -- (int) = 0;*/
-
 	bool operator == (const variable* other) const override = 0;
 
 	bool operator != (const variable* other) const override = 0;
@@ -107,6 +93,8 @@ public:
 	variable* getVariable(const std::string& name) const override;
 
 	std::map<std::string, variable*> getVariablesMap(void) const override;
+
+	std::list<variable*> getVariablesList(void) const override;
 
 
 	unsigned long hash(void) const override;

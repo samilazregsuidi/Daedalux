@@ -13,8 +13,7 @@ typedef char byte;
 
 #include "symbols.hpp"
 
-#include "channel.hpp"
-#include "variable.hpp"
+#include "channelVar.hpp"
 
 #include "astNode.hpp"
 #include "expr.hpp"
