@@ -11,9 +11,6 @@ class FormulaTest : public ::testing::Test {
 protected:
   void SetUp() override {}
   void TearDown() override {}
-  std::string array_model = "/test_files/basic/array.pml";
-  std::string flows_model = "/test_files/basic/flows.pml";
-  std::string current_path = std::filesystem::current_path();
 
   // Function that checks if a string starts with a given prefix
   bool startsWith(const std::string & str, const std::string & prefix)
@@ -63,14 +60,14 @@ TEST_F(FormulaTest, defNameOfComplexFormula)
   auto equal_3 = std::make_shared<EqualsFormula>(i, std::make_shared<NumberConstant>(3));
   auto equal_4 = std::make_shared<EqualsFormula>(i, std::make_shared<NumberConstant>(4));
   std::vector<std::shared_ptr<formula>> equal_formulas = {equal_1, equal_2, equal_3, equal_4};
-  auto formula4 = formulaCreator::combineFormulas(equal_formulas, "||");
+  auto formula4 = formulaUtility::combineFormulas(equal_formulas, CombinationOperatorType::OR_Symbol);
   auto formula1_parenthesis = std::make_shared<ParenthesisFormula>(formula_1);
   auto formula2_parenthesis = std::make_shared<ParenthesisFormula>(formula_2);
   auto formula3_parenthesis = std::make_shared<ParenthesisFormula>(formula_3);
   auto formula4_parenthesis = std::make_shared<ParenthesisFormula>(formula4);
   std::vector<std::shared_ptr<formula>> formulas = {formula1_parenthesis, formula2_parenthesis, formula3_parenthesis,
                                                     formula4_parenthesis};
-  auto formula = formulaCreator::combineFormulas(formulas, "&&");
+  auto formula = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
   auto formula_string = formula->toFormula();
   auto expected_formula_string = "(array[1] >= 0 && array[1] <= 1) && (array[2] == 0 || array[2] == 2) && (array[3] == 0 || "
                                  "array[3] == 3) && (i == 0 || i == 1 || i == 3 || i == 4)";
@@ -151,14 +148,14 @@ TEST_F(FormulaTest, neverClaimOfComplexFormula)
   auto equal_3 = std::make_shared<EqualsFormula>(i, std::make_shared<NumberConstant>(3));
   auto equal_4 = std::make_shared<EqualsFormula>(i, std::make_shared<NumberConstant>(4));
   std::vector<std::shared_ptr<formula>> equal_formulas = {equal_1, equal_2, equal_3, equal_4};
-  auto formula4 = formulaCreator::combineFormulas(equal_formulas, "||");
+  auto formula4 = formulaUtility::combineFormulas(equal_formulas, CombinationOperatorType::OR_Symbol);
   auto formula1_parenthesis = std::make_shared<ParenthesisFormula>(formula_1);
   auto formula2_parenthesis = std::make_shared<ParenthesisFormula>(formula_2);
   auto formula3_parenthesis = std::make_shared<ParenthesisFormula>(formula_3);
   auto formula4_parenthesis = std::make_shared<ParenthesisFormula>(formula4);
   std::vector<std::shared_ptr<formula>> formulas = {formula1_parenthesis, formula2_parenthesis, formula3_parenthesis,
                                                     formula4_parenthesis};
-  auto formula = formulaCreator::combineFormulas(formulas, "&&");
+  auto formula = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
   auto neverClaim = formula->neverClaim();
   EXPECT_TRUE(startsWith(neverClaim, "never"));
 }

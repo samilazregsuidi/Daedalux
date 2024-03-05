@@ -9,24 +9,24 @@
 // Define a fixture for the tests
 class MutantHandlerTest : public ::testing::Test {
 protected:
-  void SetUp() override {}
+  void SetUp() override
+  {
+    // Common setup code that will be called before each test
+    std::string current_path = std::filesystem::current_path();
+    testFilesUtils = std::make_unique<TestFilesUtils>(current_path);
+  }
 
   void TearDown() override
   {
     // Common teardown code that will be called after each test
   }
 
-  std::string array_model = "/test_files/mutants/array.pml";
-  std::string array_model_mutant = "/test_files/mutants/array_mutant.pml";
-  std::string array_model_never = "/test_files/mutants/array_never.pml";
-  std::string array_model_mutant_never = "/test_files/mutants/array_mutant_never.pml";
-  std::string flows_model = "/test_files/basic/flows.pml";
-  std::string current_path = std::filesystem::current_path();
+  std::unique_ptr<TestFilesUtils> testFilesUtils;
 };
 
 TEST_F(MutantHandlerTest, mutant_generation_array)
 {
-  auto original_file_path = current_path + array_model_never;
+  auto original_file_path = testFilesUtils->array_model_never();
   MutantAnalyzer mutantAnalyzer(original_file_path);
   auto number_of_mutants = 5;
   mutantAnalyzer.createMutants(number_of_mutants);
@@ -50,7 +50,7 @@ TEST_F(MutantHandlerTest, mutant_generation_array)
 
 TEST_F(MutantHandlerTest, mutant_generation_flows)
 {
-  auto original_file_path = current_path + flows_model;
+  auto original_file_path = testFilesUtils->flows_model();
   MutantAnalyzer mutantAnalyzer(original_file_path);
   auto number_of_mutants = 5;
   mutantAnalyzer.createMutants(number_of_mutants);
@@ -73,8 +73,8 @@ TEST_F(MutantHandlerTest, mutant_generation_flows)
 
 TEST_F(MutantHandlerTest, AnalyzeMutants)
 {
-  auto original_file_path = current_path + array_model_never;
-  auto mutant_file_path = current_path + array_model_mutant_never;
+  auto original_file_path = testFilesUtils->array_model_never();
+  auto mutant_file_path = testFilesUtils->array_mutant_never();
   MutantAnalyzer mutantAnalyzer(original_file_path, {mutant_file_path});
   auto trace_length = 15;
   mutantAnalyzer.analyzeMutants(trace_length);
@@ -87,11 +87,11 @@ TEST_F(MutantHandlerTest, AnalyzeMutants)
   }
 }
 
-TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants)
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_1Mutant)
 {
-  auto original_file_path = current_path + array_model;
+  auto original_file_path = testFilesUtils->array_model_original();
   LTLClaimsProcessor::removeClaimFromFile(original_file_path);
-  auto mutant_file_path = current_path + array_model_mutant;
+  auto mutant_file_path = testFilesUtils->array_model_mutant();
   LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
   std::vector<std::string> mutants = {mutant_file_path};
   MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
@@ -104,3 +104,108 @@ TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants)
   ASSERT_TRUE(alive_mutants.empty());
 }
 
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_1MutantAlt)
+{
+  auto original_file_path = testFilesUtils->array_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+  auto mutant_file_path = testFilesUtils->array_model_mutant_alt();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
+  std::vector<std::string> mutants = {mutant_file_path};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 1);
+  ASSERT_TRUE(alive_mutants.empty());
+}
+
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_2Mutants)
+{
+  auto original_file_path = testFilesUtils->array_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+  auto mutant_file_path_1 = testFilesUtils->array_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
+  auto mutant_file_path_2 = testFilesUtils->array_model_mutant_alt();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_2);
+  std::vector<std::string> mutants = {mutant_file_path_1, mutant_file_path_2};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 2);
+  ASSERT_TRUE(alive_mutants.empty());
+}
+
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsTrafficLight)
+{
+  auto original_file_path = testFilesUtils->trafficLight_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+  auto mutant_file_path_1 = testFilesUtils->trafficLight_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
+  std::vector<std::string> mutants = {mutant_file_path_1};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 1);
+  ASSERT_TRUE(alive_mutants.empty());
+}
+
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsTrafficLight_TwoModels)
+{
+  auto original_file_path = testFilesUtils->trafficLight_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+  auto mutant_file_path_1 = testFilesUtils->trafficLight_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
+  auto mutant_file_path_2 = testFilesUtils->trafficLight_model_mutant_alt();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_2);
+  std::vector<std::string> mutants = {mutant_file_path_1, mutant_file_path_2};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 2);
+  ASSERT_TRUE(alive_mutants.empty());
+}
+
+TEST_F(MutantHandlerTest, EnhanceSpecification_3Processes)
+{
+  auto original_file_path = testFilesUtils->process_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+  auto mutant_file_path_1 = testFilesUtils->process_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
+  std::vector<std::string> mutants = {mutant_file_path_1};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 1);
+  ASSERT_TRUE(alive_mutants.empty());
+}
+
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsFlows)
+{
+  auto original_file_path = testFilesUtils->flows_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+  auto mutant_file_path_1 = testFilesUtils->flows_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
+  std::vector<std::string> mutants = {mutant_file_path_1};
+  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
+  auto number_of_mutants = 5;
+  auto trace_length = 15;
+  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+  // Check that the new never claim can kill the mutants
+  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+  ASSERT_EQ(killed_mutants.size(), 1);
+  ASSERT_TRUE(alive_mutants.empty());
+}

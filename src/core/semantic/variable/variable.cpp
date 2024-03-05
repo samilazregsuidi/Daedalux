@@ -208,6 +208,18 @@ std::string variable::getFullName(void) const { return parent ? parent->getFullN
 
 std::string variable::getLocalName(void) const { return name; }
 
+std::string variable::getVisibleName(void) const
+{
+  if (parent) {
+    if (parent->varType == V_PROG)
+      // We don't want to include the global scope in the visible name
+      return getLocalName();
+    else
+      return parent->getVisibleName() + "." + getLocalName();
+  }
+  return getLocalName();
+}
+
 unsigned int variable::getVariableId(void) const { return vid; }
 
 void variable::_addVariable(variable * var)
@@ -246,12 +258,14 @@ std::list<variable *> variable::getAllVisibleVariables(bool excludeLocal) const
     auto name = var->getLocalName();
     auto isProcess = dynamic_cast<process *>(var);
     auto isUtype = dynamic_cast<utypeVar *>(var);
+    auto isEnumDeclaration = dynamic_cast<cmtypeVar *>(var);
     if (var->isPredef || var->isHidden) {
       // Internal variables and hidden variables are not visible
       continue;
     }
-    if (isProcess && excludeLocal) {
+    if ((isProcess && excludeLocal) || isEnumDeclaration) {
       // Process variables are not visible if we are excluding local variables
+      // Enum declarations are not visible
       continue;
     }
     if (isUtype) {
@@ -331,24 +345,33 @@ unsigned long variable::hash(void) const { return payLoad ? payLoad->hash(getOff
 
 float variable::delta(const variable * v2) const
 {
-  float res = 0;
   if (v2 == nullptr)
     return 1;
-
+  float res = 0;
   for (auto var : varList) {
     auto name = var->getLocalName();
-    // std::cout << "name: " << name << std::endl;
     auto v = v2->getVariable(name);
+    auto type = var->getType();
+    if (v->isPredef || v->isHidden || type == variable::V_CMTYPE) {
+      // Internal variables and hidden variables should not be considered
+      continue;
+    }
     res += var->delta(v);
   }
-
+  if (varList.size() == 0)
+    return 0;
   return res / varList.size();
 }
 
 void variable::printDelta(const variable * v2) const
 {
   for (auto var : varList) {
-    auto v = v2->getVariable(var->getLocalName());
+    auto name = var->getLocalName();
+    auto v = v2->getVariable(name);
+    if (v->isPredef || v->isHidden || v->getType() == variable::V_MTYPE_DEF) {
+      // Internal variables and hidden variables should not be considered
+      continue;
+    }
     var->printDelta(v);
   }
 }
@@ -474,7 +497,8 @@ void variable::reset(void)
 bool variable::isSame(const variable * other) const
 {
   auto delta = this->delta(other);
-  return delta < 0.0000000001;
+  auto threshold = 0.0000000001;
+  return delta < threshold;
 }
 
 /*************************************************************************************************/

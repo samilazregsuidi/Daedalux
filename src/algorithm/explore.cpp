@@ -73,19 +73,23 @@ state * most_similar_state(const state * current, const std::list<state *> state
   return most_similar;
 }
 
+/// @brief Given two lists of states, this function returns the states that are in the first list but not in the second list.
+/// @param states_original - The original list of states
+/// @param states_mutant - The list of states to compare with
+/// @return A list of states that are in the first list but not in the second list
 std::list<state *> distinct_states(const std::list<state *> & states_original, const std::list<state *> & states_mutant)
 {
   std::list<state *> distinct;
-  for (auto & s : states_original) {
+  for (auto & original_state : states_original) {
     bool found = false;
-    for (auto & d : states_mutant) {
-      if (s->isSame(d)) {
+    for (auto & mutant_state : states_mutant) {
+      if (original_state->isSame(mutant_state)) {
         found = true;
         break;
       }
     }
     if (!found) {
-      distinct.push_back(s);
+      distinct.push_back(original_state);
     }
   }
   return distinct;

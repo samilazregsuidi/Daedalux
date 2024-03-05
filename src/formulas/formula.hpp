@@ -32,6 +32,18 @@ public:
     auto ltl_formula = promelaFormula();
     return LTLClaimsProcessor::transformLTLStringToNeverClaim(ltl_formula);
   }
+
+  protected:
+
+  std::string sanitizeName(const std::string & definition) const
+  {
+    auto defName = definition;
+    std::replace(defName.begin(), defName.end(), ' ', '_');
+    std::replace(defName.begin(), defName.end(), '.', '_');
+    std::replace(defName.begin(), defName.end(), '[', '_');
+    std::replace(defName.begin(), defName.end(), ']', '_');
+    return defName;
+  }
 };
 
 class LeafFormula : public formula {
@@ -52,6 +64,10 @@ public:
     if (name.empty()) {
       throw std::invalid_argument("Variable name cannot be empty");
     }
+    auto name_copy = name;
+    std::replace(name_copy.begin(), name_copy.end(), ' ', '_');
+    std::replace(name_copy.begin(), name_copy.end(), '.', '_');
+    this->name = name_copy;
   }
 
   ~VariableFormula() = default;
@@ -112,6 +128,8 @@ public:
   }
 
   std::string promelaFormula() const { return toFormula(); }
+
+  bool isTrue() const { return value; }
 
 private:
   bool value;
@@ -403,11 +421,7 @@ public:
     auto left_name = getLeft()->toFormula();
     auto right_name = getRight()->toFormula();
     auto defName = left_name + "_" + getComparisionName() + "_" + right_name;
-    std::replace(defName.begin(), defName.end(), ' ', '_');
-    std::replace(defName.begin(), defName.end(), '-', '_');
-    std::replace(defName.begin(), defName.end(), '[', '_');
-    std::replace(defName.begin(), defName.end(), ']', '_');
-    return defName;
+    return sanitizeName(defName);
   }
 
   virtual std::string getComparisionName() const = 0;
@@ -472,6 +486,98 @@ public:
   {
   }
   ~EqualsFormula() = default;
+
+
+  std::string toFormula() const
+  {
+    auto leftChild = getLeft();
+    auto rightChild = getRight();
+    // Find the type of the children
+    auto leftVariable = std::dynamic_pointer_cast<VariableFormula>(leftChild);
+    auto rightVariable = std::dynamic_pointer_cast<VariableFormula>(rightChild);
+    if (leftVariable && rightVariable) {
+      return leftVariable->toFormula() + " == " + rightVariable->toFormula();
+    }
+    else if (leftVariable && !rightVariable) {
+      auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(rightChild);
+      if (isBoolean) {
+        auto leftName = leftChild->toFormula();
+        if (isBoolean->isTrue()) {
+          return leftName;
+        }
+        else {
+          return "!" + leftName;
+        }
+      }
+      else {
+        return leftChild->toFormula() + " == " + rightChild->toFormula();
+      }
+    }
+    else if (!leftVariable && rightVariable) {
+      auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(leftChild);
+      if (isBoolean) {
+        if (isBoolean->isTrue()) {
+          return rightChild->toFormula();
+        }
+        else {
+          return "!" + rightChild->toFormula();
+        }
+      }
+      else {
+        return leftChild->toFormula() + " == " + rightChild->toFormula();
+      }
+    }
+    else if (!leftVariable && !rightVariable) {
+      throw std::runtime_error("Not implemented");
+    }
+    return getDefName();
+  }
+
+  std::string promelaFormula() const
+  {
+    auto leftChild = getLeft();
+    auto rightChild = getRight();
+    // Find the type of the children
+    auto leftVariable = std::dynamic_pointer_cast<VariableFormula>(leftChild);
+    auto rightVariable = std::dynamic_pointer_cast<VariableFormula>(rightChild);
+    if (leftVariable && rightVariable) {
+      return getDefName();
+    }
+    else if (leftVariable && !rightVariable) {
+      auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(rightChild);
+      if (isBoolean) {
+        auto leftName = leftChild->promelaFormula();
+        if (isBoolean->isTrue()) {
+          return leftName;
+        }
+        else {
+          return "!" + leftName;
+        }
+      }
+      else {
+        auto defName = getDefName();
+        return defName;
+      }
+    }
+    else if (!leftVariable && rightVariable) {
+      auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(leftChild);
+      if (isBoolean) {
+        if (isBoolean->isTrue()) {
+          return rightChild->promelaFormula();
+        }
+        else {
+          return "!" + rightChild->promelaFormula();
+        }
+      }
+      else {
+        return leftChild->promelaFormula() + " == " + rightChild->promelaFormula();
+      }
+    }
+    else if (!leftVariable && !rightVariable) {
+      throw std::runtime_error("Not implemented");
+    }
+    return getDefName();
+  }
 
   std::string getOperator() const { return "=="; }
   std::string getComparisionName() const { return "equals"; }

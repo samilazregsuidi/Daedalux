@@ -108,6 +108,8 @@ public:
 
 	virtual std::string getFullName(void) const;
 
+	virtual std::string getVisibleName(void) const;
+
 	virtual std::string getLocalName(void) const;
 
 	virtual variable::Type getType(void) const;

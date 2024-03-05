@@ -6,31 +6,30 @@
 #include "../../src/core/automata/fsmEdge.hpp"
 #include "../../src/core/automata/fsmNode.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
+#include "../TestFilesUtils.hpp"
 
 // Define a fixture for the tests
 class TraceGeneratorTest : public ::testing::Test {
 protected:
-  void SetUp() override {}
+  void SetUp() override
+  {
+    // Common setup code that will be called before each test
+    std::string current_path = std::filesystem::current_path();
+    testFilesUtils = std::make_unique<TestFilesUtils>(current_path);
+  }
 
   void TearDown() override
   {
     // Common teardown code that will be called after each test
   }
-  std::string basic_array_model = "/test_files/basic/array.pml";
-  std::string array_model = "/test_files/mutants/array.pml";
-  std::string array_model_mutant = "/test_files/mutants/array_mutant.pml";
-  std::string minepump = "/models/minepump/minepump.pml";
-  std::string minepump_mutant = "/models/minepump/mutants/mutant_1.pml";
-  std::string current_path = std::filesystem::current_path();
+  std::unique_ptr<TestFilesUtils> testFilesUtils;
 };
 
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + basic_array_model;
-  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto original_loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto originalFSM = original_loader->getAutomata();
-
   auto trace_size = 15;
   auto traceGen = std::make_unique<TraceGenerator>(originalFSM, originalFSM);
   auto trace = traceGen->generateNegativeTrace(trace_size);
@@ -40,8 +39,7 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM)
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM_IgnoreCommonPrefix)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + basic_array_model;
-  auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto original_loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto originalFSM = original_loader->getAutomata();
   auto trace_size = 15;
   bool ignore_common_prefix = true;
@@ -54,12 +52,10 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_SameFSM_IgnoreCommonPrefix)
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + array_model;
-  LTLClaimsProcessor::removeClaimFromFile(file_path);
-  auto original_loader = new promela_loader(file_path, tvl);
+  auto original_loader = new promela_loader(testFilesUtils->array_model(), tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + array_model_mutant;
+  auto file_path_mutant = testFilesUtils->array_model_mutant();
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
@@ -72,12 +68,12 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM)
 TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + array_model;
+  auto file_path = testFilesUtils->array_model();
   LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + array_model_mutant;
+  auto file_path_mutant = testFilesUtils->array_model_mutant();
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
@@ -93,12 +89,12 @@ TEST_F(TraceGeneratorTest, SimpleTraceHelloWorld_DifferentFSM_IgnoreCommonPrefix
 TEST_F(TraceGeneratorTest, TraceReport_DifferentFSM)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + array_model;
+  auto file_path = testFilesUtils->array_model();
   LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + array_model_mutant;
+  auto file_path_mutant = testFilesUtils->array_model_mutant();
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
@@ -113,15 +109,93 @@ TEST_F(TraceGeneratorTest, TraceReport_DifferentFSM)
   ASSERT_EQ(bad_trace->size(), trace_size);
 }
 
-TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
+TEST_F(TraceGeneratorTest, DiscardMutant)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + array_model;
+  auto file_path = testFilesUtils->array_model();
   LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + array_model_mutant;
+  auto file_path_mutant = testFilesUtils->array_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
+  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+  auto mutantFSM = mutant_loader->getAutomata();
+  auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+  auto arr_0 = std::make_shared<VariableFormula>("array[0]");
+  auto arr_1 = std::make_shared<VariableFormula>("array[1]");
+  auto arr_2 = std::make_shared<VariableFormula>("array[2]");
+  auto arr_3 = std::make_shared<VariableFormula>("array[3]");
+  auto number_0 = std::make_shared<NumberConstant>(0);
+  auto number_1 = std::make_shared<NumberConstant>(1);
+  auto number_2 = std::make_shared<NumberConstant>(2);
+  auto number_3 = std::make_shared<NumberConstant>(3);
+  auto arr_0_eq_0 = std::make_shared<EqualsFormula>(arr_0, number_0);
+  auto arr_1_eq_1 = std::make_shared<EqualsFormula>(arr_1, number_1);
+  auto arr_2_eq_2 = std::make_shared<EqualsFormula>(arr_2, number_2);
+  auto arr_3_eq_0 = std::make_shared<EqualsFormula>(arr_3, number_0);
+  auto arr_3_leq_3 = std::make_shared<LargerEqualsFormula>(arr_3, number_3);
+  auto eventually = std::make_shared<FinallyFormula>(arr_3_leq_3);
+  auto next = std::make_shared<NextFormula>(eventually);
+  auto previousState =
+      formulaUtility::combineFormulas({arr_0_eq_0, arr_1_eq_1, arr_2_eq_2, arr_3_eq_0}, CombinationOperatorType::AND_Symbol);
+  auto implies_Formula = std::make_shared<ImpliesFormula>(previousState, next);
+  auto expected_formula = std::make_shared<GloballyFormula>(implies_Formula);
+  std::cout << "Result: " << formula->toFormula() << std::endl;
+  std::cout << "Expected: " << expected_formula->toFormula() << std::endl;
+  ASSERT_TRUE(formula->isEquivalent(expected_formula));
+}
+
+TEST_F(TraceGeneratorTest, DiscardMutant_Flows)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = testFilesUtils->flows_model();
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
+  auto original_loader = new promela_loader(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  delete original_loader;
+  auto file_path_mutant = testFilesUtils->flows_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
+  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+  auto mutantFSM = mutant_loader->getAutomata();
+  auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+  std::cout << "Result: " << formula->toFormula() << std::endl;
+}
+
+TEST_F(TraceGeneratorTest, DiscardMutant_TrafficLight)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = testFilesUtils->trafficLight_model_original();
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
+  auto original_loader = new promela_loader(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  delete original_loader;
+  auto file_path_mutant = testFilesUtils->trafficLight_model_mutant();
+  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
+  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+  auto mutantFSM = mutant_loader->getAutomata();
+  auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+  auto state_Var = std::make_shared<VariableFormula>("state");
+  auto yellow = std::make_shared<VariableFormula>("yellow");
+  auto red = std::make_shared<VariableFormula>("red");
+  auto stateVar_eq_yellow = std::make_shared<EqualsFormula>(state_Var, yellow);
+  auto stateVar_eq_red = std::make_shared<EqualsFormula>(state_Var, red);
+  auto eventually = std::make_shared<FinallyFormula>(stateVar_eq_red);
+  auto next = std::make_shared<NextFormula>(eventually);
+  auto implies_Formula = std::make_shared<ImpliesFormula>(stateVar_eq_yellow, next);
+  auto expected_formula = std::make_shared<GloballyFormula>(implies_Formula);
+  ASSERT_TRUE(formula->isEquivalent(expected_formula));
+}
+
+TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
+{
+  const TVL * tvl = nullptr;
+  auto file_path = testFilesUtils->array_model();
+  LTLClaimsProcessor::removeClaimFromFile(file_path);
+  auto original_loader = new promela_loader(file_path, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  delete original_loader;
+  auto file_path_mutant = testFilesUtils->array_model_mutant();
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
@@ -155,12 +229,12 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
 TEST_F(TraceGeneratorTest, RemoveCommonPrefixes_TheTwoMethodShouldReturnTheSameResult)
 {
   const TVL * tvl = nullptr;
-  auto file_path = current_path + array_model;
+  auto file_path = testFilesUtils->array_model();
   LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
   delete original_loader;
-  auto file_path_mutant = current_path + array_model_mutant;
+  auto file_path_mutant = testFilesUtils->array_model_mutant();
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();

@@ -13,6 +13,8 @@ class trace {
 private:
   std::vector<std::shared_ptr<transition>> transitions = std::vector<std::shared_ptr<transition>>();
   std::vector<std::shared_ptr<state>> states = std::vector<std::shared_ptr<state>>();
+  bool isDifferentiating = false;
+  int differentiating_index = -1;
 
 public:
   trace();
@@ -26,12 +28,19 @@ public:
   void findDistinguishingFormula(const std::shared_ptr<trace> t);
 
   bool containState(const std::shared_ptr<state> s) const;
-
   std::vector<std::shared_ptr<transition>> getTransitions() const { return this->transitions; }
   std::vector<std::shared_ptr<state>> getStates() const { return this->states; }
 
   void addTransition(std::shared_ptr<transition> t) { this->transitions.push_back(t); }
-  void addState(std::shared_ptr<state> s) { this->states.push_back(s); }
+  void addState(std::shared_ptr<state> s, bool differentiate = false)
+  {
+    if (differentiate && !this->isDifferentiating) {
+      // If we are differentiating and we are not already differentiating, then we start differentiating
+      this->isDifferentiating = true;
+      this->differentiating_index = this->states.size();
+    }
+    this->states.push_back(s);
+  }
 
   void removeTransitionAt(int index) { this->transitions.erase(this->transitions.begin() + index); }
   void removeStateAt(int index) { this->states.erase(this->states.begin() + index); }
@@ -55,6 +64,31 @@ public:
   {
     this->addTransitions(other->getTransitions());
     this->addStates(other->getStates());
+  }
+
+  /// @brief This methods prints the trace to the standard output.
+  /// @details This method prints the first state, then all of the deltas between the states, and finally the last state.
+  void print() const
+  {
+    if (this->states.empty()) {
+      std::cout << "Empty trace" << std::endl;
+      return;
+    }
+    std::cout << "Printing trace" << std::endl;
+    std::cout << "----------------" << std::endl;
+    std::cout << "Number of states: " << this->states.size() << std::endl;
+    auto previous_state = this->states.front();
+    std::cout << "Initial state" << std::endl;
+    previous_state->print();
+    for (long unsigned int i = 1; i < this->states.size(); i++) {
+      auto current_state = this->states[i];
+      previous_state->printDelta(current_state.get());
+      previous_state = current_state;
+    }
+    // Print the last state
+    std::cout << "Last state" << std::endl;
+    previous_state->print();
+    std::cout << "----------------" << std::endl;
   }
 
   void printCSV(std::ostream & out) const

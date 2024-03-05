@@ -174,6 +174,7 @@ add_library(daedalux_lib STATIC
 	visualizer/traceReport.cpp
 
 	formulas/formulaCreator.cpp
+	formulas/formulaUtility.cpp
 )
 
 target_include_directories(daedalux_lib
@@ -355,7 +356,8 @@ add_executable(daedalux
 	mutants/mutantAnalyzer.cpp
 
 	formulas/formulaCreator.cpp
-	)
+	formulas/formulaUtility.cpp
+)
 
 target_include_directories(daedalux
     PUBLIC

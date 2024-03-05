@@ -1,4 +1,5 @@
 #include "traceGenerator.hpp"
+#include "../formulas/formulaCreator.hpp"
 #include "explore.hpp"
 #include "fsm.hpp"
 #include "initState.hpp"
@@ -11,12 +12,13 @@
  *   no_traces - The number of traces to generate
  *   len_traces - The length of the traces
  */
-std::unique_ptr<traceReport> TraceGenerator::generateTraceReport(const size_t no_traces, size_t len_traces, bool ignore_common_prefix)
+std::unique_ptr<traceReport> TraceGenerator::generateTraceReport(const size_t no_traces, size_t len_traces,
+                                                                 bool ignore_common_prefix)
 {
   std::unique_ptr<traceReport> traces = std::make_unique<traceReport>();
   for (size_t i = 0; i < no_traces; ++i) {
-    auto negative_trace = generateNegativeTrace(len_traces, ignore_common_prefix);
     auto positive_trace = generatePositiveTrace(len_traces, ignore_common_prefix);
+    auto negative_trace = generateNegativeTrace(len_traces, ignore_common_prefix);
     traces->addBadTrace(negative_trace);
     traces->addGoodTrace(positive_trace);
   }
@@ -24,13 +26,11 @@ std::unique_ptr<traceReport> TraceGenerator::generateTraceReport(const size_t no
 }
 
 //**
-// * This function consumes two automata - the original automata and the mutant automata.
-// * It then create a run of length @trace_length of the mutant automata that cannot be created by the original automata.
-// * The function returns a list of states that represent the run.
+// * @brief This function generates a trace of length @trace_length that only fsm1 can generate, but not fsm2.
 // * Parameters:
-// * 	@original - The original automata
-// * 	@mutant - The mutant automata
-// * 	@trace_length - The length of the run
+// * 	@fsm1 - The original automata
+// * 	@fsm2 - The mutant automata
+// * 	@trace_length - The length of the run to generate
 // * 	@ignore_common_prefix - A flag to ignore the common prefix of the two automata
 // *
 std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant,
@@ -42,21 +42,34 @@ std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> origin
   // Lists to store the transitions of the two automata
   auto post_states_original = std::list<state *>();
   auto post_states_mutant = std::list<state *>();
-  auto different_states = std::list<state *>();
+  auto unique_states_original = std::list<state *>();
   // Variables to store the current transition
   transition * current_trans_original = nullptr;
   transition * current_trans_mutant = nullptr;
 
   // Create a trace holding the visited states and transitions
-  std::shared_ptr<trace> current_trace = std::make_shared<trace>();
+  std::shared_ptr<trace> result_trace = std::make_shared<trace>();
   std::shared_ptr<state> current_state_mutant_copy(current_state_mutant);
-  current_trace->addState(current_state_mutant_copy);
+  result_trace->addState(current_state_mutant_copy);
   // Keep track if the run of the two automata have the same prefix - the default is true as the initial states are the same
   bool same_prefix = true;
   size_t length = 0;
 
+  auto progressTraversal = [&](const std::list<state *> & successors_original, const std::list<state *> & successors_mutant) {
+    if (successors_original.empty())
+      throw std::runtime_error("The original automata has no successor states");
+    if (successors_mutant.empty())
+      throw std::runtime_error("The mutant automata has no successor states");
+    // Find the next state to visit
+    current_state_original = successors_original.front();
+    current_state_mutant = most_similar_state(current_state_mutant, successors_mutant);
+    // Find the transition that leads to the next state
+    current_trans_mutant = current_state_original->getOrigin()->deepCopy();
+    current_trans_original = current_state_mutant->getOrigin()->deepCopy();
+  };
+
+  // Continue until we have seen the desired number of states or until we have no more transitions to fire
   while (length < trace_length) {
-    // Check if the two nodes are the same if they have the same prefix
     post_states_original = current_state_original->Post();
     post_states_mutant = current_state_mutant->Post();
     if (post_states_mutant.empty() || post_states_original.empty()) {
@@ -64,66 +77,109 @@ std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> origin
       break;
     }
     if (same_prefix) {
-      different_states = distinct_states(post_states_original, post_states_mutant);
-      // If the mutant automata has a state that the original automata does not have - go to that state
-      if (!different_states.empty()) {
+      // Find the states that are unique to the original automata
+      unique_states_original = distinct_states(post_states_original, post_states_mutant);
+      // The original automata has a unique state - let us continue the trace using this state
+      if (!unique_states_original.empty()) {
         if (ignore_common_prefix) {
-          // Add the previous state to the trace if it not already is in the trace - as it has not been added yet
+          // Since we are ignoring the common prefix, we need to add the previous state to the trace
           std::shared_ptr<state> curent_state_original_copy(current_state_original);
-          if (current_trace->containState(curent_state_original_copy) == false) {
-            current_trace->addState(curent_state_original_copy);
-            std::shared_ptr<transition> current_trans_copy(current_trans_mutant);
-            current_trace->addTransition(current_trans_copy);
+          if (result_trace->containState(curent_state_original_copy) == false) {
+            result_trace->addState(curent_state_original_copy);
           }
         }
-        // Fire the transition
-        current_state_original = different_states.front();
-        // Move to the next state
-        current_trans_original = current_state_original->getOrigin()->deepCopy();
-        // Find the most similar transition to the fired transition in the original automata
-        current_state_mutant = most_similar_state(current_state_original, post_states_mutant);
-        // Apply the transition to the original automata
-        current_trans_mutant = current_state_mutant->getOrigin()->deepCopy();
-        // The prefix is no longer the same
+        // Continue the trace using the unique state
+        progressTraversal(unique_states_original, post_states_mutant);
         same_prefix = false;
       }
       else {
-        // We could not find a different state in the mutant automata - take a random transition for both automata
-        // Take the same transition as the original automata
-        // Not sure if this is the best approach / if it is correct
-        auto next_state_original = post_states_original.front();
-        auto next_state_mutant = most_similar_state(next_state_original, post_states_mutant);
-        assert(next_state_mutant->delta(next_state_original) < 0.00000001); // The states should be the same
-
-        current_trans_mutant = next_state_mutant->getOrigin()->deepCopy();
-        current_trans_original = next_state_original->getOrigin()->deepCopy();
-        // Apply the transition to both automata - A hack not to use the apply function
-        current_state_mutant = next_state_mutant;
-        current_state_original = next_state_original;
+        // All the successor states are the same and the prefix is the same - take the same random transition for both
+        progressTraversal(post_states_original, post_states_mutant);
       }
     }
     else {
-      // Fire a random transition as the trace is guaranteed to be different
-      current_state_mutant = post_states_mutant.front();
-      auto similar_state_original = most_similar_state(current_state_mutant, post_states_original);
-      current_state_original = similar_state_original;
-      current_trans_mutant = current_state_mutant->getOrigin()->deepCopy();
-      current_trans_original = similar_state_original->getOrigin()->deepCopy();
+      // Fire a random transition - the trace is guaranteed to be different
+      progressTraversal(post_states_original, post_states_mutant);
     }
 
     // Add the state and transition to the trace
     if (!ignore_common_prefix || !same_prefix) {
-      std::shared_ptr<state> curent_state_mutant_copy(current_state_mutant);
-      std::shared_ptr<transition> current_trans_copy(current_trans_mutant);
-      current_trace->addTransition(current_trans_copy);
-      current_trace->addState(curent_state_mutant_copy);
+      std::shared_ptr<state> state_copy(current_state_original);
+      std::shared_ptr<transition> transition_copy(current_trans_original);
+      result_trace->addState(state_copy);
+      result_trace->addTransition(transition_copy);
     }
+    // Increase the length of the walk
     length++;
   }
   if (same_prefix)
     std::cout << "A trace in the mutant that not can be found in the original automata was not found" << std::endl;
 
-  return current_trace;
+  return result_trace;
+}
+
+//**
+// * @brief This function generates a formula that only the original automata can satisfy!
+// * Parameters:
+// * 	@fsm1 - The original automata
+// * 	@fsm2 - The mutant automata
+// * 	@trace_length - The length of the run to generate
+// * 	@ignore_common_prefix - A flag to ignore the common prefix of the two automata
+// *
+std::shared_ptr<formula> TraceGenerator::discardMutant(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant)
+{
+  auto tvl = nullptr;
+  // Create the initial state for both automata
+  auto current_state_original = initState::createInitState(original.get(), tvl);
+  auto current_state_mutant = initState::createInitState(mutant.get(), tvl);
+  // Lists to store the transitions of the two automata
+  auto post_states_original = std::list<state *>();
+  auto post_states_mutant = std::list<state *>();
+  auto unique_states_original = std::list<state *>();
+
+  auto progressTraversal = [&](const std::list<state *> & successors_original, const std::list<state *> & successors_mutant) {
+    if (successors_original.empty())
+      throw std::runtime_error("The original automata has no successor states");
+    if (successors_mutant.empty())
+      throw std::runtime_error("The mutant automata has no successor states");
+    // Find the next state to visit
+    current_state_original = successors_original.front();
+    current_state_mutant = most_similar_state(current_state_mutant, successors_mutant);
+  };
+
+  // Continue until we have created a formula that only the original automata can satisfy
+  while (true) {
+    post_states_original = current_state_original->Post();
+    post_states_mutant = current_state_mutant->Post();
+    if (post_states_mutant.empty() || post_states_original.empty()) {
+      std::cout << "No more transitions to fire - the trace is complete." << std::endl;
+      break;
+    }
+    // Find the states that are unique to the original automata
+    unique_states_original = distinct_states(post_states_original, post_states_mutant);
+    // The original automata has a unique state - let us continue the trace using this state
+    if (!unique_states_original.empty()) {
+      std::vector<std::shared_ptr<state>> post_states_original_vec;
+      std::vector<std::shared_ptr<state>> post_states_mutant_vec;
+      for (auto s : post_states_original) {
+        post_states_original_vec.push_back(std::shared_ptr<state>(s));
+      }
+      for (auto s : post_states_mutant) {
+        post_states_mutant_vec.push_back(std::shared_ptr<state>(s));
+      }
+      // We can now create a formula that only the original automata can satisfy
+      auto shared_current_state_original = std::shared_ptr<state>(current_state_original);
+      auto distinguishing_formula = formulaCreator::createTransitionFormula(shared_current_state_original,
+                                                                            post_states_original_vec, post_states_mutant_vec);
+      return distinguishing_formula;
+      break;
+    }
+    else {
+      // All the successor states are the same and the prefix is the same - take the same random transition for both
+      progressTraversal(post_states_original, post_states_mutant);
+    }
+  }
+  return std::make_shared<BooleanConstant>(true);
 }
 
 //**

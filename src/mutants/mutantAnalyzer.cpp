@@ -97,7 +97,7 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   }
 
   // Combine formulas using the && operator
-  auto combined_formula = formulaCreator::combineFormulas(formulas_vector, "&&");
+  auto combined_formula = formulaUtility::combineFormulas(formulas_vector, CombinationOperatorType::AND_Symbol);
 
   // Simplify the formula using the OWL tool
 
@@ -203,11 +203,8 @@ std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants(u
   for (auto mutant_file_path : mutant_file_paths) {
     auto mutant_loader = std::make_unique<promela_loader>(mutant_file_path, nullptr);
     auto mutantFSM = mutant_loader->getAutomata();
-    auto traceGen = std::make_unique<TraceGenerator>(originalFSM, mutantFSM);
-    auto trace = traceGen->generateTraceReport(1, trace_size);
-    auto goodTrace = *trace->getGoodTraces().begin();
-    auto badTrace = *trace->getBadTraces().begin();
-    resultMap[mutant_file_path] = formulaCreator::distinguishTraces(goodTrace, badTrace);
+    auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+    resultMap[mutant_file_path] = formula;
   }
   std::cout << "Finished analyzing mutants" << std::endl;
   return resultMap;
