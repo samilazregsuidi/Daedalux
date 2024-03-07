@@ -22,6 +22,19 @@ protected:
   }
 
   std::unique_ptr<TestFilesUtils> testFilesUtils;
+
+  bool testEnhanceSpecification(std::string original_file_path, std::vector<std::string> mutant_files,
+                                unsigned int number_of_mutants, unsigned int trace_length)
+  {
+    LTLClaimsProcessor::removeClaimFromFile(original_file_path);
+    for (auto mutant_file_path : mutant_files) {
+      LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
+    }
+    MutantAnalyzer mutantAnalyzer(original_file_path, mutant_files);
+    mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
+    auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+    return alive_mutants.empty();
+  }
 };
 
 TEST_F(MutantHandlerTest, mutant_generation_array)
@@ -89,123 +102,59 @@ TEST_F(MutantHandlerTest, AnalyzeMutants)
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_1Mutant)
 {
-  auto original_file_path = testFilesUtils->array_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
-  auto mutant_file_path = testFilesUtils->array_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
-  std::vector<std::string> mutants = {mutant_file_path};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 1);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->array_model_original(), {testFilesUtils->array_model_mutant()}, 5, 15));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_1MutantAlt)
 {
-  auto original_file_path = testFilesUtils->array_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
-  auto mutant_file_path = testFilesUtils->array_model_mutant_alt();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
-  std::vector<std::string> mutants = {mutant_file_path};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 1);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(
+      testEnhanceSpecification(testFilesUtils->array_model_original(), {testFilesUtils->array_model_mutant_alt()}, 5, 15));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_2Mutants)
 {
   auto original_file_path = testFilesUtils->array_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
   auto mutant_file_path_1 = testFilesUtils->array_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
   auto mutant_file_path_2 = testFilesUtils->array_model_mutant_alt();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_2);
   std::vector<std::string> mutants = {mutant_file_path_1, mutant_file_path_2};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 2);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(testEnhanceSpecification(original_file_path, mutants, 5, 15));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsTrafficLight)
 {
-  auto original_file_path = testFilesUtils->trafficLight_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
-  auto mutant_file_path_1 = testFilesUtils->trafficLight_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
-  std::vector<std::string> mutants = {mutant_file_path_1};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 1);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->trafficLight_model_original(),
+                                       {testFilesUtils->trafficLight_model_mutant()}, 5, 15));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsTrafficLight_TwoModels)
 {
+
   auto original_file_path = testFilesUtils->trafficLight_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
   auto mutant_file_path_1 = testFilesUtils->trafficLight_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
   auto mutant_file_path_2 = testFilesUtils->trafficLight_model_mutant_alt();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_2);
   std::vector<std::string> mutants = {mutant_file_path_1, mutant_file_path_2};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 2);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(testEnhanceSpecification(original_file_path, mutants, 5, 15));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecification_3Processes)
 {
-  auto original_file_path = testFilesUtils->process_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
-  auto mutant_file_path_1 = testFilesUtils->process_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
-  std::vector<std::string> mutants = {mutant_file_path_1};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 1);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(
+      testEnhanceSpecification(testFilesUtils->process_model_original(), {testFilesUtils->process_model_mutant()}, 5, 15));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsFlows)
 {
-  auto original_file_path = testFilesUtils->flows_model_original();
-  LTLClaimsProcessor::removeClaimFromFile(original_file_path);
-  auto mutant_file_path_1 = testFilesUtils->flows_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(mutant_file_path_1);
-  std::vector<std::string> mutants = {mutant_file_path_1};
-  MutantAnalyzer mutantAnalyzer(original_file_path, mutants);
-  auto number_of_mutants = 5;
-  auto trace_length = 15;
-  mutantAnalyzer.enhanceSpecification(number_of_mutants, trace_length);
-  // Check that the new never claim can kill the mutants
-  auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
-  ASSERT_EQ(killed_mutants.size(), 1);
-  ASSERT_TRUE(alive_mutants.empty());
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->flows_model_original(), {testFilesUtils->flows_model_mutant()}, 5, 15));
+}
+
+// Ask SAMI about this test - it cannot find the mType
+// TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsStructure)
+// {
+//   ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->structure_model_original(), {testFilesUtils->structure_model_mutant()}, 5, 15));
+// }
+
+
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsMinepump)
+{
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->minepump_model_original(), {testFilesUtils->minepump_model_mutant()}, 5, 15));
 }

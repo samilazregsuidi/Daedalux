@@ -247,6 +247,7 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
   std::shared_ptr<state> next_next_next_state_ptr(next_next_next_state);
   const std::vector<std::shared_ptr<state>> include_states =
       std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
+
   const std::vector<std::shared_ptr<state>> exclude_states =
       std::vector<std::shared_ptr<state>>{next_next_state_ptr, next_next_next_state_ptr};
 
@@ -256,14 +257,16 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
   auto array_1 = std::make_shared<VariableFormula>("array[1]");
   auto array_2 = std::make_shared<VariableFormula>("array[2]");
   auto array_3 = std::make_shared<VariableFormula>("array[3]");
-  auto i = std::make_shared<VariableFormula>("i");
 
-  auto formula_1 = std::make_shared<LargerEqualsFormula>(array_2, std::make_shared<NumberConstant>(2));
-  auto formula_2 = std::make_shared<EqualsFormula>(array_1, std::make_shared<NumberConstant>(0));
-  auto formula_3 = std::make_shared<NotEqualsFormula>(array_3, std::make_shared<NumberConstant>(3));
-  auto formula_4 = std::make_shared<LargerEqualsFormula>(i, std::make_shared<NumberConstant>(3));
+  auto formula_1 = std::make_shared<EqualsFormula>(array_3, std::make_shared<NumberConstant>(0));
+  auto formula_2 = std::make_shared<SmallerEqualsFormula>(array_2, std::make_shared<NumberConstant>(0));
 
-  std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, formula_4};
+  auto array_1_equal_0 = std::make_shared<EqualsFormula>(array_1, std::make_shared<NumberConstant>(0));
+  auto array_1_equal_1 = std::make_shared<EqualsFormula>(array_1, std::make_shared<NumberConstant>(1));
+  auto array_1_formula =
+      formulaUtility::combineFormulas({array_1_equal_0, array_1_equal_1}, CombinationOperatorType::OR_Symbol);
+  auto formula_3 = std::make_shared<ParenthesisFormula>(array_1_formula);
+  std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3};
   auto form = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
   auto expected_result = std::make_shared<GloballyFormula>(form);
   std::cout << "Result: " << result->toFormula() << std::endl;

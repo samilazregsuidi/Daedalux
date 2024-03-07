@@ -64,10 +64,6 @@ public:
     if (name.empty()) {
       throw std::invalid_argument("Variable name cannot be empty");
     }
-    auto name_copy = name;
-    std::replace(name_copy.begin(), name_copy.end(), ' ', '_');
-    std::replace(name_copy.begin(), name_copy.end(), '.', '_');
-    this->name = name_copy;
   }
 
   ~VariableFormula() = default;
@@ -501,6 +497,7 @@ public:
     else if (leftVariable && !rightVariable) {
       auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(rightChild);
       if (isBoolean) {
+        auto defName = getDefName();
         auto leftName = leftChild->toFormula();
         if (isBoolean->isTrue()) {
           return leftName;
@@ -546,6 +543,7 @@ public:
     else if (leftVariable && !rightVariable) {
       auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(rightChild);
       if (isBoolean) {
+        return getDefName();
         auto leftName = leftChild->promelaFormula();
         if (isBoolean->isTrue()) {
           return leftName;

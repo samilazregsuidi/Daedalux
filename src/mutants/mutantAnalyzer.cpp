@@ -4,7 +4,7 @@
 #include "explore.hpp"
 #include "ltlModelChecker.hpp"
 #include "promela_loader.hpp"
-#include "traceGenerator.hpp"
+#include "fsmExplorer.hpp"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -38,7 +38,6 @@ MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::vector<std::
     std::cout << "Original file " << original_file_path << " does not exist" << std::endl;
     throw std::invalid_argument("Original file " + original_file_path + " does not exist");
   }
-
   for (auto mutant_file_path : mutant_file_paths) {
     if (!fileExists(mutant_file_path)) {
       std::cout << "Mutant file " << mutant_file_path << " does not exist" << std::endl;
@@ -203,7 +202,7 @@ std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants(u
   for (auto mutant_file_path : mutant_file_paths) {
     auto mutant_loader = std::make_unique<promela_loader>(mutant_file_path, nullptr);
     auto mutantFSM = mutant_loader->getAutomata();
-    auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+    std::shared_ptr<formula> formula = fsmExplorer::discardMutant(originalFSM, mutantFSM); // Remove the unnecessary 'auto' keyword
     resultMap[mutant_file_path] = formula;
   }
   std::cout << "Finished analyzing mutants" << std::endl;

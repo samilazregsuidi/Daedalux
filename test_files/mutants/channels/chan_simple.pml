@@ -1,7 +1,9 @@
 chan test = [0] of {bool}
+bool b;
+bool c;
 
 active proctype sender(){
-	bool b = true;
+	b = true;
 	test!b;
 	atomic {
 		if
@@ -16,7 +18,7 @@ active proctype sender(){
 }
 
 active proctype receiver(){
-	byte c = false;
+	c = false;
 	test?c;
 	atomic {
 		if

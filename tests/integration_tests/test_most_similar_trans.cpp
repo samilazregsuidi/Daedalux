@@ -2,9 +2,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-#include "../../src/algorithm/explore.hpp"
-#include "../../src/core/automata/fsmEdge.hpp"
-#include "../../src/core/automata/fsmNode.hpp"
+#include "../../src/algorithm/utils/stateComparer.hpp"
 
 // Define a fixture for the tests
 class SimilarityTest : public ::testing::Test {
@@ -34,7 +32,7 @@ TEST_F(SimilarityTest, DistinctState_EmptyList)
   std::list<state *> post_states_mutant;
   ASSERT_EQ(post_states_original.empty(), false);
   ASSERT_EQ(post_states_mutant.empty(), true);
-  auto different_states = distinct_states(post_states_original, post_states_mutant);
+  auto different_states = StateComparer::distinct_states(post_states_original, post_states_mutant);
   ASSERT_EQ(different_states, post_states_original);
 }
 
@@ -57,7 +55,7 @@ TEST_F(SimilarityTest, DistinctStates_DifferentFSM)
   auto post_states_mutant = current_state_mutant->Post();
   ASSERT_EQ(post_states_original.empty(), false);
   ASSERT_EQ(post_states_mutant.empty(), false);
-  auto different_states = distinct_states(post_states_original, post_states_mutant);
+  auto different_states = StateComparer::distinct_states(post_states_original, post_states_mutant);
   ASSERT_EQ(different_states.empty(), false);
   ASSERT_EQ(different_states.size(), post_states_original.size());
 }
@@ -76,7 +74,7 @@ TEST_F(SimilarityTest, DistinctStates_SameFSM)
   ASSERT_EQ(post_states_original.empty(), false);
   ASSERT_EQ(post_states_mutant.empty(), false);
   ASSERT_EQ(post_states_original.size(), post_states_mutant.size());
-  auto different_states = distinct_states(post_states_original, post_states_mutant);
+  auto different_states = StateComparer::distinct_states(post_states_original, post_states_mutant);
   ASSERT_EQ(different_states.empty(), true);
 }
 
@@ -117,7 +115,7 @@ TEST_F(SimilarityTest, MostSimilarStateEmptyList)
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   std::list<state *> post_states;
-  auto most_similar = most_similar_state(current_state, post_states);
+  auto most_similar = StateComparer::most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar == nullptr);
 }
 
@@ -130,7 +128,7 @@ TEST_F(SimilarityTest, MinepumpMostSimilarStateOneElement)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
   std::list<state *> post_states = {post_state};
-  auto most_similar = most_similar_state(current_state, post_states);
+  auto most_similar = StateComparer::most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar != nullptr);
   ASSERT_TRUE(most_similar == post_state);
 }
@@ -159,7 +157,7 @@ TEST_F(SimilarityTest, MostSimilarStateOneElement)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
   std::list<state *> post_states = {post_state};
-  auto most_similar = most_similar_state(current_state, post_states);
+  auto most_similar = StateComparer::most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar == post_state);
 }
 
@@ -173,7 +171,7 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   auto post_states = current_state->Post();
   post_states.push_back(current_state);
   ASSERT_TRUE(post_states.size() > 0);
-  auto most_similar = most_similar_state(current_state, post_states);
+  auto most_similar = StateComparer::most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar != nullptr);
   ASSERT_EQ(most_similar->isSame(current_state), true);
 }
@@ -191,7 +189,7 @@ TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
   // The two states are different
   ASSERT_FALSE(post_state_back->isSame(post_state_front));
   std::list<state *> post_states_2 = {post_state_back};
-  auto distinct_States = distinct_states(post_states_1, post_states_2);
+  auto distinct_States = StateComparer::distinct_states(post_states_1, post_states_2);
   ASSERT_TRUE(distinct_States.size() == post_states_1.size());
   ASSERT_TRUE(distinct_States.front() == post_state_front);
 }
@@ -205,7 +203,7 @@ TEST_F(SimilarityTest, DistinctStates_IdenticalLists_ShouldReturnEmptyList)
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
   std::list<state *> post_states_1 = {post_state};
-  auto distinct_States = distinct_states(post_states_1, post_states_1);
+  auto distinct_States = StateComparer::distinct_states(post_states_1, post_states_1);
   ASSERT_TRUE(distinct_States.empty());
 }
 
@@ -222,7 +220,7 @@ TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
   // The two states are different
   ASSERT_FALSE(post_state_back->isSame(current_state));
   std::list<state *> post_states_2 = {post_state_back, current_state};
-  auto distinct_States = distinct_states(post_states_1, post_states_2);
+  auto distinct_States = StateComparer::distinct_states(post_states_1, post_states_2);
   ASSERT_TRUE(distinct_States.size() == 1);
   ASSERT_TRUE(distinct_States.front() == post_state_front);
 }

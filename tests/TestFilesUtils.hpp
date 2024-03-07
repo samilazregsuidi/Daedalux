@@ -17,6 +17,12 @@ public:
   std::string flows_model_original() { return current_path + "/test_files/mutants/flows/flows.pml"; }
   std::string flows_model_mutant() { return current_path + "/test_files/mutants/flows/flows_mutant.pml"; }
 
+  std::string minepump_model_original() { return current_path + "/test_files/mutants/minepump/minepump.pml"; }
+  std::string minepump_model_mutant() { return current_path + "/test_files/mutants/minepump/minepump_mutant.pml"; }
+
+  std::string structure_model_original() { return current_path + "/test_files/mutants/structure/structure.pml"; }
+  std::string structure_model_mutant() { return current_path + "/test_files/mutants/structure/structure_mutant.pml"; }
+
   std::string trafficLight_model_original() { return current_path + "/test_files/mutants/trafficLight/trafficlight.pml"; }
   std::string trafficLight_model_mutant() { return current_path + "/test_files/mutants/trafficLight/trafficlight_mutant.pml"; }
   std::string trafficLight_model_mutant_alt()

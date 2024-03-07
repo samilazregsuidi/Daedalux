@@ -53,6 +53,9 @@ float mtypeVar::delta(const variable * other) const
   auto value = getValue();
   auto otherValue = otherVar->getValue();
   auto hasSameValue = (value == otherValue);
+  if(hasSameValue) {
+    return 0;
+  }
   auto valueName = getValueName();
   auto otherValueName = otherVar->getValueName();
   auto hasSameValueName = (valueName.compare(otherValueName) == 0);
@@ -72,7 +75,8 @@ std::string mtypeVar::getValueName(void) const
 {
   auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
   if (def) {
-    auto mtypestr = def->getCmtypeSymNodeName(getValue());
+    auto value = getValue();
+    auto mtypestr = def->getCmtypeSymNodeName(value);
     return mtypestr;
   }
   else {

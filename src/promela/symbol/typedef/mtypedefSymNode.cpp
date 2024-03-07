@@ -6,6 +6,7 @@
 #include <climits>
 
 #include "symTabVisitor.hpp"
+#include <stdexcept>
 
 /***********************************************************************************************/
 
@@ -53,7 +54,7 @@ std::string mtypedefSymNode::getCmtypeSymNodeName(int value) const
     if (cmtype.second->getIntValue() == value)
       return cmtype.second->getName();
   }
-  assert(false);
+  throw std::runtime_error("No mtype with value " + std::to_string(value) + " found");
   return "";
 }
 

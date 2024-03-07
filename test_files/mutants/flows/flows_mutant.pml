@@ -16,12 +16,12 @@ active proctype I(){
 	::  s.c = true;
 	::  s.d = false;
 	::  !s.c && !s.d 
-		-> break
+		-> skip
 	
 	:: s.c = true;
 	:: s.d = true;
 	:: s.c && s.d 
-		-> break
+		-> skip
 	od;
 }
 
@@ -30,6 +30,6 @@ active proctype J(){
 	:: s.a = !s.a
 	:: s.b = !s.b		
 	:: s.a || s.b 
-		-> break
+		-> skip
 	od;
 }

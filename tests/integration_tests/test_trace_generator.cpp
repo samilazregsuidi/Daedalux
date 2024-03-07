@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "../../src/algorithm/traceGenerator.hpp"
+#include "../../src/algorithm/fsmExplorer.hpp"
 #include "../../src/core/automata/fsmEdge.hpp"
 #include "../../src/core/automata/fsmNode.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
@@ -121,7 +122,7 @@ TEST_F(TraceGeneratorTest, DiscardMutant)
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
-  auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+  auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
   auto arr_0 = std::make_shared<VariableFormula>("array[0]");
   auto arr_1 = std::make_shared<VariableFormula>("array[1]");
   auto arr_2 = std::make_shared<VariableFormula>("array[2]");
@@ -158,7 +159,7 @@ TEST_F(TraceGeneratorTest, DiscardMutant_Flows)
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
-  auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+  auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
   std::cout << "Result: " << formula->toFormula() << std::endl;
 }
 
@@ -174,7 +175,7 @@ TEST_F(TraceGeneratorTest, DiscardMutant_TrafficLight)
   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
   auto mutantFSM = mutant_loader->getAutomata();
-  auto formula = TraceGenerator::discardMutant(originalFSM, mutantFSM);
+  auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
   auto state_Var = std::make_shared<VariableFormula>("state");
   auto yellow = std::make_shared<VariableFormula>("yellow");
   auto red = std::make_shared<VariableFormula>("red");

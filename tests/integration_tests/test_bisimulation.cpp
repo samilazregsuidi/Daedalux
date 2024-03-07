@@ -4,7 +4,7 @@
 
 #include "../../src/core/automata/fsmEdge.hpp"
 #include "../../src/core/automata/fsmNode.hpp"
-#include "../../src/algorithm/bisimulationChecker.hpp"
+#include "../../src/algorithm/utils/bisimulationChecker.hpp"
 
 
 // Define a fixture for the tests
