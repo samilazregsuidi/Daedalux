@@ -254,7 +254,9 @@ Apply:
 		case(astNode::E_STMNT_ASGN):
 		{
 			auto assign = dynamic_cast<const stmntAsgn*>(expression);
-			auto* lvalue = dynamic_cast<primitiveVariable*>(getVariable(assign->getVarRef()));
+			auto varRef = assign->getVarRef();
+			auto var = getVariable(varRef);
+			auto* lvalue = dynamic_cast<primitiveVariable*>(var);
 			expr* rvalue = assign->getAssign();
 			auto value = eval(rvalue, EVAL_EXPRESSION);
 			lvalue->setValue(value);

@@ -2,9 +2,9 @@
 #include "mutantAnalyzer.hpp"
 #include "../formulas/formulaCreator.hpp"
 #include "explore.hpp"
+#include "fsmExplorer.hpp"
 #include "ltlModelChecker.hpp"
 #include "promela_loader.hpp"
-#include "fsmExplorer.hpp"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -202,7 +202,7 @@ std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants(u
   for (auto mutant_file_path : mutant_file_paths) {
     auto mutant_loader = std::make_unique<promela_loader>(mutant_file_path, nullptr);
     auto mutantFSM = mutant_loader->getAutomata();
-    std::shared_ptr<formula> formula = fsmExplorer::discardMutant(originalFSM, mutantFSM); // Remove the unnecessary 'auto' keyword
+    std::shared_ptr<formula> formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
     resultMap[mutant_file_path] = formula;
   }
   std::cout << "Finished analyzing mutants" << std::endl;

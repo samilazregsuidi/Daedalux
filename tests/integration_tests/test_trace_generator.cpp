@@ -4,8 +4,6 @@
 
 #include "../../src/algorithm/traceGenerator.hpp"
 #include "../../src/algorithm/fsmExplorer.hpp"
-#include "../../src/core/automata/fsmEdge.hpp"
-#include "../../src/core/automata/fsmNode.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
 #include "../TestFilesUtils.hpp"
 

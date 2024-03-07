@@ -1,8 +1,7 @@
 #include "fsmExplorer.hpp"
-#include <initState.hpp>
 #include "../formulas/formulaCreator.hpp"
 #include "utils/stateComparer.hpp"
-
+#include <initState.hpp>
 
 //**
 // * @brief This function generates a formula that only the original automata can satisfy!
@@ -38,7 +37,7 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
     post_states_original = current_state_original->Post();
     post_states_mutant = current_state_mutant->Post();
     if (post_states_mutant.empty() || post_states_original.empty()) {
-      std::cout << "No more transitions to fire - the trace is complete." << std::endl;
+      std::cout << "No more transitions to fire - We have reached the end of the automata." << std::endl;
       break;
     }
     // Find the states that are unique to the original automata
@@ -53,12 +52,24 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
       for (auto s : post_states_mutant) {
         post_states_mutant_vec.push_back(std::shared_ptr<state>(s));
       }
+      auto k = 15;
       // We can now create a formula that only the original automata can satisfy
       auto shared_current_state_original = std::shared_ptr<state>(current_state_original);
+      auto shared_current_state_mutant = std::shared_ptr<state>(current_state_mutant);
+      auto kSuccessors_original = kSuccessors(shared_current_state_original, k);
+      auto kSuccessors_mutant = kSuccessors(shared_current_state_mutant, k);
+    //   auto comparison = StateComparer::compareKSuccessors(kSuccessors_original, kSuccessors_mutant);
+
       auto distinguishing_formula = formulaCreator::createTransitionFormula(shared_current_state_original,
                                                                             post_states_original_vec, post_states_mutant_vec);
+
+    //   auto states_original = comparison.getOriginalStates();
+    //   auto states_mutant = comparison.getMutantStates();
+    //   auto distinguishing_formula_2 = formulaCreator::distinguishStates(states_original, states_mutant);
+
+      std::cout << "The distinguishing formula is " << distinguishing_formula->toFormula() << std::endl;
+
       return distinguishing_formula;
-      break;
     }
     else {
       // All the successor states are the same and the prefix is the same - take the same random transition for both
@@ -75,7 +86,8 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
 // * 	@start_state - The state to compute the k-successors of
 // * 	@k - The number of successors to compute
 // *
-std::map<unsigned int, std::vector<std::shared_ptr<state>>> fsmExplorer::kSuccessors(std::shared_ptr<state> start_state, unsigned int k)
+std::map<unsigned int, std::vector<std::shared_ptr<state>>> fsmExplorer::kSuccessors(std::shared_ptr<state> start_state,
+                                                                                     unsigned int k)
 {
   auto successors = std::map<unsigned int, std::vector<std::shared_ptr<state>>>();
   auto current_states = std::vector<std::shared_ptr<state>>();
@@ -85,6 +97,10 @@ std::map<unsigned int, std::vector<std::shared_ptr<state>>> fsmExplorer::kSucces
     for (auto s : current_states) {
       auto post_states = s->Post();
       for (auto post_state : post_states) {
+        if (StateComparer::containState(next_states, post_state)) {
+          // If the state is already in the list of next states, we do not need to add it again
+          continue;
+        }
         next_states.push_back(std::shared_ptr<state>(post_state));
       }
     }

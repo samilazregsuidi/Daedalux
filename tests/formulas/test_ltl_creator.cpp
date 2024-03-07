@@ -1,13 +1,14 @@
 #include "../../src/core/logic/ltl.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <iterator>
 #include <memory>
 #include <string>
-#include <iostream>
 
 // Define a fixture for the tests
 class LTLTransformerTest : public ::testing::Test {
@@ -21,10 +22,29 @@ protected:
   std::string flows_model = "/test_files/appendClaimTest/flows.pml";
   std::string current_path = std::filesystem::current_path();
 
+  bool appendClaimTest(const std::string & filePath, const std::string expected_file, const std::string formula)
+  {
+    auto tempFilePath = current_path + "/test_files/appendClaimTest/flows_temp.pml";
+    std::filesystem::copy_file(filePath, tempFilePath, std::filesystem::copy_options::overwrite_existing);
+    auto result = LTLClaimsProcessor::appendClaimToFile(tempFilePath, formula);
+    // Compare the temporary file with the expected file
+    auto compareResult = compareFiles(tempFilePath, expected_file);
+    // Remove the temporary file
+    std::filesystem::remove(tempFilePath);
+    return compareResult;
+  }
+
+  void removeWhitespace(std::string & str)
+  {
+    // Remove characters if they match the predicate
+    str.erase(std::remove_if(str.begin(), str.end(), isspace), str.end());
+  }
+
   bool compareLines(std::string & line1, std::string & line2)
   {
-    line1.erase(remove(line1.begin(), line1.end(), ' '), line1.end());
-    line2.erase(remove(line2.begin(), line2.end(), ' '), line2.end());
+    // This function compares two strings after removing all spaces
+    removeWhitespace(line1);
+    removeWhitespace(line2);
     return line1.compare(line2) == 0;
   }
 
@@ -42,8 +62,13 @@ protected:
       std::getline(file1, line1);
       std::getline(file2, line2);
       auto equal = compareLines(line1, line2);
-      auto equal_eof = file1.eof() == file2.eof();
+      auto file1_eof = file1.eof();
+      auto file2_eof = file2.eof();
+      auto equal_eof = file1_eof == file2_eof;
       if (!equal_eof || !equal) {
+        std::cout << "Files are different at line " << line_number << std::endl;
+        std::cout << filePath1 << ": " << line1 << std::endl;
+        std::cout << filePath2 << ": " << line2 << std::endl;
         return false; // Files are different
       }
       line_number++;
@@ -82,48 +107,26 @@ TEST_F(LTLTransformerTest, formulaStringToNeverClaim_Liveness)
 TEST_F(LTLTransformerTest, AppendNeverClaim_Globally)
 {
   auto filePath = current_path + flows_model;
-  // Copy the original file to a temporary file
-  auto tempFilePath = current_path + "/test_files/appendClaimTest/flows_temp.pml";
-  std::filesystem::copy_file(filePath, tempFilePath, std::filesystem::copy_options::overwrite_existing);
-  auto formula = "[](x)";
-  auto result = LTLClaimsProcessor::appendClaimToFile(tempFilePath, formula);
-  ASSERT_EQ(result, 1);
   std::string expected_file = current_path + "/test_files/appendClaimTest/flows_always_expected.pml";
-  // Compare the temporary file with the expected file
-  auto compareResult = compareFiles(tempFilePath, expected_file);
-  ASSERT_TRUE(compareResult);
-  // Remove the temporary file
-  std::filesystem::remove(tempFilePath);
+  auto formula = "[](x)";
+  auto result = appendClaimTest(filePath, expected_file, formula);
+  ASSERT_TRUE(result);
 }
 
 TEST_F(LTLTransformerTest, AppendToNeverClaim_Finally)
 {
   auto filePath = current_path + flows_model;
-  auto tempFilePath = current_path + "/test_files/appendClaimTest/flows_temp.pml";
-  std::filesystem::copy_file(filePath, tempFilePath, std::filesystem::copy_options::overwrite_existing);
   auto formula = "<>(x)";
-  auto result = LTLClaimsProcessor::appendClaimToFile(tempFilePath, formula);
-  ASSERT_EQ(result, 1);
   std::string expected_file = current_path + "/test_files/appendClaimTest/flows_eventually_expected.pml";
-  // Compare the temporary file with the expected file
-  auto compareResult = compareFiles(tempFilePath, expected_file);
-  ASSERT_TRUE(compareResult);
-  // Remove the temporary file
-  std::filesystem::remove(filePath);
+  auto result = appendClaimTest(filePath, expected_file, formula);
+  ASSERT_TRUE(result);
 }
 
 TEST_F(LTLTransformerTest, AppendToNeverClaim_Liveness)
 {
   auto filePath = current_path + flows_model;
-  auto tempFilePath = current_path + "/test_files/appendClaimTest/flows_temp.pml";
-  std::filesystem::copy_file(filePath, tempFilePath, std::filesystem::copy_options::overwrite_existing);
-  auto formula = "[]((!(x)) -> <>x)";
-  auto result = LTLClaimsProcessor::appendClaimToFile(tempFilePath, formula);
-  ASSERT_EQ(result, 1);
   std::string expected_file = current_path + "/test_files/appendClaimTest/flows_liveness_expected.pml";
-  // Compare the temporary file with the expected file
-  auto compareResult = compareFiles(tempFilePath, expected_file);
-  ASSERT_TRUE(compareResult);
-  // Remove the temporary file
-  std::filesystem::remove(filePath);
+  auto formula = "[]((!(x)) -> <>x)";
+  auto result = appendClaimTest(filePath, expected_file, formula);
+  ASSERT_TRUE(result);
 }

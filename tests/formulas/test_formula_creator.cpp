@@ -108,10 +108,10 @@ TEST_F(FormulaCreatorTest, groupStates_singleState)
   const std::vector<std::shared_ptr<state>> states = std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr};
 
   auto result = formulaCreator::groupStatesByFormula(states);
-  auto var_a = std::make_shared<VariableFormula>("s_a");
-  auto var_b = std::make_shared<VariableFormula>("s_b");
-  auto var_c = std::make_shared<VariableFormula>("s_c");
-  auto var_d = std::make_shared<VariableFormula>("s_d");
+  auto var_a = std::make_shared<VariableFormula>("s.a");
+  auto var_b = std::make_shared<VariableFormula>("s.b");
+  auto var_c = std::make_shared<VariableFormula>("s.c");
+  auto var_d = std::make_shared<VariableFormula>("s.d");
   auto formula_1 = std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false));
   auto formula_2 = std::make_shared<EqualsFormula>(var_b, std::make_shared<BooleanConstant>(false));
   auto formula_3 = std::make_shared<EqualsFormula>(var_c, std::make_shared<BooleanConstant>(false));

@@ -402,8 +402,7 @@ variable * variable::getVariable(const std::string & name) const
     auto subScope = name.substr(0, pos);
     variable * var = getVariable(subScope);
     if (var == nullptr) {
-      std::cout << subScope << " not found. " << std::endl;
-      assert(false);
+      throw std::runtime_error("Variable " + subScope + " not found.");
     }
     auto next = std::string(name).erase(0, pos + std::string(".").length());
     return var->getVariable(next);
