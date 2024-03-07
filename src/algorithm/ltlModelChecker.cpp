@@ -81,7 +81,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
     auto s_hash = current->s->hash();
 
     // Check for deadlock
-    checkForDeadlock(current->s, stackOuter);
+    checkForDeadlock(current->s, stackOuter, generateIntermediaryFiles);
 
     if (current->s->safetyPropertyViolation()) {
       // Safety property violated.
@@ -92,21 +92,12 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       //     i.e. this state is the actual violating state.
 
       printf("Safety property violated %lu.\n", s_hash);
-      printElementStack(graphVis, stackOuter.stackElem);
+      if (generateIntermediaryFiles)
+        printElementStack(graphVis, stackOuter.stackElem);
 
       reachableStates.addTraceViolation(current->s.get());
 
-      stackOuter.pop();
-
-      // auto newTop = stackOuter.top();
-      // graphVis->printGraphViz(newTop->s);
-
-      stackOuter.pop();
-
-      // newTop = stackOuter.top();
-      // graphVis->printGraphViz(newTop->s);
-
-      stackOuter.pop();
+      stackOuter.pop(3);
       depth -= 3;
 
       // Otherwise, the state can be explored (or exploration continue)
@@ -219,16 +210,18 @@ void ltlModelChecker::emptyStack(elementStack & stack)
   }
 }
 
-void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const elementStack & stack)
+void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const elementStack & stack, bool printStack)
 {
   auto errorMask = s->getErrorMask();
   if (errorMask & state::ERR_DEADLOCK) {
-    printElementStack(graphVis, stack.stackElem);
+    if(printStack)
+      printElementStack(graphVis, stack.stackElem);
     throw std::runtime_error("Deadlock found");
   }
   else if (errorMask & state::ERR_PROPERTY_VIOLATION) {
     std::cout << "Property violated" << std::endl;
-    s->print();
+    if (printStack)
+      s->print();
   }
 }
 
@@ -245,7 +238,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
     auto s_hash = current->s->hash();
 
     // Check for deadlock
-    checkForDeadlock(current->s, stackOuter);
+    checkForDeadlock(current->s, stackOuter, generateIntermediaryFiles);
 
     // If we have explored all transitions of the state (!current->E_never; see "struct stackElt"
     // in stack.h), we check whether the state is accepting and start a backlink search if it is;
@@ -280,7 +273,8 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
           // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
         }
         stackInner.push(s_, depth + 1);
-        printElementStack(graphVis, stackOuter.stackElem, stackInner.stackElem, s_.get());
+        if (generateIntermediaryFiles)
+          printElementStack(graphVis, stackOuter.stackElem, stackInner.stackElem, s_.get());
         stackInner.pop();
 
         reachableStates.addTraceViolation(current->s.get());
@@ -332,7 +326,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
 
   } // end while
 
-  // If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
+  // If error is true and we end up here, then w  pmue're in exhaustive mode. A summary has to be printed
   // if(error /* not needed: && exhaustive */
   emptyStack(stackInner);
 

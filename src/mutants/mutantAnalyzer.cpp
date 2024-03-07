@@ -122,7 +122,7 @@ bool checkPromelaModel(const std::string & file_path)
   delete loader;
   bool model_correct = true;
   try {
-    model_correct = mc->check(fsm.get(), nullptr);
+    model_correct = mc->check(fsm.get(), nullptr, false);
   }
   catch (const std::exception & e) {
     std::cerr << e.what() << '\n';

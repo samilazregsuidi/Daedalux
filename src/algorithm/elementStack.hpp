@@ -30,6 +30,8 @@ public:
     void push(std::shared_ptr<state> s, int depth = 0);
 
     void pop(void);
+
+    void pop(unsigned int numberOfElements);
     
     std::shared_ptr<element> top(void) const;
     

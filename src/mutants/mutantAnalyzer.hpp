@@ -1,3 +1,4 @@
+#pragma once
 
 #include "../core/semantic/variable/state/state.hpp"
 #include "../formulas/formula.hpp"
