@@ -44,56 +44,6 @@ void launchExecution(const fsm * automata, const TVL * tvl)
   printf("--\n");
 }
 
-transition * most_similar_transition(const std::list<transition *> transitions, const transition * current)
-{
-  transition * most_similar = nullptr;
-  double max_similarity = 0;
-  for (auto t : transitions) {
-    double similarity = 0; /*t->similarity(current)*/
-    if (similarity > max_similarity) {
-      max_similarity = similarity;
-      most_similar = t;
-    }
-  }
-  return most_similar;
-}
-
-state * most_similar_state(const state * current, const std::list<state *> states)
-{
-  state * most_similar = nullptr;
-  // Similarity is measured by the delta function in the range of [0, 1]
-  double max_similarity = 1;
-  for (auto s : states) {
-    double delta = s->delta(current);
-    if (delta < max_similarity) {
-      max_similarity = delta;
-      most_similar = s;
-    }
-  }
-  return most_similar;
-}
-
-/// @brief Given two lists of states, this function returns the states that are in the first list but not in the second list.
-/// @param states_original - The original list of states
-/// @param states_mutant - The list of states to compare with
-/// @return A list of states that are in the first list but not in the second list
-std::list<state *> distinct_states(const std::list<state *> & states_original, const std::list<state *> & states_mutant)
-{
-  std::list<state *> distinct;
-  for (auto & original_state : states_original) {
-    bool found = false;
-    for (auto & mutant_state : states_mutant) {
-      if (original_state->isSame(mutant_state)) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      distinct.push_back(original_state);
-    }
-  }
-  return distinct;
-}
 
 std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
 {

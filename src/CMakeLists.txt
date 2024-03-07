@@ -164,8 +164,10 @@ add_library(daedalux_lib STATIC
 	algorithm/ltlModelChecker.cpp
 	algorithm/elementStack.cpp
 	algorithm/reachabilityRelation.cpp
+	algorithm/utils/bisimulationChecker.cpp
+	algorithm/utils/stateComparer.cpp
 	algorithm/traceGenerator.cpp
-	algorithm/bisimulationChecker.cpp
+	algorithm/fsmExplorer.cpp
 
 	mutants/mutantAnalyzer.cpp
 
@@ -346,8 +348,10 @@ add_executable(daedalux
 	algorithm/ltlModelChecker.cpp
 	algorithm/elementStack.cpp
 	algorithm/reachabilityRelation.cpp
+	algorithm/utils/bisimulationChecker.cpp
+	algorithm/utils/stateComparer.cpp
 	algorithm/traceGenerator.cpp
-	algorithm/bisimulationChecker.cpp
+	algorithm/fsmExplorer.cpp
 
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp

@@ -35,8 +35,6 @@ public:
   std::unique_ptr<traceReport> generateTraceReport(const size_t no_traces = 20, const size_t len_traces = 200,
                                                    bool ignore_common_prefix = false);
 
-  static std::shared_ptr<formula> discardMutant(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant);
-
 private:
   std::shared_ptr<trace> generateTrace(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant, const size_t trace_length,
                                        bool ignore_common_prefix = false);
