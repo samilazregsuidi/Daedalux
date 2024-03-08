@@ -22,12 +22,12 @@ protected:
 
   std::unique_ptr<TestFilesUtils> testFilesUtils;
 
-  std::map<unsigned int, std::vector<std::shared_ptr<state>>> KSuccessors(std::string file_path, int k)
+  std::map<unsigned int, std::vector<state *>> KSuccessors(std::string file_path, int k)
   {
     const TVL * tvl = nullptr;
     auto loader = std::make_unique<promela_loader>(file_path, tvl);
     auto myFSM = loader->getAutomata().get();
-    auto current_state = std::shared_ptr<state>(initState::createInitState(myFSM, tvl));
+    auto current_state = initState::createInitState(myFSM, tvl);
     return fsmExplorer::kSuccessors(current_state, k);
   }
 };
@@ -276,10 +276,14 @@ TEST_F(SimilarityTest, KSuccessorsArray_Difference_ShouldBeEmpty)
 //   ASSERT_EQ(result_1.size(), result_2.size());
 //   auto result = StateComparer::compareKSuccessors(result_1, result_2);
 //   bool some_difference = false;
-//   for(auto & [key, value] : result)
-//   {
-//     if(!value.empty())
-//     {
+//   for (auto & [key, value] : result.getMutantOnly()) {
+//     if (!value.empty()) {
+//       some_difference = true;
+//       break;
+//     }
+//   }
+//   for (auto & [key, value] : result.getOriginalOnly()) {
+//     if (!value.empty()) {
 //       some_difference = true;
 //       break;
 //     }

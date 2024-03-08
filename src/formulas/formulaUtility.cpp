@@ -26,6 +26,25 @@ formulaUtility::convertToIntegerMap(const std::map<ValueType, std::vector<std::s
   return new_values;
 }
 
+
+std::shared_ptr<formula> formulaUtility::createEqualityFormulas(const std::string & variableName,
+                                                const std::map<ValueType, std::vector<std::shared_ptr<state>>> & include_values,
+                                                const std::map<ValueType, std::vector<std::shared_ptr<state>>> & exclude_values)
+{
+  std::shared_ptr<formula> res;
+  if (!include_values.empty()) {
+    res = formulaUtility::makeAlternativeFormula(variableName, include_values, false);
+  }
+  else if (!exclude_values.empty()) {
+    res = formulaUtility::makeAlternativeFormula(variableName, exclude_values, true);
+  }
+  else {
+    throw std::invalid_argument("The variable " + variableName + " has no values in the include or exclude states.");
+  }
+  return res;
+}
+
+
 std::shared_ptr<formula>
 formulaUtility::makeAlternativeFormula(std::string name, const std::map<ValueType, std::vector<std::shared_ptr<state>>> values,
                                        bool isInequality)

@@ -131,11 +131,17 @@ bool checkPromelaModel(const std::string & file_path)
   return model_correct;
 }
 
-//*
-// * This method kills the mutants by checking whether the properties kill them
-// */
+/// @brief This function checks whether the mutants are killed by the already specified properties
+/// @return Returns a pair of vectors, the first one containing the killed mutants and the second one containing the surviving mutants
 std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::killMutants()
 {
+  // Ensure that the original program is correct
+  bool original_correct = checkPromelaModel(original_file_path);
+  if (!original_correct) {
+    std::cout << "The original program is incorrect" << std::endl;
+    throw std::invalid_argument("The original program is incorrect");
+  }
+
   auto killed_mutants = std::vector<std::string>();
   auto surviving_mutants = std::vector<std::string>();
   // One by one, check whether the already specified properties kill the mutants

@@ -12,7 +12,7 @@
 
 class formulaCreator {
 public:
-  static std::string distinguishStates(const std::shared_ptr<state> & state1, const std::shared_ptr<state> & state2);
+  //static std::string distinguishStates(const std::shared_ptr<state> & state1, const std::shared_ptr<state> & state2);
   static std::shared_ptr<formula> groupStatesByFormula(const std::vector<std::shared_ptr<state>> & states,
                                                        bool temporal = false);
   static std::unordered_map<std::string, std::map<ValueType, std::vector<std::shared_ptr<state>>>>

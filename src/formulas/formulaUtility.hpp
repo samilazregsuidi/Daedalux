@@ -66,6 +66,11 @@ public:
   static int largestValue(const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values);
   static int smallestValue(const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values);
 
+  static std::shared_ptr<formula>
+  createEqualityFormulas(const std::string & variableName,
+                         const std::map<ValueType, std::vector<std::shared_ptr<state>>> & include_values,
+                         const std::map<ValueType, std::vector<std::shared_ptr<state>>> & exclude_values);
+
 private:
   static std::map<int, std::vector<std::shared_ptr<state>>>
   convertToIntegerMap(const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values);

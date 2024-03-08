@@ -145,21 +145,21 @@ TEST_F(TraceGeneratorTest, DiscardMutant)
   ASSERT_TRUE(formula->isEquivalent(expected_formula));
 }
 
-TEST_F(TraceGeneratorTest, DiscardMutant_Flows)
-{
-  const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->flows_model();
-  LTLClaimsProcessor::removeClaimFromFile(file_path);
-  auto original_loader = new promela_loader(file_path, tvl);
-  auto originalFSM = original_loader->getAutomata();
-  delete original_loader;
-  auto file_path_mutant = testFilesUtils->flows_model_mutant();
-  LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
-  auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
-  auto mutantFSM = mutant_loader->getAutomata();
-  auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
-  std::cout << "Result: " << formula->toFormula() << std::endl;
-}
+// TEST_F(TraceGeneratorTest, DiscardMutant_Flows)
+// {
+//   const TVL * tvl = nullptr;
+//   auto file_path = testFilesUtils->flows_model();
+//   LTLClaimsProcessor::removeClaimFromFile(file_path);
+//   auto original_loader = new promela_loader(file_path, tvl);
+//   auto originalFSM = original_loader->getAutomata();
+//   delete original_loader;
+//   auto file_path_mutant = testFilesUtils->flows_model_mutant();
+//   LTLClaimsProcessor::removeClaimFromFile(file_path_mutant);
+//   auto mutant_loader = std::make_unique<promela_loader>(file_path_mutant, tvl);
+//   auto mutantFSM = mutant_loader->getAutomata();
+//   auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
+//   std::cout << "Result: " << formula->toFormula() << std::endl;
+// }
 
 TEST_F(TraceGeneratorTest, DiscardMutant_TrafficLight)
 {

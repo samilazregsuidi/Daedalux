@@ -56,15 +56,15 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
       // We can now create a formula that only the original automata can satisfy
       auto shared_current_state_original = std::shared_ptr<state>(current_state_original);
       auto shared_current_state_mutant = std::shared_ptr<state>(current_state_mutant);
-      auto kSuccessors_original = kSuccessors(shared_current_state_original, k);
-      auto kSuccessors_mutant = kSuccessors(shared_current_state_mutant, k);
-    //   auto comparison = StateComparer::compareKSuccessors(kSuccessors_original, kSuccessors_mutant);
+      auto kSuccessors_original = kSuccessors(current_state_original, k);
+      auto kSuccessors_mutant = kSuccessors(current_state_mutant, k);
+      auto comparison = StateComparer::compareKSuccessors(kSuccessors_original, kSuccessors_mutant);
 
       auto distinguishing_formula = formulaCreator::createTransitionFormula(shared_current_state_original,
                                                                             post_states_original_vec, post_states_mutant_vec);
 
-    //   auto states_original = comparison.getOriginalStates();
-    //   auto states_mutant = comparison.getMutantStates();
+      auto states_original = comparison.getOriginalStates();
+      auto states_mutant = comparison.getMutantStates();
     //   auto distinguishing_formula_2 = formulaCreator::distinguishStates(states_original, states_mutant);
 
       std::cout << "The distinguishing formula is " << distinguishing_formula->toFormula() << std::endl;
@@ -86,14 +86,13 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
 // * 	@start_state - The state to compute the k-successors of
 // * 	@k - The number of successors to compute
 // *
-std::map<unsigned int, std::vector<std::shared_ptr<state>>> fsmExplorer::kSuccessors(std::shared_ptr<state> start_state,
-                                                                                     unsigned int k)
+std::map<unsigned int, std::vector<state *>> fsmExplorer::kSuccessors(state * start_state, unsigned int k)
 {
-  auto successors = std::map<unsigned int, std::vector<std::shared_ptr<state>>>();
-  auto current_states = std::vector<std::shared_ptr<state>>();
+  auto successors = std::map<unsigned int, std::vector<state *>>();
+  auto current_states = std::vector<state *>();
   current_states.push_back(start_state);
   for (unsigned int i = 0; i < k; ++i) {
-    auto next_states = std::vector<std::shared_ptr<state>>();
+    auto next_states = std::vector<state *>();
     for (auto s : current_states) {
       auto post_states = s->Post();
       for (auto post_state : post_states) {
@@ -101,7 +100,7 @@ std::map<unsigned int, std::vector<std::shared_ptr<state>>> fsmExplorer::kSucces
           // If the state is already in the list of next states, we do not need to add it again
           continue;
         }
-        next_states.push_back(std::shared_ptr<state>(post_state));
+        next_states.push_back(post_state);
       }
     }
     successors[i] = next_states;
