@@ -29,7 +29,7 @@ class thread : public state {
 public:
   friend class state;
 
-  thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid = -1, unsigned int index = 0);
+  thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, ubyte pid = -1, unsigned int index = 0);
 
   thread(const thread & other);
 
@@ -37,7 +37,7 @@ public:
 
   void init(void) override;
 
-  byte getPid(void) const;
+  ubyte getPid(void) const;
 
   void setPid(byte pid);
 
@@ -75,11 +75,11 @@ public:
 
   variable * getVariableFromExpr(const expr * varExpr) const;
 
-  std::list<arg> getArgs(const exprArgList * args) const;
+  argList getArgs(const exprArgList * args) const;
 
   //std::list<const arg> getConstArgs(const exprArgList * args) const;
 
-  std::list<arg> getRArgs(const exprRArgList * rargs) const;
+  argList getRArgs(const exprRArgList * rargs) const;
 
   //std::list<const arg> getConstRArgs(const exprRArgList * rargs) const;
 
@@ -88,6 +88,8 @@ public:
   bool operator==(const variable * other) const override;
 
   bool operator!=(const variable * other) const override;
+
+  variable * operator=(const variable * other) override;
 
   /*template <typename T> T* getTVar(const expr* varExpr, const thread* proc) const {
           return dynamic_cast<T*>(getVariable(varExpr));
@@ -111,7 +113,7 @@ public:
   
   mutable bool _else;
   
-  byte pid;
+  unsigned char pid;
 };
 
 #endif

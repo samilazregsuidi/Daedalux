@@ -120,7 +120,7 @@ void transition::detach(const std::list<transition*>& Ts) {
 transition* transition::getTransition(const std::string& stateName) const {
 
 	for(auto t : subTs) {
-		if(t->src->name == stateName)
+		if(t->src->getLocalName() == stateName)
 			return t;
 		else {
 			auto res = t->getTransition(stateName);

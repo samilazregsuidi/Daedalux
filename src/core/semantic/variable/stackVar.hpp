@@ -13,9 +13,9 @@ public:
 
 	variable* deepCopy(void) const override;
 
-	void push_front(const variable* var);
+	void push_front(const argList& var);
 
-	void push_back(const variable* var);
+	void push_back(const argList& var);
 
 	variable* front(void) const;
 
@@ -32,6 +32,14 @@ public:
 	size_t len(void) const;
 
 	size_t capacity(void) const;
+
+	void clear(void);
+
+	bool operator == (const variable* other) const override;
+
+	bool operator != (const variable* other) const override;
+
+	variable* operator=(const variable* other) override;
 
 private:
 	size_t front_i;

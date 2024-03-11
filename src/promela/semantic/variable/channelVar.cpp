@@ -40,24 +40,12 @@ channel::channel(const channel* other)
 	assert(getSizeOf() == other->getSizeOf());
 }
 
-variable* channel::deepCopy(void) const{
+channel* channel::deepCopy(void) const{
 	return new channel(this);
 }
 
-channel::~channel() {
-}
-
-size_t channel::getSizeOf(void) const {
-	return variable::getSizeOf();
-}
-
-void channel::reset(void) {
-	for(auto field : getVariables())
-		field->reset();
-}
-
 //int return type for executability check?
-void channel::send(const std::list<arg>& args) {
+void channel::send(const argList& args) {
 	
 	auto argIt = args.cbegin();
 
@@ -71,6 +59,8 @@ void channel::send(const std::list<arg>& args) {
 		//field->print();
 	
 	}
+
+
 
 	if(!isRendezVous())
 		len(len()+1);

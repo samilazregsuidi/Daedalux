@@ -5,6 +5,7 @@
 #include <list>
 
 #include "stackVar.hpp"
+#include "argVar.hpp"
 
 class channel : private stackVar {
 public:
@@ -14,10 +15,6 @@ public:
 
 	channel* deepCopy(void) const override;
 
-	~channel() override;
-
-	size_t getSizeOf(void) const override;
-
 	bool operator == (const variable* other) const override;
 
 	bool operator != (const variable* other) const override;
@@ -26,9 +23,7 @@ public:
 
 	void printDelta(const variable* v2) const override;
 
-	void send(const std::list<arg>& args);
-
-	void reset(void) override;
+	void send(const argList& args);
 
 	bool isReceivable(const std::list<arg>& rargs) const;
 
@@ -36,12 +31,6 @@ public:
 
 	bool isRendezVous(void) const;
 
-	bool isEmpty(void) const;
-
-	bool isFull(void) const;
-
-	primitiveVariable* getField(unsigned int index) const;
-	
 	byte len(void) const;
 
 	byte getCapacity(void) const;

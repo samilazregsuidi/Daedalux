@@ -7,7 +7,9 @@ class boolSymNode;
 
 class boolVar : public primitive<bool> {
 public:
-	boolVar(const std::string& name);
+	boolVar(bool initValue = false);
+
+	boolVar(const std::string& name, bool initValue = false);
 
 	boolVar* deepCopy(void) const override;
 

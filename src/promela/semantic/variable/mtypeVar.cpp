@@ -2,11 +2,12 @@
 
 #include "varExpr.hpp"
 
-mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) { assert(varType == V_MTYPE); }
+mtypeVar::mtypeVar(const std::string& name, unsigned char initValue) 
+  : primitive<unsigned char>(name, variable::V_MTYPE, initValue) 
+{ assert(varType == V_MTYPE); }
 
 void mtypeVar::init(void)
 {
-
   auto initExpr = varSym->getInitExpr();
 
   if (initExpr) {

@@ -6,25 +6,6 @@
 
 #include <limits>
 
-struct arg {
-  
-  arg(variable * var) 
-    : type(VAR) { data.var = var; }
-  
-  arg(int val) 
-    : type(VAL) { data.val = val; }
-  
-  enum {
-    VAR,
-    VAL
-  } type;
-
-  union {
-    variable * var;
-    int val;
-  } data;
-};
-
 /**
  * @brief A templated class to represent a primitive variable
 */
@@ -32,7 +13,7 @@ struct arg {
 template <class T> class primitive : public variable {
 public:
 
-  primitive(const std::string& name, Type varType, T initValue = 0)
+  primitive(const std::string& name, Type varType, T initValue)
     : variable(varType, name) 
     , initValue(initValue)
     , value(0)
@@ -61,19 +42,26 @@ public:
   /****************************************************/
 
   virtual void setValue(T newValue) {
-    assert(getPayload());
+    //assert(getPayload());
     assert(newValue >= std::numeric_limits<T>::min());
     assert(newValue <= std::numeric_limits<T>::max());
     value = newValue;
-    getPayload()->setValue<T>(getOffset(), newValue);
-    assert(getValue() == newValue);
+    
+    if(getPayload()) {
+      getPayload()->setValue<T>(getOffset(), newValue);
+    
+      assert(getValue() == newValue);
+    }
   }
 
   virtual T getValue(void) const {
-    assert(getPayload());
-    auto res = getPayload()->getValue<T>(getOffset());
-    assert(res == value);
-    return res;
+    //assert(getPayload());
+    if(getPayload()) {
+      auto res = getPayload()->getValue<T>(getOffset());
+      assert(res == value);
+    }
+
+    return value;
   }
 
   virtual void setInitValue(T newValue) {
@@ -81,7 +69,7 @@ public:
   }
 
   virtual void init(void) override {
-    assert(getPayload());
+    //assert(getPayload());
     setValue(initValue);
   }
 
@@ -89,29 +77,32 @@ public:
     setValue(initValue);
   }
 
-  virtual T operator=(const primitive<T> & rvalue) {
-    T res = rvalue.getValue();
-    setValue(res);
-    return res;
+  variable* operator=(const variable* other) override {
+    auto var = dynamic_cast<const primitive<T> *>(other);
+    if (var) {
+      *this = var->getValue();
+    } else
+      assert(false);
+    return this;
   }
 
-  virtual T operator=(const arg & rvalue) {
-    const primitive<T> * var = nullptr;
-    switch (rvalue.type) {
-    case arg::VAL:
-      setValue(rvalue.data.val);
-      break;
+  virtual T operator=(T& rvalue) {
+    setValue(rvalue);
+    return getValue();
+  }
 
-    case arg::VAR:
-      var = dynamic_cast<const primitive<T> *>(rvalue.data.var);
-      assert(var);
-      setValue(rvalue.data.var);
-      break;
+  virtual T operator=(const argList& rvalue) {
+    
+    try {
+      auto rvalueArg = dynamic_cast<const arg<T>&>(rvalue);
+      T argVal = rvalueArg.value;
+      *this = argVal;
 
-    default:
+    } catch (std::bad_cast& e) {
       assert(false);
     }
-    return getValue();
+
+    return *this;
   }
 
   virtual T operator++(void) {
@@ -263,6 +254,10 @@ protected:
 
 class bitVar : public primitive<unsigned char> {
 public:
+  bitVar(unsigned char initValue = 0)
+  : primitive<unsigned char>("", variable::V_BIT, initValue)
+  {}
+
   bitVar(const std::string& name, unsigned char initValue = 0) 
   : primitive<unsigned char>(name, variable::V_BIT, initValue)
   {}
@@ -274,6 +269,10 @@ public:
 
 class byteVar : public primitive<unsigned char> {
 public:
+  byteVar(unsigned char initValue = 0)
+  : primitive<unsigned char>("", variable::V_BYTE, initValue)
+  {}
+
   byteVar(const std::string& name, unsigned char initValue = 0) 
   : primitive<unsigned char>(name, variable::V_BYTE, initValue)
   {}
@@ -285,6 +284,10 @@ public:
 
 class shortVar : public primitive<short> {
 public:
+  shortVar(short initValue = 0)
+  : primitive<short>("", variable::V_SHORT, initValue)
+  {}
+
   shortVar(const std::string& name, short initValue = 0) 
   : primitive<short>(name, variable::V_SHORT, initValue)
   {}
@@ -296,6 +299,10 @@ public:
 
 class ushortVar : public primitive<unsigned short> {
 public:
+  ushortVar(unsigned short initValue = 0)
+  : primitive<unsigned short>("", variable::V_USHORT, initValue)
+  {}
+
   ushortVar(const std::string& name, unsigned short initValue = 0) 
   : primitive<unsigned short>(name, variable::V_USHORT, initValue)
   {}
@@ -307,6 +314,10 @@ public:
 
 class intVar : public primitive<int> {
 public:
+  intVar(int initValue = 0)
+  : primitive<int>("", variable::V_INT, initValue)
+  {}
+
   intVar(const std::string& name, int initValue = 0) 
   : primitive<int>(name, variable::V_INT, initValue)
   {}
@@ -318,6 +329,10 @@ public:
 
 class uintVar : public primitive<unsigned int> {
 public:
+  uintVar(unsigned int initValue = 0)
+  : primitive<unsigned int>("", variable::V_UINT, initValue)
+  {}
+
   uintVar(const std::string& name, unsigned int initValue = 0) 
   : primitive<unsigned int>(name, variable::V_UINT, initValue)
   {}
@@ -329,6 +344,10 @@ public:
 
 class longVar : public primitive<long> {
 public:
+  longVar( long initValue = 0)
+  : primitive<long>("", variable::V_LONG, initValue)
+  {}
+
   longVar(const std::string& name, long initValue = 0) 
   : primitive<long>(name, variable::V_LONG, initValue)
   {}
@@ -340,6 +359,10 @@ public:
 
 class ulongVar : public primitive<unsigned long> {
 public:
+  ulongVar(unsigned long initValue = 0)
+  : primitive<unsigned long>("", variable::V_ULONG, initValue)
+  {}
+
   ulongVar(const std::string& name, unsigned long initValue = 0) 
   : primitive<unsigned long>(name, variable::V_ULONG, initValue)
   {}
@@ -351,6 +374,10 @@ public:
 
 class floatVar : public primitive<float> {
 public:
+  floatVar(float initValue = 0)
+  : primitive<float>("", variable::V_FLOAT, initValue)
+  {}
+
   floatVar(const std::string& name, float initValue = 0) 
   : primitive<float>(name, variable::V_FLOAT, initValue)
   {}
@@ -362,6 +389,10 @@ public:
 
 class doubleVar : public primitive<double> {
 public:
+  doubleVar(double initValue = 0)
+  : primitive<double>("", variable::V_DOUBLE, initValue)
+  {}
+
   doubleVar(const std::string& name, double initValue = 0) 
   : primitive<double>(name, variable::V_DOUBLE, initValue)
   {}

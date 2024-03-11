@@ -72,54 +72,6 @@ variable::Type variable::getVarType(symbol::Type type)
   return V_NA;
 }
 
-size_t variable::getLowerBound(variable::Type type) { 
-  switch (type) {
-  case V_BIT:
-    return bounds<V_BIT>::min;
-  case V_BOOL:
-    return bounds<V_BOOL>::min;
-  case V_BYTE:
-    return bounds<V_BYTE>::min;
-  case V_SHORT:
-    return bounds<V_SHORT>::min;
-  case V_INT:
-    return bounds<V_INT>::min;
-  case V_PID:
-    return bounds<V_PID>::min;
-  case V_MTYPE:
-    return bounds<V_MTYPE>::min;
-  case V_CID: 
-    return bounds<V_CID>::min;
-  default:
-    assert(false);
-    return -1;
-  }
-}
-
-size_t variable::getUpperBound(variable::Type type) { 
-  switch (type) {
-  case V_BIT:
-    return bounds<V_BIT>::max;
-  case V_BOOL:
-    return bounds<V_BOOL>::max;
-  case V_BYTE:
-    return bounds<V_BYTE>::max;
-  case V_SHORT:
-    return bounds<V_SHORT>::max;
-  case V_INT:
-    return bounds<V_INT>::max;
-  case V_PID:
-    return bounds<V_PID>::max;
-  case V_MTYPE:
-    return bounds<V_MTYPE>::max;
-  case V_CID: 
-    return bounds<V_CID>::max;
-  default:
-    assert(false);
-    return -1;
-  }
-}
-
 unsigned int variable::vidCounter = 0;
 
 variable::variable(Type varType, const std::string & name)
@@ -135,7 +87,8 @@ variable::variable(const variable & other)
 {
 }
 
-variable::variable(const variable * other) : variable(*other)
+variable::variable(const variable * other) 
+  : variable(*other)
 {
   auto nbVariables = other->getVariables().size();
   // auto otherSizeOf = other->getSizeOf();
@@ -225,6 +178,32 @@ bool variable::operator==(const variable * other) const
 
 bool variable::operator!=(const variable * other) const { return !(*this == other); }
 
+variable* variable::operator=(const variable* other) {
+  if(this == other)
+    return this;
+  assert(getType() == other->getType());
+  assert(getVariables().size() == other->getVariables().size());
+
+  for(auto var : other->getVariables()) {
+    auto v = get(var->getLocalName());
+    if(v) {
+      (*v) = var;
+    } else {
+      //not the same type!
+      assert(false);
+    }
+  }
+  return this;
+}
+
+variable* variable::operator=(const argList& args) {
+  assert(args.args.size() == getVariables().size());
+  for(size_t i = 0; i < args.args.size(); i++) {
+    *(varList[i]) = *args.args[i];
+  }
+  return this;
+}
+
 void variable::setParent(variable * parent)
 {
   this->parent = parent;
@@ -262,7 +241,7 @@ void variable::_rmVariable(const variable * var)
 
 bool variable::hasVariables(void) const { return getVariables().size() > 0; }
 
-std::list<variable *> variable::getVariables(void) const { return varList; }
+std::list<variable *> variable::getVariables(void) const { return std::list(varList.begin(), varList.end()); }
 
 std::list<variable *> variable::getAllVariables(void) const
 {
@@ -331,7 +310,7 @@ float variable::delta(const variable * v2) const
   for (auto var : varList) {
     auto name = var->getLocalName();
     //std::cout << "name: " << name << std::endl;
-    auto v = v2->getVariable(name);
+    auto v = v2->get(name);
     res += var->delta(v);
   }
 
@@ -341,7 +320,7 @@ float variable::delta(const variable * v2) const
 void variable::printDelta(const variable * v2) const
 {
   for (auto var : varList) {
-    auto v = v2->getVariable(var->getLocalName());
+    auto v = v2->get(var->getLocalName());
     var->printDelta(v);
   }
 }
@@ -350,9 +329,9 @@ std::list<variable *> variable::getDelta(const variable * v2) const
 {
   std::list<variable *> res;
   for (auto var : varList) {
-    auto v = v2->getVariable(var->getLocalName());
+    auto v = v2->get(var->getLocalName());
     auto delta = var->getDelta(v);
-    if (delta != std::list<variable *>()) {
+    if (delta.size() > 0){
       res.insert(res.end(), delta.begin(), delta.end());
     }
   }
@@ -365,18 +344,18 @@ size_t variable::getEndOffset(void) const { return offset + getSizeOf(); }
 
 void variable::addRawBytes(size_t size) { rawBytes += size; }
 
-variable * variable::getVariable(const std::string & name) const
+variable * variable::getVariableImpl(const std::string & name) const
 {
   size_t pos = name.find(".");
   if(pos != std::string::npos) {
     auto subScope = name.substr(0, pos);
-    variable * var = getVariable(subScope);
+    variable * var = getVariableImpl(subScope);
     if(var == nullptr) {
       std::cout << subScope << " not found. " << std::endl;
       assert(false);
     }
     auto next = std::string(name).erase(0, pos + std::string(".").length());
-    return var->getVariable(next);
+    return var->getVariableImpl(next);
   }
 
   std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
@@ -385,7 +364,7 @@ variable * variable::getVariable(const std::string & name) const
 
   variable * var = nullptr;
   if (parent)
-    var = parent->getVariable(name);
+    var = parent->getVariableImpl(name);
   else {
     bool found = false;
     for (auto scope : varList) {
@@ -420,7 +399,7 @@ variable* variable::getVariableDownScoping(const std::string& name) const {
 channel * variable::getChannel(const std::string & name) const
 {
 
-  auto var = getVariable(name);
+  auto var = get(name);
 
   if (!var)
     return nullptr;
@@ -440,7 +419,7 @@ channel * variable::getChannel(const std::string & name) const
 
 std::map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
 
-std::list<variable *> variable::getVariablesList(void) const { return varList; }
+std::list<variable *> variable::getVariablesList(void) const { return std::list<variable*>(varList.begin(), varList.end()); }
 
 size_t variable::getSizeOf(void) const
 {

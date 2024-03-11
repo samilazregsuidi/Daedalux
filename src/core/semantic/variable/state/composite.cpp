@@ -60,7 +60,7 @@ void composite::assign(const variable* sc) {
 	variable::assign(sc);
 
 	if(n) {
-		n = sc->getTVariable<state*>(n->getLocalName());
+		n = sc->get<state*>(n->getLocalName());
 		assert(n);
 	}
 }
@@ -253,11 +253,11 @@ state* composite::getNeverClaim(void) const {
 }
 
 state* composite::getSubState(const std::string& name) const {
-	return getTVariable<state*>(name);
+	return getLocal<state*>(name);
 }
 
 std::list<state*> composite::getSubStates(void) const {
-	return getTVariables<state*>();
+	return getLocals<state*>();
 }
 
 void composite::printHexadecimal(void) const {

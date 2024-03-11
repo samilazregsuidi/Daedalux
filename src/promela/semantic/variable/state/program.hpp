@@ -62,6 +62,12 @@ public:
 
 	void init(void) override;
 
+	bool operator == (const variable* other) const override;
+
+	bool operator != (const variable* other) const override;
+
+	state* operator=(const variable* other) override;
+
 	/*
 	* Creates a new process and returns its pid.
 	* Reserves some memory for the proctype variables in the memory chunk and initializes the value of these variables.
@@ -180,9 +186,7 @@ public:
 	const symTable* const globalSymTab;
 	const fsm* const stateMachine;
 
-	unsigned int pidCounter;
-	int nbProcesses; 			// Number of running processes.
-	int nbNeverClaim;			// Number of neverClaim
+	unsigned int pidCounter; 	// Counter of the number of processes in the state.
 	int lastStepPid; 			// pid of the process that fired transition that got us into this state. (NOT part of the actual state of the system, just a helper)
 
 	mutable const channel* handShakeChan;

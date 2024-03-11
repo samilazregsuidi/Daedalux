@@ -7,9 +7,11 @@ class process;
 
 class PIDVar : public primitive<unsigned char> {
 public:
-  PIDVar(const std::string& name, process* ref);
+  PIDVar(unsigned char pid = 0);
 
-  variable * deepCopy(void) const override;
+  PIDVar(const std::string& name, unsigned char initValue = 0);
+
+  PIDVar * deepCopy(void) const override;
 
   process * getRefProcess(void) const;
 

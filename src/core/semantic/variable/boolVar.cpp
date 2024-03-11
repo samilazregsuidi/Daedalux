@@ -1,8 +1,12 @@
 #include "boolVar.hpp"
 #include <cstdio>
 
-boolVar::boolVar(const std::string& name) 
-  : primitive<bool>(name, variable::V_BOOL)
+boolVar::boolVar(bool initValue) 
+  : primitive<bool>("", variable::V_BOOL, initValue)
+  {}
+
+boolVar::boolVar(const std::string& name, bool initValue) 
+  : primitive<bool>(name, variable::V_BOOL, initValue)
   {}
 
 boolVar* boolVar::deepCopy(void) const {

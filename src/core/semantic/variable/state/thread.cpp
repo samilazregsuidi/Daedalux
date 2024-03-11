@@ -19,6 +19,8 @@
 
 #include "initState.hpp"
 
+#include "pidVar.hpp"
+
 thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
 	: state(type, sym->getName())
 	, symType(sym)
@@ -59,17 +61,21 @@ void thread::init(void) {
 	variable::init();
 	setFsmNodePointer(start);
 
-	variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
+  
+
+  if(payLoad)
+    get<PIDVar&>("_pid") = pid;
+
 }
 
-byte thread::getPid(void) const {
-	return payLoad? variable::getTVariable<PIDVar*>("_pid")->getValue() : pid;
+ubyte thread::getPid(void) const {
+	return pid;
 }
 
 void thread::setPid(byte pid) {
 	this->pid = pid;
 	if(payLoad)
-		variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
+		get<PIDVar&>("_pid") = pid;
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }
@@ -132,7 +138,7 @@ variable * thread::getVariableFromExpr(const expr * varExpr) const
  * @return std::list<arg> 
 */
 
-std::list<arg> thread::getArgs(const exprArgList * args) const
+argList thread::getArgs(const exprArgList * args) const
 {
   std::list<arg> res;
   while (args) {
@@ -156,7 +162,7 @@ std::list<arg> thread::getArgs(const exprArgList * args) const
  * @return std::list<arg> 
 */
 
-std::list<arg> thread::getRArgs(const exprRArgList * rargs) const
+argList thread::getRArgs(const exprRArgList * rargs) const
 {
   std::list< arg> res;
   while (rargs) {
@@ -200,6 +206,17 @@ bool thread::operator==(const variable * other) const
 }
 
 bool thread::operator!=(const variable * other) const { return !(*this == other); }
+
+variable * thread::operator=(const variable * other)
+{
+  variable::operator=(other);
+  auto cast = dynamic_cast<const thread *>(other);
+  if(cast)
+    setFsmNodePointer(cast->getFsmNodePointer());
+  else 
+    assert(false);
+  return this;
+}
 
 void thread::printGraphViz(unsigned long i) const {}
 

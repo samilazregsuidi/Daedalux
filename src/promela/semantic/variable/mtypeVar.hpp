@@ -1,15 +1,13 @@
 #ifndef MTYPE_VARIABLE_H
 #define MTYPE_VARIABLE_H
 
-#include "primitiveVariable.hpp"
+#include "primitiveVar.hpp"
 
-class mtypeSymNode;
-
-class mtypeVar : public primitiveVariable {
+class mtypeVar : public primitive<unsigned char> {
 public:
-	mtypeVar(const mtypeSymNode* sym, unsigned int index =  0);
+	mtypeVar(const std::string& name, unsigned char initValue = 0);
 
-	variable* deepCopy(void) const override;
+	mtypeVar* deepCopy(void) const override;
 
 	~mtypeVar() override {}
 
@@ -49,17 +47,13 @@ public:
 
 class cmtypeSymNode;
 
-class cmtypeVar : public primitiveVariable {
+class cmtypeVar : public mtypeVar {
 public:
-	cmtypeVar(const cmtypeSymNode* sym);
+	cmtypeVar(const std::string& name, unsigned char initValue = 0);
 
 	~cmtypeVar() override {}
 
-	void setValue(int value) override;
-	
-	virtual int getValue(void) const override;
-
-	variable* deepCopy(void) const override;
+	cmtypeVar* deepCopy(void) const override;
 
 	int operator = (const primitiveVariable& rvalue) override;
 

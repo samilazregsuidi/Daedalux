@@ -129,6 +129,85 @@ void program::assign(const variable* sc) {
 	}
 }
 
+bool program::operator==(const variable* other) const {
+	auto var = dynamic_cast<const program*>(other);
+	if(var) {
+		if(nbProcesses != var->nbProcesses)
+			return false;
+		if(lastStepPid != var->lastStepPid)
+			return false;
+		if(timeout != var->timeout)
+			return false;
+
+		if(handShakeChan ^ var->handshakeChan)
+			return false;
+		else if (handShakeChan && var->handShakeChan && handShakeChan->getLocalName() != var->handShakeChan->getLocalName())
+			return false;
+		
+
+		if(handShakeProc ^ var->handShakeProc)
+			return false;
+		 else if (handShakeProc && var->handShakeProc && handShakeProc->getName() != var->handShakeProc->getName()) 
+			return false;
+
+		if(exclusiveProc ^ var->exclusiveProc)
+			return false;
+		else if (exclusiveProc && var->exclusiveProc && exclusiveProc->getName() != var->exclusiveProc->getName()) 
+			return false;
+		
+
+	} else
+		return false;
+
+	return variable::operator==(other);
+}
+
+bool program::operator!=(const variable* other) const {
+	return !(*this == other);
+}
+
+state* program::operator=(const variable* other) {
+	variable::operator=(other);
+	auto var = dynamic_cast<const program*>(other);
+	if(var) {
+		assert(globalSymTab == var->globalSymTab);
+		assert(stateMachine == var->stateMachine);
+		
+		pidCounter == var->pidCounter;
+		assert(nbProcesses == var->nbProcesses);
+		
+		lastStepPid = var->lastStepPid;
+		
+		if(other->handShakeChan) {
+			handShakeChan = getChannel(handShakeChan->getLocalName());
+			assert(handShakeChan);
+		} else 
+			handShakeChan = nullptr;
+
+		if(other->handShakeProc) {
+			handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
+			assert(handShakeProc);
+		} else 
+			handShakeProc = nullptr;
+
+		if(other->exclusiveProc) {
+			exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
+			assert(exclusiveProc);
+		} else 
+			exclusiveProc = nullptr;
+
+		timeout = var->timeout;
+
+	} else {
+		assert(false);
+	}
+	return this;
+}
+
+/**
+ * Returns the list of all the transitions of the state.
+ */
+
 std::list<transition*> program::transitions(void) const {
 	std::list<transition*> res;
 	for(auto p : getProcs())

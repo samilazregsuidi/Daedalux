@@ -2,7 +2,7 @@
 #define VARIABLE_H
 
 #include <string>
-#include <list>
+#include <vector>
 #include <map>
 
 typedef char byte;
@@ -11,6 +11,8 @@ typedef unsigned char ubyte;
 class payload;
 
 #include "symbols.hpp"
+
+#include "argVar.hpp"
 
 class varSymNode;
 
@@ -79,6 +81,26 @@ public:
 	virtual bool operator == (const variable* other) const;
 
 	virtual bool operator != (const variable* other) const;
+
+	virtual variable* operator=(const variable* other);
+
+	virtual variable* operator=(const argList& other);
+
+	/****************************************************/
+
+	template<typename T = variable*> T get(const std::string& name) const {
+		auto res = dynamic_cast<T>(getVariable(name));
+		if(res == nullptr)
+			throw std::runtime_error("Invalid cast");
+		return res;
+	}
+
+	template<typename T = variable*> T get(size_t index) const {
+		auto res = dynamic_cast<T>(varList[index]);
+		if(res == nullptr)
+			throw std::runtime_error("Invalid cast");
+		return res;
+	}
 
 	/****************************************************/
 
@@ -160,25 +182,21 @@ public:
 
 	virtual void reset(void);
 
-	//std::list<variable*> addVariables(const varSymNode* sym);
+	//std::vector<variable*> addVariables(const varSymNode* sym);
 
-	//std::list<variable*> createVariables(const varSymNode* sym);
+	//std::vector<variable*> createVariables(const varSymNode* sym);
 
 	//variable* addVariable(const varSymNode* varSym);
 
-	virtual variable* getVariable(const std::string& name) const;
-
-	virtual variable* getVariableDownScoping(const std::string& name) const;
-
-	template <typename T> T getTVariable(const std::string& name) const {
-		std::map<std::string, variable*>::const_iterator resIt = varMap.find(name);
-		if(resIt != varMap.cend())
-			return dynamic_cast<T>(resIt->second);
-	
-		return parent? parent->getTVariable<T>(name) : nullptr;
+	template <typename T = variable*> T getLocal(const std::string& name) const {
+		auto it = varMap.find(name);
+		if(it == varMap.end())
+			return nullptr;
+		auto res = dynamic_cast<T>(it->second);
+		return res;
 	}
 
-	template <typename T> std::list<T> getTVariables(void) const {
+	template <typename T = variable*> std::list<T> getLocals(void) const {
 		std::list<T> res;
 		for(auto var : varList) {
 			auto varT = dynamic_cast<T>(var);
@@ -187,8 +205,6 @@ public:
 		}
 		return res;
 	}
-
-	
 
 	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
@@ -204,11 +220,13 @@ public:
 
 	/*********************************************************/
 
+private:
+	virtual variable* getVariableImpl(const std::string& name) const;
+
+	virtual variable* getVariableDownScoping(const std::string& name) const;
+
+public:
 	static Type getVarType(symbol::Type type);
-
-	static size_t getUpperBound(variable::Type type);
-
-	static size_t getLowerBound(variable::Type type);
 
 	static unsigned int vidCounter;
 
@@ -220,7 +238,7 @@ protected:
 	Type varType;
 	size_t rawBytes;
 	std::map<std::string, variable*> varMap;
-	std::list<variable*> varList;
+	std::vector<variable*> varList;
 	//size_t sizeOf;
 	size_t offset;
 	payload* payLoad;

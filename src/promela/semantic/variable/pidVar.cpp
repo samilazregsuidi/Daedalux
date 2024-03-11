@@ -1,16 +1,20 @@
 #include "process.hpp"
 
-PIDVar::PIDVar(const std::string& name, process * ref) 
-  : primitive<unsigned char>(name, variable::V_PID)
-  ,  ref(ref)
-  {
-    assert(ref);
-    value = ref->getPid();
-  }
-
-variable * PIDVar::deepCopy(void) const
+PIDVar::PIDVar(unsigned char pid) 
+  : primitive<unsigned char>("", variable::V_PID, pid)
+  , ref(nullptr)
 {
-  variable * copy = new PIDVar(*this);
+}
+
+PIDVar::PIDVar(const std::string& name, unsigned char pid) 
+  : primitive<unsigned char>(name, variable::V_PID, pid)
+  , ref(nullptr)
+{
+}
+
+PIDVar * PIDVar::deepCopy(void) const
+{
+  PIDVar * copy = new PIDVar(*this);
   return copy;
 }
 
@@ -25,8 +29,6 @@ void PIDVar::setRefProcess(process * newRef)
 void PIDVar::assign(const variable * sc)
 {
   variable::assign(sc);
-  if (ref) {
-    ref = getTVariable<process *>(ref->getLocalName());
-    assert(ref);
-  }
+  ref = getTVariable<process *>(ref->getLocalName());
+  assert(ref);
 }
