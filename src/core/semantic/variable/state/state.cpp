@@ -40,13 +40,8 @@ std::list<state *> state::Post(void) const
 {
   std::list<state *> res;
   for (auto t : executables()) {
-    try {
-      auto successor = fire(t);
-      res.push_back(successor);
-    }
-    catch (const std::exception & e) {
-      std::cerr << e.what() << '\n';
-    }
+    auto successor = fire(t);
+    res.push_back(successor);
   }
 
   if (res.empty()) {
@@ -83,6 +78,7 @@ state * state::fire(transition * trans) const
 
   copy->apply(trans);
 
+  // Ensure that the transition has been applied
   assert(copy->origin == trans);
   assert(trans->dst == copy);
 

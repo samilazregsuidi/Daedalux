@@ -11,6 +11,8 @@
 
 class fsmExplorer {
 public:
+  static std::list<state *> avoidEpsilonSteps(state * start_state, unsigned int budget = 5);
+
   static std::shared_ptr<formula> discardMutant(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant);
 
   static std::map<unsigned int, std::vector<state *>> kSuccessors(state * start_state, unsigned int k);

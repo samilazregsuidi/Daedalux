@@ -23,7 +23,7 @@ public:
 
   void createMutants(unsigned int number_of_mutants);
 
-  std::map<std::string, std::shared_ptr<formula>> analyzeMutants(unsigned int number_of_mutants);
+  std::map<std::string, std::shared_ptr<formula>> analyzeMutants( void);
 
   std::vector<std::string> getMutantFilePaths() { return mutant_file_paths; }
   std::string getOriginalFilePath() { return original_file_path; }

@@ -3,20 +3,17 @@
 #include "state.hpp"
 #include <iostream>
 
-elementStack::element::element(void) : s(nullptr), init(false) {}
+elementStack::element::element(void) : current_state(nullptr), init(false) {}
 
-elementStack::element::element(std::shared_ptr<state> s, unsigned int depth) : s(s), init(true), depth(depth)
+elementStack::element::element(std::shared_ptr<state> s, unsigned int depth) : current_state(s), init(true), depth(depth)
 {
   std::list<std::shared_ptr<state>> sPost_;
-  for (auto & p : s->Post()) {
+  auto successors = s->Post();
+  for (auto & p : successors) {
     std::shared_ptr<state> postState(p);
     sPost_.push_back(postState);
   }
   Post = sPost_;
-  /*if(Post.size() == 0){
-          Post = s->Post();
-          //assert(false);
-  }*/
 }
 
 // elementStack::element::~element() {
@@ -36,8 +33,7 @@ void elementStack::push(std::shared_ptr<state> s, int depth)
 void elementStack::pop(void)
 {
   auto top = stackElem.top();
-  auto hash = top->s->hash();
-
+  auto hash = top->current_state->hash();
   stackElem.pop();
   setElem.erase(hash);
 }
@@ -45,8 +41,8 @@ void elementStack::pop(void)
 void elementStack::pop(unsigned int numberOfElements)
 {
   while (!stackElem.empty() && numberOfElements > 0) {
-	--numberOfElements;
-	pop();
+    --numberOfElements;
+    pop();
   }
 }
 
@@ -59,6 +55,6 @@ std::shared_ptr<elementStack::element> elementStack::top(void) const
 
 bool elementStack::isIn(unsigned long elem) const { return setElem.find(elem) != setElem.end(); }
 
-bool elementStack::isIn(const elementStack::element & elem) const { return isIn(elem.s->hash()); }
+bool elementStack::isIn(const elementStack::element & elem) const { return isIn(elem.current_state->hash()); }
 
 bool elementStack::empty(void) const { return stackElem.empty(); }

@@ -3,22 +3,54 @@
 #include "utils/stateComparer.hpp"
 #include <initState.hpp>
 
+/// @brief Given a state, this function returns the successor states of the state, but avoids epsilon transitions where only
+/// internal variables are updated
+/// @param start_state - The state to find the successor states of
+/// @param budget - The number of steps to maximally take
+/// @return A list of the successor states of the state
+std::list<state *> fsmExplorer::avoidEpsilonSteps(state * start_state, unsigned int budget)
+{
+  if (budget == 0) {
+    // We have reached the budget - return an empty list
+    return std::list<state *>();
+  }
+  auto post_states = start_state->Post();
+  auto post_states_no_epsilon = std::list<state *>();
+  auto epsilon_states = std::list<state *>();
+  for (auto s : post_states) {
+    if (s->isSame(start_state)) {
+      epsilon_states.push_back(s);
+    }
+    else {
+      post_states_no_epsilon.push_back(s);
+    }
+  }
+  if (post_states_no_epsilon.empty()) {
+    for (auto s : epsilon_states) {
+      auto next_states = avoidEpsilonSteps(s, budget - 1);
+      for (auto next_state : next_states) {
+        post_states_no_epsilon.push_back(next_state);
+      }
+    }
+  }
+  return post_states_no_epsilon;
+}
+
 //**
 // * @brief This function generates a formula that only the original automata can satisfy!
 // * Parameters:
 // * 	@fsm1 - The original automata
 // * 	@fsm2 - The mutant automata
-// * 	@trace_length - The length of the run to generate
-// * 	@ignore_common_prefix - A flag to ignore the common prefix of the two automata
-// *
+// * @return A formula that only the original automata can satisfy
 std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant)
 {
   auto tvl = nullptr;
   // Create the initial state for both automata
   auto current_state_original = initState::createInitState(original.get(), tvl);
   auto current_state_mutant = initState::createInitState(mutant.get(), tvl);
-  // Lists to store the transitions of the two automata
+  // Lists to store the  post states of the original
   auto post_states_original = std::list<state *>();
+  // Lists to store the  post states of the mutant
   auto post_states_mutant = std::list<state *>();
   auto unique_states_original = std::list<state *>();
 
@@ -36,16 +68,26 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
   while (true) {
     post_states_original = current_state_original->Post();
     post_states_mutant = current_state_mutant->Post();
-    if (post_states_mutant.empty() || post_states_original.empty()) {
-      std::cout << "No more transitions to fire - We have reached the end of the automata." << std::endl;
-      break;
-    }
+
     // Find the states that are unique to the original automata
     unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
     // The original automata has a unique state - let us continue the trace using this state
     if (!unique_states_original.empty()) {
       std::vector<std::shared_ptr<state>> post_states_original_vec;
       std::vector<std::shared_ptr<state>> post_states_mutant_vec;
+      if (post_states_mutant.size() == 0) {
+        // We need to make sure that the original automata has a distinct successor state
+        bool found = false;
+        for (auto s : unique_states_original) {
+          if (!s->isSame(current_state_original)) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          // We need to find a successor state that is not the same as the current state
+        }
+      }
       for (auto s : post_states_original) {
         post_states_original_vec.push_back(std::shared_ptr<state>(s));
       }
@@ -65,10 +107,9 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
 
       auto states_original = comparison.getOriginalStates();
       auto states_mutant = comparison.getMutantStates();
-    //   auto distinguishing_formula_2 = formulaCreator::distinguishStates(states_original, states_mutant);
+      //   auto distinguishing_formula_2 = formulaCreator::distinguishStates(states_original, states_mutant);
 
       std::cout << "The distinguishing formula is " << distinguishing_formula->toFormula() << std::endl;
-
       return distinguishing_formula;
     }
     else {

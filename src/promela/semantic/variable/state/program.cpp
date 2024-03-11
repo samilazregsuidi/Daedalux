@@ -278,8 +278,7 @@ bool program::safetyPropertyViolation(void) const {
 void program::addProcess(process* proc){
 	
 	if(nbProcesses >= MAX_PROCESS) {
-		printf("Cannot instantiate more than %d processes.", MAX_PROCESS);
-		assert(false);
+		throw std::runtime_error("Cannot instantiate more than " + std::to_string(MAX_PROCESS) + " processes.");
 	}
 	
 	proc->setPid(pidCounter++);
@@ -469,9 +468,9 @@ void program::apply(transition* trans) {
 
 		auto proc = getProc(procTrans->getThread()->getPid());
 		assert(proc);
-
+		
+		// The transition is not guaranteed to be executable, so we must be able to handle erroneous transitions.
 		proc->apply(procTrans);
-
 
 		//that is ugly, should return a progtrans in the first place
 		trans = new programTransition(this, procTrans);

@@ -25,14 +25,14 @@ TEST_F(ElementStackTest, PushAndTop) {
     std::shared_ptr<state> initialState = std::make_shared<composite>("init_state");
     std::cout << "initialState: " << initialState->getFullName() << std::endl;
     s->push(initialState, 0);
-    std::cout << "top: " << s->top()->s->getFullName() << std::endl;
+    std::cout << "top: " << s->top()->current_state->getFullName() << std::endl;
     ASSERT_FALSE(s->empty());
 
     auto topElement = s->top();
     ASSERT_TRUE(topElement != nullptr);
     ASSERT_TRUE(topElement->init);
     ASSERT_EQ(topElement->depth, 0);
-    ASSERT_EQ(topElement->s, initialState);
+    ASSERT_EQ(topElement->current_state, initialState);
 
     // Cleanup
     s->pop();

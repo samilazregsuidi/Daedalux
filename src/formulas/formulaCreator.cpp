@@ -39,7 +39,7 @@ formulaCreator::buildVariableValueMap(const std::vector<std::shared_ptr<state>> 
 {
   // The vector of states must not be empty.
   if (states.empty()) {
-    throw std::invalid_argument("The vector of states is empty.");
+    return std::unordered_map<std::string, std::map<ValueType, std::vector<std::shared_ptr<state>>>>();
   }
   // Get all variables that are visible in the states.
   auto variables = states.front()->getAllVisibleVariables();
@@ -291,7 +291,13 @@ std::shared_ptr<formula> formulaCreator::createTransitionFormula(const std::shar
                                                                  const std::vector<std::shared_ptr<state>> include_states,
                                                                  const std::vector<std::shared_ptr<state>> exclude_states)
 {
-  auto distinguishingFormula = distinguishStates(include_states, exclude_states, false);
+  std::shared_ptr<formula> distinguishingFormula;
+  if(!exclude_states.empty()) {
+    distinguishingFormula = distinguishStates(include_states, exclude_states, false);
+  }
+  else {
+    distinguishingFormula = groupStatesByFormula(include_states);
+  }
   auto finallyFormula = std::make_shared<FinallyFormula>(distinguishingFormula);
   auto nextFormula = std::make_shared<NextFormula>(finallyFormula);
   auto commonStateFormula = groupStatesByFormula({current_state});

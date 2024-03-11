@@ -119,6 +119,10 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 
 	ltlModelChecker* mc = new ltlModelChecker();
 	auto result = mc->check(automata.get(), tvl.get());
+	if(result)
+		std::cout << "The model satisfies the property" << std::endl;
+	else
+		std::cout << "The model does not satisfy the property" << std::endl;
 	delete mc;
 
 	// createStateSpaceDFS_RR(automata, tvl);

@@ -34,7 +34,7 @@ private:
   unsigned long depth = 0;                   // Current exploration depth (inner and outer)
 
   void checkForDeadlock(std::shared_ptr<state> state, const elementStack & stack, bool printStack);
-  void checkNeverClaim(std::shared_ptr<state> init);
+  bool isNeverClaimProblematic(std::shared_ptr<state> init);
   void resetCounters();
   void emptyStack(elementStack & stack);
 };

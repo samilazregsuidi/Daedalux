@@ -17,7 +17,7 @@ public:
 
         ~element() = default;
 
-        std::shared_ptr<state> s;
+        std::shared_ptr<state> current_state;
         std::list<std::shared_ptr<state>> Post;
         bool init;
         unsigned int depth;

@@ -71,7 +71,7 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
 {
   std::cout << "Enhance specification using mutation testing" << std::endl;
   // Create mutants
-  // createMutants(number_of_mutants);
+  createMutants(number_of_mutants);
   // Filter out bisimilar mutants
   // TODO implement - not sure how to do this yet - SAMI might be able to help with this
 
@@ -84,7 +84,7 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   }
 
   // Analyze surviving mutants using trace generation and comparison with the original program
-  auto formulas = analyzeMutants(trace_size);
+  auto formulas = analyzeMutants();
 
   std::vector<std::shared_ptr<formula>> formulas_vector = {};
 
@@ -125,14 +125,17 @@ bool checkPromelaModel(const std::string & file_path)
     model_correct = mc->check(fsm.get(), nullptr, false);
   }
   catch (const std::exception & e) {
+    std::cerr << "An error occurred while checking the model: ";
     std::cerr << e.what() << '\n';
+    model_correct = false;
   }
   delete mc;
   return model_correct;
 }
 
 /// @brief This function checks whether the mutants are killed by the already specified properties
-/// @return Returns a pair of vectors, the first one containing the killed mutants and the second one containing the surviving mutants
+/// @return Returns a pair of vectors, the first one containing the killed mutants and the second one containing the surviving
+/// mutants
 std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::killMutants()
 {
   // Ensure that the original program is correct
@@ -197,7 +200,7 @@ void MutantAnalyzer::createMutants(unsigned int number_of_mutants)
   std::cout << "Generated " << mutant_file_paths.size() << " mutants" << std::endl;
 }
 
-std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants(unsigned int trace_size)
+std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants()
 {
   // Load original promela file
   auto original_loader = new promela_loader(original_file_path, nullptr);
@@ -208,10 +211,9 @@ std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants(u
   for (auto mutant_file_path : mutant_file_paths) {
     auto mutant_loader = std::make_unique<promela_loader>(mutant_file_path, nullptr);
     auto mutantFSM = mutant_loader->getAutomata();
-    std::shared_ptr<formula> formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
+    auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
     resultMap[mutant_file_path] = formula;
   }
-  std::cout << "Finished analyzing mutants" << std::endl;
   return resultMap;
 }
 

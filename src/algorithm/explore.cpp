@@ -44,7 +44,6 @@ void launchExecution(const fsm * automata, const TVL * tvl)
   printf("--\n");
 }
 
-
 std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
 {
   // Create the initial state for both automata
@@ -239,15 +238,15 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
   unsigned long i = 0;
 
   while (!st.empty()) {
-
     auto current = st.top();
+    auto current_state = current->current_state;
     i++;
     printf("****************** current state ****************\n");
-    current->s->PRINT_STATE();
+    current_state->PRINT_STATE();
     st.pop();
     depth = current->depth;
 
-    auto successors = current->s->Post();
+    auto successors = current_state->Post();
     // delete current;
 
     if (successors.size() > 0) {
@@ -304,15 +303,14 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
   unsigned long i = 0;
 
   while (!st.empty()) {
-
     auto current = st.top();
+    auto current_state = current->current_state;
 
     printf("****************** current state ****************\n");
-    current->s->PRINT_STATE();
-
+    current_state->PRINT_STATE();
     if (!current->init) {
       std::list<std::shared_ptr<state>> sPost_;
-      for (auto & p : current->s->Post()) {
+      for (auto & p : current_state->Post()) {
         std::shared_ptr<state> postState(p);
         sPost_.push_back(postState);
       }
@@ -320,8 +318,7 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
       current->init = true;
     }
 
-    if (current->Post.size() > 0) {
-
+    if (!current->Post.empty()) {
       auto n = *current->Post.begin();
       current->Post.pop_front();
 
@@ -382,7 +379,7 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
 
     if (!current->init) {
       std::list<std::shared_ptr<state>> sPost_;
-      for (auto & p : current->s->Post()) {
+      for (auto & p : current->current_state->Post()) {
         std::shared_ptr<state> postState(p);
         sPost_.push_back(postState);
       }
@@ -457,7 +454,7 @@ void printElementStack(stateToGraphViz * stateGraphVis, const std::stack<std::sh
   std::cout << "\n - Stack trace:\n";
   bool inCycle = false;
   while (!reverseStack.empty()) {
-    s = reverseStack.top()->s.get();
+    s = reverseStack.top()->current_state.get();
     depth = reverseStack.top()->depth;
     reverseStack.pop();
     if (loopBegin && loopBegin->hash() == s->hash()) {
@@ -489,8 +486,9 @@ void printElementStack(stateToGraphViz * stateGraphVis, const std::stack<std::sh
   reverseStack = reverse(innerStack);
   while (!reverseStack.empty()) {
     auto top = reverseStack.top();
-    top->s->print();
-    stateGraphVis->printGraphViz(top->s.get(), top->depth);
+    auto current_element = top->current_state;
+    current_element->print();
+    stateGraphVis->printGraphViz(current_element.get(), top->depth);
     reverseStack.pop();
   }
   std::cout << "\n\n ****\n";

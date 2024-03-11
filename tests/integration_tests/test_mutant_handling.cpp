@@ -89,8 +89,7 @@ TEST_F(MutantHandlerTest, AnalyzeMutants)
   auto original_file_path = testFilesUtils->array_model_never();
   auto mutant_file_path = testFilesUtils->array_mutant_never();
   MutantAnalyzer mutantAnalyzer(original_file_path, {mutant_file_path});
-  auto trace_length = 15;
-  mutantAnalyzer.analyzeMutants(trace_length);
+  mutantAnalyzer.analyzeMutants();
   auto mutants = mutantAnalyzer.getMutantFilePaths();
   for (auto mutant : mutants) {
     std::ifstream file(mutant);

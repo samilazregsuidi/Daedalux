@@ -47,21 +47,6 @@ std::list<transition *> compTransition::getSubTs(void) const
   return subTs;
 }
 
-/*state* compTransition::fire(void)
-{
-	assert(src != nullptr);
-	assert(dst == nullptr);
-
-	auto copy = src->deepCopy();
-	assert(copy);
-
-	assert(src->hash() == copy->hash()); // The copy should have the same hash as the original
-	assert(copy->getOrigin() == nullptr);
-
-	copy->apply(this);
-	assert(copy->getOrigin() == this);
-}*/
-
 void compTransition::accept(transitionVisitor* visitor) {
 	visitor->visit(this);
 }
