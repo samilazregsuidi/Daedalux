@@ -72,20 +72,25 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
   return seach_result == 0;
 }
 
-byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles)
+bool ltlModelChecker::somethingToExplore(const elementStack & stack) { return !stack.empty(); }
+
+bool ltlModelChecker::errorFound(const reachabilityRelation & reachableStates, bool exhaustive)
 {
-  byte exhaustive = 0;
+  return reachableStates.hasErrors() && !exhaustive;
+}
+
+byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles, long unsigned maxDepth)
+{
+  bool exhaustive = false;
   auto firstState = stackOuter.top()->current_state;
   reachableStates.getStatus(firstState.get());
   reachableStates.init(firstState.get());
   // Execution continues as long as the
   //  - stack is not empty
   //  - no error was found (except in the exhaustive case)
-  while (!stackOuter.empty() && (!reachableStates.hasErrors() || exhaustive) /*&& !reachableStates.isComplete()*/) {
+  while (somethingToExplore(stackOuter) && !errorFound(reachableStates, exhaustive) && depth < maxDepth) {
     auto currentStateElement = stackOuter.top();
     firstState = currentStateElement->current_state;
-    auto s_hash = firstState->hash();
-
     // Check for deadlock
     checkForDeadlock(currentStateElement->current_state, stackOuter, generateIntermediaryFiles);
 
@@ -97,7 +102,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       //  -> the state below that is the state that actually led to the accepting state to be reachable.
       //     i.e. this state is the actual violating state.
 
-      printf("Safety property violated %lu.\n", s_hash);
+      printf("Safety property violated %lu.\n", firstState->hash());
       if (generateIntermediaryFiles)
         printElementStack(graphVis, stackOuter.stackElem);
 
@@ -113,8 +118,6 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       if (!currentStateElement->Post.empty()) {
         // There are still successors to explore
         auto firstSuccessor = *currentStateElement->Post.begin();
-        s_hash = firstSuccessor->hash();
-
         currentStateElement->Post.pop_front();
 
         // graphVis->printGraphViz(s_);
@@ -166,7 +169,6 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       }
       else if (currentStateElement->Post.empty()) {
         auto currentState = currentStateElement->current_state;
-        s_hash = currentState->hash();
         // printf("    +-> all transitions of state %lu fired, acceptance check and backtracking...\n", s_hash);
         // Back these values up, the inner search will free currentStateElement->state before returning
         if (currentState->isAccepting()) {
@@ -216,14 +218,14 @@ void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const ele
   }
 }
 
-byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles)
+byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles,
+                               long unsigned maxDepth)
 {
-  byte exhaustive = 0;
-
+  bool exhaustive = false;
   // Execution continues as long as the
   //  - stack is not empty
   //  - no error was found (except in the exhaustive case)
-  while (!stackInner.empty() && (!reachableStates.hasErrors() || exhaustive) /*&& !reachableStates.isComplete()*/) {
+  while (somethingToExplore(stackInner) && !errorFound(reachableStates, exhaustive) && depth < maxDepth) {
     auto currentStateElement = stackInner.top();
     // Check for deadlock
     checkForDeadlock(currentStateElement->current_state, stackOuter, generateIntermediaryFiles);
@@ -241,8 +243,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
       auto firstSuccessor = *currentStateElement->Post.begin();
       currentStateElement->Post.pop_front();
 
-      auto s_hash = firstSuccessor->hash();
-      bool onStack = stackOuter.isIn(s_hash);
+      bool onStack = stackOuter.isIn(firstSuccessor->hash());
 
       // graphVis->printGraphViz(s_);
 
@@ -261,7 +262,6 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
       else {
         // get the status before update!
         auto status = reachableStates.getStatus(firstSuccessor.get());
-
         auto lastFoundIn = reachableStates.lastFoundIn(firstSuccessor.get());
         // update put to inner if outer
         reachableStates.update(firstSuccessor.get());

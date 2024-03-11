@@ -61,13 +61,13 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
       throw std::runtime_error("The mutant automata has no successor states");
     // Find the next state to visit
     current_state_original = successors_original.front();
-    current_state_mutant = StateComparer::most_similar_state(current_state_mutant, successors_mutant);
+    current_state_mutant = StateComparer::most_similar_state(current_state_original, successors_mutant);
   };
 
   // Continue until we have created a formula that only the original automata can satisfy
   while (true) {
-    post_states_original = current_state_original->Post();
-    post_states_mutant = current_state_mutant->Post();
+    post_states_original = current_state_original->SafePost();
+    post_states_mutant = current_state_mutant->SafePost();
 
     // Find the states that are unique to the original automata
     unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
@@ -75,7 +75,7 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
     if (!unique_states_original.empty()) {
       std::vector<std::shared_ptr<state>> post_states_original_vec;
       std::vector<std::shared_ptr<state>> post_states_mutant_vec;
-      if (post_states_mutant.size() == 0) {
+      if (post_states_mutant.empty()) {
         // We need to make sure that the original automata has a distinct successor state
         bool found = false;
         for (auto s : unique_states_original) {
@@ -85,6 +85,7 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
           }
         }
         if (!found) {
+          std::cout << "The current state is no different from its successor states" << std::endl;
           // We need to find a successor state that is not the same as the current state
         }
       }
@@ -135,7 +136,7 @@ std::map<unsigned int, std::vector<state *>> fsmExplorer::kSuccessors(state * st
   for (unsigned int i = 0; i < k; ++i) {
     auto next_states = std::vector<state *>();
     for (auto s : current_states) {
-      auto post_states = s->Post();
+      auto post_states = s->SafePost();
       for (auto post_state : post_states) {
         if (StateComparer::containState(next_states, post_state)) {
           // If the state is already in the list of next states, we do not need to add it again

@@ -43,7 +43,6 @@ std::list<state *> state::Post(void) const
     auto successor = fire(t);
     res.push_back(successor);
   }
-
   if (res.empty()) {
     auto neverClaim = getNeverClaim();
     std::list<transition *> neverTs;
@@ -60,8 +59,18 @@ std::list<state *> state::Post(void) const
     }
     transition::erase(neverTs);
   }
-
   return res;
+}
+
+std::list<state *> state::SafePost(void) const
+{
+  try {
+    return Post();
+  }
+  catch (std::exception & e) {
+    std::cout << "Exception caught in state::SafePost: " << e.what() << std::endl;
+    return std::list<state *>();
+  }
 }
 
 state * state::fire(transition * trans) const

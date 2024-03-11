@@ -17,8 +17,10 @@ typedef unsigned char ubyte;
 class ltlModelChecker {
 public:
   bool check(const fsm * automata, const TVL * tvl, bool generateIntermediaryFiles = false);
-  byte outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles = false);
-  byte innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles = false);
+
+  byte outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles = false, long unsigned maxDepth = 1000);
+  byte innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles = false,
+                long unsigned maxDepth = 1000);
 
   reachabilityRelation getReachabilityRelation() const { return reachableStates; }
 
@@ -37,4 +39,6 @@ private:
   bool isNeverClaimProblematic(std::shared_ptr<state> init);
   void resetCounters();
   void emptyStack(elementStack & stack);
+  bool somethingToExplore(const elementStack & stack);
+  bool errorFound(const reachabilityRelation & reachableStates, bool exhaustive);
 };

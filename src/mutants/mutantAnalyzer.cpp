@@ -209,6 +209,7 @@ std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants()
   auto resultMap = std::map<std::string, std::shared_ptr<formula>>();
   // Loop through all mutants and compare them to the original one by one
   for (auto mutant_file_path : mutant_file_paths) {
+    std::cout << "Analyzing mutant " << mutant_file_path << std::endl;
     auto mutant_loader = std::make_unique<promela_loader>(mutant_file_path, nullptr);
     auto mutantFSM = mutant_loader->getAutomata();
     auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);

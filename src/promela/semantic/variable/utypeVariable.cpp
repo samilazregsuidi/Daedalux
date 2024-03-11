@@ -36,8 +36,11 @@ float utypeVar::delta(const variable * v2) const
     return 1;
 
   float res = 0;
-  for (auto var : varList)
-    res += var->delta(v2->getVariable(var->getLocalName()));
+  for (auto var : varList){
+    auto localName = var->getLocalName();
+    auto var2 = v2->getVariable(localName);
+    res += var->delta(var2);
+  }
 
   return res / varList.size();
 }

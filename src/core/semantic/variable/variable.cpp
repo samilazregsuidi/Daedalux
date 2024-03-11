@@ -348,30 +348,23 @@ float variable::delta(const variable * v2) const
   if (v2 == nullptr)
     return 1;
   float res = 0;
-  for (auto var : varList) {
+  auto visibleVars = getAllVisibleVariables();
+  for (auto var : visibleVars) {
     auto name = var->getLocalName();
     auto v = v2->getVariable(name);
-    auto type = var->getType();
-    if (v->isPredef || v->isHidden || type == variable::V_CMTYPE) {
-      // Internal variables and hidden variables should not be considered
-      continue;
-    }
     res += var->delta(v);
   }
-  if (varList.size() == 0)
+  if (visibleVars.size() == 0)
     return 0;
   return res / varList.size();
 }
 
 void variable::printDelta(const variable * v2) const
 {
-  for (auto var : varList) {
+  auto visibleVars = getAllVisibleVariables();
+  for (auto var : visibleVars) {
     auto name = var->getLocalName();
     auto v = v2->getVariable(name);
-    if (v->isPredef || v->isHidden || v->getType() == variable::V_MTYPE_DEF) {
-      // Internal variables and hidden variables should not be considered
-      continue;
-    }
     var->printDelta(v);
   }
 }

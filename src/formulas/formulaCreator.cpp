@@ -221,6 +221,18 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
     }
   }
   if (subformulas.empty()) {
+    std::cout << "Include states: " << std::endl;
+    for (auto s : include_states) {
+      s->print();
+    }
+    std::cout << "Exclude states: " << std::endl;
+    for (auto s : exclude_states) {
+      s->print();
+    }
+    if (StateComparer::sameStates(include_states, exclude_states)) {
+      std::cout << "The states are the same. I am returning a false formula as they cannot be distinguished." << std::endl;
+      return std::make_shared<BooleanConstant>(false);
+    }
     std::cout << "The states cannot be distinguished based on the variables. It is possible that the states are the same. I am "
                  "returning a false formula."
               << std::endl;
@@ -292,7 +304,7 @@ std::shared_ptr<formula> formulaCreator::createTransitionFormula(const std::shar
                                                                  const std::vector<std::shared_ptr<state>> exclude_states)
 {
   std::shared_ptr<formula> distinguishingFormula;
-  if(!exclude_states.empty()) {
+  if (!exclude_states.empty()) {
     distinguishingFormula = distinguishStates(include_states, exclude_states, false);
   }
   else {

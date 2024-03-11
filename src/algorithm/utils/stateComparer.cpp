@@ -7,9 +7,6 @@
 /// @return True if the two vectors contain the same states, false otherwise
 bool StateComparer::sameStates(const std::vector<std::shared_ptr<state>> & states1, const std::vector<std::shared_ptr<state>> & states2)
 {
-  if (states1.size() != states2.size()) {
-    return false;
-  }
   for (size_t i = 0; i < states1.size(); i++) {
     auto state1 = states1[i];
     bool isFound = false;
