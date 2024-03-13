@@ -25,9 +25,9 @@ public:
 
 	void send(const argList& args);
 
-	bool isReceivable(const std::list<arg>& rargs) const;
+	bool isReceivable(const argList& rargs) const;
 
-	void receive(const std::list<arg>& rargs);
+	void receive(const argList& rargs);
 
 	bool isRendezVous(void) const;
 
@@ -51,7 +51,7 @@ private:
 
 class CIDVar : public primitive<unsigned char> {
 public:
-	CIDVar(const cidSymNode* sym, unsigned int bound =  0);
+	CIDVar(const cidSymNode* sym, unsigned char initValue = 0);
 
 	CIDVar* deepCopy(void) const override;
 

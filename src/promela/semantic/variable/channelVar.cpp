@@ -1,4 +1,4 @@
-#include "channel.hpp"
+#include "channelVar.hpp"
 
 #include "payload.hpp"
 
@@ -10,10 +10,7 @@
 channel::channel(const std::string& name, size_t capacity)
 	: stackVar(name, capacity)
 {
-	if(chanSym->getBound() > 1)
-		name += "["+std::to_string(index)+"]";
-
-	if(chanSym->getCapacity() > 0){
+	if(capacity > 0){
 		rawBytes++;
 		for(int i = 0; i < chanSym->getCapacity(); ++i){
 			unsigned int fieldIndex = 0;

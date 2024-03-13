@@ -19,7 +19,7 @@
 #include "symbols.hpp"
 
 #include "channelVar.hpp"
-#include "utypeVar.hpp"
+#include "structVar.hpp"
 #include "boolVar.hpp"
 #include "mtypeVar.hpp"
 
@@ -175,7 +175,8 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 			return res;
 
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new utypeVar(dynamic_cast<const utypeSymNode*>(sym), i);
+			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new structVar(name);
 
 			for(auto field : dynamic_cast<const utypeSymNode*>(sym)->getUType()->getFields()) {
 				addVariables(var, field);

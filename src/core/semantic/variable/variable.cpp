@@ -61,7 +61,7 @@ variable::Type variable::getVarType(symbol::Type type)
   case symbol::T_INT:
     return V_INT;
   case symbol::T_UTYPE:
-    return V_UTYPE;
+    return V_STRUCT;
   case symbol::T_CMTYPE:
     return V_CMTYPE;
   default:
@@ -84,11 +84,6 @@ variable::variable(const variable & other)
     : name(other.name), parent(other.parent), vid(other.vid), varType(other.varType), rawBytes(other.rawBytes),
       varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), hidden(other.hidden),
       predef(other.predef), global(other.global)
-{
-}
-
-variable::variable(const variable * other) 
-  : variable(*other)
 {
   auto nbVariables = other->getVariables().size();
   // auto otherSizeOf = other->getSizeOf();
@@ -236,7 +231,8 @@ void variable::_addVariable(variable * var)
 void variable::_rmVariable(const variable * var)
 {
   varMap.erase(var->getLocalName());
-  varList.erase(std::find(varList.begin(), varList.end(), var));
+  auto it = std::find(varList.begin(), varList.end(), var);
+  varList.erase(it);
 }
 
 bool variable::hasVariables(void) const { return getVariables().size() > 0; }

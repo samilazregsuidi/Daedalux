@@ -56,7 +56,7 @@ public:
 		V_INIT,
 		V_PROC,		// ProcType: fsm field used; bound denotes the number of initially active processes
 		V_INLINE,
-		V_UTYPE,	// Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type record
+		V_STRUCT,	// Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type record
 		V_NEVER,	// Never claim
 		V_PROG,
 		V_COMP_S,
@@ -67,8 +67,6 @@ public:
 	variable(Type type, const std::string& name = std::string());
 
 	variable(const variable& other);
-	
-	variable(const variable* other);
 
 	virtual variable* deepCopy(void) const = 0;
 
