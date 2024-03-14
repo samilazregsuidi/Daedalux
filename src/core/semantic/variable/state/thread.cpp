@@ -17,13 +17,8 @@
 
 #include "initState.hpp"
 
-thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: state(type, sym->getName())
-	, symType(sym)
-	, index(index)
-	, start(start)
-	, _else(false)
-	, pid(pid)
+thread::thread(variable::Type type, const seqSymNode * sym, const fsmNode * start, byte pid, unsigned int index)
+    : state(type, sym->getName()), symType(sym), index(index), start(start), _else(false), pid(pid)
 {
 
   // seq sym node need boud attr. if arrays
@@ -32,42 +27,33 @@ thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start,
   addRawBytes(sizeof(const fsmNode *));
 }
 
-thread::thread(const thread& other)
-	: state(other)
-	, symType(other.symType)
-	, index(other.index)
-	, start(other.start)
-	, _else(other._else)
-	, pid(other.pid)
-{}
-
-thread::thread(const thread* other)
-	: state(other)
-	, symType(other->symType)
-	, index(other->index)
-	, start(other->start)
-	, _else(other->_else)
-	, pid(other->pid)
+thread::thread(const thread & other)
+    : state(other), symType(other.symType), index(other.index), start(other.start), _else(other._else), pid(other.pid)
 {
 }
 
-void thread::init(void) {
-	//assert(getProgState());
-
-	variable::init();
-	setFsmNodePointer(start);
-
-	variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
+thread::thread(const thread * other)
+    : state(other), symType(other->symType), index(other->index), start(other->start), _else(other->_else), pid(other->pid)
+{
 }
 
-byte thread::getPid(void) const {
-	return payLoad? variable::getTVariable<PIDVar*>("_pid")->getValue() : pid;
+void thread::init(void)
+{
+  // assert(getProgState());
+
+  variable::init();
+  setFsmNodePointer(start);
+
+  variable::getTVariable<PIDVar *>("_pid")->setValue(pid);
 }
 
-void thread::setPid(byte pid) {
-	this->pid = pid;
-	if(payLoad)
-		variable::getTVariable<PIDVar*>("_pid")->setValue(pid);
+byte thread::getPid(void) const { return payLoad ? variable::getTVariable<PIDVar *>("_pid")->getValue() : pid; }
+
+void thread::setPid(byte pid)
+{
+  this->pid = pid;
+  if (payLoad)
+    variable::getTVariable<PIDVar *>("_pid")->setValue(pid);
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }
@@ -228,20 +214,29 @@ bool thread::operator!=(const variable * other) const { return !(*this == other)
 
 void thread::printGraphViz(unsigned long i) const {}
 
-float thread::delta(const variable * s2) const
+float thread::delta(const variable * s2, bool considerInternalVariables) const
 {
   auto cast = dynamic_cast<const thread *>(s2);
-  auto delta = variable::delta(s2) * 0.5;
+  auto delta =  variable::delta(s2, considerInternalVariables) * 0.5;
+
+  auto node = getFsmNodePointer();
+  auto otherNode = cast->getFsmNodePointer();
+
+  if (cast) {
+    int lineNb = node ? node->getLineNb() : -1;
+    int otherLineNb = otherNode ? otherNode->getLineNb() : -1;
+    delta += (lineNb != otherLineNb) ? 0.5 : 0;
+  }
   assert(delta >= 0 && delta <= 1);
   return delta;
 }
 
-void thread::printDelta(const variable * v2) const
+void thread::printDelta(const variable * v2, bool considerInternalVariables) const
 {
   auto cast = dynamic_cast<const thread *>(v2);
   if (cast == nullptr)
     return;
-  variable::printDelta(v2);
+  variable::printDelta(v2, considerInternalVariables);
 
   auto node = getFsmNodePointer();
   auto otherNode = cast->getFsmNodePointer();
@@ -255,13 +250,13 @@ void thread::printDelta(const variable * v2) const
   // }
 }
 
-std::list<variable *> thread::getDelta(const variable * v2) const
+std::list<variable *> thread::getDelta(const variable * v2, bool considerInternalVariables) const
 {
   std::list<variable *> res;
   auto cast = dynamic_cast<const thread *>(v2);
   if (cast == nullptr)
     return res;
 
-  res = variable::getDelta(v2);
+  res = variable::getDelta(v2, considerInternalVariables);
   return res;
 }

@@ -10,6 +10,8 @@
 #include <mtypeVariable.hpp>
 #include <numeric> // for std::accumulate
 #include <sstream>
+#include <unordered_set>
+#include <utils/stateComparer.hpp>
 
 std::map<int, std::vector<std::shared_ptr<state>>>
 formulaUtility::convertToIntegerMap(const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values)
@@ -26,10 +28,10 @@ formulaUtility::convertToIntegerMap(const std::map<ValueType, std::vector<std::s
   return new_values;
 }
 
-
-std::shared_ptr<formula> formulaUtility::createEqualityFormulas(const std::string & variableName,
-                                                const std::map<ValueType, std::vector<std::shared_ptr<state>>> & include_values,
-                                                const std::map<ValueType, std::vector<std::shared_ptr<state>>> & exclude_values)
+std::shared_ptr<formula>
+formulaUtility::createEqualityFormulas(const std::string & variableName,
+                                       const std::map<ValueType, std::vector<std::shared_ptr<state>>> & include_values,
+                                       const std::map<ValueType, std::vector<std::shared_ptr<state>>> & exclude_values)
 {
   std::shared_ptr<formula> res;
   if (!include_values.empty()) {
@@ -43,7 +45,6 @@ std::shared_ptr<formula> formulaUtility::createEqualityFormulas(const std::strin
   }
   return res;
 }
-
 
 std::shared_ptr<formula>
 formulaUtility::makeAlternativeFormula(std::string name, const std::map<ValueType, std::vector<std::shared_ptr<state>>> values,
@@ -196,18 +197,16 @@ std::shared_ptr<formula> formulaUtility::combineFormulas(const std::vector<std::
     std::cout << "The vector of formulas is empty. I am returning a true formula." << std::endl;
     return std::make_shared<BooleanConstant>(true);
   }
-  auto res_formula = formulas.front();
-  if (formulas.size() == 1) {
+  auto formula_set = StateComparer::removeDuplicates(formulas);
+  auto res_formula = formula_set.front();
+  if (formula_set.size() == 1) {
     return res_formula;
   }
-  auto formula_set = std::set<std::shared_ptr<formula>>(formulas.begin(), formulas.end());
-  if (formula_set.size() < formulas.size()) {
-    std::cout << "The vector of formulas contains duplicates. I am removing them." << std::endl;
-  }
+
   switch (operatorSymbol) {
   case CombinationOperatorType::AND_Symbol:
-    for (size_t i = 1; i < formulas.size(); i++) {
-      auto current_formula = formulas.at(i);
+    for (size_t i = 1; i < formula_set.size(); i++) {
+      auto current_formula = formula_set.at(i);
       if (isBooleanConstantWithValue(current_formula, true)) {
         continue;
       }
@@ -215,8 +214,8 @@ std::shared_ptr<formula> formulaUtility::combineFormulas(const std::vector<std::
     }
     return res_formula;
   case CombinationOperatorType::OR_Symbol:
-    for (size_t i = 1; i < formulas.size(); i++) {
-      auto current_formula = formulas.at(i);
+    for (size_t i = 1; i < formula_set.size(); i++) {
+      auto current_formula = formula_set.at(i);
       if (isBooleanConstantWithValue(current_formula, false)) {
         continue;
       }

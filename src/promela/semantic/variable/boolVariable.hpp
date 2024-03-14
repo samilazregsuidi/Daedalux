@@ -7,39 +7,39 @@ class boolSymNode;
 
 class boolVar : public primitiveVariable {
 public:
-	boolVar(const boolSymNode* sym, unsigned int index =  0);
+  boolVar(const boolSymNode * sym, unsigned int index = 0);
 
-	variable* deepCopy(void) const override;
+  variable * deepCopy(void) const override;
 
-	~boolVar() override {}
+  ~boolVar() override {}
 
-	int operator ++ (void) override;
+  int operator++(void) override;
 
-	int operator -- (void) override;
+  int operator--(void) override;
 
-	int operator ++ (int) override;
+  int operator++(int) override;
 
-	int operator -- (int) override;
+  int operator--(int) override;
 
-	bool operator == (bool value) const;
+  bool operator==(bool value) const;
 
-	bool operator != (bool value) const;
+  bool operator!=(bool value) const;
 
-	float delta(const variable* other) const override;
-	
-	void printDelta(const variable* other) const override;
+  float delta(const variable * other, bool considerInternalVariables) const override;
 
-	operator std::string(void) const override;
+  void printDelta(const variable * other, bool considerInternalVariables) const override;
 
-	operator bool(void) const;
+  operator std::string(void) const override;
 
-	void print(void) const override;
+  operator bool(void) const;
 
-	void printTexada(void) const override;
+  void print(void) const override;
 
-	void printCSV(std::ostream &out) const override;
+  void printTexada(void) const override;
 
-	void printCSVHeader(std::ostream &out) const override;
+  void printCSV(std::ostream & out) const override;
+
+  void printCSVHeader(std::ostream & out) const override;
 };
 
 #endif

@@ -131,7 +131,7 @@ public:
 
 	byte compare(const state& s2) const override;
 
-	float delta(const variable* s2) const override;
+	float delta(const variable* s2, bool considerInternalVariables) const override;
 
 	std::list<transition*> transitions(void) const override;
 

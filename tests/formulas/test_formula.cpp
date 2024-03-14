@@ -30,8 +30,8 @@ TEST_F(FormulaTest, defNameOfLargerEquals)
   auto formula = LargerEqualsFormula(var_x, var_y);
   auto formula_string = formula.toFormula();
   ASSERT_EQ(formula_string, "x >= y");
-  auto definition = formula.getDefinition();
-  auto expected_definition = "#define x_larger_equals_y (x >= y)";
+  auto definition = formula.getDefinitionString();
+  auto expected_definition = "#define x_larger_equals_y (x >= y)\n";
   ASSERT_EQ(definition, expected_definition);
   auto def_name = formula.getDefName();
   ASSERT_EQ(def_name, expected_def_name);
@@ -72,12 +72,12 @@ TEST_F(FormulaTest, defNameOfComplexFormula)
   auto expected_formula_string = "(array[1] >= 0 && array[1] <= 1) && (array[2] == 0 || array[2] == 2) && (array[3] == 0 || "
                                  "array[3] == 3) && (i == 0 || i == 1 || i == 3 || i == 4)";
   ASSERT_EQ(formula_string, expected_formula_string);
-  auto definition = formula->getDefinition();
+  auto definition = formula->getDefinitionString();
   auto expected_definition =
       "#define array_1__larger_equals_0 (array[1] >= 0)\n#define array_1__smaller_equals_1 (array[1] <= 1)\n#define "
       "array_2__equals_0 (array[2] == 0)\n#define array_2__equals_2 (array[2] == 2)\n#define array_3__equals_0 (array[3] == "
       "0)\n#define array_3__equals_3 (array[3] == 3)\n#define i_equals_0 (i == 0)\n#define i_equals_1 (i == 1)\n#define "
-      "i_equals_3 (i == 3)\n#define i_equals_4 (i == 4)";
+      "i_equals_3 (i == 3)\n#define i_equals_4 (i == 4)\n";
   ASSERT_EQ(definition, expected_definition);
   auto def_name = formula->getDefName();
   auto expected_def_name = "array_1__larger_equals_0\narray_1__smaller_equals_1\narray_2__equals_0\narray_2__equals_2\narray_3_"

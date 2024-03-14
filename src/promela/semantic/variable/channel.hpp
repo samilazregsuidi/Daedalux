@@ -32,9 +32,9 @@ public:
 
 	bool operator != (const variable* other) const override;
 
-	float delta(const variable* v2) const override;
+	float delta(const variable* v2, bool considerInternalVariables) const override;
 
-	void printDelta(const variable* v2) const override;
+	void printDelta(const variable* v2, bool considerInternalVariables) const override;
 
 	void send(const std::list<const variable*>& args);
 

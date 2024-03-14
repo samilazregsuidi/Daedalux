@@ -208,8 +208,8 @@ byte stateDecorator::compare(const state& s2) const {
 	return wrappee->compare(s2);
 }
 
-float stateDecorator::delta(const variable* s2) const {
-	return wrappee->delta(s2);
+float stateDecorator::delta(const variable* s2, bool considerInternalVariables) const {
+	return wrappee->delta(s2, considerInternalVariables);
 }
 
 std::list<transition*> stateDecorator::transitions(void) const {

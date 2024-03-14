@@ -31,11 +31,11 @@ public:
 
 	bool operator != (const variable* other) const override;
 
-	float delta(const variable* other) const override;
+	float delta(const variable* other, bool considerInternalVariables) const override;
 
-	void printDelta(const variable* other) const override;
+	void printDelta(const variable* other, bool considerInternalVariables) const override;
 
-	std::list<variable *> getDelta(const variable * v2) const override;
+	std::list<variable *> getDelta(const variable * v2, bool considerInternalVariables) const override;
 
 	operator std::string(void) const override;
 

@@ -61,7 +61,7 @@ TEST_F(StateTest, PostStateArray)
   int search_depth = 10;
   for (auto i = 0; i < search_depth; i++) {
     next_state = current_state->Post().front();
-    if (!next_state->isSame(current_state)) {
+    if (!next_state->isSame(current_state, false)) {
       new_state_found = true;
       break;
     }
@@ -69,7 +69,6 @@ TEST_F(StateTest, PostStateArray)
   }
   ASSERT_TRUE(new_state_found);
 }
-
 
 TEST_F(StateTest, PostStateFlow)
 {
@@ -80,11 +79,12 @@ TEST_F(StateTest, PostStateFlow)
   auto current_state = initState::createInitState(myFSM, tvl);
   state * next_state = nullptr;
   bool new_state_found = false;
+  bool considerInternalVariables = false;
   int search_depth = 10;
   for (auto i = 0; i < search_depth; i++) {
     auto successors = current_state->Post();
     next_state = successors.front();
-    if (!next_state->isSame(current_state)) {
+    if (!next_state->isSame(current_state, considerInternalVariables)) {
       new_state_found = true;
       break;
     }

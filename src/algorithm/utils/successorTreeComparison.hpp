@@ -4,6 +4,13 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <functional> // For std::function
+
+// Define the type for the predicate function
+using Predicate = std::function<bool(state *)>;
+
+// Enum to define whether or not the state is in the original or mutant tree
+enum class TreeType { Original, Mutant };
 
 class successorTreeComparison {
 public:
@@ -24,9 +31,37 @@ public:
 
   std::vector<state *> getCommonStates(void) { return mapToValues(common); }
 
+  /// @brief A function to get the states where the predicate is true
+  /// @param type defines the tree to check - original or mutant
+  /// @param pred a predicate function to check
+  /// @return a vector of states where the predicate is true
+  std::vector<state *> statesWhere(TreeType type, Predicate pred){
+    std::vector<state *> result;
+    auto states = type == TreeType::Original ? getOriginalStates() : getMutantStates();
+    for(auto st : states){
+      if(pred(st)){
+        result.push_back(st);
+      }
+    }
+    return result;
+  }
+
+  /// @brief Check if the predicate is invariant for the given tree
+  /// @param type defines the tree to check - original or mutant
+  /// @param pred a predicate function to check
+  /// @return true if the predicate is invariant, false otherwise
+  bool isInvariant(TreeType type, Predicate pred){
+    auto states = type == TreeType::Original ? getOriginalStates() : getMutantStates();
+    auto result = statesWhere(type, pred);
+    return result.size() == states.size();
+  }
+
+  /// @brief Check if the two trees are equal
+  /// @param  
+  /// @return Return true if the trees are equal, false otherwise
   bool areEqual(void) { return original_only.empty() && mutant_only.empty(); }
 
-  bool areDifferent(void) { return !original_only.empty() || !mutant_only.empty(); }
+  bool areDifferent(void) { return !areEqual(); }
 
   void print(void)
   {

@@ -67,7 +67,7 @@ MutantAnalyzer::MutantAnalyzer(std::string original_file_path) : original_file_p
   }
 }
 
-void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsigned int trace_size)
+void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants)
 {
   std::cout << "Enhance specification using mutation testing" << std::endl;
   // Create mutants
@@ -101,7 +101,7 @@ void MutantAnalyzer::enhanceSpecification(unsigned int number_of_mutants, unsign
   // Simplify the formula using the OWL tool
 
   std::string formula_string = combined_formula->promelaFormula();
-  std::string definition_string = combined_formula->getDefinition();
+  auto definition_string = combined_formula->getDefinitionString();
 
   // Append the formula to both the original and the mutant files
   LTLClaimsProcessor::renewClaimOfFile(original_file_path, definition_string, formula_string);
@@ -161,6 +161,12 @@ std::pair<std::vector<std::string>, std::vector<std::string>> MutantAnalyzer::ki
       killed_mutants.push_back(mutant_file_path);
     }
   }
+  // Remove the killed mutants from the list of mutants
+  for (auto killed_mutant : killed_mutants) {
+    mutant_file_paths.erase(std::remove(mutant_file_paths.begin(), mutant_file_paths.end(), killed_mutant),
+                            mutant_file_paths.end());
+  }
+  // Return the results
   return std::make_pair(killed_mutants, surviving_mutants);
 }
 

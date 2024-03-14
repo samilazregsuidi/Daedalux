@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../formulas/formula.hpp"
 #include "state.hpp"
 #include "successorTreeComparison.hpp"
 #include <memory>
@@ -9,9 +10,13 @@
 class StateComparer {
 public:
   static bool sameStates(const std::vector<std::shared_ptr<state>> & states1,
-                         const std::vector<std::shared_ptr<state>> & states2);
+                         const std::vector<std::shared_ptr<state>> & states2, bool considerInternalVariables);
 
-  static bool containState(const std::vector<state *> & states, const state * s);
+  static bool containsFormula(const std::vector<std::shared_ptr<formula>> & formulas, const std::shared_ptr<formula> & formula);
+
+  static std::vector<std::shared_ptr<formula>> removeDuplicates(const std::vector<std::shared_ptr<formula>> & formulas);
+
+  static bool containState(const std::vector<state *> & states, const state * s, bool considerInternalVariables);
 
   static state * most_similar_state(const state * current, const std::list<state *> states);
   static std::list<state *> distinct_states(const std::list<state *> & states_original,

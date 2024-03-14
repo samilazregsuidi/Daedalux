@@ -80,9 +80,10 @@ public:
     auto previous_state = this->states.front();
     std::cout << "Initial state" << std::endl;
     previous_state->print();
+    bool considerInternalVariables = true;
     for (long unsigned int i = 1; i < this->states.size(); i++) {
       auto current_state = this->states[i];
-      previous_state->printDelta(current_state.get());
+      previous_state->printDelta(current_state.get(), considerInternalVariables);
       previous_state = current_state;
     }
     // Print the last state
@@ -128,8 +129,9 @@ public:
       }
     }
 
+    bool considerInternalVariables = true;
     for (int i = 0; i < lhs_number_of_states; i++) {
-      if (l_states[i]->isSame(r_states[i].get()) == false) {
+      if (!l_states[i]->isSame(r_states[i].get(), considerInternalVariables)) {
         return false;
       }
     }

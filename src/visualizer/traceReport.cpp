@@ -45,17 +45,18 @@ void traceReport::removeCommonPrefixes()
 {
   int shortest = this->getShortestTraceLength();
   int index = 0; // The index of the state to remove and the index of the state to compare with is always 0
+  bool considerInternalVariables = false;
   for (int i = 0; i < shortest; i++) {
     bool all_traces_have_same_state = true;
     auto first_state = this->goodTraces.begin()->get()->getStates().front();
     for (auto & good_trace : this->goodTraces) {
-      if (!good_trace->getStates().front()->isSame(first_state.get())) {
+      if (!good_trace->getStates().front()->isSame(first_state.get(), considerInternalVariables)) {
         all_traces_have_same_state = false;
         break;
       }
     }
     for (auto & bad_trace : this->badTraces) {
-      if (!bad_trace->getStates().front()->isSame(first_state.get())) {
+      if (!bad_trace->getStates().front()->isSame(first_state.get(), considerInternalVariables)) {
         all_traces_have_same_state = false;
         break;
       }

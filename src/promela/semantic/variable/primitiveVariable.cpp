@@ -117,7 +117,7 @@ bool primitiveVariable::operator!=(const variable * other) const { return !(*thi
 
 bool primitiveVariable::operator!=(int value) const { return !(*this == value); }
 
-float primitiveVariable::delta(const variable * other) const
+float primitiveVariable::delta(const variable * other, bool considerInternalVariables) const
 {
   auto cast = dynamic_cast<const primitiveVariable *>(other);
   if (!cast)
@@ -131,31 +131,30 @@ float primitiveVariable::delta(const variable * other) const
   return delta;
 }
 
-void primitiveVariable::printDelta(const variable * other) const
+void primitiveVariable::printDelta(const variable * other, bool considerInternalVariables) const
 {
   auto cast = dynamic_cast<const primitiveVariable *>(other);
   if (!cast)
     return;
 
-  auto delta = this->delta(cast);
-
-  if (delta > 0.00000001) {
+  if (this->isSame(other, considerInternalVariables)) {
     auto name = getFullName();
     auto value = getPayload()->getValue(getOffset(), getType());
     auto otherValue = cast->getPayload()->getValue(cast->getOffset(), cast->getType());
     auto OtherName = cast->getFullName();
+    auto delta = this->delta(cast, considerInternalVariables);
     printf("%s = %d, %s = %d, delta = %f\n", name.c_str(), value, OtherName.c_str(), otherValue, delta);
   }
 }
 
-std::list<variable *> primitiveVariable::getDelta(const variable * other) const
+std::list<variable *> primitiveVariable::getDelta(const variable * other, bool considerInternalVariables) const
 {
   std::list<variable *> res;
   auto cast = dynamic_cast<const primitiveVariable *>(other);
   if (!cast)
     return res;
 
-  auto delta = this->delta(cast);
+  auto delta = this->delta(cast, considerInternalVariables);
 
   if (delta > 0.00000001) {
     res.push_back(this->deepCopy());
@@ -180,7 +179,7 @@ int primitiveVariable::getValue(void) const
   return value;
 }
 
-//primitiveVariable::operator int(void) const { return getValue(); }
+// primitiveVariable::operator int(void) const { return getValue(); }
 
 void primitiveVariable::reset(void) { setValue(0); }
 

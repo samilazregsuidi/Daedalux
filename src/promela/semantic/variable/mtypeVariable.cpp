@@ -32,18 +32,18 @@ int mtypeVar::operator--(int) { assert(false); }
 bool mtypeVar::operator==(const std::string & cmtype) const
 {
   auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-  if(!def) {
+  if (!def) {
     assert(false);
     return false;
   }
   auto cmtypeValue = def->getCmtypeSymNodeValue(cmtype);
-  assert(cmtypeValue!=  -1);
+  assert(cmtypeValue != -1);
   return (getValue() == cmtypeValue);
 }
 
 bool mtypeVar::operator!=(const std::string & cmtype) const { return !(*this == cmtype); }
 
-float mtypeVar::delta(const variable * other) const
+float mtypeVar::delta(const variable * other, bool considerInternalVariables) const
 {
   auto otherVar = dynamic_cast<const mtypeVar *>(other);
   if (!otherVar) {
@@ -53,12 +53,16 @@ float mtypeVar::delta(const variable * other) const
   auto value = getValue();
   auto otherValue = otherVar->getValue();
   auto hasSameValue = (value == otherValue);
-  if(hasSameValue) {
+  if (hasSameValue) {
     return 0;
   }
   auto valueName = getValueName();
   auto otherValueName = otherVar->getValueName();
   auto hasSameValueName = (valueName.compare(otherValueName) == 0);
+  if (hasSameValueName) {
+    // Hack for the case where the same name is used for different values
+    return 0;
+  }
   if (hasSameValueName && !hasSameValue) {
     auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
     auto def_other = dynamic_cast<const mtypeSymNode *>(otherVar->varSym)->getMTypeDef();
@@ -84,9 +88,9 @@ std::string mtypeVar::getValueName(void) const
   }
 }
 
-void mtypeVar::printDelta(const variable * other) const
+void mtypeVar::printDelta(const variable * other, bool considerInternalVariables) const
 {
-  if (isSame(other))
+  if (isSame(other, considerInternalVariables))
     return;
 
   auto otherVar = dynamic_cast<const mtypeVar *>(other);
@@ -99,10 +103,10 @@ void mtypeVar::printDelta(const variable * other) const
   printf("%s: %s -> %s\n", name.c_str(), valueName.c_str(), otherValueName.c_str());
 }
 
-std::list<variable *> mtypeVar::getDelta(const variable * other) const
+std::list<variable *> mtypeVar::getDelta(const variable * other, bool considerInternalVariables) const
 {
   std::list<variable *> res;
-  if (isSame(other))
+  if (isSame(other, considerInternalVariables))
     return res;
 
   auto otherVar = dynamic_cast<const mtypeVar *>(other);

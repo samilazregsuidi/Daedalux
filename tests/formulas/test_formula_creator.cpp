@@ -53,8 +53,9 @@ TEST_F(FormulaCreatorTest, test_buildVariableValueMap_two_states)
   const std::vector<std::shared_ptr<state>> states =
       std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
 
+  bool considerInternalVariables = false;
   ASSERT_EQ(states.size(), 2);
-  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get()));
+  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get(), considerInternalVariables));
 
   auto value_map = formulaCreator::buildVariableValueMap(states);
   // Given that we have two states, the value map should at least for one variable have two values.
@@ -82,7 +83,8 @@ TEST_F(FormulaCreatorTest, test_buildVariableValueMap_two_states_flows)
       std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
 
   ASSERT_EQ(states.size(), 2);
-  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get()));
+  bool considerInternalVariables = false;
+  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get(), considerInternalVariables));
 
   auto value_map = formulaCreator::buildVariableValueMap(states);
   // Given that we have two states, the value map should at least for one variable have two values.
@@ -119,7 +121,7 @@ TEST_F(FormulaCreatorTest, groupStates_singleState)
 
   std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, formula_4};
   auto expected_result = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
-  ASSERT_TRUE(result->isEquivalent(expected_result));
+  ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
 TEST_F(FormulaCreatorTest, groupStates_array)
@@ -129,12 +131,13 @@ TEST_F(FormulaCreatorTest, groupStates_array)
   auto fsm1 = original_loader->getAutomata();
   auto current_state_fsm1 = initState::createInitState(fsm1.get(), tvl);
   std::shared_ptr<state> current_state_fsm1_ptr(current_state_fsm1);
+  bool considerInternalVariables = false;
   auto next_state = current_state_fsm1->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
-  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state));
+  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state, considerInternalVariables));
   auto next_next_state = next_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
-  ASSERT_FALSE(next_state->isSame(next_next_state));
+  ASSERT_FALSE(next_state->isSame(next_next_state, considerInternalVariables));
   auto next_next_next_state = next_next_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
-  ASSERT_FALSE(next_next_state->isSame(next_next_next_state));
+  ASSERT_FALSE(next_next_state->isSame(next_next_next_state, considerInternalVariables));
   std::shared_ptr<state> next_state_ptr(next_state);
   std::shared_ptr<state> next_next_state_ptr(next_next_state);
   std::shared_ptr<state> next_next_next_state_ptr(next_next_next_state);
@@ -169,7 +172,7 @@ TEST_F(FormulaCreatorTest, groupStates_array)
   auto formula4_par = std::make_shared<ParenthesisFormula>(formula4);
   std::vector<std::shared_ptr<formula>> formulas = {formula_1_par, formula_2_par, formula_3_par, formula4_par};
   auto expected_result = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
-  ASSERT_TRUE(result->isEquivalent(expected_result));
+  ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
 TEST_F(FormulaCreatorTest, groupStates_flows)
@@ -186,7 +189,7 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
       std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
 
   ASSERT_EQ(states.size(), 2);
-  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get()));
+  ASSERT_FALSE(current_state_fsm1_ptr->isSame(next_state_ptr.get(), false));
   bool temporal = true;
   auto result = formulaCreator::groupStatesByFormula(states, temporal);
 
@@ -206,7 +209,7 @@ TEST_F(FormulaCreatorTest, groupStates_flows)
   std::cout << "Result: " << result->toFormula() << std::endl;
   std::cout << "Expected: " << expected_result->toFormula() << std::endl;
   // TODO look at this
-  ASSERT_TRUE(result->isEquivalent(expected_result));
+  ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
 TEST_F(FormulaCreatorTest, distinguishStates_array_same_states)
@@ -228,7 +231,7 @@ TEST_F(FormulaCreatorTest, distinguishStates_array_same_states)
   std::cout << "Result: " << result->toFormula() << std::endl;
   std::cout << "Expected: " << expected_result->toFormula() << std::endl;
   // TODO look at this
-  ASSERT_TRUE(result->isEquivalent(expected_result));
+  ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
 TEST_F(FormulaCreatorTest, distinguishStates_array)
@@ -272,7 +275,7 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
   std::cout << "Result: " << result->toFormula() << std::endl;
   std::cout << "Expected: " << expected_result->toFormula() << std::endl;
 
-  ASSERT_TRUE(result->isEquivalent(expected_result));
+  ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
 TEST_F(FormulaCreatorTest, distinguishStates_flows)
@@ -294,13 +297,13 @@ TEST_F(FormulaCreatorTest, distinguishStates_flows)
   ASSERT_EQ(exclude_states.size(), 1);
   auto include_state = include_states.front();
   auto exclude_state = exclude_states.front();
-  ASSERT_FALSE(include_state->isSame(exclude_state.get()));
+  ASSERT_FALSE(include_state->isSame(exclude_state.get(), true));
   bool temporal = true;
   auto result = formulaCreator::distinguishStates(include_states, exclude_states, temporal);
   auto var_a = std::make_shared<VariableFormula>("a");
   auto form = std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false));
   auto expected_result = std::make_shared<GloballyFormula>(form);
-  ASSERT_TRUE(result->isEquivalent(expected_result));
+  ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
 TEST_F(FormulaCreatorTest, formulaFromTrace)

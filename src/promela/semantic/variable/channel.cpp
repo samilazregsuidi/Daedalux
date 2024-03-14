@@ -109,21 +109,21 @@ primitiveVariable* channel::getField(unsigned int index) const {
 	return dynamic_cast<primitiveVariable*>(*it);
 }
 
-float channel::delta(const variable* v2) const {
+float channel::delta(const variable* v2, bool considerInternalVariables) const {
 	auto casted = dynamic_cast<const channel*>(v2);
 	if(!casted)
 		return 1;
 
 	float res = 0;
 	for(auto var : varList)
-		res += var->delta(v2->getVariable(var->getLocalName()));
+		res += var->delta(v2->getVariable(var->getLocalName()), considerInternalVariables);
 
 	return res / varList.size();
 }
 
-void channel::printDelta(const variable* v2) const {
+void channel::printDelta(const variable* v2, bool considerInternalVariables) const {
 	for(auto var : varList)
-		var->printDelta(v2->getVariable(var->getLocalName()));
+		var->printDelta(v2->getVariable(var->getLocalName()), considerInternalVariables);
 }
 
 bool channel::isRendezVous(void) const {

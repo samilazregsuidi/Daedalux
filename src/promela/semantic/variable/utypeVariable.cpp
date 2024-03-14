@@ -29,7 +29,7 @@ bool utypeVar::operator==(const variable * other) const { return variable::opera
 
 bool utypeVar::operator!=(const variable * other) const { return variable::operator!=(other); }
 
-float utypeVar::delta(const variable * v2) const
+float utypeVar::delta(const variable * v2, bool considerInternalVariables) const
 {
   auto casted = dynamic_cast<const utypeVar *>(v2);
   if (!casted)
@@ -39,24 +39,24 @@ float utypeVar::delta(const variable * v2) const
   for (auto var : varList){
     auto localName = var->getLocalName();
     auto var2 = v2->getVariable(localName);
-    res += var->delta(var2);
+    res += var->delta(var2, considerInternalVariables);
   }
 
   return res / varList.size();
 }
 
-void utypeVar::printDelta(const variable * v2) const
+void utypeVar::printDelta(const variable * v2, bool considerInternalVariables) const
 {
   for (auto var : varList)
-    var->printDelta(v2->getVariable(var->getLocalName()));
+    var->printDelta(v2->getVariable(var->getLocalName()), considerInternalVariables);
 }
 
-std::list<variable *> utypeVar::getDelta(const variable * v2) const
+std::list<variable *> utypeVar::getDelta(const variable * v2, bool considerInternalVariables) const
 {
   std::list<variable *> res;
   for (auto var : varList) {
     auto v = v2->getVariable(var->getLocalName());
-    auto delta = var->delta(v);
+    auto delta = var->delta(v, considerInternalVariables);
     if (delta > 0)
       res.push_back(v);
   }

@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-#include "../../src/algorithm/traceGenerator.hpp"
 #include "../../src/algorithm/fsmExplorer.hpp"
+#include "../../src/algorithm/traceGenerator.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
 #include "../TestFilesUtils.hpp"
 
@@ -142,7 +142,7 @@ TEST_F(TraceGeneratorTest, DiscardMutant)
   auto expected_formula = std::make_shared<GloballyFormula>(implies_Formula);
   std::cout << "Result: " << formula->toFormula() << std::endl;
   std::cout << "Expected: " << expected_formula->toFormula() << std::endl;
-  ASSERT_TRUE(formula->isEquivalent(expected_formula));
+  ASSERT_TRUE(formula->isEquivalent(*expected_formula));
 }
 
 // TEST_F(TraceGeneratorTest, DiscardMutant_Flows)
@@ -183,13 +183,14 @@ TEST_F(TraceGeneratorTest, DiscardMutant_TrafficLight)
   auto next = std::make_shared<NextFormula>(eventually);
   auto implies_Formula = std::make_shared<ImpliesFormula>(stateVar_eq_yellow, next);
   auto expected_formula = std::make_shared<GloballyFormula>(implies_Formula);
-  ASSERT_TRUE(formula->isEquivalent(expected_formula));
+  ASSERT_TRUE(formula->isEquivalent(*expected_formula));
 }
 
 TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
 {
   const TVL * tvl = nullptr;
   auto file_path = testFilesUtils->array_model();
+  bool considerInternalVariables = false;
   LTLClaimsProcessor::removeClaimFromFile(file_path);
   auto original_loader = new promela_loader(file_path, tvl);
   auto originalFSM = original_loader->getAutomata();
@@ -218,11 +219,11 @@ TEST_F(TraceGeneratorTest, RemoveCommonPrefixes)
   // The two traces should have the same first state
   auto first_state_good = reduced_traces.first->getStates().front();
   auto first_state_bad = reduced_traces.second->getStates().front();
-  ASSERT_TRUE(first_state_good->isSame(first_state_bad.get()));
+  ASSERT_TRUE(first_state_good->isSame(first_state_bad.get(), considerInternalVariables));
   // The next state should be different
   auto second_state_good = reduced_traces.first->getStates().at(1);
   auto second_state_bad = reduced_traces.second->getStates().at(1);
-  ASSERT_FALSE(second_state_good->isSame(second_state_bad.get()));
+  ASSERT_FALSE(second_state_good->isSame(second_state_bad.get(), considerInternalVariables));
 }
 
 TEST_F(TraceGeneratorTest, RemoveCommonPrefixes_TheTwoMethodShouldReturnTheSameResult)

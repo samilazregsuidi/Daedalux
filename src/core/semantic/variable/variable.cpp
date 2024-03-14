@@ -343,38 +343,40 @@ payload * variable::getPayload(void) const { return payLoad; }
 
 unsigned long variable::hash(void) const { return payLoad ? payLoad->hash(getOffset(), getSizeOf()) : 0; }
 
-float variable::delta(const variable * v2) const
+float variable::delta(const variable * v2, bool considerInternalVariables) const
 {
   if (v2 == nullptr)
     return 1;
   float res = 0;
-  auto visibleVars = getAllVisibleVariables();
-  for (auto var : visibleVars) {
+  auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
+  for (auto var : vars) {
     auto name = var->getLocalName();
     auto v = v2->getVariable(name);
-    res += var->delta(v);
+    auto delta = var->delta(v, considerInternalVariables);
+    res += delta;
   }
-  if (visibleVars.size() == 0)
+  if (vars.size() == 0)
     return 0;
-  return res / varList.size();
+  return res / vars.size();
 }
 
-void variable::printDelta(const variable * v2) const
+void variable::printDelta(const variable * v2, bool considerInternalVariables) const
 {
-  auto visibleVars = getAllVisibleVariables();
-  for (auto var : visibleVars) {
+  auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
+  for (auto var : vars) {
     auto name = var->getLocalName();
     auto v = v2->getVariable(name);
-    var->printDelta(v);
+    var->printDelta(v, considerInternalVariables);
   }
 }
 
-std::list<variable *> variable::getDelta(const variable * v2) const
+std::list<variable *> variable::getDelta(const variable * v2, bool considerInternalVariables) const
 {
   std::list<variable *> res;
-  for (auto var : varList) {
+  auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
+  for (auto var : vars) {
     auto v = v2->getVariable(var->getLocalName());
-    auto delta = var->getDelta(v);
+    auto delta = var->getDelta(v, considerInternalVariables);
     if (delta != std::list<variable *>()) {
       res.insert(res.end(), delta.begin(), delta.end());
     }
@@ -486,9 +488,9 @@ void variable::reset(void)
     subVar->reset();
 }
 
-bool variable::isSame(const variable * other) const
+bool variable::isSame(const variable * other, bool considerInternalVariables) const
 {
-  auto delta = this->delta(other);
+  auto delta = this->delta(other, considerInternalVariables);
   auto threshold = 0.0000000001;
   return delta < threshold;
 }

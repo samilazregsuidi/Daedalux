@@ -30,6 +30,15 @@ protected:
     auto current_state = initState::createInitState(myFSM, tvl);
     return fsmExplorer::kSuccessors(current_state, k);
   }
+
+  state * kSuccessor(state * st, int k)
+  {
+    while (k > 0) {
+      st = st->Post().front();
+      k--;
+    }
+    return st;
+  }
 };
 
 TEST_F(SimilarityTest, DistinctState_EmptyList)
@@ -73,10 +82,9 @@ TEST_F(SimilarityTest, DistinctState_EmptyList)
 TEST_F(SimilarityTest, DistinctStates_SameFSM)
 {
   printf("Comparing distinct states of the same FSM\n");
-  const TVL * tvl = nullptr;
   // Create the initial state for both automata
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  const TVL * tvl = nullptr;
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state_original = initState::createInitState(myFSM, tvl);
   auto post_states_original = current_state_original->Post();
@@ -94,7 +102,8 @@ TEST_F(SimilarityTest, SameStateDelta_ShouldBe0)
   auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
-  auto delta = current_state->delta(current_state);
+  bool considerInternalVariables = true;
+  auto delta = current_state->delta(current_state, considerInternalVariables);
   auto expected = 0.0;
   ASSERT_EQ(delta - expected < 0.0001, true);
 }
@@ -105,21 +114,21 @@ TEST_F(SimilarityTest, DifferentStateDelta_ShouldNotBe0)
   auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
-  auto post_state = current_state->Post().front()->Post().front()->Post().front();
-  auto delta = current_state->delta(post_state);
-  float expected = 0.0125000002;
+  auto post_state = current_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
+  bool considerInternalVariables = false;
+  auto delta = current_state->delta(post_state, considerInternalVariables);
+  float expected = 0.125;
   ASSERT_TRUE(expected - delta < 0.00001);
-  auto post_post_state = post_state->Post().front()->Post().front()->Post().front();
-  delta = current_state->delta(post_post_state);
-  expected = 0.0666666701;
+  auto post_post_state = post_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
+  delta = current_state->delta(post_post_state, considerInternalVariables);
+  expected = 0.291666687;
   ASSERT_TRUE(expected - delta < 0.00001);
 }
 
 TEST_F(SimilarityTest, MostSimilarStateEmptyList)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   std::list<state *> post_states;
@@ -130,8 +139,7 @@ TEST_F(SimilarityTest, MostSimilarStateEmptyList)
 TEST_F(SimilarityTest, MinepumpMostSimilarStateOneElement)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
@@ -159,8 +167,7 @@ TEST_F(SimilarityTest, MinepumpMostSimilarStateOneElement)
 TEST_F(SimilarityTest, MostSimilarStateOneElement)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
@@ -172,8 +179,7 @@ TEST_F(SimilarityTest, MostSimilarStateOneElement)
 TEST_F(SimilarityTest, MostSimilarStateOfSameState)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_states = current_state->Post();
@@ -181,21 +187,20 @@ TEST_F(SimilarityTest, MostSimilarStateOfSameState)
   ASSERT_TRUE(post_states.size() > 0);
   auto most_similar = StateComparer::most_similar_state(current_state, post_states);
   ASSERT_TRUE(most_similar != nullptr);
-  ASSERT_EQ(most_similar->isSame(current_state), true);
+  ASSERT_TRUE(most_similar->isSame(current_state, true));
 }
 
 TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state_front = current_state->Post().front()->Post().front()->Post().front();
   std::list<state *> post_states_1 = {post_state_front};
-  auto post_state_back = current_state->Post().back();
+  auto post_state_back = post_state_front->Post().front()->Post().front()->Post().front()->Post().front();
   // The two states are different
-  ASSERT_FALSE(post_state_back->isSame(post_state_front));
+  ASSERT_FALSE(post_state_back->isSame(post_state_front, true));
   std::list<state *> post_states_2 = {post_state_back};
   auto distinct_States = StateComparer::distinct_states(post_states_1, post_states_2);
   ASSERT_TRUE(distinct_States.size() == post_states_1.size());
@@ -205,8 +210,7 @@ TEST_F(SimilarityTest, DistinctStates_ShouldReturnTheFirstList)
 TEST_F(SimilarityTest, DistinctStates_IdenticalLists_ShouldReturnEmptyList)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
   auto post_state = current_state->Post().front();
@@ -218,15 +222,15 @@ TEST_F(SimilarityTest, DistinctStates_IdenticalLists_ShouldReturnEmptyList)
 TEST_F(SimilarityTest, DistinctStates_OverlappingLists)
 {
   const TVL * tvl = nullptr;
-  auto file_path = testFilesUtils->array_model();
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+  auto loader = std::make_unique<promela_loader>(testFilesUtils->array_model(), tvl);
   auto myFSM = loader->getAutomata().get();
   auto current_state = initState::createInitState(myFSM, tvl);
-  auto post_state_1 = current_state->Post().front()->Post().front()->Post().front()->Post().front()->Post().front();
+  auto post_state_1 = kSuccessor(current_state, 5);
   std::list<state *> post_states_1 = {post_state_1, current_state};
-  auto post_state_2 = current_state->Post().front();
+  auto post_state_2 = kSuccessor(current_state, 10);
+  bool considerInternalVariables = false;
   // The two states are different
-  ASSERT_FALSE(post_state_1->isSame(post_state_2));
+  ASSERT_FALSE(post_state_1->isSame(post_state_2, considerInternalVariables));
   std::list<state *> post_states_2 = {post_state_2, current_state};
   auto distinct_States = StateComparer::distinct_states(post_states_1, post_states_2);
   ASSERT_TRUE(distinct_States.size() == 1);

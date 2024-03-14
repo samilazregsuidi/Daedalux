@@ -28,8 +28,9 @@ trace::~trace() = default;
 
 bool trace::containState(const std::shared_ptr<state> s) const
 {
+  bool considerInternalVariables = true;
   for (auto st : this->states) {
-    if (st->delta(s.get()) < 0.000001) {
+    if (st->isSame(s.get(), considerInternalVariables)) {
       return true;
     }
   }

@@ -24,6 +24,7 @@ public:
   std::string structure_model_mutant() { return current_path + "/test_files/mutants/structure/structure_mutant.pml"; }
 
   std::string trafficLight_model_original() { return current_path + "/test_files/mutants/trafficLight/trafficlight.pml"; }
+  std::string two_trafficLight_model_original() { return current_path + "/test_files/mutants/trafficLight/two_trafficlight.pml"; }
   std::string trafficLight_model_mutant() { return current_path + "/test_files/mutants/trafficLight/trafficlight_mutant.pml"; }
   std::string trafficLight_model_mutant_alt()
   {

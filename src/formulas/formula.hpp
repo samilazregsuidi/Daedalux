@@ -15,7 +15,14 @@ class formula {
 public:
   virtual std::string toFormula() const = 0;
 
-  virtual std::string getDefinition() const = 0;
+  virtual std::vector<std::string> getDefinitions() const = 0;
+
+  std::string getDefinitionString() const
+  {
+    auto definitions = getDefinitions();
+    return std::accumulate(definitions.begin(), definitions.end(), std::string(),
+                           [](const std::string & a, const std::string & b) -> std::string { return a + b + "\n"; });
+  }
 
   virtual std::string getDefName() const = 0;
 
@@ -23,9 +30,12 @@ public:
 
   virtual int getSize() const = 0;
 
-  virtual bool isEquivalent(const std::shared_ptr<formula> & other) const = 0;
+  virtual bool isEquivalent(const formula & other) const = 0;
 
   virtual std::string promelaFormula() const = 0;
+
+  // Define equality based on your criteria
+  bool operator==(const formula & other) const { return this->isEquivalent(other); }
 
   std::string neverClaim() const
   {
@@ -33,8 +43,7 @@ public:
     return LTLClaimsProcessor::transformLTLStringToNeverClaim(ltl_formula);
   }
 
-  protected:
-
+protected:
   std::string sanitizeName(const std::string & definition) const
   {
     auto defName = definition;
@@ -46,9 +55,21 @@ public:
   }
 };
 
+// Custom hash function
+namespace std {
+template <> struct hash<formula> {
+  std::size_t operator()(const formula & f) const
+  {
+    // Placeholder for actual hash computation
+    // For simplicity, we're directly hashing the expression string
+    return std::hash<std::string>()(f.toFormula());
+  }
+};
+} // namespace std
+
 class LeafFormula : public formula {
 public:
-  std::string getDefinition() const { throw std::runtime_error("Leaf formulas do not have a definition"); }
+  std::vector<std::string> getDefinitions() const { throw std::runtime_error("Leaf formulas do not have a definition"); }
 
   std::string getDefName() const { throw std::runtime_error("Leaf formulas do not have a definition name"); }
 
@@ -72,9 +93,9 @@ public:
 
   std::string promelaFormula() const { return name; }
 
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherVariable = std::dynamic_pointer_cast<VariableFormula>(other);
+    auto otherVariable = dynamic_cast<const VariableFormula *>(&other);
     if (!otherVariable) {
       return false;
     }
@@ -92,9 +113,9 @@ public:
 
   std::string toFormula() const { return std::to_string(value); }
 
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherNumber = std::dynamic_pointer_cast<NumberConstant>(other);
+    auto otherNumber = dynamic_cast<const NumberConstant *>(&other);
     if (!otherNumber) {
       return false;
     }
@@ -114,9 +135,9 @@ public:
 
   std::string toFormula() const { return value ? "true" : "false"; }
 
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherBoolean = std::dynamic_pointer_cast<BooleanConstant>(other);
+    auto otherBoolean = dynamic_cast<const BooleanConstant *>(&other);
     if (!otherBoolean) {
       return false;
     }
@@ -140,7 +161,7 @@ public:
 
   std::string promelaFormula() const { return getOperator() + " " + subformula->promelaFormula(); }
 
-  std::string getDefinition() const { return subformula->getDefinition(); }
+  std::vector<std::string> getDefinitions() const { return subformula->getDefinitions(); }
 
   int getDepth() const { return subformula->getDepth() + 1; }
 
@@ -150,13 +171,13 @@ public:
 
   std::shared_ptr<formula> getSubformula() const { return subformula; }
 
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherUnary = std::dynamic_pointer_cast<UnaryFormula>(other);
+    auto otherUnary = dynamic_cast<const UnaryFormula *>(&other);
     if (!otherUnary) {
       return false;
     }
-    return getOperator() == otherUnary->getOperator() && subformula->isEquivalent(otherUnary->getSubformula());
+    return getOperator() == otherUnary->getOperator() && subformula->isEquivalent(*otherUnary->getSubformula());
   }
 
   void setSubformula(const std::shared_ptr<formula> & newSubformula) { subformula = newSubformula; }
@@ -168,7 +189,7 @@ private:
 
 class ParenthesisFormula : public formula {
 public:
-  ParenthesisFormula(const std::shared_ptr<formula> & subformula) : subformula(subformula) {}
+  ParenthesisFormula(const std::shared_ptr<formula> & subformula) : subformula(std::move(subformula)) {}
   ~ParenthesisFormula() = default;
 
   std::string toFormula() const { return "(" + subformula->toFormula() + ")"; }
@@ -178,17 +199,17 @@ public:
   int getDepth() const { return subformula->getDepth() + 1; }
 
   int getSize() const { return subformula->getSize() + 1; }
-  std::string getDefinition() const { return subformula->getDefinition(); }
+  std::vector<std::string> getDefinitions() const { return subformula->getDefinitions(); }
 
   std::string getDefName() const { return subformula->getDefName(); }
 
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(other);
+    const ParenthesisFormula * otherParenthesis = dynamic_cast<const ParenthesisFormula *>(&other);
     if (!otherParenthesis) {
       return false;
     }
-    return subformula->isEquivalent(otherParenthesis->subformula);
+    return subformula->isEquivalent(*otherParenthesis->subformula);
   }
 
 private:
@@ -197,7 +218,7 @@ private:
 
 class NotFormula : public UnaryFormula {
 public:
-  NotFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula) {}
+  NotFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula)) {}
   ~NotFormula() = default;
 
 private:
@@ -206,7 +227,7 @@ private:
 
 class NextFormula : public UnaryFormula {
 public:
-  NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
+  NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula))
   {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
@@ -222,7 +243,7 @@ private:
 
 class GloballyFormula : public UnaryFormula {
 public:
-  GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
+  GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula))
   {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
@@ -239,7 +260,7 @@ private:
 
 class FinallyFormula : public UnaryFormula {
 public:
-  FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
+  FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula))
   {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
@@ -261,7 +282,16 @@ public:
 
   std::string toFormula() const { return left->toFormula() + " " + getOperator() + " " + right->toFormula(); }
 
-  std::string getDefinition() const { return left->getDefinition() + "\n" + right->getDefinition(); }
+  std::vector<std::string> getDefinitions() const
+  {
+    auto leftDef = left->getDefinitions();
+    auto rightDef = right->getDefinitions();
+    leftDef.insert(leftDef.end(), rightDef.begin(), rightDef.end());
+    // Remove duplicates
+    std::sort(leftDef.begin(), leftDef.end());
+    leftDef.erase(std::unique(leftDef.begin(), leftDef.end()), leftDef.end());
+    return leftDef;
+  }
 
   std::string getDefName() const { return left->getDefName() + "\n" + right->getDefName(); }
 
@@ -274,15 +304,15 @@ public:
 
   int getSize() const { return left->getSize() + right->getSize() + 1; }
 
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherBinary = std::dynamic_pointer_cast<BinaryFormula>(other);
+    auto otherBinary = dynamic_cast<const BinaryFormula *>(&other);
     if (!otherBinary) {
       return false;
     }
     auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameLeft = left->isEquivalent(otherBinary->getLeft());
-    auto sameRight = right->isEquivalent(otherBinary->getRight());
+    auto sameLeft = left->isEquivalent(*otherBinary->getLeft());
+    auto sameRight = right->isEquivalent(*otherBinary->getRight());
     return sameOperator && sameLeft && sameRight;
   }
 
@@ -333,15 +363,17 @@ public:
   ~IffFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherBinary = std::dynamic_pointer_cast<IffFormula>(other);
+    auto otherBinary = dynamic_cast<const IffFormula *>(&other);
     if (!otherBinary) {
       return false;
     }
     auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameOrderEqual = getLeft()->isEquivalent(otherBinary->getLeft()) && getRight()->isEquivalent(otherBinary->getRight());
-    auto otherOrderEqual = getLeft()->isEquivalent(otherBinary->getRight()) && getRight()->isEquivalent(otherBinary->getLeft());
+    auto sameOrderEqual =
+        getLeft()->isEquivalent(*otherBinary->getLeft()) && getRight()->isEquivalent(*otherBinary->getRight());
+    auto otherOrderEqual =
+        getLeft()->isEquivalent(*otherBinary->getRight()) && getRight()->isEquivalent(*otherBinary->getLeft());
     return sameOperator && (sameOrderEqual || otherOrderEqual);
   }
 
@@ -355,19 +387,18 @@ public:
   ~AndFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherBinary = std::dynamic_pointer_cast<AndFormula>(other);
+    auto otherBinary = dynamic_cast<const AndFormula *>(&other);
     if (!otherBinary) {
       return false;
     }
     auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameOrderEqual = getLeft()->isEquivalent(otherBinary->getLeft()) && getRight()->isEquivalent(otherBinary->getRight());
-    auto otherOrderEqual = getLeft()->isEquivalent(otherBinary->getRight()) && getRight()->isEquivalent(otherBinary->getLeft());
+    auto sameOrderEqual =
+        getLeft()->isEquivalent(*otherBinary->getLeft()) && getRight()->isEquivalent(*otherBinary->getRight());
+    auto otherOrderEqual =
+        getLeft()->isEquivalent(*otherBinary->getRight()) && getRight()->isEquivalent(*otherBinary->getLeft());
     bool isEquivalent = sameOperator && (sameOrderEqual || otherOrderEqual);
-    if (!isEquivalent) {
-      std::cout << "Not equivalent: " << toFormula() << " and " << other->toFormula() << std::endl;
-    }
     return isEquivalent;
   }
 
@@ -381,19 +412,18 @@ public:
   ~OrFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const std::shared_ptr<formula> & other) const
+  bool isEquivalent(const formula & other) const
   {
-    auto otherBinary = std::dynamic_pointer_cast<OrFormula>(other);
+    const OrFormula * otherBinary = dynamic_cast<const OrFormula *>(&other);
     if (!otherBinary) {
       return false;
     }
     auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameOrderEqual = getLeft()->isEquivalent(otherBinary->getLeft()) && getRight()->isEquivalent(otherBinary->getRight());
-    auto otherOrderEqual = getLeft()->isEquivalent(otherBinary->getRight()) && getRight()->isEquivalent(otherBinary->getLeft());
+    auto sameOrderEqual =
+        getLeft()->isEquivalent(*otherBinary->getLeft()) && getRight()->isEquivalent(*otherBinary->getRight());
+    auto otherOrderEqual =
+        getLeft()->isEquivalent(*otherBinary->getRight()) && getRight()->isEquivalent(*otherBinary->getLeft());
     bool isEquivalent = sameOperator && (sameOrderEqual || otherOrderEqual);
-    if (!isEquivalent) {
-      std::cout << "Not equivalent: " << toFormula() << " and " << other->toFormula() << std::endl;
-    }
     return isEquivalent;
   }
 
@@ -403,14 +433,18 @@ public:
 class ComparisonFormula : public BinaryFormula {
 public:
   ComparisonFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : BinaryFormula(left, right)
+      : BinaryFormula(std::move(left), std::move(right))
   {
   }
   ~ComparisonFormula() = default;
 
   std::string promelaFormula() const { return getDefName(); }
 
-  std::string getDefinition() const { return "#define " + getDefName() + " (" + toFormula() + ")"; }
+  std::vector<std::string> getDefinitions() const
+  {
+    auto entry = "#define " + getDefName() + " (" + toFormula() + ")";
+    return {entry};
+  }
 
   std::string getDefName() const
   {
@@ -426,7 +460,7 @@ public:
 class LargerThanFormula : public ComparisonFormula {
 public:
   LargerThanFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : ComparisonFormula(left, right)
+      : ComparisonFormula(std::move(left), std::move(right))
   {
   }
   ~LargerThanFormula() = default;
@@ -439,7 +473,7 @@ public:
 class SmallerThanFormula : public ComparisonFormula {
 public:
   SmallerThanFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : ComparisonFormula(left, right)
+      : ComparisonFormula(std::move(left), std::move(right))
   {
   }
   ~SmallerThanFormula() = default;
@@ -452,7 +486,7 @@ public:
 class LargerEqualsFormula : public ComparisonFormula {
 public:
   LargerEqualsFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : ComparisonFormula(left, right)
+      : ComparisonFormula(std::move(left), std::move(right))
   {
   }
 
@@ -466,7 +500,7 @@ public:
 class SmallerEqualsFormula : public ComparisonFormula {
 public:
   SmallerEqualsFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : ComparisonFormula(left, right)
+      : ComparisonFormula(std::move(left), std::move(right))
   {
   }
   ~SmallerEqualsFormula() = default;
@@ -478,11 +512,10 @@ public:
 class EqualsFormula : public ComparisonFormula {
 public:
   EqualsFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : ComparisonFormula(left, right)
+      : ComparisonFormula(std::move(left), std::move(right))
   {
   }
   ~EqualsFormula() = default;
-
 
   std::string toFormula() const
   {
@@ -584,7 +617,7 @@ public:
 class NotEqualsFormula : public ComparisonFormula {
 public:
   NotEqualsFormula(const std::shared_ptr<LeafFormula> & left, const std::shared_ptr<LeafFormula> & right)
-      : ComparisonFormula(left, right)
+      : ComparisonFormula(std::move(left), std::move(right))
   {
   }
   ~NotEqualsFormula() = default;

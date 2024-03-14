@@ -22,6 +22,8 @@ bool BisimulationChecker::isBisimilar(const std::shared_ptr<fsm> fsm1, const std
   q1.push(current_state_fsm1);
   q2.push(current_state_fsm2);
 
+  bool considerInternalVariables = false;
+
   // While the stack is not empty
   while (!q1.empty() && !q2.empty()) {
     state * current_state_fsm1 = q1.front();
@@ -29,7 +31,7 @@ bool BisimulationChecker::isBisimilar(const std::shared_ptr<fsm> fsm1, const std
     state * current_state_fsm2 = q2.front();
     q2.pop();
 
-    auto is_same = current_state_fsm1->isSame(current_state_fsm2);
+    auto is_same = current_state_fsm1->isSame(current_state_fsm2, considerInternalVariables);
     if (!is_same) {
       return false;
     }
@@ -47,7 +49,7 @@ bool BisimulationChecker::isBisimilar(const std::shared_ptr<fsm> fsm1, const std
       for (auto state_fsm2 : successors_fsm2) {
         bool is_found = false;
         // Check if the next states are similar
-        auto same_states = state_fsm1->isSame(state_fsm2);
+        auto same_states = state_fsm1->isSame(state_fsm2, considerInternalVariables);
         if (same_states) {
           // Check if the next states are not visited
           if (visited1.find(state_fsm1) == visited1.end() && visited2.find(state_fsm2) == visited2.end()) {

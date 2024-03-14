@@ -19,11 +19,11 @@ public:
 
   std::pair<std::vector<std::string>, std::vector<std::string>> killMutants(void);
 
-  void enhanceSpecification(unsigned int number_of_mutants, unsigned int trace_size);
+  void enhanceSpecification(unsigned int number_of_mutants);
 
   void createMutants(unsigned int number_of_mutants);
 
-  std::map<std::string, std::shared_ptr<formula>> analyzeMutants( void);
+  std::map<std::string, std::shared_ptr<formula>> analyzeMutants(void);
 
   std::vector<std::string> getMutantFilePaths() { return mutant_file_paths; }
   std::string getOriginalFilePath() { return original_file_path; }

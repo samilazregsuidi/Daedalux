@@ -70,9 +70,10 @@ std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata,
         << "The transitions are displayed as \"new value -> current value\" based on how they will change the current state."
         << std::endl;
     int index = 0;
+    bool considerInternalVariables = true;
     for (auto & p : post_states) {
       std::cout << index << " : ";
-      p->printDelta(current_state);
+      p->printDelta(current_state, considerInternalVariables);
       index++;
     }
     auto post_state_vector = std::vector<state *>(post_states.begin(), post_states.end());

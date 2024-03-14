@@ -67,14 +67,15 @@ std::shared_ptr<formula> formulaCreator::distinguishTraces(const std::shared_ptr
   }
   auto state1 = include_trace_trimmed->getStates().front();
   auto state2 = exclude_trace_trimmed->getStates().front();
-  assert(state1->isSame(state2.get()));
+  assert(state1->isSame(state2.get(), false));
   auto successors1 = state1->Post();
   auto successors2 = state2->Post();
   auto successor1_vec = std::vector<std::shared_ptr<state>>(successors1.begin(), successors1.end());
   auto successor2_vec = std::vector<std::shared_ptr<state>>(successors2.begin(), successors2.end());
   auto successor1 = successor1_vec.front();
   auto successor2 = successor2_vec.front();
-  if (StateComparer::sameStates(successor1_vec, successor2_vec)) {
+  bool considerInternalVariables = false;
+  if (StateComparer::sameStates(successor1_vec, successor2_vec, considerInternalVariables)) {
     std::cout << "The successors are the same. I am returning a false formula as they cannot be distinguished." << std::endl;
     return std::make_shared<BooleanConstant>(false);
   }
@@ -187,7 +188,8 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
                                                            const std::vector<std::shared_ptr<state>> exclude_states,
                                                            bool temporal)
 {
-  if (StateComparer::sameStates(include_states, exclude_states)) {
+  bool considerInternalVariables = false;
+  if (StateComparer::sameStates(include_states, exclude_states, considerInternalVariables)) {
     std::cout << "The states are the same. I am returning a false formula as they cannot be distinguished." << std::endl;
     return std::make_shared<BooleanConstant>(false);
   }
@@ -229,7 +231,7 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
     for (auto s : exclude_states) {
       s->print();
     }
-    if (StateComparer::sameStates(include_states, exclude_states)) {
+    if (StateComparer::sameStates(include_states, exclude_states, considerInternalVariables)) {
       std::cout << "The states are the same. I am returning a false formula as they cannot be distinguished." << std::endl;
       return std::make_shared<BooleanConstant>(false);
     }
@@ -320,6 +322,7 @@ std::shared_ptr<formula> formulaCreator::createTransitionFormula(const std::shar
 std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>
 formulaCreator::removeCommonPrefixes(const std::shared_ptr<trace> trace1, const std::shared_ptr<trace> trace2)
 {
+  bool considerInternalVariables = false;
   auto states1 = trace1->getStates();
   auto states2 = trace2->getStates();
   auto transitions1 = trace1->getTransitions();
@@ -330,8 +333,8 @@ formulaCreator::removeCommonPrefixes(const std::shared_ptr<trace> trace1, const 
     auto state2 = states2[i];
     auto next_state1 = states1[i + 1];
     auto next_state2 = states2[i + 1];
-    auto next_same = next_state1->isSame(next_state2.get());
-    if (state1->isSame(state2.get()) && next_same) {
+    auto next_same = next_state1->isSame(next_state2.get(), considerInternalVariables);
+    if (state1->isSame(state2.get(), considerInternalVariables) && next_same) {
       trace1->removeStateAt(0);
       trace2->removeStateAt(0);
       trace1->removeTransitionAt(0);
@@ -343,11 +346,11 @@ formulaCreator::removeCommonPrefixes(const std::shared_ptr<trace> trace1, const 
   }
   auto first_state1 = trace1->getStates().front();
   auto first_state2 = trace2->getStates().front();
-  assert(first_state1->isSame(first_state2.get()));
-  assert(first_state1->isSame(first_state2.get()));
+  assert(first_state1->isSame(first_state2.get(), considerInternalVariables));
+  assert(first_state1->isSame(first_state2.get(), considerInternalVariables));
   auto next_state1 = trace1->getStates().at(1);
   auto next_state2 = trace2->getStates().at(1);
-  assert(!next_state1->isSame(next_state2.get()));
-  next_state1->printDelta(next_state2.get());
+  assert(!next_state1->isSame(next_state2.get(), considerInternalVariables));
+  next_state1->printDelta(next_state2.get(), considerInternalVariables);
   return std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>(trace1, trace2);
 }
