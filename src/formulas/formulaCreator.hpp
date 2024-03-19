@@ -17,15 +17,20 @@ public:
                                                        bool temporal = false);
   static std::unordered_map<std::string, std::map<ValueType, std::vector<std::shared_ptr<state>>>>
   buildVariableValueMap(const std::vector<std::shared_ptr<state>> & states);
+
+  static std::vector<ValueType> getVariableValues(const std::vector<std::shared_ptr<state>> & states,
+                                                  const std::string & variableName);
+
   static std::shared_ptr<formula> distinguishTraces(const std::shared_ptr<trace> & include_trace,
                                                     const std::shared_ptr<trace> & exclude_trace);
-  static std::shared_ptr<formula> distinguishStates(const std::vector<std::shared_ptr<state>> include_states,
-                                                    const std::vector<std::shared_ptr<state>> exclude_states,
+
+  static std::shared_ptr<formula> distinguishStates(const std::vector<std::shared_ptr<state>> & include_states,
+                                                    const std::vector<std::shared_ptr<state>> & exclude_states,
                                                     bool temporal = false);
 
   static std::shared_ptr<formula> createTransitionFormula(const std::shared_ptr<state> current_state,
-                                                          const std::vector<std::shared_ptr<state>> include_states,
-                                                          const std::vector<std::shared_ptr<state>> exclude_states);
+                                                          const std::vector<std::shared_ptr<state>> & include_states,
+                                                          const std::vector<std::shared_ptr<state>> & exclude_states);
 
   static std::shared_ptr<formula>
   createVariableFormula(std::string variableName, std::map<ValueType, std::vector<std::shared_ptr<state>>> include_values,

@@ -242,8 +242,8 @@ Apply:
     auto * lvalue = dynamic_cast<primitiveVariable *>(var);
     if (lvalue == nullptr) {
       // If the variable is null, throw an error.
-      std::string errorMessage = "Variable " + getVarName(varRef) + " is not a primitive variable at line " +
-                                 std::to_string(expression->getLineNb());
+      std::string errorMessage =
+          "Variable " + getVarName(varRef) + " is not a primitive variable at line " + std::to_string(expression->getLineNb());
       throw std::invalid_argument(errorMessage);
     }
     expr * rvalue = assign->getAssign();
@@ -291,7 +291,8 @@ Apply:
   case (astNode::E_STMNT_ASSERT): {
     auto assertExpr = dynamic_cast<const stmntAssert *>(expression);
     if (eval(assertExpr->getToAssert(), EVAL_EXPRESSION) == 0) {
-      printf("Assertion failed.\n");
+      throw std::runtime_error("Assertion failed at line " + std::to_string(expression->getLineNb()) + " in process " +
+                         getFullName());
       assert(false);
       // if(!_assertViolation) _assertViolation = 1;
     }

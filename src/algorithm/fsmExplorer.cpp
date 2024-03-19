@@ -1,7 +1,6 @@
 #include "fsmExplorer.hpp"
 #include "../formulas/formulaCreator.hpp"
 #include "utils/stateComparer.hpp"
-#include <initState.hpp>
 
 /// @brief Given a state, this function returns the successor states of the state, but avoids epsilon transitions where only
 /// internal variables are updated
@@ -29,9 +28,7 @@ std::list<state *> fsmExplorer::avoidEpsilonSteps(state * start_state, unsigned 
   if (post_states_no_epsilon.empty()) {
     for (auto s : epsilon_states) {
       auto next_states = avoidEpsilonSteps(s, budget - 1);
-      for (auto next_state : next_states) {
-        post_states_no_epsilon.push_back(next_state);
-      }
+      std::copy(next_states.begin(), next_states.end(), std::back_inserter(post_states_no_epsilon));
     }
   }
   return post_states_no_epsilon;
@@ -53,7 +50,6 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
   auto post_states_original = std::list<state *>();
   // Lists to store the  post states of the mutant
   auto post_states_mutant = std::list<state *>();
-  auto unique_states_original = std::list<state *>();
 
   auto visited_states_original = std::vector<state *>();
   auto visited_states_mutant = std::vector<state *>();
@@ -79,25 +75,20 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
     post_states_mutant = current_state_mutant->SafePost();
 
     // Find the states that are unique to the original automata
-    unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
+    auto unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
     // The original automata has a unique state - let us continue the trace using this state
     if (!unique_states_original.empty()) {
-      std::vector<std::shared_ptr<state>> post_states_original_vec;
-      std::vector<std::shared_ptr<state>> post_states_mutant_vec;
+
       if (post_states_mutant.empty()) {
         // We need to make sure that the original automata has a distinct successor state
-        bool found = false;
-        for (auto s : unique_states_original) {
-          if (!s->isSame(current_state_original, false)) {
-            found = true;
-            break;
-          }
-        }
+        bool found = StateComparer::containState(unique_states_original, current_state_original, false);
         if (!found) {
           std::cout << "The current state is no different from its successor states" << std::endl;
           // We need to find a successor state that is not the same as the current state
         }
       }
+      std::vector<std::shared_ptr<state>> post_states_original_vec;
+      std::vector<std::shared_ptr<state>> post_states_mutant_vec;
       for (auto s : post_states_original) {
         post_states_original_vec.push_back(std::shared_ptr<state>(s));
       }
@@ -108,22 +99,14 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
       // We can now create a formula that only the original automata can satisfy
       auto shared_current_state_original = std::shared_ptr<state>(current_state_original);
       auto shared_current_state_mutant = std::shared_ptr<state>(current_state_mutant);
-      auto kSuccessors_original = kSuccessors(current_state_original, k);
-      auto kSuccessors_mutant = kSuccessors(current_state_mutant, k);
-      auto comparison = StateComparer::compareKSuccessors(kSuccessors_original, kSuccessors_mutant);
+
+      analyzeSuccessors(current_state_original, current_state_mutant, k);
 
       auto distinguishing_formula = formulaCreator::createTransitionFormula(shared_current_state_original,
                                                                             post_states_original_vec, post_states_mutant_vec);
 
-      auto states_original = comparison.getOriginalStates();
-      auto last_state_original = states_original[states_original.size() - 1];
-      last_state_original->print();
-      auto states_mutant = comparison.getMutantStates();
-      auto last_state_mutant = states_mutant[states_mutant.size() - 1];
-      last_state_mutant->print();
-      //   auto distinguishing_formula_2 = formulaCreator::distinguishStates(states_original, states_mutant);
-
       std::cout << "The distinguishing formula is " << distinguishing_formula->toFormula() << std::endl;
+
       return distinguishing_formula;
     }
     else {
@@ -139,6 +122,27 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
   return std::make_shared<BooleanConstant>(true);
 }
 
+/// @brief This function analyzes the k-successors of two states from two automata
+/// @param state_original the state from the original automata
+/// @param state_mutant the state from the mutant automata
+/// @param k the number of successors to analyze
+void fsmExplorer::analyzeSuccessors(state * state_original, state * state_mutant, unsigned int k)
+{
+  auto kSuccessors_original = kSuccessors(state_original, k);
+  auto kSuccessors_mutant = kSuccessors(state_mutant, k);
+
+  auto comparison = StateComparer::compareKSuccessors(kSuccessors_original, kSuccessors_mutant);
+
+  auto formula_original = kSuccessors_original.generateFormula();
+  auto formula_mutant = kSuccessors_mutant.generateFormula();
+
+  std::cout << "The formula for the original automata is " << formula_original->toFormula() << std::endl;
+  std::cout << "The formula for the mutant automata is " << formula_mutant->toFormula() << std::endl;
+
+  std::cout << "The comparison is " << std::endl;
+  //auto stateFormula = formulaCreator::groupStatesByFormula({most_different_ptr});
+}
+
 //**
 // * This function computes the k-successors of a state
 // * The function returns a map of the k-successors of the state
@@ -146,25 +150,33 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
 // * 	@start_state - The state to compute the k-successors of
 // * 	@k - The number of successors to compute
 // *
-std::map<unsigned int, std::vector<state *>> fsmExplorer::kSuccessors(state * start_state, unsigned int k)
+successorTree fsmExplorer::kSuccessors(state * start_state, unsigned int k)
 {
+  auto visited_states = std::vector<state *>();
   auto successors = std::map<unsigned int, std::vector<state *>>();
   auto current_states = std::vector<state *>();
   current_states.push_back(start_state);
+  visited_states.push_back(start_state);
+  bool considerInternalVariables = true;
   for (unsigned int i = 0; i < k; ++i) {
     auto next_states = std::vector<state *>();
+    next_states.reserve(100);
     for (auto s : current_states) {
       auto post_states = s->SafePost();
-      for (auto post_state : post_states) {
-        if (StateComparer::containState(next_states, post_state, false)) {
-          // If the state is already in the list of next states, we do not need to add it again
-          continue;
-        }
-        next_states.push_back(post_state);
-      }
+      std::copy_if(post_states.begin(), post_states.end(), std::back_inserter(next_states),
+                   [&visited_states, &considerInternalVariables, &next_states](const auto & s) {
+                     return !StateComparer::containState(visited_states, s, considerInternalVariables) &&
+                            !StateComparer::containState(next_states, s, considerInternalVariables);
+                   });
+    }
+    if (next_states.empty()) {
+      //  No need to continue if there are no more successor states
+      break;
     }
     successors[i] = next_states;
     current_states = next_states;
+    visited_states.insert(visited_states.end(), next_states.begin(), next_states.end());
   }
-  return successors;
+  auto successor_tree = successorTree(successors);
+  return successor_tree;
 }

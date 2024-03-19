@@ -69,3 +69,4 @@ src/libs/cudd/configure
 src/libs/cudd/configure~
 src/libs/cudd/Makefile.in
 src/libs/bin/ltl2ba
+b/

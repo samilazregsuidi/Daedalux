@@ -56,6 +56,19 @@ formulaCreator::buildVariableValueMap(const std::vector<std::shared_ptr<state>> 
   return variable_val_map;
 }
 
+std::vector<ValueType> formulaCreator::getVariableValues(const std::vector<std::shared_ptr<state>> & states,
+                                                         const std::string & variableName)
+{
+  std::vector<ValueType> values;
+  for (auto state : states) {
+    auto value = formulaUtility::getValueOfVariable(state, variableName);
+    if (std::find(values.begin(), values.end(), value) == values.end()) {
+      values.push_back(value);
+    }
+  }
+  return values;
+}
+
 std::shared_ptr<formula> formulaCreator::distinguishTraces(const std::shared_ptr<trace> & include_trace,
                                                            const std::shared_ptr<trace> & exclude_trace)
 {
@@ -184,8 +197,8 @@ std::shared_ptr<formula> formulaCreator::groupStatesByFormula(const std::vector<
 /// @param exclude_states states to exclude from the formula
 /// @param temporal if true, the formula covers the entire trace, otherwise it covers states at a specific time
 /// @return a formula that distinguishes the states in include_states from the states in exclude_states
-std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>> include_states,
-                                                           const std::vector<std::shared_ptr<state>> exclude_states,
+std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>> & include_states,
+                                                           const std::vector<std::shared_ptr<state>> & exclude_states,
                                                            bool temporal)
 {
   bool considerInternalVariables = false;
@@ -302,8 +315,8 @@ std::shared_ptr<formula> formulaCreator::distinguishStates(const std::vector<std
 // }
 
 std::shared_ptr<formula> formulaCreator::createTransitionFormula(const std::shared_ptr<state> current_state,
-                                                                 const std::vector<std::shared_ptr<state>> include_states,
-                                                                 const std::vector<std::shared_ptr<state>> exclude_states)
+                                                                 const std::vector<std::shared_ptr<state>> & include_states,
+                                                                 const std::vector<std::shared_ptr<state>> & exclude_states)
 {
   std::shared_ptr<formula> distinguishingFormula;
   if (!exclude_states.empty()) {

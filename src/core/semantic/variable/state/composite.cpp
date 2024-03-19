@@ -218,8 +218,8 @@ void composite::apply(transition * trans)
     }
     s->apply(t);
   }
+  
   // Todo here - src and dst should not be the same
-
   prob *= trans->prob;
   origin = trans;
   trans->dst = this;

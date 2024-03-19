@@ -8,6 +8,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(Parser "y.tab.cpp")
 set(Lexer "lex.yy.cpp")
 
+find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+if (CMAKE_CXX_CPPCHECK)
+    list(
+        APPEND CMAKE_CXX_CPPCHECK 
+            "--enable=warning"
+            "--inconclusive"
+            "--force" 
+            "--inline-suppr"
+    )
+endif()
+
 add_custom_command(
     OUTPUT ${CMAKE_SOURCE_DIR}/parser/${Parser}
     COMMAND yacc -y -d -o ${CMAKE_SOURCE_DIR}/parser/${Parser} ${CMAKE_SOURCE_DIR}/parser/promela.y

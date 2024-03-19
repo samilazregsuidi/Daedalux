@@ -20,9 +20,9 @@
 
 state::state(variable::Type type, const std::string & name) : variable(type, name), prob(1.0), origin(nullptr), errorMask(0) {}
 
-state::state(const state & other) : variable(other), prob(other.prob), origin(nullptr), errorMask(other.errorMask) {}
+state::state(const state & other) : variable(other), prob(other.prob), origin(nullptr), errorMask(other.errorMask), secret(other.secret) {}
 
-state::state(const state * other) : variable(other), prob(other->prob), origin(nullptr), errorMask(other->errorMask) {}
+state::state(const state * other) : variable(other), prob(other->prob), origin(nullptr), errorMask(other->errorMask), secret(other->secret) {}
 
 state::~state()
 {

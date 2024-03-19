@@ -31,7 +31,7 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
   // Create initial state
   std::shared_ptr<state> init(initState::createInitState(automata, tvl));
 
-  bool isProblematic = isNeverClaimProblematic(init);
+  // bool isProblematic = isNeverClaimProblematic(init);
 
   elementStack stack;
   stack.push(init);
@@ -122,8 +122,6 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
 
         // graphVis->printGraphViz(s_);
 
-        // s_->print();
-
         if (firstSuccessor->getErrorMask() & state::ERR_ASSERT_FAIL) {
           // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
           reachableStates.addTraceViolation(currentStateElement->current_state.get());
@@ -167,7 +165,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
           }
         }
       }
-      else if (currentStateElement->Post.empty()) {
+      else {
         auto currentState = currentStateElement->current_state;
         // printf("    +-> all transitions of state %lu fired, acceptance check and backtracking...\n", s_hash);
         // Back these values up, the inner search will free currentStateElement->state before returning
@@ -250,7 +248,7 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
       if (onStack || firstSuccessor->getErrorMask() & state::ERR_ASSERT_FAIL) {
         // Error found
         if (onStack) {
-          printf("Property violated\n");
+          std::cerr << "Error: Property violated" << std::endl;
         }
         stackInner.push(firstSuccessor, depth + 1);
         if (generateIntermediaryFiles)

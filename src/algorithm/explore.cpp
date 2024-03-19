@@ -278,8 +278,7 @@ void createStateSpaceBFS(const fsm * automata, const TVL * tvl)
     }
   }
 
-  printf("number of states : %ld\n", i);
-
+  printf("number of states : %lu\n", i);
   delete graphVis;
 }
 
@@ -349,8 +348,7 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl)
       --depth;
     }
   }
-
-  printf("number of states : %ld\n", i);
+  printf("number of states : %lu\n", i);
   delete graphVis;
 }
 
@@ -429,7 +427,7 @@ void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl)
     }
   }
 
-  printf("number of states : %ld\n", i);
+  printf("number of states : %lu\n", i);
 
   delete graphVis;
 }

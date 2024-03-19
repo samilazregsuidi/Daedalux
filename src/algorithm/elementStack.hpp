@@ -13,7 +13,7 @@ public:
 
         element(void);
         
-        element(std::shared_ptr<state> s, unsigned int depth = 0);
+        explicit element(std::shared_ptr<state> s, unsigned int depth = 0);
 
         ~element() = default;
 

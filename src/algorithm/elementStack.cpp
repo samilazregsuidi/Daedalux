@@ -3,7 +3,7 @@
 #include "state.hpp"
 #include <iostream>
 
-elementStack::element::element(void) : current_state(nullptr), init(false) {}
+elementStack::element::element(void) : current_state(nullptr), init(false), depth(0) {}
 
 elementStack::element::element(std::shared_ptr<state> s, unsigned int depth) : current_state(s), init(true), depth(depth)
 {
@@ -32,8 +32,8 @@ void elementStack::push(std::shared_ptr<state> s, int depth)
 
 void elementStack::pop(void)
 {
-  auto top = stackElem.top();
-  auto hash = top->current_state->hash();
+  auto topElem = stackElem.top();
+  auto hash = topElem->current_state->hash();
   stackElem.pop();
   setElem.erase(hash);
 }

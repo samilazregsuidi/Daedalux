@@ -9,13 +9,13 @@
 class MutantAnalyzer {
 public:
   // Constructor
-  MutantAnalyzer(std::string original_file_path, std::string property_file_path, std::vector<std::string> mutant_file_paths);
+  MutantAnalyzer(const std::string & original_file_path, const std::string & property_file_path, std::vector<std::string> mutant_file_paths);
 
-  MutantAnalyzer(std::string original_file_path, std::vector<std::string> mutant_file_paths);
+  MutantAnalyzer(const std::string & original_file_path, std::vector<std::string> mutant_file_paths);
 
-  MutantAnalyzer(std::string original_file_path, std::string property_file_path);
+  MutantAnalyzer(const std::string & original_file_path, const std::string & property_file_path);
 
-  MutantAnalyzer(std::string original_file_path);
+  explicit MutantAnalyzer(const std::string & original_file_path);
 
   std::pair<std::vector<std::string>, std::vector<std::string>> killMutants(void);
 
@@ -25,15 +25,15 @@ public:
 
   std::map<std::string, std::shared_ptr<formula>> analyzeMutants(void);
 
-  std::vector<std::string> getMutantFilePaths() { return mutant_file_paths; }
-  std::string getOriginalFilePath() { return original_file_path; }
+  std::vector<std::string> getMutantFilePaths() const { return mutant_file_paths; }
+  std::string getOriginalFilePath() const { return original_file_path; }
 
 private:
-  std::string original_file_path;
+  const std::string & original_file_path;
   std::string property_file_path;
   std::vector<std::string> mutant_file_paths;
 
-  std::string createMutant(int mutant_number, stmnt * program, std::string mutant_file_path);
+  std::string createMutant(int mutant_number, const stmnt * program, const std::string & mutant_file_path);
 
   bool fileExists(const std::string & filename)
   {

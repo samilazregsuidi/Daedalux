@@ -3,9 +3,12 @@
 
 #include "../formulas/formula.hpp"
 #include "fsm.hpp"
+#include "initState.hpp"
+#include "state.hpp"
+#include "utils/successorTree.hpp"
+#include <list>
 #include <map>
 #include <memory>
-#include <state.hpp>
 #include <string>
 #include <vector>
 
@@ -15,7 +18,9 @@ public:
 
   static std::shared_ptr<formula> discardMutant(std::shared_ptr<fsm> original, std::shared_ptr<fsm> mutant);
 
-  static std::map<unsigned int, std::vector<state *>> kSuccessors(state * start_state, unsigned int k);
+  static successorTree kSuccessors(state * start_state, unsigned int k);
+
+  static void analyzeSuccessors(state * state_original, state * state_mutant, unsigned int k);
 };
 
 #endif // FSMEXPLORER_HPP

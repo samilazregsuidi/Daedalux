@@ -93,36 +93,3 @@ void generateMutantTraces(const std::string& original_file, const std::string& m
 //   }
 //   return nullptr
 // }
-
-/* Analyze mutants to determine whether the specification will kill them or not
- * @param feature_mutant_model: mutant model as a featured transition system
- * @param properties: properties to check
- */
-void analyzeMutants(fsm feature_mutant_model, std::vector<std::string> properties)
-{
-  // Initially, all mutants are surviving mutants
-  auto killed_mutants = std::vector<std::string>();
-  auto surviving_mutants = std::vector<std::string>();
-  // Check whether the mutants are killed by the properties
-  for (auto property : properties) {
-    std::cout << "Checking property " << property << std::endl;
-    // Check whether the property kills the mutant
-    // TODO implement - not sure how to do this yet
-    bool killed = false;
-    if (killed) {
-      std::cout << "Property kills mutant" << std::endl;
-      // Move mutant from surviving to killed mutants
-      // killed_mutants.push_back(property);
-      // surviving_mutants.erase(std::remove(surviving_mutants.begin(), surviving_mutants.end(), property),
-      // surviving_mutants.end()); 
-    }
-    else {
-      std::cout << "Property does not kill mutant" << std::endl;
-    }
-  }
-
-  // Shrink the feature model to only surviving mutants by removing all transitions with a featured expression that is not in
-  // the surviving mutants
-
-  // Save killed mutants to file
-}

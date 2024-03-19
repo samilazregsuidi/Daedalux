@@ -1,3 +1,4 @@
+#include "formulaUtility.hpp"
 #include "formula.hpp"
 #include "formulaCreator.hpp"
 #include "ltl.hpp"
@@ -17,14 +18,11 @@ std::map<int, std::vector<std::shared_ptr<state>>>
 formulaUtility::convertToIntegerMap(const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values)
 {
   std::map<int, std::vector<std::shared_ptr<state>>> new_values;
-  for (auto value : values) {
+  std::for_each(values.begin(), values.end(), [&new_values](const auto & value) {
     if (std::holds_alternative<int>(value.first)) {
       new_values[std::get<int>(value.first)] = value.second;
     }
-    else {
-      std::cout << "The value is not an integer. I am skipping it." << std::endl;
-    }
-  }
+  });
   return new_values;
 }
 
@@ -46,23 +44,21 @@ formulaUtility::createEqualityFormulas(const std::string & variableName,
   return res;
 }
 
-std::shared_ptr<formula>
-formulaUtility::makeAlternativeFormula(std::string name, const std::map<ValueType, std::vector<std::shared_ptr<state>>> values,
-                                       bool isInequality)
+std::shared_ptr<formula> formulaUtility::makeAlternativeFormula(
+    const std::string & name, const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values, bool isInequality)
 {
   std::vector<std::shared_ptr<formula>> formulas;
-  for (auto value : values) {
-    auto formula = makeEqualityFormula(name, value.first, isInequality);
-    formulas.push_back(formula);
-  }
+  formulas.reserve(values.size()); // Optional but can improve performance
+  std::transform(values.begin(), values.end(), std::back_inserter(formulas),
+                 [&name, &isInequality](const auto & value) { return makeEqualityFormula(name, value.first, isInequality); });
   auto combined_formula = combineFormulas(formulas, CombinationOperatorType::OR_Symbol);
-  if (values.size() > 1) {
+  if (formulas.size() > 1) {
     combined_formula = std::make_shared<ParenthesisFormula>(combined_formula);
   }
   return combined_formula;
 }
 
-std::shared_ptr<formula> formulaUtility::makeRangeFormula(std::string name, int smallestValue, int largestValue)
+std::shared_ptr<formula> formulaUtility::makeRangeFormula(const std::string & name, int smallestValue, int largestValue)
 {
   assert(smallestValue <= largestValue);
   auto formulaVar = std::make_shared<VariableFormula>(name);
@@ -75,7 +71,7 @@ std::shared_ptr<formula> formulaUtility::makeRangeFormula(std::string name, int 
   return parent_formula;
 }
 
-std::shared_ptr<formula> formulaUtility::makeEqualityFormula(std::string name, ValueType value, bool isInequality)
+std::shared_ptr<formula> formulaUtility::makeEqualityFormula(const std::string & name, ValueType value, bool isInequality)
 {
   auto formulaVar = std::make_shared<VariableFormula>(name);
   std::shared_ptr<LeafFormula> valueFormula;

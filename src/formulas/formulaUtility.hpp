@@ -14,6 +14,9 @@ enum class CombinationOperatorType {
   OR_Symbol,
 };
 
+// Define the type for the predicate function
+using Predicate = std::function<bool(state *)>;
+
 // Custom comparator for the ValueType variant
 using ValueType = std::variant<int, std::string, bool>;
 
@@ -54,12 +57,9 @@ class formulaUtility {
 public:
   static std::shared_ptr<formula> combineFormulas(const std::vector<std::shared_ptr<formula>> & formulas,
                                                   const CombinationOperatorType operatorSymbol);
-  static std::shared_ptr<formula> makeAlternativeFormula(std::string name,
-                                                         const std::map<ValueType, std::vector<std::shared_ptr<state>>> values,
-                                                         bool isInequality);
   static ValueType getValueOfVariable(const std::shared_ptr<state> & state, const std::string & name);
-  static std::shared_ptr<formula> makeRangeFormula(std::string name, int smallestValue, int largestValue);
-  static std::shared_ptr<formula> makeEqualityFormula(std::string name, ValueType value, bool isInequality);
+  static std::shared_ptr<formula> makeRangeFormula(const std::string & name, int smallestValue, int largestValue);
+  static std::shared_ptr<formula> makeEqualityFormula(const std::string & name, ValueType value, bool isInequality);
   static overlapResult values_overlap(const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values1,
                                       const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values2);
 
@@ -70,6 +70,10 @@ public:
   createEqualityFormulas(const std::string & variableName,
                          const std::map<ValueType, std::vector<std::shared_ptr<state>>> & include_values,
                          const std::map<ValueType, std::vector<std::shared_ptr<state>>> & exclude_values);
+
+  static std::shared_ptr<formula>
+  makeAlternativeFormula(const std::string & name, const std::map<ValueType, std::vector<std::shared_ptr<state>>> & values,
+                         bool isInequality);
 
 private:
   static std::map<int, std::vector<std::shared_ptr<state>>>

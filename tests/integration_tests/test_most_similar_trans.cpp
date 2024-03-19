@@ -22,7 +22,7 @@ protected:
 
   std::unique_ptr<TestFilesUtils> testFilesUtils;
 
-  std::map<unsigned int, std::vector<state *>> KSuccessors(std::string file_path, int k)
+  successorTree KSuccessors(std::string file_path, int k)
   {
     const TVL * tvl = nullptr;
     auto loader = std::make_unique<promela_loader>(file_path, tvl);
@@ -242,7 +242,7 @@ TEST_F(SimilarityTest, KSuccessorsArray)
   auto file_path = testFilesUtils->array_model();
   auto k = 5;
   auto result = KSuccessors(file_path, k);
-  ASSERT_EQ(result.size(), 5);
+  ASSERT_EQ(result.length(), 5);
 }
 
 TEST_F(SimilarityTest, KSuccessorsFlows)
@@ -250,7 +250,7 @@ TEST_F(SimilarityTest, KSuccessorsFlows)
   auto file_path = testFilesUtils->flows_model();
   auto k = 5;
   auto result = KSuccessors(file_path, k);
-  ASSERT_EQ(result.size(), 5);
+  ASSERT_EQ(result.length(), 5);
 }
 
 TEST_F(SimilarityTest, KSuccessorsArray_Difference_ShouldBeEmpty)
@@ -259,17 +259,11 @@ TEST_F(SimilarityTest, KSuccessorsArray_Difference_ShouldBeEmpty)
   auto k = 5;
   auto result_1 = KSuccessors(file_path, k);
   auto result_2 = KSuccessors(file_path, k);
-  ASSERT_EQ(result_1.size(), result_2.size());
+  ASSERT_EQ(result_1.length(), result_2.length());
   auto result = StateComparer::compareKSuccessors(result_1, result_2);
-  for (auto & [key, value] : result.getMutantOnly()) {
-    ASSERT_TRUE(value.empty());
-  }
-  for (auto & [key, value] : result.getOriginalOnly()) {
-    ASSERT_TRUE(value.empty());
-  }
-  for (auto & [key, value] : result.getCommon()) {
-    ASSERT_TRUE(!value.empty());
-  }
+  ASSERT_TRUE(result.getMutantOnly().empty());
+  ASSERT_TRUE(result.getOriginalOnly().empty());
+  ASSERT_TRUE(!result.getCommon().empty());
 }
 
 // TEST_F(SimilarityTest, KSuccessorsArrayMutant_Difference_ShouldBeNonEmpty)

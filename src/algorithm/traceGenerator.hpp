@@ -12,6 +12,7 @@
 class TraceGenerator {
 public:
   TraceGenerator(std::string original_file_path, std::string mutant_file_path, TVL * tvl = nullptr)
+      : tvl(tvl)
   {
     auto loader_original = new promela_loader(original_file_path, tvl);
     original = loader_original->getAutomata();

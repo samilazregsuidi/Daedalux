@@ -69,18 +69,21 @@ template <> struct hash<formula> {
 
 class LeafFormula : public formula {
 public:
-  std::vector<std::string> getDefinitions() const { throw std::runtime_error("Leaf formulas do not have a definition"); }
+  std::vector<std::string> getDefinitions() const override
+  {
+    throw std::runtime_error("Leaf formulas do not have a definition");
+  }
 
-  std::string getDefName() const { throw std::runtime_error("Leaf formulas do not have a definition name"); }
+  std::string getDefName() const override { throw std::runtime_error("Leaf formulas do not have a definition name"); }
 
-  int getDepth() const { return 1; }
+  int getDepth() const override { return 1; }
 
-  int getSize() const { return 1; }
+  int getSize() const override { return 1; }
 };
 
 class VariableFormula : public LeafFormula {
 public:
-  VariableFormula(const std::string & name) : name(name)
+  explicit VariableFormula(const std::string & name) : name(name)
   {
     if (name.empty()) {
       throw std::invalid_argument("Variable name cannot be empty");
@@ -89,11 +92,11 @@ public:
 
   ~VariableFormula() = default;
 
-  std::string toFormula() const { return name; }
+  std::string toFormula() const override { return name; }
 
-  std::string promelaFormula() const { return name; }
+  std::string promelaFormula() const override { return name; }
 
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherVariable = dynamic_cast<const VariableFormula *>(&other);
     if (!otherVariable) {
@@ -108,12 +111,12 @@ private:
 
 class NumberConstant : public LeafFormula {
 public:
-  NumberConstant(int value) : value(value) {}
+  explicit NumberConstant(int value) : value(value) {}
   ~NumberConstant() = default;
 
-  std::string toFormula() const { return std::to_string(value); }
+  std::string toFormula() const override { return std::to_string(value); }
 
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherNumber = dynamic_cast<const NumberConstant *>(&other);
     if (!otherNumber) {
@@ -122,7 +125,7 @@ public:
     return value == otherNumber->value;
   }
 
-  std::string promelaFormula() const { return toFormula(); }
+  std::string promelaFormula() const override { return toFormula(); }
 
 private:
   int value;
@@ -130,12 +133,12 @@ private:
 
 class BooleanConstant : public LeafFormula {
 public:
-  BooleanConstant(bool value) : value(value) {}
+  explicit BooleanConstant(bool value) : value(value) {}
   ~BooleanConstant() = default;
 
-  std::string toFormula() const { return value ? "true" : "false"; }
+  std::string toFormula() const override { return value ? "true" : "false"; }
 
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherBoolean = dynamic_cast<const BooleanConstant *>(&other);
     if (!otherBoolean) {
@@ -144,7 +147,7 @@ public:
     return value == otherBoolean->value;
   }
 
-  std::string promelaFormula() const { return toFormula(); }
+  std::string promelaFormula() const override { return toFormula(); }
 
   bool isTrue() const { return value; }
 
@@ -157,21 +160,21 @@ public:
   UnaryFormula(const std::shared_ptr<formula> & subformula) : subformula(subformula) {}
   ~UnaryFormula() = default;
 
-  std::string toFormula() const { return getOperator() + " " + subformula->toFormula(); }
+  std::string toFormula() const override { return getOperator() + " " + subformula->toFormula(); }
 
-  std::string promelaFormula() const { return getOperator() + " " + subformula->promelaFormula(); }
+  std::string promelaFormula() const override { return getOperator() + " " + subformula->promelaFormula(); }
 
-  std::vector<std::string> getDefinitions() const { return subformula->getDefinitions(); }
+  std::vector<std::string> getDefinitions() const override { return subformula->getDefinitions(); }
 
-  int getDepth() const { return subformula->getDepth() + 1; }
+  int getDepth() const override { return subformula->getDepth() + 1; }
 
-  std::string getDefName() const { return subformula->getDefName(); }
+  std::string getDefName() const override { return subformula->getDefName(); }
 
-  int getSize() const { return subformula->getSize() + 1; }
+  int getSize() const override { return subformula->getSize() + 1; }
 
   std::shared_ptr<formula> getSubformula() const { return subformula; }
 
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherUnary = dynamic_cast<const UnaryFormula *>(&other);
     if (!otherUnary) {
@@ -189,21 +192,21 @@ private:
 
 class ParenthesisFormula : public formula {
 public:
-  ParenthesisFormula(const std::shared_ptr<formula> & subformula) : subformula(std::move(subformula)) {}
+  explicit ParenthesisFormula(const std::shared_ptr<formula> & subformula) : subformula(std::move(subformula)) {}
   ~ParenthesisFormula() = default;
 
-  std::string toFormula() const { return "(" + subformula->toFormula() + ")"; }
+  std::string toFormula() const override { return "(" + subformula->toFormula() + ")"; }
 
-  std::string promelaFormula() const { return "(" + subformula->promelaFormula() + ")"; }
+  std::string promelaFormula() const override { return "(" + subformula->promelaFormula() + ")"; }
 
-  int getDepth() const { return subformula->getDepth() + 1; }
+  int getDepth() const override { return subformula->getDepth() + 1; }
 
-  int getSize() const { return subformula->getSize() + 1; }
-  std::vector<std::string> getDefinitions() const { return subformula->getDefinitions(); }
+  int getSize() const override { return subformula->getSize() + 1; }
+  std::vector<std::string> getDefinitions() const override { return subformula->getDefinitions(); }
 
-  std::string getDefName() const { return subformula->getDefName(); }
+  std::string getDefName() const override { return subformula->getDefName(); }
 
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     const ParenthesisFormula * otherParenthesis = dynamic_cast<const ParenthesisFormula *>(&other);
     if (!otherParenthesis) {
@@ -218,61 +221,64 @@ private:
 
 class NotFormula : public UnaryFormula {
 public:
-  NotFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula)) {}
+  explicit NotFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula)) {}
   ~NotFormula() = default;
 
 private:
-  std::string getOperator() const { return "!"; }
+  std::string getOperator() const override { return "!"; }
 };
 
 class NextFormula : public UnaryFormula {
 public:
-  NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula))
+  explicit NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
   {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
     if (!subformulaAsParenthesis) {
       setSubformula(std::make_shared<ParenthesisFormula>(subformula));
     }
+    UnaryFormula::setSubformula(std::move(subformula)); // Move subformula here, after you're done using it
   }
   ~NextFormula() = default;
 
 private:
-  std::string getOperator() const { return "X"; }
+  std::string getOperator() const override { return "X"; }
 };
 
 class GloballyFormula : public UnaryFormula {
 public:
-  GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula))
+  explicit GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
   {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
     if (!subformulaAsParenthesis) {
       setSubformula(std::make_shared<ParenthesisFormula>(subformula));
     }
+    UnaryFormula::setSubformula(std::move(subformula)); // Move subformula here, after you're done using it
   }
 
   ~GloballyFormula() = default;
 
 private:
-  std::string getOperator() const { return "[]"; }
+  std::string getOperator() const override { return "[]"; }
 };
 
 class FinallyFormula : public UnaryFormula {
 public:
-  FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula))
+  explicit FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
   {
     // Cast the subformula to a ParenthesisFormula if it is not already one
     auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
     if (!subformulaAsParenthesis) {
       setSubformula(std::make_shared<ParenthesisFormula>(subformula));
     }
+    UnaryFormula::setSubformula(std::move(subformula)); // Move subformula here, after you're done using it
   }
 
   ~FinallyFormula() = default;
 
 private:
-  std::string getOperator() const { return "<>"; }
+  std::string getOperator() const override { return "<>"; }
 };
 
 class BinaryFormula : public formula {
@@ -280,9 +286,9 @@ public:
   BinaryFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : left(left), right(right) {}
   ~BinaryFormula() = default;
 
-  std::string toFormula() const { return left->toFormula() + " " + getOperator() + " " + right->toFormula(); }
+  std::string toFormula() const override { return left->toFormula() + " " + getOperator() + " " + right->toFormula(); }
 
-  std::vector<std::string> getDefinitions() const
+  std::vector<std::string> getDefinitions() const override
   {
     auto leftDef = left->getDefinitions();
     auto rightDef = right->getDefinitions();
@@ -293,18 +299,21 @@ public:
     return leftDef;
   }
 
-  std::string getDefName() const { return left->getDefName() + "\n" + right->getDefName(); }
+  std::string getDefName() const override { return left->getDefName() + "\n" + right->getDefName(); }
 
-  std::string promelaFormula() const { return left->promelaFormula() + " " + getOperator() + " " + right->promelaFormula(); }
+  std::string promelaFormula() const override
+  {
+    return left->promelaFormula() + " " + getOperator() + " " + right->promelaFormula();
+  }
 
   std::shared_ptr<formula> getLeft() const { return left; }
   std::shared_ptr<formula> getRight() const { return right; }
 
-  int getDepth() const { return std::max(left->getDepth(), right->getDepth()) + 1; }
+  int getDepth() const override { return std::max(left->getDepth(), right->getDepth()) + 1; }
 
-  int getSize() const { return left->getSize() + right->getSize() + 1; }
+  int getSize() const override { return left->getSize() + right->getSize() + 1; }
 
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherBinary = dynamic_cast<const BinaryFormula *>(&other);
     if (!otherBinary) {
@@ -343,7 +352,7 @@ public:
   ~ImpliesFormula() = default;
 
 private:
-  std::string getOperator() const { return "->"; }
+  std::string getOperator() const override { return "->"; }
 };
 
 class IffFormula : public BinaryFormula {
@@ -363,7 +372,7 @@ public:
   ~IffFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherBinary = dynamic_cast<const IffFormula *>(&other);
     if (!otherBinary) {
@@ -378,7 +387,7 @@ public:
   }
 
 private:
-  std::string getOperator() const { return "<->"; }
+  std::string getOperator() const override { return "<->"; }
 };
 
 class AndFormula : public BinaryFormula {
@@ -387,7 +396,7 @@ public:
   ~AndFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     auto otherBinary = dynamic_cast<const AndFormula *>(&other);
     if (!otherBinary) {
@@ -403,7 +412,7 @@ public:
   }
 
 private:
-  std::string getOperator() const { return "&&"; }
+  std::string getOperator() const override { return "&&"; }
 };
 
 class OrFormula : public BinaryFormula {
@@ -412,7 +421,7 @@ public:
   ~OrFormula() = default;
 
   // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const formula & other) const
+  bool isEquivalent(const formula & other) const override
   {
     const OrFormula * otherBinary = dynamic_cast<const OrFormula *>(&other);
     if (!otherBinary) {
@@ -427,7 +436,7 @@ public:
     return isEquivalent;
   }
 
-  std::string getOperator() const { return "||"; }
+  std::string getOperator() const override { return "||"; }
 };
 
 class ComparisonFormula : public BinaryFormula {
@@ -438,15 +447,15 @@ public:
   }
   ~ComparisonFormula() = default;
 
-  std::string promelaFormula() const { return getDefName(); }
+  std::string promelaFormula() const override { return getDefName(); }
 
-  std::vector<std::string> getDefinitions() const
+  std::vector<std::string> getDefinitions() const override
   {
     auto entry = "#define " + getDefName() + " (" + toFormula() + ")";
     return {entry};
   }
 
-  std::string getDefName() const
+  std::string getDefName() const override
   {
     auto left_name = getLeft()->toFormula();
     auto right_name = getRight()->toFormula();
@@ -465,9 +474,9 @@ public:
   }
   ~LargerThanFormula() = default;
 
-  std::string getOperator() const { return ">"; }
+  std::string getOperator() const override { return ">"; }
 
-  std::string getComparisionName() const { return "larger_than"; }
+  std::string getComparisionName() const override { return "larger_than"; }
 };
 
 class SmallerThanFormula : public ComparisonFormula {
@@ -478,9 +487,9 @@ public:
   }
   ~SmallerThanFormula() = default;
 
-  std::string getOperator() const { return "<"; }
+  std::string getOperator() const override { return "<"; }
 
-  std::string getComparisionName() const { return "smaller_than"; }
+  std::string getComparisionName() const override { return "smaller_than"; }
 };
 
 class LargerEqualsFormula : public ComparisonFormula {
@@ -492,9 +501,9 @@ public:
 
   ~LargerEqualsFormula() = default;
 
-  std::string getOperator() const { return ">="; }
+  std::string getOperator() const override { return ">="; }
 
-  std::string getComparisionName() const { return "larger_equals"; }
+  std::string getComparisionName() const override { return "larger_equals"; }
 };
 
 class SmallerEqualsFormula : public ComparisonFormula {
@@ -505,8 +514,8 @@ public:
   }
   ~SmallerEqualsFormula() = default;
 
-  std::string getOperator() const { return "<="; }
-  std::string getComparisionName() const { return "smaller_equals"; }
+  std::string getOperator() const override { return "<="; }
+  std::string getComparisionName() const override { return "smaller_equals"; }
 };
 
 class EqualsFormula : public ComparisonFormula {
@@ -517,7 +526,7 @@ public:
   }
   ~EqualsFormula() = default;
 
-  std::string toFormula() const
+  std::string toFormula() const override
   {
     auto leftChild = getLeft();
     auto rightChild = getRight();
@@ -530,7 +539,6 @@ public:
     else if (leftVariable && !rightVariable) {
       auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(rightChild);
       if (isBoolean) {
-        auto defName = getDefName();
         auto leftName = leftChild->toFormula();
         if (isBoolean->isTrue()) {
           return leftName;
@@ -563,7 +571,7 @@ public:
     return getDefName();
   }
 
-  std::string promelaFormula() const
+  std::string promelaFormula() const override
   {
     auto leftChild = getLeft();
     auto rightChild = getRight();
@@ -575,20 +583,7 @@ public:
     }
     else if (leftVariable && !rightVariable) {
       auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(rightChild);
-      if (isBoolean) {
-        return getDefName();
-        auto leftName = leftChild->promelaFormula();
-        if (isBoolean->isTrue()) {
-          return leftName;
-        }
-        else {
-          return "!" + leftName;
-        }
-      }
-      else {
-        auto defName = getDefName();
-        return defName;
-      }
+      return getDefName();
     }
     else if (!leftVariable && rightVariable) {
       auto isBoolean = std::dynamic_pointer_cast<BooleanConstant>(leftChild);
@@ -610,8 +605,8 @@ public:
     return getDefName();
   }
 
-  std::string getOperator() const { return "=="; }
-  std::string getComparisionName() const { return "equals"; }
+  std::string getOperator() const override { return "=="; }
+  std::string getComparisionName() const override { return "equals"; }
 };
 
 class NotEqualsFormula : public ComparisonFormula {
@@ -622,6 +617,6 @@ public:
   }
   ~NotEqualsFormula() = default;
 
-  std::string getOperator() const { return "!="; }
-  std::string getComparisionName() const { return "not_equals"; }
+  std::string getOperator() const override { return "!="; }
+  std::string getComparisionName() const override { return "not_equals"; }
 };

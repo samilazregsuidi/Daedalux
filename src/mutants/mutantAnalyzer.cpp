@@ -11,7 +11,7 @@
 #include <vector>
 
 // Constructor
-MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::string property_file_path,
+MutantAnalyzer::MutantAnalyzer(const std::string & original_file_path, const std::string & property_file_path,
                                std::vector<std::string> mutant_file_paths)
     : original_file_path(original_file_path), property_file_path(property_file_path), mutant_file_paths(mutant_file_paths)
 {
@@ -31,7 +31,7 @@ MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::string prope
   }
 }
 
-MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::vector<std::string> mutant_file_paths)
+MutantAnalyzer::MutantAnalyzer(const std::string & original_file_path, std::vector<std::string> mutant_file_paths)
     : original_file_path(original_file_path), mutant_file_paths(mutant_file_paths)
 {
   if (!fileExists(original_file_path)) {
@@ -46,7 +46,7 @@ MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::vector<std::
   }
 }
 
-MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::string property_file_path)
+MutantAnalyzer::MutantAnalyzer(const std::string & original_file_path, const std::string & property_file_path)
     : original_file_path(original_file_path), property_file_path(property_file_path)
 {
   if (!fileExists(original_file_path)) {
@@ -59,7 +59,7 @@ MutantAnalyzer::MutantAnalyzer(std::string original_file_path, std::string prope
   }
 }
 
-MutantAnalyzer::MutantAnalyzer(std::string original_file_path) : original_file_path(original_file_path)
+MutantAnalyzer::MutantAnalyzer(const std::string & original_file_path) : original_file_path(original_file_path)
 {
   if (!fileExists(original_file_path)) {
     std::cout << "Original file does not exist" << std::endl;
@@ -175,7 +175,7 @@ void MutantAnalyzer::createMutants(unsigned int number_of_mutants)
   // Load promela file
   auto loader = std::make_unique<promela_loader>(original_file_path, nullptr);
   stmnt * program = loader->getProgram();
-  unsigned int index = program->assignMutables();
+  unsigned int number_of_mutationPoints = program->assignMutables();
   // Folder of the original program
   std::string folder = original_file_path.substr(0, original_file_path.find_last_of("/"));
   std::string mutant_folder = folder + "/mutants";
@@ -198,7 +198,7 @@ void MutantAnalyzer::createMutants(unsigned int number_of_mutants)
   output.close();
 
   // Generate mutants
-  number_of_mutants = std::min(number_of_mutants, index);
+  number_of_mutants = std::min(number_of_mutants, number_of_mutationPoints);
   for (unsigned int i = 1; i <= number_of_mutants; i++) {
     auto fileName = createMutant(i, program, mutant_folder);
     mutant_file_paths.push_back(fileName);
@@ -224,7 +224,30 @@ std::map<std::string, std::shared_ptr<formula>> MutantAnalyzer::analyzeMutants()
   return resultMap;
 }
 
-std::string MutantAnalyzer::createMutant(int mutant_number, stmnt * program, std::string mutant_folder)
+/*
+// Use threads to analyze mutants in parallel
+std::mutex mtx; // used to synchronize access to resultMap
+
+std::vector<std::thread> threads;
+for (auto mutant_file_path : mutant_file_paths) {
+    threads.push_back(std::thread([&](const std::string& path) {
+        std::cout << "Analyzing mutant " << path << std::endl;
+        auto mutant_loader = std::make_unique<promela_loader>(path, nullptr);
+        auto mutantFSM = mutant_loader->getAutomata();
+        auto formula = fsmExplorer::discardMutant(originalFSM, mutantFSM);
+        mtx.lock();
+        resultMap[path] = formula;
+        mtx.unlock();
+    }, mutant_file_path));
+}
+
+// Wait for all threads to finish
+for (auto& t : threads) {
+    t.join();
+}
+*/
+
+std::string MutantAnalyzer::createMutant(int mutant_number, const stmnt * program, const std::string & mutant_folder)
 {
   auto copy = program->deepCopy();
   astNode::mutate(copy, mutant_number);

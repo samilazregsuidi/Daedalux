@@ -42,7 +42,6 @@ std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> origin
   // Lists to store the transitions of the two automata
   auto post_states_original = std::list<state *>();
   auto post_states_mutant = std::list<state *>();
-  auto unique_states_original = std::list<state *>();
   // Variables to store the current transition
   transition * current_trans_original = nullptr;
   transition * current_trans_mutant = nullptr;
@@ -78,7 +77,7 @@ std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> origin
     }
     if (same_prefix) {
       // Find the states that are unique to the original automata
-      unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
+      auto unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
       // The original automata has a unique state - let us continue the trace using this state
       if (!unique_states_original.empty()) {
         if (ignore_common_prefix) {
