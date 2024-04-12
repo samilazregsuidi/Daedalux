@@ -20,3 +20,5 @@ fsm
 fsm_graphvis
 models/minepump/minepump (copy).pml
 src/libdaedalux_lib.a
+**.Po
+**.Plo
