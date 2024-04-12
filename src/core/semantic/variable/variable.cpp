@@ -1,6 +1,7 @@
 #include "variable.hpp"
 
 #include <iterator>
+#include <algorithm>
 
 #include "payload.hpp"
 
@@ -85,13 +86,13 @@ variable::variable(const variable & other)
       varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), hidden(other.hidden),
       predef(other.predef), global(other.global)
 {
-  auto nbVariables = other->getVariables().size();
+  auto nbVariables = other.getVariables().size();
   // auto otherSizeOf = other->getSizeOf();
 
   payLoad = nullptr;
   clearVariables();
 
-  for (auto subVar : other->getVariables()) {
+  for (auto subVar : other.getVariables()) {
     _addVariable(subVar->deepCopy());
   }
 
@@ -99,7 +100,7 @@ variable::variable(const variable & other)
     subVar->assign(subVar);
 
   if (!parent) {
-    setPayload(other->getPayload()->copy());
+    setPayload(other.getPayload()->copy());
   }
 
   assert(getVariables().size() == nbVariables);
@@ -231,7 +232,7 @@ void variable::_addVariable(variable * var)
 void variable::_rmVariable(const variable * var)
 {
   varMap.erase(var->getLocalName());
-  auto it = std::find(varList.begin(), varList.end(), var);
+  auto it = std::find(varList.cbegin(), varList.cend(), var);
   varList.erase(it);
 }
 

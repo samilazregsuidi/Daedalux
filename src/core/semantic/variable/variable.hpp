@@ -87,7 +87,7 @@ public:
 	/****************************************************/
 
 	template<typename T = variable*> T get(const std::string& name) const {
-		auto res = dynamic_cast<T>(getVariable(name));
+		auto res = dynamic_cast<T>(getVariableImpl(name));
 		if(res == nullptr)
 			throw std::runtime_error("Invalid cast");
 		return res;
