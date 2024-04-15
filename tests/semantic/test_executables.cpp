@@ -65,11 +65,47 @@ protected:
                             system s1;\n\
                             system s2;";
 };
+/*
+TEST_F(ExecutableTests, simpleExecutables)
+{
+  //parsing the promela and tvl files
+  auto loader = new promela_loader(promela_file, tvl_file);
+  
+  //getting the program graph from the parser
+  auto program_graph = loader->getAutomata();
 
+  //create the initial state using semantic engine
+  auto state = initState::createInitState(program_graph);
+  
+  //exploring the state space
+  auto execs = state->executables();
+  assert(execs.size() == 1);
+  state->fire(execs.front());
+
+  //checking the safe variable state
+  auto safe_var = state->get<boolVar>("safe");
+  assert(safe_var->value() == true);
+
+  //checking the motor process location
+  auto motor_proc = state->get<process>("motor");
+  assert(motor_proc->location() == 3);
+  state->fire(state->executables().front());
+  assert(motor_proc->location() == 4);
+
+  //checking the state properties
+  assert(state->isAccepting() == false);
+  assert(state->isDeadlock() == false);
+
+  auto next_states = state->Post();
+  for(auto next_state : next_states)
+    assert(next_state->get<boolVar>("danger")->value() == false);
+}
+*/
 
 TEST_F(ExecutableTests, simpleExecutables)
 {
   const TVL * tvl = nullptr;
+
   auto original_loader = std::make_unique<promela_loader>(helloWorld, tvl);
   auto originalFSM = original_loader->getAutomata();
   // Create the initial state for both automata
