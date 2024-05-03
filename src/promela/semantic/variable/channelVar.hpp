@@ -5,13 +5,13 @@
 #include <list>
 
 #include "stackVar.hpp"
-#include "argVar.hpp"
+#include "argList.hpp"
 
-class channel : private stackVar {
+class channel : public stackVar {
 public:
 	channel(const std::string& name, size_t capacity = 0);
 
-	channel(const channel* other);
+	channel(const channel& other);
 
 	channel* deepCopy(void) const override;
 
@@ -49,7 +49,9 @@ private:
 	void len(byte newLen);
 };
 
-class CIDVar : public primitive<unsigned char> {
+#include "scalarVar.hpp"
+
+class CIDVar : public scalar<unsigned char> {
 public:
 	CIDVar(const cidSymNode* sym, unsigned char initValue = 0);
 

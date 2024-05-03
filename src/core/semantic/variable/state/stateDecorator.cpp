@@ -164,14 +164,6 @@ void stateDecorator::addRawBytes(size_t size) {
 	wrappee->addRawBytes(size);
 }
 
-variable* stateDecorator::getVariable(const std::string& name) const {
-	return wrappee->getVariable(name);
-}
-
-channel* stateDecorator::getChannel(const std::string& name) const {
-	return wrappee->getChannel(name);
-}
-
 std::map<std::string, variable*> stateDecorator::getVariablesMap(void) const {
 	return wrappee->getVariablesMap();
 }

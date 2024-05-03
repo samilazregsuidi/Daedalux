@@ -5,8 +5,6 @@
 
 #include "payload.hpp"
 
-#include "channelVar.hpp"
-
 #include "argExpr.hpp"
 #include "constExpr.hpp"
 #include "varExpr.hpp"
@@ -192,13 +190,13 @@ variable* variable::operator=(const variable* other) {
   return this;
 }
 
-variable* variable::operator=(const argList& args) {
+/*variable* variable::operator=(const argList& args) {
   assert(args.args.size() == getVariables().size());
   for(size_t i = 0; i < args.args.size(); i++) {
     *(varList[i]) = *args.args[i];
   }
   return this;
-}
+}*/
 
 void variable::setParent(variable * parent)
 {
@@ -393,6 +391,7 @@ variable* variable::getVariableDownScoping(const std::string& name) const {
 	return var;
 }
 
+/*
 channel * variable::getChannel(const std::string & name) const
 {
 
@@ -412,11 +411,13 @@ channel * variable::getChannel(const std::string & name) const
   }
   assert(chan);
   return chan;
-}
+}*/
 
 std::map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
 
 std::list<variable *> variable::getVariablesList(void) const { return std::list<variable*>(varList.begin(), varList.end()); }
+
+std::vector<variable *> variable::getVariablesVector(void) const { return varList; }
 
 size_t variable::getSizeOf(void) const
 {

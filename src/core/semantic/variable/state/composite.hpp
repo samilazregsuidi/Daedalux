@@ -36,7 +36,7 @@ public:
 
 	composite(const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	composite(const composite* other);
+	composite(const composite& other);
 
 	//state(const state& s) = default;
 

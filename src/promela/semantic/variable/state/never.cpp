@@ -10,15 +10,16 @@
 
 #include "payload.hpp"
 #include "variable.hpp"
-#include "channel.hpp"
 
 #include "automata.hpp"
 #include "ast.hpp"
 
 #include "initState.hpp"
 
-never::never(const seqSymNode* sym, const fsmNode* start)
-	: thread(variable::V_NEVER, sym, start)
+#include "scalarVar.hpp"
+
+never::never(const std::string& name, const fsmNode* start)
+	: thread(variable::V_NEVER, name, start)
 {
 	//lines.push_back(edge->getLineNb());
 }
@@ -28,13 +29,8 @@ never::never(const never& other)
 {
 }
 
-never::never(const never* other)
-	: thread(other)
-{
-}
-
 never* never::deepCopy(void) const {
-	return new never(this);
+	return new never(*this);
 }
 
 void never::init(void) {
@@ -143,7 +139,7 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_RREF): 
 		{	
 			auto rref = dynamic_cast<const exprRemoteRef*>(node);
-			auto isAtLabel = dynamic_cast<thread*>(getVariableFromExpr(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+			auto isAtLabel = get<thread*>(getVarName(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
 			return isAtLabel;
 		}
 
@@ -186,21 +182,18 @@ int never::eval(const astNode* node, byte flag) const {
 		case(astNode::E_VARREF):
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
-			auto var = getVariableFromExpr(varRef);
+			auto var = get<scalarInt*>(getVarName(varRef));
 			if(!var) {
-				var = getVariableFromExpr(varRef);
+				var = get<scalarInt*>(getVarName(varRef));
 				assert(false);
 			}
-			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
-			return value;
+			return var->getValue();
 		}
 		case(astNode::E_VARREF_NAME):
 		{
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
-			auto var = getVariableFromExpr(varRefName);
-			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
-			return value;
+			return get<scalarInt*>(getVarName(varRefName))->getValue();
 		}
 		
 		case(astNode::E_RARG_CONST):

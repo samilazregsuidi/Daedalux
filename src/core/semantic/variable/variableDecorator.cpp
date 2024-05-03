@@ -338,12 +338,9 @@ std::list<variable*> variableDecorator::createVariables(const varSymNode* sym) {
 	return res;
 }
 */
-variable* variableDecorator::getVariable(const std::string& name) const {
-	return wrappee->getVariable(name);
-}
 
-channel* variableDecorator::getChannel(const std::string& name) const {
-	return wrappee->getChannel(name);
+variable* variableDecorator::getVariableImpl(const std::string& name) const {
+	return wrappee->getVariableImpl(name);
 }
 
 std::map<std::string, variable*> variableDecorator::getVariablesMap(void) const {

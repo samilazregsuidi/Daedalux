@@ -12,8 +12,6 @@ class payload;
 
 #include "symbols.hpp"
 
-#include "argVar.hpp"
-
 class varSymNode;
 
 class expr;
@@ -24,6 +22,8 @@ class channel;
 
 class variable {
 public:
+
+	friend class variableDecorator;
 
 	enum Type {
 		V_NA,
@@ -82,7 +82,7 @@ public:
 
 	virtual variable* operator=(const variable* other);
 
-	virtual variable* operator=(const argList& other);
+	//virtual variable* operator=(const argList& other);
 
 	/****************************************************/
 
@@ -97,6 +97,16 @@ public:
 		auto res = dynamic_cast<T>(varList[index]);
 		if(res == nullptr)
 			throw std::runtime_error("Invalid cast");
+		return res;
+	}
+
+	template<typename T> std::list<T> getAll(void) const {
+		auto res = std::list<T>();
+		for(auto var : getVariables()){
+			auto cast = dynamic_cast<T>(var);
+			if(cast != nullptr)
+				res.push_back(cast);
+		}
 		return res;
 	}
 
@@ -174,7 +184,9 @@ public:
 
 	virtual std::list<variable *> getVariablesList(void) const;
 
-	virtual channel* getChannel(const std::string& name) const;
+	virtual std::vector<variable*> getVariablesVector(void) const;
+
+	//virtual channel* getChannel(const std::string& name) const;
 
 	virtual void clearVariables(void);
 
@@ -185,24 +197,6 @@ public:
 	//std::vector<variable*> createVariables(const varSymNode* sym);
 
 	//variable* addVariable(const varSymNode* varSym);
-
-	template <typename T = variable*> T getLocal(const std::string& name) const {
-		auto it = varMap.find(name);
-		if(it == varMap.end())
-			return nullptr;
-		auto res = dynamic_cast<T>(it->second);
-		return res;
-	}
-
-	template <typename T = variable*> std::list<T> getLocals(void) const {
-		std::list<T> res;
-		for(auto var : varList) {
-			auto varT = dynamic_cast<T>(var);
-			if(varT != nullptr)
-				res.push_back(varT);
-		}
-		return res;
-	}
 
 	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
@@ -218,7 +212,7 @@ public:
 
 	/*********************************************************/
 
-private:
+protected:
 	virtual variable* getVariableImpl(const std::string& name) const;
 
 	virtual variable* getVariableDownScoping(const std::string& name) const;

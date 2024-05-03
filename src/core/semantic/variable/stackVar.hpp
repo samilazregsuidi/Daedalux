@@ -2,14 +2,13 @@
 #define STACK_VARIABLE_H
 
 #include "variable.hpp"
+#include "argList.hpp"
 
 class stackVar : public variable {
 public:
 	stackVar(const std::string& name);
 
 	stackVar(const stackVar & other);
-
-	stackVar(const stackVar * other);
 
 	variable* deepCopy(void) const override;
 

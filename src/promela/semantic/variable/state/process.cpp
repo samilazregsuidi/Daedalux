@@ -14,23 +14,19 @@
 
 #include "payload.hpp"
 #include "variable.hpp"
-#include "channel.hpp"
 
 #include "automata.hpp"
 #include "ast.hpp"
 
 #include "initState.hpp"
 
-process::process(const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: thread(variable::V_PROC, sym, start, pid, index)
+#include "channelVar.hpp"
+
+process::process(const std::string& name, const fsmNode* start)
+	: thread(variable::V_PROC, name, start)
 {}
 
 process::process(const process& other) 
-	: thread(other)
-{
-}
-
-process::process(const process* other)
 	: thread(other)
 {
 }
@@ -40,7 +36,7 @@ process::~process() {
 }
 
 process* process::deepCopy(void) const {
-	auto copy = new process(this);
+	auto copy = new process(*this);
 	return copy;
 }
 
@@ -146,7 +142,7 @@ int process::eval(const astNode* node, byte flag) const {
 
 		case(astNode::E_STMNT_CHAN_SND):
 		{
-			channel* chan = getChannelFromExpr(dynamic_cast<const stmntChanSnd*>(node)->getChan());
+			channel* chan = get<channel*>(getVarName(dynamic_cast<const stmntChanSnd*>(node)->getChan()));
 
 			if (chan->isRendezVous()) {
 				// We check if the rendezvous can be completed.
@@ -154,7 +150,7 @@ int process::eval(const astNode* node, byte flag) const {
 
 			} else
 				// Ok if there is space in the channel
-				return !chan->isFull();
+				return !chan->full();
 			
 		}
 
@@ -166,7 +162,7 @@ int process::eval(const astNode* node, byte flag) const {
 			assert(chan);
 
 			// Handshake request does not concern the channel or no message in the channel
-			if ((chan->isRendezVous() && chan != s->getHandShakeRequestChan()) || (!chan->isRendezVous() && chan->isEmpty())) {
+			if ((chan->isRendezVous() && chan != s->getHandShakeRequestChan()) || (!chan->isRendezVous() && chan->empty())) {
 				return 0;
 
 			} else {
@@ -217,7 +213,7 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_RREF): 
 		{	
 			auto rref = dynamic_cast<const exprRemoteRef*>(node);
-			return dynamic_cast<process*>(getVariableFromExpr(rref->getProcRef()))->isAtLabel(rref->getLabelLine());
+			return get<process*>(getVarName((rref->getProcRef())))->isAtLabel(rref->getLabelLine());
 		}
 
 		case(astNode::E_EXPR_PLUS):
@@ -311,9 +307,10 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_FULL):
 		case(astNode::E_EXPR_NFULL):
 		{
+			assert(false);
 			auto varRef = dynamic_cast<const exprUnary*>(node)->getExpr();
 			auto chanVar = dynamic_cast<channel*>(varRef);
-			return node->getType() == astNode::E_EXPR_FULL? chanVar->isFull() : !chanVar->isFull();
+			return node->getType() == astNode::E_EXPR_FULL? chanVar->full() : !chanVar->full();
 		}
 
 		case(astNode::E_EXPR_EMPTY):
@@ -321,23 +318,19 @@ int process::eval(const astNode* node, byte flag) const {
 		{
 			auto varRef = dynamic_cast<const exprUnary*>(node)->getExpr();
 			auto chanVar = getChannelFromExpr(varRef);
-			return node->getType() == astNode::E_EXPR_EMPTY? chanVar->isEmpty() : !chanVar->isEmpty();
+			return node->getType() == astNode::E_EXPR_EMPTY? chanVar->empty() : !chanVar->empty();
 		}
 
 		case(astNode::E_VARREF):
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
-			auto var = getVariableFromExpr(varRef);
-			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
-			return value;
+			return get<scalarInt*>(getVarName(varRef))->getValue();
 		}
 		case(astNode::E_VARREF_NAME):
 		{
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
-			auto var = getVariableFromExpr(varRefName);
-			auto value = dynamic_cast<primitiveVariable*>(var)->getValue();
-			return value;
+			return get<scalarInt*>(getVarName(varRefName))->getValue();
 		}
 		
 		case(astNode::E_RARG_CONST):
@@ -552,7 +545,7 @@ Apply:
 			else 
 				assert(!s->hasHandShakeRequest());
 
-			assert(!chan->isEmpty() || chan->isRendezVous());
+			assert(!chan->empty() || chan->isRendezVous());
 			assert(s->getExclusiveProc() == nullptr || s->getExclusiveProc() == this);
 
 			auto rargs = getRArgs(recvStmnt->getRArgList());
@@ -585,24 +578,24 @@ Apply:
 		case(astNode::E_STMNT_ASGN):
 		{
 			auto assign = dynamic_cast<const stmntAsgn*>(expression);
-			auto* lvalue = dynamic_cast<primitiveVariable*>(getVariableFromExpr(assign->getVarRef()));
 			expr* rvalue = assign->getAssign();
 			auto value = eval(rvalue, EVAL_EXPRESSION);
+			auto* lvalue = get<scalarInt*>(getVarName(assign->getVarRef()));
 			lvalue->setValue(value);
 			break;
 		}
 		case(astNode::E_STMNT_INCR):
 		{
 			auto incr = dynamic_cast<const stmntIncr*>(expression);
-			auto& var = *(dynamic_cast<primitiveVariable*>(getVariableFromExpr(incr->getVarRef())));
-			++var;
+			auto var = get<scalarInt*>(getVarName(incr->getVarRef()));
+			var->setValue(var->getValue() + 1);
 			break;
 		}
 		case(astNode::E_STMNT_DECR):
 		{
 			auto incr = dynamic_cast<const stmntDecr*>(expression);
-			auto& var = *(dynamic_cast<primitiveVariable*>(getVariableFromExpr(incr->getVarRef())));
-			--var;
+			auto var = get<scalarInt*>(getVarName(incr->getVarRef()));
+			var->setValue(var->getValue() - 1);
 			break;
 		}
 		case(astNode::E_STMNT_PRINT):
@@ -693,7 +686,7 @@ Apply:
 		case(astNode::E_EXPR_RUN):
 		{
 			// A new process can run iff MAX_PROCESS processes or less are currently running.
-			auto runExpr = dynamic_cast<const exprRun*>(expression);
+			/*auto runExpr = dynamic_cast<const exprRun*>(expression);
 			
 			auto newProc = initState::createProcess(s->stateMachine, runExpr->getProcType(), 0, 0);
 
@@ -703,8 +696,8 @@ Apply:
 				assert(vars.size() == 1);
 				auto var = vars.begin();
 				*dynamic_cast<primitiveVariable*>(*var++) = *argIt++;
-			}
-			
+			}*/
+			assert(false);
 			break;
 		}
 

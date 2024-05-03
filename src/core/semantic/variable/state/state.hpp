@@ -59,8 +59,6 @@ public:
 
 	state(const state& s);
 
-	state(const state* other);
-
 	virtual state* deepCopy(void) const = 0 ;
 
 	/**

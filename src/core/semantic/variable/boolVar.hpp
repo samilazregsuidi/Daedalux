@@ -5,6 +5,8 @@
 
 class boolSymNode;
 
+
+
 class boolVar : public primitive<bool> {
 public:
 	boolVar(bool initValue = false);
@@ -14,10 +16,6 @@ public:
 	boolVar* deepCopy(void) const override;
 
 	~boolVar() override {}
-
-	bool operator == (bool value) const;
-
-	bool operator != (bool value) const;
 
 	float delta(const variable* other) const override;
 	

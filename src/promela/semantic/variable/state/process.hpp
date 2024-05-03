@@ -21,11 +21,9 @@ class process : public thread {
 public:
   friend class state;
 
-  process(const seqSymNode * sym, const fsmNode * start, byte pid, unsigned int index = 0);
+  process(const std::string& name, const fsmNode * start);
 
   process(const process & other);
-
-  process(const process * other);
 
   ~process() override;
 

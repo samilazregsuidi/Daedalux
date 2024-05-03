@@ -1,7 +1,7 @@
 #include "stackVar.hpp"
 
 stackVar::stackVar(const std::string& name) 
-	: variable(name, V_STACK)
+	: variable(V_STACK, name)
 	, front_i(0)
 	, back_i(0)
 	, length(0)
@@ -12,13 +12,6 @@ stackVar::stackVar(const stackVar& other)
 	, front_i(other.front_i)
 	, back_i(other.back_i)
 	, length(other.length)
-{}
-
-stackVar::stackVar(const stackVar* other)
-	: variable(other)
-	, front_i(other->front_i)
-	, back_i(other->back_i)
-	, length(other->length)
 {}
 
 variable* stackVar::deepCopy(void) const
@@ -47,7 +40,8 @@ void stackVar::push_front(const argList& var)
 {
 	assert(!full());
 
-	*(varList[--front_i]) = var;
+	auto msg = varList[--front_i];
+	var.copyTo(msg);
 
 	if(front_i == 0)
 		front_i = capacity() - 1;
@@ -76,7 +70,8 @@ void stackVar::push_back(const argList& var)
 {
 	assert(!full());
 
-	*(varList[++back_i]) = var;
+	auto msg = varList[++back_i];
+	var.copyTo(msg);
 
 	if(back_i == capacity())
 		back_i = 0;
@@ -126,11 +121,8 @@ bool stackVar::operator==(const variable* other) const
 
 	if((front_i != cast->front_i) || (back_i != cast->back_i))
 		return false;
-
-	auto it = varList.begin();
-	auto cast_it = cast->varList.begin();
 	
-	return variable::==(other);
+	return variable::operator==(other);
 }
 
 bool stackVar::operator!=(const variable* other) const

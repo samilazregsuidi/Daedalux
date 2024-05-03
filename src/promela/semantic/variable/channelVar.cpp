@@ -31,36 +31,19 @@ channel::channel(const std::string& name, size_t capacity)
 	}
 }
 
-channel::channel(const channel* other) 
-	: primitiveVariable(other)
+channel::channel(const channel& other) 
+	: stackVar(other)
 {
-	assert(getSizeOf() == other->getSizeOf());
+	assert(getSizeOf() == other.getSizeOf());
 }
 
 channel* channel::deepCopy(void) const{
-	return new channel(this);
+	return new channel(*this);
 }
 
 //int return type for executability check?
 void channel::send(const argList& args) {
-	
-	auto argIt = args.cbegin();
-
-	for(auto field : varList) {
-		
-		//field->print();
-		//(*argIt)->print();
-
-		*dynamic_cast<primitiveVariable*>(field) = *argIt++;
-
-		//field->print();
-	
-	}
-
-
-
-	if(!isRendezVous())
-		len(len()+1);
+	push_back(args);
 }
 
 //TODO : Make it work for a dynamic channel, add stack management

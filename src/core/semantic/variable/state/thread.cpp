@@ -11,7 +11,7 @@
 #include "payload.hpp"
 #include "variable.hpp"
 
-#include "primitiveVar.hpp"
+#include "scalarVar.hpp"
 #include "pidVar.hpp"
 
 #include "ast.hpp"
@@ -21,61 +21,33 @@
 
 #include "pidVar.hpp"
 
-thread::thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid, unsigned int index)
-	: state(type, sym->getName())
-	, symType(sym)
-	, index(index)
+thread::thread(variable::Type type, const std::string& name, const fsmNode* start)
+	: state(type, name)
 	, start(start)
 	, _else(false)
-	, pid(pid)
 {
-
-  // seq sym node need boud attr. if arrays
-  assert(index == 0);
-
   addRawBytes(sizeof(const fsmNode *));
 }
 
 thread::thread(const thread& other)
 	: state(other)
-	, symType(other.symType)
-	, index(other.index)
 	, start(other.start)
 	, _else(other._else)
-	, pid(other.pid)
 {}
-
-thread::thread(const thread* other)
-	: state(other)
-	, symType(other->symType)
-	, index(other->index)
-	, start(other->start)
-	, _else(other->_else)
-	, pid(other->pid)
-{
-}
 
 void thread::init(void) {
 	//assert(getProgState());
 
 	variable::init();
 	setFsmNodePointer(start);
-
-  
-
-  if(payLoad)
-    get<PIDVar&>("_pid") = pid;
-
 }
 
 ubyte thread::getPid(void) const {
-	return pid;
+	return *get<PIDVar*>("_pid");
 }
 
 void thread::setPid(byte pid) {
-	this->pid = pid;
-	if(payLoad)
-		get<PIDVar&>("_pid") = pid;
+	*get<PIDVar*>("_pid") = pid;
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }
@@ -125,11 +97,11 @@ std::string thread::getVarName(const expr * varExpr) const
   return varName; // only to please compiler
 }
 
-variable * thread::getVariableFromExpr(const expr * varExpr) const
+/*variable * thread::getVariableFromExpr(const expr * varExpr) const
 {
   auto varName = getVarName(varExpr);
-  return variable::getVariable(varName);
-}
+  return get(varName);
+}*/
 
 /**
  * @brief Get the arguments of a channel send.
@@ -137,7 +109,7 @@ variable * thread::getVariableFromExpr(const expr * varExpr) const
  * @param args
  * @return std::list<arg> 
 */
-
+/*
 argList thread::getArgs(const exprArgList * args) const
 {
   std::list<arg> res;
@@ -150,7 +122,7 @@ argList thread::getArgs(const exprArgList * args) const
     args = args->getArgList();
   }
   return res;
-}
+}*/
 
 /**
  * @brief Get the arguments of a channel receive.
@@ -162,7 +134,7 @@ argList thread::getArgs(const exprArgList * args) const
  * @return std::list<arg> 
 */
 
-argList thread::getRArgs(const exprRArgList * rargs) const
+/*argList thread::getRArgs(const exprRArgList * rargs) const
 {
   std::list< arg> res;
   while (rargs) {
@@ -182,9 +154,9 @@ argList thread::getRArgs(const exprRArgList * rargs) const
     rargs = rargs->getRArgList();
   }
   return res;
-}
+}*/
 
-channel * thread::getChannelFromExpr(const expr * varExpr) const { return variable::getChannel(getVarName(varExpr)); }
+//channel * thread::getChannelFromExpr(const expr * varExpr) const { return variable::getChannel(getVarName(varExpr)); }
 
 bool thread::isAccepting(void) const { return endstate() ? false : getFsmNodePointer()->getFlags() & fsmNode::N_ACCEPT; }
 

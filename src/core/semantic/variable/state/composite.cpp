@@ -25,18 +25,18 @@ composite::composite(const std::string& name)
 {
 }
 
-composite::composite(const composite* other)
+composite::composite(const composite& other)
 	: state(other)
 	, n(nullptr)
 {
-	if(other->n) {
-		n = getTVariable<state*>(other->n->getLocalName());
+	if(other.n) {
+		n = get<state*>(other.n->getLocalName());
 		assert(n);
 	}
 }
 
 composite* composite::deepCopy(void) const {
-	return new composite(this);
+	return new composite(*this);
 }
 
 composite::~composite() {
@@ -253,11 +253,11 @@ state* composite::getNeverClaim(void) const {
 }
 
 state* composite::getSubState(const std::string& name) const {
-	return getLocal<state*>(name);
+	return get<state*>(name);
 }
 
 std::list<state*> composite::getSubStates(void) const {
-	return getLocals<state*>();
+	return getAll<state*>();
 }
 
 void composite::printHexadecimal(void) const {

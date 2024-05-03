@@ -1,11 +1,11 @@
 #ifndef PID_VARIABLE_H
 #define PID_VARIABLE_H
 
-#include "primitiveVar.hpp"
+#include "scalarVar.hpp"
 
 class process;
 
-class PIDVar : public primitive<unsigned char> {
+class PIDVar : public scalar<unsigned char, variable::V_PID> {
 public:
   PIDVar(unsigned char pid = 0);
 

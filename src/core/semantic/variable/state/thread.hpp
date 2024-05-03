@@ -13,8 +13,6 @@ typedef char byte;
 
 #include "symbols.hpp"
 
-#include "channelVar.hpp"
-
 #include "astNode.hpp"
 #include "expr.hpp"
 
@@ -29,11 +27,9 @@ class thread : public state {
 public:
   friend class state;
 
-  thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, ubyte pid = -1, unsigned int index = 0);
+  thread(variable::Type type, const std::string& name, const fsmNode* start);
 
   thread(const thread & other);
-
-  thread(const thread * other);
 
   void init(void) override;
 
@@ -73,13 +69,13 @@ public:
 
   std::string getVarName(const expr * varExpr) const;
 
-  variable * getVariableFromExpr(const expr * varExpr) const;
+  //variable * getVariableFromExpr(const expr * varExpr) const;
 
-  argList getArgs(const exprArgList * args) const;
+  //argList getArgs(const exprArgList * args) const;
 
   //std::list<const arg> getConstArgs(const exprArgList * args) const;
 
-  argList getRArgs(const exprRArgList * rargs) const;
+  //argList getRArgs(const exprRArgList * rargs) const;
 
   //std::list<const arg> getConstRArgs(const exprRArgList * rargs) const;
 
@@ -106,14 +102,8 @@ public:
   void printDelta(const variable * v2) const override;
 
 public:
-  const seqSymNode * symType;
-  unsigned int index;
-
   const fsmNode * const start;
-  
   mutable bool _else;
-  
-  unsigned char pid;
 };
 
 #endif

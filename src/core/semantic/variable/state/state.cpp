@@ -33,13 +33,6 @@ state::state(const state& other)
 	, errorMask(other.errorMask)
 {}
 
-state::state(const state* other)
-	: variable(other)
-	, prob(other->prob)
-	, origin(nullptr)
-	, errorMask(other->errorMask)
-{}
-
 state::~state() {
 	if(origin)
 		delete origin;

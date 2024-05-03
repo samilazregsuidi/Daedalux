@@ -69,7 +69,8 @@ add_library(daedalux_lib STATIC
 	core/semantic/variable/variable.cpp
 	core/semantic/variable/variableDecorator.cpp
 	core/semantic/variable/boolVar.cpp
-	#core/semantic/variable/stackVar.cpp
+	core/semantic/variable/stackVar.cpp
+	core/semantic/variable/enumVar.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
 	core/semantic/variable/state/composite.cpp
@@ -126,13 +127,13 @@ add_library(daedalux_lib STATIC
 	promela/ast/expr/argExpr.cpp
 	promela/ast/expr/temporalExpr.cpp	
 
-	#promela/semantic/variable/mtypeVar.cpp
-	#promela/semantic/variable/channelVar.cpp
-	#promela/semantic/variable/pidVar.cpp
-	#promela/semantic/variable/state/process.cpp
-	#promela/semantic/variable/state/never.cpp
-	#promela/semantic/variable/state/program.cpp
-	#promela/semantic/variable/transition/progTransition.cpp
+	promela/semantic/variable/mtypeVar.cpp
+	promela/semantic/variable/channelVar.cpp
+	promela/semantic/variable/pidVar.cpp
+	promela/semantic/variable/state/process.cpp
+	promela/semantic/variable/state/never.cpp
+	promela/semantic/variable/state/program.cpp
+	promela/semantic/variable/transition/progTransition.cpp
 
 	promela/parser/${Parser}
 	promela/parser/${Lexer}
@@ -251,7 +252,8 @@ add_executable(daedalux
 	core/semantic/variable/variable.cpp
 	core/semantic/variable/variableDecorator.cpp
 	core/semantic/variable/boolVar.cpp
-	#core/semantic/variable/stackVar.cpp
+	core/semantic/variable/stackVar.cpp
+	core/semantic/variable/enumVar.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
 	core/semantic/variable/state/composite.cpp
@@ -308,13 +310,13 @@ add_executable(daedalux
 	promela/ast/expr/argExpr.cpp
 	promela/ast/expr/temporalExpr.cpp	
 	
-	#promela/semantic/variable/mtypeVar.cpp
-	#promela/semantic/variable/channelVar.cpp
-	#promela/semantic/variable/pidVar.cpp
-	#promela/semantic/variable/state/process.cpp
-	#promela/semantic/variable/state/never.cpp
-	#promela/semantic/variable/state/program.cpp
-	#promela/semantic/variable/transition/progTransition.cpp
+	promela/semantic/variable/mtypeVar.cpp
+	promela/semantic/variable/channelVar.cpp
+	promela/semantic/variable/pidVar.cpp
+	promela/semantic/variable/state/process.cpp
+	promela/semantic/variable/state/never.cpp
+	promela/semantic/variable/state/program.cpp
+	promela/semantic/variable/transition/progTransition.cpp
 
 	promela/parser/${Parser}
 	promela/parser/${Lexer}

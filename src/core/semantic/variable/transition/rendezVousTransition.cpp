@@ -2,7 +2,6 @@
 #include "transitionVisitor.hpp"
 
 #include "fsmEdge.hpp"
-#include "process.hpp"
 
 #include <assert.h>
 #include <iterator>

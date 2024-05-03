@@ -13,6 +13,7 @@ boolVar* boolVar::deepCopy(void) const {
 	return new boolVar(*this);
 }
 
+
 float boolVar::delta(const variable* other) const {
 	auto otherVar = dynamic_cast<const boolVar*>(other);
 	if(!otherVar)
