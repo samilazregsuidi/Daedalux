@@ -10,23 +10,23 @@
  * @brief A templated class to represent a scalar variable with a T value and a variable::Type type
 */
 
-template <class T, variable::Type type> class scalar : public scalarInt {
+template <class T, variable::Type V> class scalar : public scalarInt {
 public:
 
   scalar(const std::string& name, T initValue)
-    : scalarInt(name, type) 
+    : scalarInt(name, V) 
     , initValue(initValue)
     , value(0)
   {}
 
-  scalar(const scalar<T>& other)
+  scalar(const scalar<T, V>& other)
     : scalarInt(other)
     , initValue(other.initValue)
     , value(other.value)
   {}
 
-  scalar<T>* deepCopy(void) const override {
-    return new scalar<T>(*this);
+  scalar<T, V>* deepCopy(void) const override {
+    return new scalar<T, V>(*this);
   }
 
   size_t getSizeOf(void) const override {
@@ -81,34 +81,34 @@ public:
     return this;
   }
 
-  virtual template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator=(T rvalue) {
+  template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator=(T rvalue) {
     setValue(rvalue);
     return getValue();
   }
 
   
-  virtual template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator++(void) {
+  template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator++(void) {
     T temp = getValue();
     if(temp + 1 <= std::numeric_limits<T>::max())
       setValue(++temp);
     return temp;
   }
 
-  virtual template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator--(void) {
+  template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator--(void) {
     T temp = getValue();
     if(temp - 1 >= std::numeric_limits<T>::min())
       setValue(--temp);
     return temp;;
   }
 
-  virtual template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator++(int) {
+  template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator++(int) {
     T temp = getValue();
     if(temp + 1 <= std::numeric_limits<T>::max())
       setValue(temp + 1);
     return temp;
   }
 
-  virtual template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator--(int) {
+  template<typename U = T> typename std::enable_if<!std::is_const<U>::value && !std::is_same<U, bool>::value, T>::type operator--(int) {
     T temp = getValue();
     if(temp - 1 >= std::numeric_limits<T>::min())
       setValue(temp - 1);
@@ -139,7 +139,7 @@ public:
   }
 
   float delta(const variable * other) const override {
-    auto cast = dynamic_cast<const scalar<T> *>(other);
+    auto cast = dynamic_cast<const scalar<T, V> *>(other);
     if (!cast)
       return 1;
 
@@ -152,7 +152,7 @@ public:
   }
 
   std::list<variable *> getDelta(const variable * other) const override {
-    auto cast = dynamic_cast<const scalar<T> *>(other);
+    auto cast = dynamic_cast<const scalar<T, V> *>(other);
     if (!cast)
       return std::list<variable *>();
 
@@ -166,7 +166,7 @@ public:
   }
 
   void printDelta(const variable * other) const override {
-    auto cast = dynamic_cast<const scalar<T> *>(other);
+    auto cast = dynamic_cast<const scalar<T, V> *>(other);
     if (!cast)
       return;
 
@@ -174,7 +174,7 @@ public:
 
     if (delta > 0.00000001) {
       auto name = getFullName();
-      auto value = getPayload()->getValue<T>(getOffset());
+      auto value = getValue();
       auto otherValue = cast->getValue();
       auto OtherName = cast->getFullName();
       printf("%s = %d, %s = %d, delta = %f\n", name.c_str(), value, OtherName.c_str(), otherValue, delta);
@@ -182,8 +182,7 @@ public:
   }
 
   operator std::string(void) const override {
-    assert(getPayload());
-    auto value = getPayload()->getValue<T>(getOffset());
+    auto value = getValue();
     char buffer[128];
     snprintf(buffer, sizeof(buffer), "0x%-4ld:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
 
@@ -199,18 +198,16 @@ public:
   }
 
   void printTexada(void) const override {
-    assert(getPayload());
     if (isPredef())
       return;
 
-    auto value = getPayload()->getValue<T>(getOffset());
+    auto value = getValue();
     printf("%s = %d\n", getFullName().c_str(), value);
 
     variable::printTexada();
   }
 
   void printCSV(std::ostream & out) const override {
-    assert(getPayload());
     if (isPredef())
       return;
 
@@ -219,11 +216,10 @@ public:
   }
 
   void printCSVHeader(std::ostream & out) const override {
-    assert(getPayload());
     if (isPredef())
       return;
 
-    auto value = getPayload()->getValue<T>(getOffset());
+    auto value = getValue();
     out << std::to_string(value) + ",";
 
     variable::printCSV(out);
