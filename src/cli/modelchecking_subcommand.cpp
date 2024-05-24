@@ -13,8 +13,8 @@ void setup_subcommand_modelchecking(CLI::App &app)
 	// Options for model checking
 	sub->add_flag("-e, --exhaustive", opt->exhaustive, "Determines also which products have *no* problems. The normal check will stop at the first problem,  and does not determine whether there are products that have no problems  (e.g. those that satisfy a property).");
 	
-	sub->add_option("-ltl", opt->ltl, "LTL property to verify");
-	sub->add_option("-multiLtl", opt->multiLtl, "MultiLTL property to verify");
+	sub->add_option("--ltl", opt->ltl, "LTL property to verify");
+	sub->add_option("--multiLtl", opt->multiLtl, "MultiLTL property to verify");
 	
 	//sub->add_flag("-d, --fdlc", opt->fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
 

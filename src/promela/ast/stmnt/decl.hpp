@@ -147,7 +147,6 @@ public:
 	stmnt* deepCopy(void) const;
 
 private:
-	std::string name;
 	std::list<varSymNode*> args;//?
 	exprConst* active;
 	ptypeSymNode* procSym;

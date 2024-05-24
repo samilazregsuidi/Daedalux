@@ -45,12 +45,21 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
 	}
   init_lex();
 
+	// Parse the file
+	if (yyparse(&this->globalSymTab, &this->program) != 0) {
+		std::cerr << "Syntax error; aborting." << std::endl;
+		exit(1);
+	}
+
+
 	if (yyin != nullptr)
 	{
 		fclose(yyin);
 		yylex_destroy();
 	}
 	
+	//assert(globalSymTab != nullptr);
+
 	while(globalSymTab->prevSymTab()) 
 		globalSymTab = globalSymTab->prevSymTab();
 
@@ -59,14 +68,14 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
 	// Create the automata from the AST
 	automata = std::make_shared<fsm>(*converter->astToFsm(globalSymTab, program, tvl));
 
-  if (buffer.str() != stmnt::string(program)) {
-    std::cerr << "The program is not equal to the original program." << std::endl;
-    std::cerr << "The program is: " << std::endl;
-    std::cerr << stmnt::string(program) << std::endl;
-    std::cerr << "The original program is: " << std::endl;
-    std::cerr << buffer.str() << std::endl;
-    exit(1);
-  }
+//   if (buffer.str() != stmnt::string(program)) {
+//     std::cerr << "The program is not equal to the original program." << std::endl;
+//     std::cerr << "The program is: " << std::endl;
+//     std::cerr << stmnt::string(program) << std::endl;
+//     std::cerr << "The original program is: " << std::endl;
+//     std::cerr << buffer.str() << std::endl;
+//     exit(1);
+//   }
 
   std::ofstream graph;
   graph.open("fsm_graphvis");
