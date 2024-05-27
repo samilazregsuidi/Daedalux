@@ -8,6 +8,5 @@ active proctype foo() {
 	:: state == red -> state = green;
 	:: state == green -> state = yellow;
 	:: state == yellow -> state = green;
-	:: skip;
 	od;
 }

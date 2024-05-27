@@ -11,7 +11,6 @@ active proctype light1() {
 	od;
 }
 
-
 active proctype light2() {
 	do
 	:: state2 == red && state1 == yellow -> state2 = green;
