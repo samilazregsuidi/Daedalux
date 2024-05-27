@@ -20,7 +20,10 @@
 				"ms-vscode.cmake-tools",
 				"twxs.cmake",
 				"ms-vscode.cpptools-extension-pack",
-				"franneck94.c-cpp-runner"
+				"franneck94.c-cpp-runner",
+				"KevinRose.vsc-python-indent",
+				"ms-python.python",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	}
