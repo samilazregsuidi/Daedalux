@@ -70,3 +70,17 @@ src/libs/cudd/configure~
 src/libs/cudd/Makefile.in
 src/libs/bin/ltl2ba
 b/
+openai-env/*
+
+test_files/mutants/*/mutants/mutant_*.pml
+test_files/mutants/*/mutants/mutant_*.pml.trail
+test_files/mutants/*/mutants/mutant_*.pml.trail.tmp
+test_files/mutants/*/mutants/mutant_*.pml._spin_nvr
+test_files/mutants/*/*.csv
+GPTExperiment/Training_data-2024-*/surviving_mutants/*
+GPTExperiment/Training_data-2024-*/killed_mutants/*
+GPTExperiment/Training_data-2024-*/mutants/*
+GPTExperiment/Experiment-2024-*/*/mutants/*
+GPTExperiment/__pycache__/*
+GPTExperiment/Experiment-2024-*/*/*.csv
+GPTExperiment/pan
