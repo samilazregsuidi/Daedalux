@@ -21,7 +21,14 @@ struct GenTracesOptions {
 	unsigned int nb_traces;
 };
 
+struct GenSingleTracesOptions {
+	std::string original_file;
+	size_t traces_length;
+	unsigned int nb_traces;
+};
+
 // Function declarations.
 void setup_subcommand_mutations(CLI::App &app);
 void generate_mutants(const MutantsOptions& opt);
 void generateMutantTraces(const std::string& original, const std::string& mutant_file, size_t traces_length, unsigned int traces_number);
+void generateSingleTraces(const std::string& original, size_t traces_length, unsigned int traces_number);
