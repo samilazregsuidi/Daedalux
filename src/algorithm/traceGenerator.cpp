@@ -25,6 +25,39 @@ std::unique_ptr<traceReport> TraceGenerator::generateTraceReport(const size_t no
   return traces;
 }
 
+std::shared_ptr<trace> TraceGenerator::generateTrace(std::shared_ptr<fsm> original, const size_t trace_length){
+   // Create the initial state for both automata
+  auto current_state = initState::createInitState(original.get(), nullptr);
+
+  auto result_trace = std::make_shared<trace>();
+  // Lists to store post states
+  auto post_states = std::list<state *>();
+  std::shared_ptr<state> current_state_copy(current_state->deepCopy());
+  result_trace->addState(current_state_copy);
+
+  // Continue until we have seen the desired number of states or until we have no more transitions to fire
+  while (result_trace->size() < trace_length) {
+    post_states = current_state->Post();
+    if (post_states.empty()) {
+      std::cout << "No more transitions to fire - the trace is complete." << std::endl;
+      break;
+    }
+    // Take a random successor state
+    auto random_index = rand() % post_states.size();
+    auto post_states_it = post_states.begin();
+    std::advance(post_states_it, random_index);
+    current_state = *post_states_it;
+    auto trans = current_state->getOrigin()->deepCopy();
+    // Add the state and transition to the trace
+    std::shared_ptr<state> state_copy(current_state);
+    std::shared_ptr<transition> transition_copy(trans);
+    result_trace->addState(state_copy);
+    result_trace->addTransition(transition_copy);
+  }
+  return result_trace;
+}
+
+
 //**
 // * @brief This function generates a trace of length @trace_length that only fsm1 can generate, but not fsm2.
 // * Parameters:
