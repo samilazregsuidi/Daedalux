@@ -1,13 +1,12 @@
-#ifndef BOOL_VARIABLE_H
+/*#ifndef BOOL_VARIABLE_H
 #define BOOL_VARIABLE_H
 
-#include "primitiveVar.hpp"
+#include "scalarVar.hpp"
 
 class boolSymNode;
 
 
-
-class boolVar : public primitive<bool> {
+class boolVar : public scalar<bool, variable::V_BOOL> {
 public:
 	boolVar(bool initValue = false);
 
@@ -32,4 +31,4 @@ public:
 	void printCSVHeader(std::ostream &out) const override;
 };
 
-#endif
+#endif*/

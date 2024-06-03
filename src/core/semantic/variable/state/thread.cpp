@@ -3,9 +3,10 @@
 #include <string.h>
 #include <time.h>
 
+#include "thread.hpp"
 
 #include "rendezVousTransition.hpp"
-#include "thread.hpp"
+#include "paramList.hpp"
 #include "transition.hpp"
 
 #include "payload.hpp"
@@ -21,10 +22,11 @@
 
 #include "pidVar.hpp"
 
-thread::thread(variable::Type type, const std::string& name, const fsmNode* start)
+thread::thread(variable::Type type, const std::string& name, const fsmNode* start, ubyte pid)
 	: state(type, name)
 	, start(start)
 	, _else(false)
+  , pid(pid)
 {
   addRawBytes(sizeof(const fsmNode *));
 }
@@ -43,11 +45,11 @@ void thread::init(void) {
 }
 
 ubyte thread::getPid(void) const {
-	return *get<PIDVar*>("_pid");
+	return pid;
 }
 
-void thread::setPid(byte pid) {
-	*get<PIDVar*>("_pid") = pid;
+void thread::setPid(ubyte pid) {
+	this->pid = pid;
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }
@@ -95,6 +97,31 @@ std::string thread::getVarName(const expr * varExpr) const
     assert(false);
 
   return varName; // only to please compiler
+}
+
+paramList thread::getOutputParamList(const exprRArgList * rargs) const
+{
+  paramList res;
+  while (rargs) {
+    auto exp = rargs->getExprRArg();
+    if(exp->getType() == astNode::E_RARG_VAR)
+      res.push_back(new paramRef(get<scalarInt*>(getVarName(exp))));
+    else
+      res.push_back(new paramValue(eval(exp, EVAL_EXPRESSION)));
+    rargs = rargs->getRArgList();
+  }
+  return res;
+}
+
+paramList thread::getInputParamList(const exprArgList * args) const
+{
+  paramList res;
+  while (args) {
+    auto exp = args->getExprArg()->getExpr();
+    res.push_back(new paramValue(eval(exp, EVAL_EXPRESSION)));
+    args = args->getArgList();
+  }
+  return res;
 }
 
 /*variable * thread::getVariableFromExpr(const expr * varExpr) const
@@ -195,6 +222,8 @@ void thread::printGraphViz(unsigned long i) const {}
 float thread::delta(const variable * s2) const
 {
   auto cast = dynamic_cast<const thread *>(s2);
+  if(!cast)
+    return 1;
   auto delta = variable::delta(s2) * 0.5;
   assert(delta >= 0 && delta <= 1);
   return delta;

@@ -16,6 +16,8 @@ class variable;
 class varSymNode;
 class seqSymNode;
 class sysSymNode;
+class ptypeSymNode;
+class neverSymNode;
 
 class TVL;
 
@@ -31,9 +33,9 @@ public:
 
 	static std::list<variable*> addVariables(variable* v, const varSymNode* sym);
 
-	static process* createProcess(const fsm* stateMachine, const seqSymNode* procType, byte pid, unsigned int index);
+	static process* createProcess(const fsm* stateMachine, const ptypeSymNode* procType, byte pid, unsigned int index);
 
-	static never* createNever(const fsm* stateMachine, const seqSymNode* procType);
+	static never* createNever(const fsm* stateMachine, const neverSymNode* procType);
 	
 	static state* createProgState(const fsm* stateMachine, const std::string& name, const TVL* tvl, const sysSymNode* sym = nullptr);
 

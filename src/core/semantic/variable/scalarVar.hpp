@@ -10,23 +10,23 @@
  * @brief A templated class to represent a scalar variable with a T value and a variable::Type type
 */
 
-template <class T, variable::Type V> class scalar : public scalarInt {
+template <typename T, variable::Type E> class scalar : public scalarInt {
 public:
 
   scalar(const std::string& name, T initValue)
-    : scalarInt(name, V) 
+    : scalarInt(name, E) 
     , initValue(initValue)
-    , value(0)
+    , value(initValue)
   {}
 
-  scalar(const scalar<T, V>& other)
+  scalar(const scalar<T, E>& other)
     : scalarInt(other)
     , initValue(other.initValue)
     , value(other.value)
   {}
 
-  scalar<T, V>* deepCopy(void) const override {
-    return new scalar<T, V>(*this);
+  scalar<T, E>* deepCopy(void) const override {
+    return new scalar<T, E>(*this);
   }
 
   size_t getSizeOf(void) const override {
@@ -36,7 +36,15 @@ public:
 
   /****************************************************/
 
-  void setValue(int newValue) override {
+  virtual void setIntValue(int value) override {
+    if constexpr(std::is_const<T>::value) {
+      assert(false);
+    } else {
+      setValue(value);
+    }
+  }
+
+  template<typename U = T> typename std::enable_if<!std::is_const<U>::value, void>::type setValue(T newValue) {
     //assert(getPayload());
     assert(newValue >= std::numeric_limits<T>::min());
     assert(newValue <= std::numeric_limits<T>::max());
@@ -49,7 +57,7 @@ public:
     }
   }
 
-  int getValue(void) const override {
+  T getValue(void) const {
     //assert(getPayload());
     if(getPayload()) {
       auto res = getPayload()->getValue<T>(getOffset());
@@ -59,23 +67,24 @@ public:
     return value;
   }
 
+  int getIntValue(void) const override {
+    return getValue();
+  }
+
   void setInitValue(T newValue) {
     initValue = newValue;
   }
 
-  void init(void) override {
-    //assert(getPayload());
-    setValue(initValue);
-  }
-
   void reset(void) override {
-    setValue(initValue);
+    if constexpr(!std::is_const<T>::value)
+      setValue(initValue);
   }
 
   variable* operator=(const variable* other) override {
-    auto var = dynamic_cast<const scalarInt *>(other);
+    auto var = dynamic_cast<const scalar<T, E>*>(other);
     if (var) {
-      setValue(var->getValue());
+      if constexpr(!std::is_const<T>::value)
+        setValue(var->getValue());
     } else
       assert(false);
     return this;
@@ -116,14 +125,14 @@ public:
   }
 
   bool operator==(const variable * other) const override {
-    auto var = dynamic_cast<const scalarInt *>(other);
+    auto var = dynamic_cast<const scalar<T, E>*>(other);
     if(var)
       return getValue() == var->getValue();
     return false;
   }
 
   bool operator==(int value) const override {
-    return getValue() == value;
+    return getValue() == static_cast<T>(value);
   }
 
   bool operator!=(const variable * other) const override {
@@ -131,7 +140,7 @@ public:
   }
 
   bool operator!=(int value) const override {
-    return getValue() != value;
+    return getValue() != static_cast<T>(value);
   }
 
   virtual operator T(void) const {
@@ -139,7 +148,7 @@ public:
   }
 
   float delta(const variable * other) const override {
-    auto cast = dynamic_cast<const scalar<T, V> *>(other);
+    auto cast = dynamic_cast<const scalar<T, E> *>(other);
     if (!cast)
       return 1;
 
@@ -152,7 +161,7 @@ public:
   }
 
   std::list<variable *> getDelta(const variable * other) const override {
-    auto cast = dynamic_cast<const scalar<T, V> *>(other);
+    auto cast = dynamic_cast<const scalar<T, E> *>(other);
     if (!cast)
       return std::list<variable *>();
 
@@ -166,7 +175,7 @@ public:
   }
 
   void printDelta(const variable * other) const override {
-    auto cast = dynamic_cast<const scalar<T, V> *>(other);
+    auto cast = dynamic_cast<const scalar<T, E> *>(other);
     if (!cast)
       return;
 
@@ -225,21 +234,22 @@ public:
     variable::printCSV(out);
   }
 
-protected:
+public:
   T initValue;
   T value;
 };
 
-typedef scalar<unsigned char, variable::V_BIT> bitVar;
-typedef scalar<bool, variable::V_BOOL> boolVar;
-typedef scalar<unsigned char, variable::V_BYTE> byteVar;
-typedef scalar<short, variable::V_SHORT> shortVar;
-typedef scalar<unsigned short, variable::V_USHORT> ushortVar;
-typedef scalar<int, variable::V_INT> intVar;
-typedef scalar<unsigned int, variable::V_UINT> uintVar;
-typedef scalar<long, variable::V_LONG> longVar;
-typedef scalar<unsigned long, variable::V_ULONG> ulongVar;
-typedef scalar<float, variable::V_FLOAT> floatVar;
-typedef scalar<double, variable::V_DOUBLE> doubleVar;
+typedef scalar<unsigned char, variable::Type::V_BIT> bitVar;
+typedef scalar<bool, variable::Type::V_BOOL> boolVar;
+typedef scalar<unsigned char, variable::Type::V_BYTE> byteVar;
+typedef scalar<unsigned char, variable::Type::V_PID> pidVar;
+typedef scalar<short, variable::Type::V_SHORT> shortVar;
+typedef scalar<unsigned short, variable::Type::V_USHORT> ushortVar;
+typedef scalar<int, variable::Type::V_INT> intVar;
+typedef scalar<unsigned int, variable::Type::V_UINT> uintVar;
+typedef scalar<long, variable::Type::V_LONG> longVar;
+typedef scalar<unsigned long, variable::Type::V_ULONG> ulongVar;
+typedef scalar<float, variable::Type::V_FLOAT> floatVar;
+typedef scalar<double, variable::Type::V_DOUBLE> doubleVar;
 
 #endif

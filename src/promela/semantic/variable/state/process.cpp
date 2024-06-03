@@ -22,8 +22,8 @@
 
 #include "channelVar.hpp"
 
-process::process(const std::string& name, const fsmNode* start)
-	: thread(variable::V_PROC, name, start)
+process::process(const std::string& name, const fsmNode* start, ubyte pid)
+	: thread(variable::V_PROC, name, start, pid)
 {}
 
 process::process(const process& other) 
@@ -58,6 +58,28 @@ bool process::safetyPropertyViolation(void) const {
 
 state* process::getNeverClaim(void) const {
 	return parent? dynamic_cast<state*>(parent)->getNeverClaim() : nullptr;
+}
+
+channel* process::getChannel(const std::string& name) const {
+
+  auto var = get(name);
+
+  if (!var)
+    return nullptr;
+
+  channel * chan = nullptr;
+  if (var->getType() == variable::V_CID) {
+	auto casted = dynamic_cast<CIDVar*>(var);
+	assert(casted);
+    chan = get<channel*>(casted->getRefChannel());
+    assert(chan);
+  }
+  else {
+    assert(var->getType() == variable::V_CHAN);
+    chan = dynamic_cast<channel *>(var);
+  }
+  assert(chan);
+  return chan;
 }
 
 std::list<transition*> process::transitions(void) const {
@@ -158,7 +180,7 @@ int process::eval(const astNode* node, byte flag) const {
 		{
 			auto chanRecvStmnt = dynamic_cast<const stmntChanRecv*>(node);
 			assert(chanRecvStmnt);
-			channel* chan = getChannelFromExpr(chanRecvStmnt->getChan());
+			channel* chan = getChannel(getVarName((chanRecvStmnt->getChan())));
 			assert(chan);
 
 			// Handshake request does not concern the channel or no message in the channel
@@ -168,7 +190,7 @@ int process::eval(const astNode* node, byte flag) const {
 			} else {
 				// Either a rendezvous concerns the channel, either the channel has a non null capacity and is not empty.
 				
-				return chan->isReceivable(getRArgs(chanRecvStmnt->getRArgList()));
+				return chan->isReceivable(getOutputParamList(chanRecvStmnt->getRArgList()));
 
 				/*unsigned int index = 0;
 				auto rargList = chanRecvStmnt->getRArgList();
@@ -295,7 +317,7 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_LEN):
 		{
 			auto varRef = dynamic_cast<const exprUnary*>(node)->getExpr();
-			return getChannelFromExpr(varRef)->len();
+			return getChannel(getVarName(varRef))->len();
 		}
 
 		case(astNode::E_EXPR_CONST):
@@ -317,7 +339,7 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_EXPR_NEMPTY):
 		{
 			auto varRef = dynamic_cast<const exprUnary*>(node)->getExpr();
-			auto chanVar = getChannelFromExpr(varRef);
+			auto chanVar = getChannel(getVarName(varRef));
 			return node->getType() == astNode::E_EXPR_EMPTY? chanVar->empty() : !chanVar->empty();
 		}
 
@@ -377,8 +399,8 @@ std::list<transition*> process::executables(void) const {
 			if(edge->getExpression()->getType() == astNode::E_STMNT_CHAN_SND) {
 				
 				auto cSendStmnt = dynamic_cast<const stmntChanSnd*>(edge->getExpression());
-				auto chan = getChannelFromExpr(cSendStmnt->getChan());
-				chan->send(getArgs(cSendStmnt->getArgList()));
+				auto chan = getChannel(getVarName(cSendStmnt->getChan()));
+				chan->send(getInputParamList(cSendStmnt->getArgList()));
 
 
 				// channelSend has modified the value of HANDSHAKE and one other byte in the payload.
@@ -428,7 +450,7 @@ std::list<transition*> process::executables(void) const {
 				auto recv = initState::createProcTransition(const_cast<process*>(this), edge);
 
 				auto cSendStmnt = dynamic_cast<const stmntChanRecv*>(edge->getExpression());
-				auto chan = getChannelFromExpr(cSendStmnt->getChan());
+				auto chan = getChannel(getVarName(cSendStmnt->getChan()));
 
 				// channelSend has modified the value of HANDSHAKE and one other byte in the payload.
 				// These two will have to get back their original value.
@@ -503,8 +525,8 @@ Apply:
 			// Increases by one unit the number of messages of this channel.
 			// If the channel was a rendezvous channel, _handshake_transit has been allocated.
 			auto sndStmnt = dynamic_cast<const stmntChanSnd*>(expression);
-			auto chan = getChannelFromExpr(sndStmnt->getChan());
-			chan->send(getArgs(sndStmnt->getArgList()));
+			auto chan = getChannel(getVarName(sndStmnt->getChan()));
+			chan->send(getInputParamList(sndStmnt->getArgList()));
 
 			if(chan->isRendezVous()) {
 				leaveUntouched = 1;
@@ -538,7 +560,7 @@ Apply:
 		case(astNode::E_STMNT_CHAN_RCV):
 		{
 			auto recvStmnt = dynamic_cast<const stmntChanRecv*>(expression);
-			auto chan = getChannelFromExpr(recvStmnt->getChan());
+			auto chan = getChannel(getVarName(recvStmnt->getChan()));
 			
 			if(chan->isRendezVous())
 				assert(s->hasHandShakeRequest() && s->getHandShakeRequestChan() == chan);
@@ -548,7 +570,7 @@ Apply:
 			assert(!chan->empty() || chan->isRendezVous());
 			assert(s->getExclusiveProc() == nullptr || s->getExclusiveProc() == this);
 
-			auto rargs = getRArgs(recvStmnt->getRArgList());
+			auto rargs = getOutputParamList(recvStmnt->getRArgList());
 			assert(chan->isReceivable(rargs));
 			chan->receive(rargs);
 			if(s->getHandShakeRequestChan() == chan)

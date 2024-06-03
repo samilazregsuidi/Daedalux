@@ -18,8 +18,8 @@
 
 #include "scalarVar.hpp"
 
-never::never(const std::string& name, const fsmNode* start)
-	: thread(variable::V_NEVER, name, start)
+never::never(const std::string& name, const fsmNode* start, ubyte pid)
+	: thread(variable::V_NEVER, name, start, pid)
 {
 	//lines.push_back(edge->getLineNb());
 }

@@ -14,7 +14,7 @@ class never : public thread {
 public:
 	friend class state;
 
-	never(const std::string& name, const fsmNode* start);
+	never(const std::string& name, const fsmNode* start, ubyte pid);
 
 	never(const never& other);
 

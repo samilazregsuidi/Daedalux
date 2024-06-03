@@ -12,17 +12,17 @@
 
 class scalarInt : public variable {
 public:
-  scalarInt(const std::string& name, Type varType)
+  scalarInt(const std::string& name, variable::Type varType)
     : variable(varType, name)
   {}
 
-  virtual void setValue(int rvalue) = 0;
+  virtual void setIntValue(int rvalue) = 0;
 
   virtual bool operator==(int) const = 0;
 
   virtual bool operator!=(int) const = 0;
 
-  virtual int getValue(void) const = 0;
+  virtual int getIntValue(void) const = 0;
 };
 
 #endif

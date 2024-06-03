@@ -8,8 +8,7 @@
 
 #include "state.hpp"
 #include "transition.hpp"
-
-typedef char byte;
+#include "paramList.hpp"
 
 #include "symbols.hpp"
 
@@ -27,7 +26,7 @@ class thread : public state {
 public:
   friend class state;
 
-  thread(variable::Type type, const std::string& name, const fsmNode* start);
+  thread(variable::Type type, const std::string& name, const fsmNode* start, ubyte pid);
 
   thread(const thread & other);
 
@@ -35,7 +34,7 @@ public:
 
   ubyte getPid(void) const;
 
-  void setPid(byte pid);
+  void setPid(ubyte pid);
 
   // virtual std::list<transition*> transitions(void) const = 0;
 
@@ -75,11 +74,13 @@ public:
 
   //std::list<const arg> getConstArgs(const exprArgList * args) const;
 
-  //argList getRArgs(const exprRArgList * rargs) const;
+  paramList getOutputParamList(const exprRArgList * rargs) const;
+
+  paramList getInputParamList(const exprArgList * rargs) const;
 
   //std::list<const arg> getConstRArgs(const exprRArgList * rargs) const;
 
-  channel * getChannelFromExpr(const expr * varExpr) const;
+  //channel * getChannelFromExpr(const expr * varExpr) const;
 
   bool operator==(const variable * other) const override;
 
@@ -104,6 +105,7 @@ public:
 public:
   const fsmNode * const start;
   mutable bool _else;
+  ubyte pid;
 };
 
 #endif

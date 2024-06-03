@@ -1,30 +1,30 @@
-#include "stackVar.hpp"
+#include "queueVar.hpp"
 
-stackVar::stackVar(const std::string& name) 
-	: variable(V_STACK, name)
+queueVar::queueVar(const std::string& name) 
+	: variable(variable::Type::V_QUEUE, name)
 	, front_i(0)
 	, back_i(0)
 	, length(0)
 {}
 
-stackVar::stackVar(const stackVar& other)
+queueVar::queueVar(const queueVar& other)
 	: variable(other)
 	, front_i(other.front_i)
 	, back_i(other.back_i)
 	, length(other.length)
 {}
 
-variable* stackVar::deepCopy(void) const
+variable* queueVar::deepCopy(void) const
 {
-	return new stackVar(*this);;
+	return new queueVar(*this);;
 }
 
-variable* stackVar::front(void) const
+variable* queueVar::front(void) const
 {
 	return varList[front_i];
 }
 
-void stackVar::pop_front(void)
+void queueVar::pop(void)
 {
 	assert(!empty());
 
@@ -36,25 +36,25 @@ void stackVar::pop_front(void)
 	length--;
 }
 
-void stackVar::push_front(const argList& var)
+/*void queueVar::push_front(const paramList& params)
 {
 	assert(!full());
 
 	auto msg = varList[--front_i];
-	var.copyTo(msg);
+	params.in(msg);
 
 	if(front_i == 0)
 		front_i = capacity() - 1;
 
 	length++;
-}
+}*/
 
-variable* stackVar::back(void) const
+variable* queueVar::back(void) const
 {
 	return varList[back_i];
 }
 
-void stackVar::pop_back(void)
+/*void queueVar::pop_back(void)
 {
 	assert(!empty());
 
@@ -64,14 +64,14 @@ void stackVar::pop_back(void)
 		back_i = capacity() - 1;
 
 	length--;
-}
+}*/
 
-void stackVar::push_back(const argList& var)
+void queueVar::push(const paramList& params)
 {
 	assert(!full());
 
 	auto msg = varList[++back_i];
-	var.copyTo(msg);
+	params.in(msg);
 
 	if(back_i == capacity())
 		back_i = 0;
@@ -79,27 +79,27 @@ void stackVar::push_back(const argList& var)
 	length++;
 }
 
-bool stackVar::empty(void) const
+bool queueVar::empty(void) const
 {
 	return length == 0;
 }
 
-bool stackVar::full(void) const
+bool queueVar::full(void) const
 {
 	return length == capacity();
 }
 
-size_t stackVar::len(void) const
+size_t queueVar::len(void) const
 {
 	return length;
 }
 
-size_t stackVar::capacity(void) const
+size_t queueVar::capacity(void) const
 {
 	return varList.size();
 }
 
-void stackVar::clear(void)
+void queueVar::clear(void)
 {
 	front_i = 0;
 	back_i = 0;
@@ -110,9 +110,9 @@ void stackVar::clear(void)
 	length = 0;
 }
 
-bool stackVar::operator==(const variable* other) const
+bool queueVar::operator==(const variable* other) const
 {
-	auto cast = dynamic_cast<const stackVar*>(other);
+	auto cast = dynamic_cast<const queueVar*>(other);
 	if(!cast)
 		return false;
 
@@ -125,15 +125,15 @@ bool stackVar::operator==(const variable* other) const
 	return variable::operator==(other);
 }
 
-bool stackVar::operator!=(const variable* other) const
+bool queueVar::operator!=(const variable* other) const
 {
 	return !(*this == other);
 }
 
-variable* stackVar::operator=(const variable* other)
+variable* queueVar::operator=(const variable* other)
 {
 	variable::operator=(other);
-	auto cast = dynamic_cast<const stackVar*>(other);
+	auto cast = dynamic_cast<const queueVar*>(other);
 	if(cast)
 	{
 		front_i = cast->front_i;

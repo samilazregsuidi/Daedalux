@@ -1,4 +1,4 @@
-#ifndef PID_VARIABLE_H
+/*#ifndef PID_VARIABLE_H
 #define PID_VARIABLE_H
 
 #include "scalarVar.hpp"
@@ -23,4 +23,4 @@ private:
   process * ref;
 };
 
-#endif
+#endif*/

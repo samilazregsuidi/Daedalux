@@ -7,32 +7,14 @@
 
 #include "initState.hpp"
 
-channel::channel(const std::string& name, size_t capacity)
-	: stackVar(name, capacity)
+channel::channel(const std::string& name, bool rendezVous)
+	: queueVar(name)
+	, rendezVous(rendezVous)
 {
-	if(capacity > 0){
-		rawBytes++;
-		for(int i = 0; i < chanSym->getCapacity(); ++i){
-			unsigned int fieldIndex = 0;
-			for(auto typeSym: chanSym->getTypeList()){
-				for(unsigned int j = 0; j < typeSym->getBound(); ++j){
-					//auto msgField = new channelField(typeSym, fieldIndex++, i, j);
-					auto addedVars = initState::addVariables(this, typeSym);
-				}
-			}
-		}
-	} else {
-		for(auto typeSym: chanSym->getTypeList()){
-			for(unsigned int j = 0; j < typeSym->getBound(); ++j){
-				//auto msgField = new channelField(typeSym, fieldIndex++, 0, j);
-				initState::addVariables(this, typeSym);
-			}
-		}
-	}
 }
 
 channel::channel(const channel& other) 
-	: stackVar(other)
+	: queueVar(other)
 {
 	assert(getSizeOf() == other.getSizeOf());
 }
@@ -42,55 +24,44 @@ channel* channel::deepCopy(void) const{
 }
 
 //int return type for executability check?
-void channel::send(const argList& args) {
-	push_back(args);
+void channel::send(const paramList& args) {
+	push(args);
 }
 
 //TODO : Make it work for a dynamic channel, add stack management
 
-bool channel::isReceivable(const std::list<arg>& rargs) const {
+bool channel::isReceivable(const paramList& rargs) const {
 	if(!isRendezVous() && len() == getCapacity())
 		return false;
 
-	auto rargIt = rargs.cbegin();
-	for(auto field : varList) {
-		auto rarg = (*rargIt++);
-		switch (rarg.type) {
-			case arg::VAL:
-				if(rarg.data.value != dynamic_cast<primitiveVariable*>(field)->getValue())
-					return false;
-				break;
+	auto fields = front()->getVariablesVector();
+	assert(fields.size() == rargs.size());
+	
+	for(size_t i = 0; i < rargs.size(); ++i){
+		if(rargs[i]->type == param::Type::VAL){
+			if(rargs[i]->getValue() != (dynamic_cast<scalarInt*>(fields[i]))->getValue())
+				return false;
 		}
 	}
 
 	return true;
 }
 
-void channel::receive(const std::list<arg>& rargs) {
+void channel::receive(const paramList& rargs) {
 
-	auto rargIt = rargs.begin();
-	for(auto field : varList) {
-		auto rarg = (*rargIt++);
-		switch (rarg.type) {
-			case arg::VAR:
-				*rarg.data.variable = *dynamic_cast<primitiveVariable*>(field);
-				break;
+	auto fields = front()->getVariablesVector();
+	assert(fields.size() == rargs.size());
+	
+	for(size_t i = 0; i < rargs.size(); ++i){
+		if(rargs[i]->type == param::Type::REF){
+			(dynamic_cast<scalarInt*>(fields[i]))->setValue(rargs[i]->getValue());
 		}
-		//rarg->print();
 	}
 
-	if(isRendezVous())
+	if(rendezVous)
 		reset();
 	else 
-		len(len()-1);
-}
-
-//to move to variable class?
-primitiveVariable* channel::getField(unsigned int index) const {
-	assert(0 < index && index < varList.size());
-	auto it = varList.begin();
-	std::advance(it, index);
-	return dynamic_cast<primitiveVariable*>(*it);
+		pop();
 }
 
 float channel::delta(const variable* v2) const {
@@ -100,43 +71,30 @@ float channel::delta(const variable* v2) const {
 
 	float res = 0;
 	for(auto var : varList)
-		res += var->delta(v2->getVariable(var->getLocalName()));
+		res += var->delta(v2->get(var->getLocalName()));
 
 	return res / varList.size();
 }
 
 void channel::printDelta(const variable* v2) const {
 	for(auto var : varList)
-		var->printDelta(v2->getVariable(var->getLocalName()));
+		var->printDelta(v2->get(var->getLocalName()));
 }
 
 bool channel::isRendezVous(void) const {
-	return getCapacity() == 0;
-}
-
-bool channel::isFull(void) const {
-	return len() == getCapacity();
-}
-
-bool channel::isEmpty(void) const {
-	return len() == 0;
+	return rendezVous;
 }
 
 byte channel::len(void) const {
 	if(isRendezVous())
 		return 0;
-	return getPayload()->getValue<byte>(getOffset());
-}
-
-void channel::len(byte newLen) {
-	if(!isRendezVous()) {
-		assert(newLen < getCapacity());
-		getPayload()->setValue<byte>(getOffset(), newLen);
-	}
+	return queueVar::len();
 }
 
 byte channel::getCapacity(void) const {
-	return dynamic_cast<const chanSymNode*>(varSym)->getCapacity();
+	if(isRendezVous())
+		return 0;
+	return queueVar::capacity();
 }
 
 bool channel::operator == (const variable* other) const {
@@ -148,7 +106,7 @@ bool channel::operator != (const variable* other) const {
 }
 
 channel::operator std::string(void) const {
-
+	return "";
 }
 
 void channel::print(void) const {
@@ -174,31 +132,22 @@ void channel::printCSVHeader(std::ostream &out) const {}
 
 /**************************************************************************************************/
 
-CIDVar::CIDVar(const cidSymNode* sym, unsigned int bound) 
-	: primitiveVariable(sym, bound)
+CIDVar::CIDVar(const std::string& name, unsigned char initValue) 
+	: scalar<unsigned char, variable::V_CID>(name, initValue)
 	, ref(nullptr)
 {}
 
-variable* CIDVar::deepCopy(void) const{
-	variable* copy = new CIDVar(*this);
+CIDVar* CIDVar::deepCopy(void) const{
+	CIDVar* copy = new CIDVar(*this);
 	return copy;
 }
 
-channel* CIDVar::getRefChannel(void) const {
+std::string CIDVar::getRefChannel(void) const {
 	return ref;
 }
 	
-void CIDVar::setRefChannel(channel* newRef) {
+void CIDVar::setRefChannel(const std::string& newRef) {
 	ref = newRef;
-	getPayload()->setValue<channel*>(getOffset(), newRef);
-}
-
-void CIDVar::assign(const variable* sc) {
-	variable::assign(sc);
-	if(ref) {
-		ref = dynamic_cast<channel*>(sc->getVariable(ref->getLocalName()));
-		assert(ref);
-	}
 }
 
 CIDVar::operator std::string(void) const {

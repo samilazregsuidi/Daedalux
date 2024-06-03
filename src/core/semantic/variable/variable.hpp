@@ -43,6 +43,7 @@ public:
 		V_MTYPE,
 		V_CLOCK ,	// dense time clock - supports RT?
 		V_STACK,
+		V_QUEUE,
 		V_MTYPE_DEF,
 		V_CMTYPE,
 

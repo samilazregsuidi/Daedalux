@@ -4,12 +4,12 @@
 #include <string>
 #include <list>
 
-#include "stackVar.hpp"
-#include "argList.hpp"
+#include "queueVar.hpp"
+#include "paramList.hpp"
 
-class channel : public stackVar {
+class channel : public queueVar {
 public:
-	channel(const std::string& name, size_t capacity = 0);
+	channel(const std::string& name, bool rendezVous = false);
 
 	channel(const channel& other);
 
@@ -23,11 +23,11 @@ public:
 
 	void printDelta(const variable* v2) const override;
 
-	void send(const argList& args);
+	void send(const paramList& args);
 
-	bool isReceivable(const argList& rargs) const;
+	bool isReceivable(const paramList& rargs) const;
 
-	void receive(const argList& rargs);
+	void receive(const paramList& rargs);
 
 	bool isRendezVous(void) const;
 
@@ -47,28 +47,29 @@ public:
 
 private:
 	void len(byte newLen);
+
+private:
+	bool rendezVous;
 };
 
 #include "scalarVar.hpp"
 
-class CIDVar : public scalar<unsigned char> {
+class CIDVar : public scalar<unsigned char, variable::V_CID> {
 public:
-	CIDVar(const cidSymNode* sym, unsigned char initValue = 0);
+	CIDVar(const std::string& name, unsigned char initValue = 0);
 
 	CIDVar* deepCopy(void) const override;
 
-	channel* getRefChannel(void) const;
+	std::string getRefChannel(void) const;
 	
-	void setRefChannel(channel* newRef);
-
-	void assign(const variable* sc) override;
+	void setRefChannel(const std::string& newRef);
 
 	operator std::string(void) const override;
 
 	void print(void) const override;
 
 private:
-	channel* ref;
+	std::string ref;
 };
 
 #endif

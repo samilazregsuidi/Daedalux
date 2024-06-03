@@ -4,28 +4,20 @@
 #include "scalarVar.hpp"
 #include "enumDef.hpp"
 
-template<typename T, variable::Type type> class enumVar : public scalar<T, type> {
+template<typename T, typename variable::Type E> class enumVar : public scalar<T, E> {
 public:
 	enumVar(const std::string& name, unsigned char initValue = 0, const enumDef<T>* def = nullptr)
-  		: scalar<T, type>(name, initValue) 
+  		: scalar<T, E>(name, initValue) 
   		, def(def)
 	{}
 
-	enumVar<T>* deepCopy(void) const override { return new enumVar<T>(*this); }
+	enumVar<T, E>* deepCopy(void) const override { return new enumVar<T, E>(*this); }
 
 	~enumVar() override {}
 
 	void setEnumDef(const enumDef<T>* def) { this->def = def; }
 
-	T operator++(void) override { assert(false); }
-
-	T operator--(void) override { assert(false); }
-
-	T operator++(int) override { assert(false); }
-
-	T operator--(int) override { assert(false); }
-
-	bool operator==(const std::string & enumName) const { return def->getEnumValue(enumName) == getValue(); }
+	bool operator==(const std::string & enumName) const { return def->getEnumValue(enumName) == scalar<T, E>::getValue(); }
 
 	bool operator!=(const std::string & cmtype) const { return !(*this == cmtype); }
 
@@ -35,7 +27,7 @@ public:
 		/*
 		auto otherVar = dynamic_cast<const enumVar *>(other);
 		if (!otherVar) {
-			// Not the same type
+			// Not the same E
 			return 1;
 		}
 		auto value = getValue();
@@ -56,27 +48,27 @@ public:
 		return (hasSameValue && hasSameValueName) ? 0 : 1;*/
 	}
 
-	std::string enumVar::getValueName(void) const { return def->getEnumName(getValue()); }
+	std::string getValueName(void) const { return def->getEnumName(scalar<T, E>::getValue()); }
 
-	void enumVar::printDelta(const variable * other) const override
+	void printDelta(const variable * other) const override
 	{
-		if (isSame(other))
+		if (variable::isSame(other))
 			return;
 
 		auto otherVar = dynamic_cast<const enumVar *>(other);
 		if (!otherVar)
 			return;
 
-		auto name = getFullName();
-		auto valueName = getValueName();
+		auto name = variable::getFullName();
+		auto valueName = this->getValueName();
 		auto otherValueName = otherVar->getValueName();
 		printf("%s: %s -> %s\n", name.c_str(), valueName.c_str(), otherValueName.c_str());
 	}
 
-	std::list<variable *> enumVar::getDelta(const variable * other) const override
+	std::list<variable *> getDelta(const variable * other) const override
 	{
 		std::list<variable *> res;
-		if (isSame(other))
+		if (scalar<T, E>::isSame(other))
 			return res;
 
 		auto otherVar = dynamic_cast<const enumVar *>(other);
@@ -90,13 +82,13 @@ public:
 	operator std::string(void) const override
 	{
 		char buffer[128];
-		auto value = getValue();
+		auto value = scalar<T, E>::getValue();
 		if (value) {
-			auto valueName = getValueName();
-			sprintf(buffer, "0x%-4lx:   %-23s = %s\n", getOffset(), getFullName().c_str(), valueName.c_str());
+			auto valueName = this->getValueName();
+			sprintf(buffer, "0x%-4lx:   %-23s = %s\n", variable::getOffset(), variable::getFullName().c_str(), valueName.c_str());
 		}
 		else {
-			sprintf(buffer, "0x%-4lx:   %-23s = nil\n", getOffset(), getFullName().c_str());
+			sprintf(buffer, "0x%-4lx:   %-23s = nil\n", variable::getOffset(), variable::getFullName().c_str());
 		}
 		return buffer;
 	}
@@ -105,43 +97,43 @@ public:
 
 	void printTexada(void) const override
 	{
-		if (isPredef())
+		if (variable::isPredef())
 			return;
-		auto value = getValue();
+		auto value = scalar<T, E>::getValue();
 		if (value) {
-			auto valueName = getValueName();
-			printf("%s = %s\n", getFullName().c_str(), valueName.c_str());
+			auto valueName = this->getValueName();
+			printf("%s = %s\n", variable::getFullName().c_str(), valueName.c_str());
 		}
 		else {
-			printf("%s = nil\n", getFullName().c_str());
+			printf("%s = nil\n", variable::getFullName().c_str());
 		}
 	}
 
 	void printCSV(std::ostream & out) const override
 	{
-		if (isPredef())
+		if (variable::isPredef())
 			return;
-		auto value = getValue();
+		auto value = scalar<T, E>::getValue();
 		if (value) {
-			auto valueName = getValueName();
-			out << getFullName() + " = " + valueName << std::endl;
+			auto valueName = this->getValueName();
+			out << variable::getFullName() + " = " + valueName << std::endl;
 		}
 		else {
-			out << getFullName() + " = nil" << std::endl;
+			out << variable::getFullName() + " = nil" << std::endl;
 		}
 	}
 
 	void printCSVHeader(std::ostream & out) const override
 	{
-		if (isPredef())
+		if (variable::isPredef())
 			return;
-		auto value = getValue();
+		auto value = scalar<T, E>::getValue();
 		if (value) {
-			auto valueName = getValueName();
-			out << getFullName() + " = " + valueName << std::endl;
+			auto valueName = this->getValueName();
+			out << variable::getFullName() + " = " + valueName << std::endl;
 		}
 		else {
-			out << getFullName() + " = nil" << std::endl;
+			out << variable::getFullName() + " = nil" << std::endl;
 		}
 	}
 

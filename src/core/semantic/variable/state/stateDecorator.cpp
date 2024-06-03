@@ -97,14 +97,14 @@ unsigned int stateDecorator::getVariableId(void) const {
 void stateDecorator::_addVariable(variable* var) {
 	wrappee->_addVariable(var);
 	//need copy for getTVariable for ex.
-	varList = wrappee->getVariablesList();
+	varList = wrappee->getVariablesVector();
 	varMap = wrappee->getVariablesMap();
 }
 
 void stateDecorator::_rmVariable(const variable* var) {
 	wrappee->_rmVariable(var);
 	//need copy for getTVariable for ex.
-	varList = wrappee->getVariablesList();
+	varList = wrappee->getVariablesVector();
 	varMap = wrappee->getVariablesMap();
 }
 

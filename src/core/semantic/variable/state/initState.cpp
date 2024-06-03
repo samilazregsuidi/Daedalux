@@ -106,7 +106,7 @@ variable* initState::createPrimitive(const std::string& name, const varSymNode* 
 	case symbol::T_MTYPE_DEF:	
 		assert(false);
 	case symbol::T_PID:
-		return new PIDVar(name, initValue);
+		return new pidVar(name, initValue);
 	case symbol::T_TDEF:		// Type definition: children denote fields of type
 		assert(false);
 	case symbol::T_INIT:
@@ -161,7 +161,8 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 		assert(false);
 	case symbol::T_CMTYPE:
 	{
-		auto var = new cmtypeVar(dynamic_cast<const cmtypeSymNode*>(sym));
+		auto casted = dynamic_cast<const cmtypeSymNode*>(sym);
+		auto var = new cmtypeVar(casted->getName(), casted->getIntValue());
 		v->_addVariable(var);
 		res.push_back(var);
 		return res;
@@ -190,8 +191,18 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 		// "Special" types:
 	case symbol::T_CHAN:		// Channel: capacity used; children denote message fields
 	{
-		for(unsigned int i = 0; i < sym->getBound(); ++i) {
-			auto var = new channel(dynamic_cast<const chanSymNode*>(sym), i);
+		auto chanSym = dynamic_cast<const chanSymNode*>(sym);
+		for(unsigned int i = 0; i < chanSym->getBound(); ++i) {
+			auto name = chanSym->getName() + (chanSym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			auto var = new channel(name);
+			auto capacity = chanSym->getCapacity();
+			int j = 0;
+			do {
+				auto slot = new structVar(name + "[" + std::to_string(j) + "]");
+				var->_addVariable(slot);
+				for(auto typeSym: chanSym->getTypeList())
+					initState::addVariables(slot, typeSym);
+			} while(++j < capacity);
 			v->_addVariable(var);
 			res.push_back(var);
 		}
@@ -209,11 +220,12 @@ std::list<variable*> initState::addVariables(variable* v, const varSymNode* sym)
 	return res;
 }
 
-process* initState::createProcess(const fsm* stateMachine, const seqSymNode* procType, byte pid, unsigned int index) {
+process* initState::createProcess(const fsm* stateMachine, const ptypeSymNode* procType, byte pid, unsigned int index) {
 
+	auto name = procType->getName() + (procType->getActiveExpr()->getCstValue() > 1 ? "[" + std::to_string(index) + "]" : "");
 	auto start = stateMachine->getFsmWithName(procType->getName());
 
-	process* proc = new process(procType, start, pid, index);
+	process* proc = new process(name, start, pid);
 
 	for (auto procSym : procType->getSymTable()->getSymbols<const varSymNode*>())
 		addVariables(proc, procSym);
@@ -221,13 +233,14 @@ process* initState::createProcess(const fsm* stateMachine, const seqSymNode* pro
 	return proc;
 }
 
-never* initState::createNever(const fsm* stateMachine, const seqSymNode* procType) {
+never* initState::createNever(const fsm* stateMachine, const neverSymNode* procType) {
 
+	auto name = procType->getName();
 	auto start = stateMachine->getFsmWithName(procType->getName());
 
-	never* proc = new never(procType, start);
+	never* proc = new never(name, start, 0);
 
-	proc->_addVariable(new PIDVar(new pidSymNode(0, "_pid"), 0));
+	//proc->_addVariable(new PIDVar(new pidSymNode(0, "_pid"), 0));
 
 	return proc;
 }

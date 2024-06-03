@@ -2,27 +2,23 @@
 #define STACK_VARIABLE_H
 
 #include "variable.hpp"
-#include "argList.hpp"
+#include "paramList.hpp"
 
-class stackVar : public variable {
+class queueVar : public variable {
 public:
-	stackVar(const std::string& name);
+	queueVar(const std::string& name);
 
-	stackVar(const stackVar & other);
+	queueVar(const queueVar & other);
 
 	variable* deepCopy(void) const override;
 
-	void push_front(const argList& var);
-
-	void push_back(const argList& var);
+	void push(const paramList& params);
 
 	variable* front(void) const;
 
-	void pop_front(void);
+	void pop(void);
 
 	variable* back(void) const;
-
-	void pop_back(void);
 
 	bool empty(void) const;
 

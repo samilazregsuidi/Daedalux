@@ -1,12 +1,12 @@
-#include "boolVar.hpp"
+/*#include "boolVar.hpp"
 #include <cstdio>
 
 boolVar::boolVar(bool initValue) 
-  : primitive<bool>("", variable::V_BOOL, initValue)
+  : scalar<bool, variable::V_BOOL>("", initValue)
   {}
 
 boolVar::boolVar(const std::string& name, bool initValue) 
-  : primitive<bool>(name, variable::V_BOOL, initValue)
+  : scalar<bool, variable::V_BOOL>(name, initValue)
   {}
 
 boolVar* boolVar::deepCopy(void) const {
@@ -62,4 +62,4 @@ void boolVar::printCSV(std::ostream &out) const {
 		return;
 	auto val = getValue() ? "true" : "false";
 	out << val << ",";
-}
+}*/

@@ -391,27 +391,6 @@ variable* variable::getVariableDownScoping(const std::string& name) const {
 	return var;
 }
 
-/*
-channel * variable::getChannel(const std::string & name) const
-{
-
-  auto var = get(name);
-
-  if (!var)
-    return nullptr;
-
-  channel * chan = nullptr;
-  if (var->getType() == variable::V_CID) {
-    chan = dynamic_cast<CIDVar *>(var)->getRefChannel();
-    assert(chan);
-  }
-  else {
-    assert(var->getType() == variable::V_CHAN);
-    chan = dynamic_cast<channel *>(var);
-  }
-  assert(chan);
-  return chan;
-}*/
 
 std::map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
 

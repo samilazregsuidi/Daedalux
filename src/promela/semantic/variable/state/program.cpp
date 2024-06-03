@@ -12,7 +12,7 @@
 #include "automata.hpp"
 
 #include "variable.hpp"
-#include "channel.hpp"
+#include "channelVar.hpp"
 #include "payload.hpp"
 
 #include "rendezVousTransition.hpp"
@@ -32,8 +32,8 @@ program::program(const fsm* stateMachine, const std::string& name)
 	, globalSymTab(stateMachine->getGlobalSymTab())
 	, stateMachine (stateMachine)
 	, pidCounter(0)
-	, nbProcesses(0)
 	, lastStepPid(0)
+	, nbProcesses(0)
 	, handShakeChan(nullptr)
 	, handShakeProc(nullptr)
 	, exclusiveProc(nullptr)
@@ -41,56 +41,36 @@ program::program(const fsm* stateMachine, const std::string& name)
 {
 }
 
-program::program(const program* other)
-	: state(other)
-	, globalSymTab(other->globalSymTab)
-	, stateMachine(other->stateMachine)
-	, pidCounter(other->pidCounter)
-	, nbProcesses(other->nbProcesses)
-	, lastStepPid(other->lastStepPid)
-	, handShakeChan(nullptr)
-	, handShakeProc(nullptr)
-	, exclusiveProc(nullptr)
-	, timeout(other->timeout)
-{
-	if(other->handShakeChan) {
-		handShakeChan = getChannel(other->handShakeChan->getLocalName());
-		assert(handShakeChan);
-	}
-
-	if(other->handShakeProc) {
-		handShakeProc = other->getTVariable<process*>(other->handShakeProc->getName());
-		assert(handShakeProc);
-	}
-
-	if(other->exclusiveProc) {
-		exclusiveProc = other->getTVariable<process*>(other->exclusiveProc->getName());
-		assert(exclusiveProc);
-	}
-
-	assert(other->getVariables().size() == getVariables().size());
-	assert(getVariables().size());
-}
-
 program::program(const program& other)
 	: state(other)
 	, globalSymTab(other.globalSymTab)
 	, stateMachine(other.stateMachine)
 	, pidCounter(other.pidCounter)
-	, nbProcesses(other.nbProcesses)
 	, lastStepPid(other.lastStepPid)
-	, handShakeChan(other.handShakeChan)
-	, handShakeProc(other.handShakeProc)
-	, exclusiveProc(other.exclusiveProc)
+	, nbProcesses(other.nbProcesses)
+	, handShakeChan(nullptr)
+	, handShakeProc(nullptr)
+	, exclusiveProc(nullptr)
 	, timeout(other.timeout)
 {
-	assert(handShakeChan == nullptr);
-	assert(handShakeProc == nullptr);
+	if(other.handShakeChan) {
+		handShakeChan = get<channel*>(other.handShakeChan->getLocalName());
+		assert(handShakeChan);
+	}
+
+	if(other.handShakeProc) {
+		handShakeProc = get<process*>(other.handShakeProc->getName());
+		assert(handShakeProc);
+	}
+
+	if(other.exclusiveProc) {
+		exclusiveProc = get<process*>(other.exclusiveProc->getName());
+		assert(exclusiveProc);
+	}
 
 	assert(other.getVariables().size() == getVariables().size());
 	assert(getVariables().size());
 }
-
 
 program* program::deepCopy(void) const {
 	program* copy = new program(this);
@@ -116,15 +96,15 @@ void program::assign(const variable* sc) {
 	assert(sc->getVariables().size());
 
 	if(handShakeChan) {
-		handShakeChan = getChannel(handShakeChan->getLocalName());
+		handShakeChan = sc->get<channel*>(handShakeChan->getLocalName());
 		assert(handShakeChan);
 	}
 	if(handShakeProc) {
-		handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
+		handShakeProc = sc->get<process*>(handShakeProc->getName());
 		assert(handShakeProc);
 	}
 	if(exclusiveProc) {
-		exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
+		exclusiveProc = sc->get<process*>(exclusiveProc->getName());
 		assert(exclusiveProc);
 	}
 }
@@ -132,25 +112,23 @@ void program::assign(const variable* sc) {
 bool program::operator==(const variable* other) const {
 	auto var = dynamic_cast<const program*>(other);
 	if(var) {
-		if(nbProcesses != var->nbProcesses)
-			return false;
 		if(lastStepPid != var->lastStepPid)
 			return false;
 		if(timeout != var->timeout)
 			return false;
 
-		if(handShakeChan ^ var->handshakeChan)
+		if(reinterpret_cast<long>(handShakeChan) ^ reinterpret_cast<long>(var->handShakeChan))
 			return false;
 		else if (handShakeChan && var->handShakeChan && handShakeChan->getLocalName() != var->handShakeChan->getLocalName())
 			return false;
 		
 
-		if(handShakeProc ^ var->handShakeProc)
+		if(reinterpret_cast<long>(handShakeProc) ^ reinterpret_cast<long>(var->handShakeProc))
 			return false;
 		 else if (handShakeProc && var->handShakeProc && handShakeProc->getName() != var->handShakeProc->getName()) 
 			return false;
 
-		if(exclusiveProc ^ var->exclusiveProc)
+		if(reinterpret_cast<long>(exclusiveProc) ^ reinterpret_cast<long>(var->exclusiveProc))
 			return false;
 		else if (exclusiveProc && var->exclusiveProc && exclusiveProc->getName() != var->exclusiveProc->getName()) 
 			return false;
@@ -173,25 +151,25 @@ state* program::operator=(const variable* other) {
 		assert(globalSymTab == var->globalSymTab);
 		assert(stateMachine == var->stateMachine);
 		
-		pidCounter == var->pidCounter;
-		assert(nbProcesses == var->nbProcesses);
+		pidCounter = var->pidCounter;
 		
 		lastStepPid = var->lastStepPid;
+		nbProcesses = var->nbProcesses;
 		
-		if(other->handShakeChan) {
-			handShakeChan = getChannel(handShakeChan->getLocalName());
+		if(var->handShakeChan) {
+			handShakeChan = var->get<channel*>(handShakeChan->getLocalName());
 			assert(handShakeChan);
 		} else 
 			handShakeChan = nullptr;
 
-		if(other->handShakeProc) {
-			handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
+		if(var->handShakeProc) {
+			handShakeProc = var->get<process*>(handShakeProc->getName());
 			assert(handShakeProc);
 		} else 
 			handShakeProc = nullptr;
 
-		if(other->exclusiveProc) {
-			exclusiveProc = sc->getTVariable<process*>(exclusiveProc->getName());
+		if(var->exclusiveProc) {
+			exclusiveProc = var->get<process*>(exclusiveProc->getName());
 			assert(exclusiveProc);
 		} else 
 			exclusiveProc = nullptr;
@@ -327,12 +305,12 @@ void program::printGraphViz(unsigned long i) const {
 }*/
 
 std::list<process*> program::getProcs(void) const {
-	return getTVariables<process*>();
+	return getAll<process*>();
 }
 /**
  * Returns the stateMask of a given pid.
  */
-process* program::getProc(int pid) const {
+process* program::getProc(ubyte pid) const {
 	auto procs = getProcs();
 	for(auto proc : procs)
 		if(proc->getPid() == pid)
@@ -390,7 +368,7 @@ const process* program::getExclusiveProc(void) const {
 	return exclusiveProc;
 }
 
-byte program::getExclusiveProcId(void) const {
+ubyte program::getExclusiveProcId(void) const {
 	return getExclusiveProc()? getExclusiveProc()->getPid() : NO_PROCESS;
 }
 
@@ -407,7 +385,7 @@ void program::setExclusivity(const process* proc) const {
 	//getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
 }
 
-void program::setExclusivity(byte pid) const {
+void program::setExclusivity(ubyte pid) const {
 	setExclusivity(getProc(pid));
 }
 
