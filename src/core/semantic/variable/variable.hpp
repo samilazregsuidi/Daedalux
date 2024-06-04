@@ -18,7 +18,7 @@ class expr;
 class exprArgList;
 class exprRArgList;
 
-class channel;
+class scalarInt;
 
 class variable {
 public:
@@ -111,6 +111,15 @@ public:
 		return res;
 	}
 
+	template<typename T> auto getValue(const std::string& name) const {
+		auto res = get<T>(name);
+		assert(res != nullptr);
+		if constexpr(std::is_same<T, scalarInt*>::value) 
+			return res->getIntValue();
+		else
+			return res->getValue();
+	}
+
 	/****************************************************/
 
 	virtual void setGlobal(bool global);
@@ -181,7 +190,7 @@ public:
 
 	virtual std::list<variable *> getAllVariables(void) const;
 
-	virtual std::map<std::string, variable*> getVariablseMap(void) const;
+	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
 	virtual std::list<variable *> getVariablesList(void) const;
 
@@ -198,8 +207,6 @@ public:
 	//std::vector<variable*> createVariables(const varSymNode* sym);
 
 	//variable* addVariable(const varSymNode* varSym);
-
-	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
 	virtual unsigned long hash(void) const;
 

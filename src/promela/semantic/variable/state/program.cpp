@@ -73,7 +73,7 @@ program::program(const program& other)
 }
 
 program* program::deepCopy(void) const {
-	program* copy = new program(this);
+	program* copy = new program(*this);
 	//auto newScope = deepCopy();
 	//newScope->setPayload(getPayload()->copy());
 	//copy->assign(newScope);
@@ -339,7 +339,7 @@ void program::addProcess(process* proc){
 		assert(false);
 	}
 	
-	proc->setPid(pidCounter++);
+	//proc->setPid(pidCounter++);
 	_addVariable(proc);
 
 	nbProcesses++;

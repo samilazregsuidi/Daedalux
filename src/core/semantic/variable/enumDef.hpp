@@ -2,11 +2,13 @@
 #define ENUM_DEFINITION_H
 
 #include <string>
-#include <vector>
+#include <cassert>
+#include <unordered_map>
 
 template <typename T> class enumDef {
 public:
-	enumDef(const std::string& name, const std::map<std::string, T>& values)
+
+	enumDef(const std::string& name, const std::unordered_map<std::string, T>& values)
 		: name(name)
 		, values(values)
 	{}
@@ -32,7 +34,7 @@ public:
 
 private:
 	std::string name;
-	std::map<std::string, T> values;
+	std::unordered_map<std::string, T> values;
 };
 
 #endif

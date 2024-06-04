@@ -187,13 +187,13 @@ int never::eval(const astNode* node, byte flag) const {
 				var = get<scalarInt*>(getVarName(varRef));
 				assert(false);
 			}
-			return var->getValue();
+			return var->getIntValue();
 		}
 		case(astNode::E_VARREF_NAME):
 		{
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
-			return get<scalarInt*>(getVarName(varRefName))->getValue();
+			return get<scalarInt*>(getVarName(varRefName))->getIntValue();
 		}
 		
 		case(astNode::E_RARG_CONST):

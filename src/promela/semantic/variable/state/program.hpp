@@ -34,8 +34,6 @@ public:
 
 	program(const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	program(const program* other);
-
 	program(const program& other);
 
 	//state(const state& s) = default;

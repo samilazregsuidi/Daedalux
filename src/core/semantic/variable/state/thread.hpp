@@ -105,7 +105,7 @@ public:
 public:
   const fsmNode * const start;
   mutable bool _else;
-  ubyte pid;
+  const ubyte pid;
 };
 
 #endif

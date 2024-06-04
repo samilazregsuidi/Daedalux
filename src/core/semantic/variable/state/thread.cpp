@@ -35,6 +35,7 @@ thread::thread(const thread& other)
 	: state(other)
 	, start(other.start)
 	, _else(other._else)
+  , pid(other.pid)
 {}
 
 void thread::init(void) {
@@ -46,10 +47,6 @@ void thread::init(void) {
 
 ubyte thread::getPid(void) const {
 	return pid;
-}
-
-void thread::setPid(ubyte pid) {
-	this->pid = pid;
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }

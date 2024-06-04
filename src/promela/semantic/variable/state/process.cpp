@@ -346,13 +346,13 @@ int process::eval(const astNode* node, byte flag) const {
 		case(astNode::E_VARREF):
 		{
 			auto varRef = dynamic_cast<const exprVarRef*>(node);
-			return get<scalarInt*>(getVarName(varRef))->getValue();
+			return get<scalarInt*>(getVarName(varRef))->getIntValue();
 		}
 		case(astNode::E_VARREF_NAME):
 		{
 			assert(false);
 			auto varRefName = dynamic_cast<const exprVarRefName*>(node);
-			return get<scalarInt*>(getVarName(varRefName))->getValue();
+			return get<scalarInt*>(getVarName(varRefName))->getIntValue();
 		}
 		
 		case(astNode::E_RARG_CONST):
@@ -603,21 +603,21 @@ Apply:
 			expr* rvalue = assign->getAssign();
 			auto value = eval(rvalue, EVAL_EXPRESSION);
 			auto* lvalue = get<scalarInt*>(getVarName(assign->getVarRef()));
-			lvalue->setValue(value);
+			lvalue->setIntValue(value);
 			break;
 		}
 		case(astNode::E_STMNT_INCR):
 		{
 			auto incr = dynamic_cast<const stmntIncr*>(expression);
 			auto var = get<scalarInt*>(getVarName(incr->getVarRef()));
-			var->setValue(var->getValue() + 1);
+			var->setIntValue(var->getIntValue() + 1);
 			break;
 		}
 		case(astNode::E_STMNT_DECR):
 		{
 			auto incr = dynamic_cast<const stmntDecr*>(expression);
 			auto var = get<scalarInt*>(getVarName(incr->getVarRef()));
-			var->setValue(var->getValue() - 1);
+			var->setIntValue(var->getIntValue() - 1);
 			break;
 		}
 		case(astNode::E_STMNT_PRINT):

@@ -187,8 +187,7 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
 
   do {
 
-    auto sVariable = current->getVariable("s");
-    int sValue = dynamic_cast<primitiveVariable *>(sVariable)->getValue();
+    int sValue = current->getValue<byteVar*>("s");
     std::string schedValue = scheduler[sValue];
 
     auto transitions = current->executables();

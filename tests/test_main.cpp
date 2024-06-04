@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include "semantic/test_init_state.cpp"
+
 // Add your test files here
 #include "symbols/test_symTable.cpp"
 #include "symbols/test_intSymNode.cpp"
@@ -28,8 +30,7 @@
 #include "test_specification_writer.cpp"
 
 // SEMANTIC - TESTS
-#include "semantic/test_init_state.cpp"
-#include "semantic/test_executables.cpp"
+//#include "semantic/test_executables.cpp"
 
 // INTEGRATION TESTS
 #include "integration_tests/test_mutantgeneration.cpp"

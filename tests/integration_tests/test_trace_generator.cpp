@@ -6,6 +6,7 @@
 #include "../../src/core/automata/fsmEdge.hpp"
 #include "../../src/core/automata/fsmNode.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
+#include "../../src/promela/parser/promela_loader.hpp"
 
 // Define a fixture for the tests
 class TraceGeneratorTest : public ::testing::Test {

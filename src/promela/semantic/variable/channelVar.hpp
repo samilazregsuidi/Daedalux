@@ -46,9 +46,6 @@ public:
 	void printCSVHeader(std::ostream &out) const override;
 
 private:
-	void len(byte newLen);
-
-private:
 	bool rendezVous;
 };
 

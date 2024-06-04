@@ -8,13 +8,14 @@
 #include "initState.hpp"
 
 channel::channel(const std::string& name, bool rendezVous)
-	: queueVar(name)
+	: queueVar(name, variable::V_CHAN)
 	, rendezVous(rendezVous)
 {
 }
 
 channel::channel(const channel& other) 
 	: queueVar(other)
+	, rendezVous(other.rendezVous)
 {
 	assert(getSizeOf() == other.getSizeOf());
 }
@@ -39,7 +40,7 @@ bool channel::isReceivable(const paramList& rargs) const {
 	
 	for(size_t i = 0; i < rargs.size(); ++i){
 		if(rargs[i]->type == param::Type::VAL){
-			if(rargs[i]->getValue() != (dynamic_cast<scalarInt*>(fields[i]))->getValue())
+			if(rargs[i]->getValue() != (dynamic_cast<scalarInt*>(fields[i]))->getIntValue())
 				return false;
 		}
 	}
@@ -54,7 +55,7 @@ void channel::receive(const paramList& rargs) {
 	
 	for(size_t i = 0; i < rargs.size(); ++i){
 		if(rargs[i]->type == param::Type::REF){
-			(dynamic_cast<scalarInt*>(fields[i]))->setValue(rargs[i]->getValue());
+			(dynamic_cast<scalarInt*>(fields[i]))->setIntValue(rargs[i]->getValue());
 		}
 	}
 

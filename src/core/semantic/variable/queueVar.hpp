@@ -6,7 +6,7 @@
 
 class queueVar : public variable {
 public:
-	queueVar(const std::string& name);
+	queueVar(const std::string& name, variable::Type type = variable::Type::V_QUEUE);
 
 	queueVar(const queueVar & other);
 

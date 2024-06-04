@@ -1,5 +1,5 @@
 #include "trace.hpp"
-#include "primitiveVariable.hpp"
+#include "scalarVarInt.hpp"
 #include "state.hpp"
 
 trace::trace() = default;
@@ -44,12 +44,12 @@ void trace::findDistinguishingFormula(const std::shared_ptr<trace> t)
       for (auto var : delta_var) {
         auto name = var->getLocalName();
         auto fullName = var->getFullName();
-        auto variable_current = next_state_current->getVariable(name);
-        auto variable_other = next_state_other->getVariable(name);
-        auto previous_variable = previous_state_current->getVariable(name);
-        const primitiveVariable * casted_variable_current = nullptr;
-        const primitiveVariable * casted_variable_other = nullptr;
-        const primitiveVariable * casted_previous_variable_state_1 = nullptr;
+        auto variable_current = next_state_current->get(name);
+        auto variable_other = next_state_other->get(name);
+        auto previous_variable = previous_state_current->get(name);
+        const scalarInt * casted_variable_current = nullptr;
+        const scalarInt * casted_variable_other = nullptr;
+        const scalarInt * casted_previous_variable_state_1 = nullptr;
         int value_1 = 0;
         int value_2 = 0;
         int previous_value = 0;
@@ -62,14 +62,14 @@ void trace::findDistinguishingFormula(const std::shared_ptr<trace> t)
         case variable::V_BOOL:
         case variable::V_SHORT:
         case variable::V_INT:
-          casted_variable_current = dynamic_cast<const primitiveVariable *>(variable_current);
-          casted_variable_other = dynamic_cast<const primitiveVariable *>(variable_other);
-          casted_previous_variable_state_1 = dynamic_cast<const primitiveVariable *>(previous_variable);
+          casted_variable_current = dynamic_cast<const scalarInt *>(variable_current);
+          casted_variable_other = dynamic_cast<const scalarInt *>(variable_other);
+          casted_previous_variable_state_1 = dynamic_cast<const scalarInt *>(previous_variable);
           assert(casted_variable_current);
           assert(casted_variable_other);
-          value_1 = casted_variable_current->getValue();
-          value_2 = casted_variable_other->getValue();
-          previous_value = casted_previous_variable_state_1->getValue();
+          value_1 = casted_variable_current->getIntValue();
+          value_2 = casted_variable_other->getIntValue();
+          previous_value = casted_previous_variable_state_1->getIntValue();
           std::cout << "Variable " << name << " has value " << value_1 << " in state 1 and value " << value_2
                     << " in state 2. The previous value was " << previous_value << std::endl;
           std::cout << "Distinguishing formula: []((" << fullName << " = " << previous_value << ") ->  X(" << fullName << " = "

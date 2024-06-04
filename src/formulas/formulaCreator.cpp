@@ -1,7 +1,7 @@
 #include "formulaCreator.hpp"
 #include "ltl.hpp"
-#include "primitiveVariable.hpp"
 #include "state.hpp"
+#include "scalarVarInt.hpp"
 #include <algorithm> // Include the necessary header file
 #include <iostream>
 #include <iterator> // Include the necessary header file
@@ -225,7 +225,7 @@ void formulaCreator::distinguishStates(const std::vector<std::shared_ptr<state>>
 
 int formulaCreator::getValueOfVariable(const std::shared_ptr<state> & state, const std::string & name)
 {
-  auto variable = state->getVariable(name);
+  /*auto variable = state->getVariable(name);
   primitiveVariable * casted_variable = nullptr;
   auto value = 0;
   switch (variable->getType()) {
@@ -253,8 +253,8 @@ int formulaCreator::getValueOfVariable(const std::shared_ptr<state> & state, con
     break;
   default:
     break;
-  }
-  return value;
+  }*/
+  return state->getValue<scalarInt*>(name);
 }
 
 std::pair<std::shared_ptr<trace>, std::shared_ptr<trace>>

@@ -59,11 +59,12 @@ public:
 
   T getValue(void) const {
     //assert(getPayload());
-    if(getPayload()) {
-      auto res = getPayload()->getValue<T>(getOffset());
-      assert(res == value);
+    if constexpr(!std::is_const<T>::value) {
+      if(getPayload()) {
+        auto res = getPayload()->getValue<T>(getOffset());
+        assert(res == value);
+      }
     }
-
     return value;
   }
 
@@ -73,6 +74,11 @@ public:
 
   void setInitValue(T newValue) {
     initValue = newValue;
+  }
+
+  void init(void) override {
+    if constexpr(!std::is_const<T>::value)
+      setValue(initValue);
   }
 
   void reset(void) override {

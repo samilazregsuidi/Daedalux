@@ -1,7 +1,7 @@
 #include "queueVar.hpp"
 
-queueVar::queueVar(const std::string& name) 
-	: variable(variable::Type::V_QUEUE, name)
+queueVar::queueVar(const std::string& name, variable::Type type) 
+	: variable(type, name)
 	, front_i(0)
 	, back_i(0)
 	, length(0)
@@ -70,7 +70,7 @@ void queueVar::push(const paramList& params)
 {
 	assert(!full());
 
-	auto msg = varList[++back_i];
+	auto msg = varList[back_i++];
 	params.in(msg);
 
 	if(back_i == capacity())
