@@ -339,7 +339,7 @@ void program::addProcess(process* proc){
 		assert(false);
 	}
 	
-	//proc->setPid(pidCounter++);
+	proc->setPid(pidCounter++);
 	_addVariable(proc);
 
 	nbProcesses++;

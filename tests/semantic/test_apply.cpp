@@ -24,9 +24,9 @@ protected:
                      S s; s.i = 1;\n\
                     }";
 
-  std::string helloChan = "chan c = [1] of {byte};\n\
-                          chan d = [1] of {bool};\n\
-                          chan cd = [2] of {byte, bool};\n\
+  std::string helloChan = "chan c = [0] of {byte};\n\
+                          chan d = [0] of {bool};\n\
+                          chan cd = [0] of {byte, bool};\n\
                     active proctype test(){\n\
                      int i = 1; bool b;\n\
                      c!1; d!true; cd!1, true;\n\
@@ -72,25 +72,25 @@ TEST_F(stateInit, InitStateHelloWorld)
   ASSERT_EQ(s_local->getValue<boolVar*>("b"), true);
 }
 
-// TEST_F(stateInit, InitStateHelloWorldChan)
-// {
-//   const TVL * tvl = nullptr;
-//   auto original_loader = std::make_unique<promela_loader>(helloChan, tvl);
-//   auto originalFSM = original_loader->getAutomata();
-//   // Create the initial state for both automata
-//   auto state = initState::createInitState(originalFSM.get(), tvl);
+TEST_F(stateInit, InitStateHelloWorldChan)
+{
+  const TVL * tvl = nullptr;
+  auto original_loader = std::make_unique<promela_loader>(helloChan, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  // Create the initial state for both automata
+  auto state = initState::createInitState(originalFSM.get(), tvl);
 
-//   auto c = state->getVariable("c");
-//   ASSERT_EQ(c->getValue<primitiveVariable*>("c[0]"), 0);
-//   ASSERT_EQ(dynamic_cast<channel*>(c)->len(), 1);
+  auto c = state->get<channel*>("c");
+  ASSERT_EQ(c->getValue<byteVar*>(0), 0);
+  ASSERT_EQ(dynamic_cast<channel*>(c)->len(), 1);
 
-//   auto d = state->getVariable("d");
-//   ASSERT_EQ(d->getValue<boolVar*>("d[0]"), false);
-//   ASSERT_EQ(dynamic_cast<channel*>(d)->len(), 1);
+  auto d = state->get<channel*>("d");
+  ASSERT_EQ(d->getValue<boolVar*>("d[0].bool"), false);
+  ASSERT_EQ(dynamic_cast<channel*>(d)->len(), 1);
 
-//   auto cd = state->getVariable("cd");
-//   ASSERT_EQ(cd->getValue<primitiveVariable*>("cd[0]"), 0);
-//   ASSERT_EQ(cd->getValue<boolVar*>("cd[1]"), false);
-//   ASSERT_EQ(dynamic_cast<channel*>(cd)->len(), 2);
-// }
+  auto cd = state->get<channel*>("cd");
+  ASSERT_EQ(cd->getValue<byteVar*>("cd[0].byte"), 0);
+  ASSERT_EQ(cd->getValue<boolVar*>("cd[0].bool"), false);
+  ASSERT_EQ(dynamic_cast<channel*>(cd)->len(), 2);
+}
 

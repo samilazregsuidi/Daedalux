@@ -22,8 +22,8 @@
 
 #include "channelVar.hpp"
 
-process::process(const std::string& name, const fsmNode* start, ubyte pid)
-	: thread(variable::V_PROC, name, start, pid)
+process::process(const std::string& name, const fsmNode* start)
+	: thread(variable::V_PROC, name, start, 0)
 {}
 
 process::process(const process& other) 
@@ -191,27 +191,6 @@ int process::eval(const astNode* node, byte flag) const {
 				// Either a rendezvous concerns the channel, either the channel has a non null capacity and is not empty.
 				
 				return chan->isReceivable(getOutputParamList(chanRecvStmnt->getRArgList()));
-
-				/*unsigned int index = 0;
-				auto rargList = chanRecvStmnt->getRArgList();
-				while(rargList) {
-
-					auto arg = rargList->getExprRArg();
-					
-					if(arg->getType() == astNode::E_RARG_EVAL || arg->getType() == astNode::E_RARG_CONST) {
-						
-						int sendedValue = chan->getField(index)->getValue();
-						int requestedValue = eval(arg, flag);
-						if(sendedValue != requestedValue) {
-							return 0;
-						}
-					}
-
-					++index;
-					rargList = rargList->getRArgList();
-				}
-
-				return 1;*/
 			}
 		}
 
@@ -437,7 +416,7 @@ std::list<transition*> process::executables(void) const {
 						res.push_back(rdv);
 					}
 
-					chan->reset();
+					chan->pop();
 					// Rendezvous completed: HANDSHAKE is reset.
 					s->resetHandShake();
 
@@ -573,6 +552,7 @@ Apply:
 			auto rargs = getOutputParamList(recvStmnt->getRArgList());
 			assert(chan->isReceivable(rargs));
 			chan->receive(rargs);
+			chan->pop();
 			if(s->getHandShakeRequestChan() == chan)
 				s->resetHandShake();
 			// If there was a rendezvous request, it has been accepted.

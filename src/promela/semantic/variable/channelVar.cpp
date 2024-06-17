@@ -40,7 +40,7 @@ bool channel::isReceivable(const paramList& rargs) const {
 	
 	for(size_t i = 0; i < rargs.size(); ++i){
 		if(rargs[i]->type == param::Type::VAL){
-			if(rargs[i]->getValue() != (dynamic_cast<scalarInt*>(fields[i]))->getIntValue())
+			if(rargs[i]->getIntValue() != (dynamic_cast<scalarInt*>(fields[i]))->getIntValue())
 				return false;
 		}
 	}
@@ -48,16 +48,12 @@ bool channel::isReceivable(const paramList& rargs) const {
 	return true;
 }
 
-void channel::receive(const paramList& rargs) {
+void channel::receive(paramList& rargs) {
 
 	auto fields = front()->getVariablesVector();
 	assert(fields.size() == rargs.size());
 	
-	for(size_t i = 0; i < rargs.size(); ++i){
-		if(rargs[i]->type == param::Type::REF){
-			(dynamic_cast<scalarInt*>(fields[i]))->setIntValue(rargs[i]->getValue());
-		}
-	}
+	rargs.out(front());
 
 	if(rendezVous)
 		reset();

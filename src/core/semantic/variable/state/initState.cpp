@@ -213,6 +213,7 @@ void initState::addVariables(variable* v, const varSymNode* sym) {
 		for(unsigned int i = 0; i < sym->getBound(); ++i) {
 			
 			auto name = sym->getName() + (sym->getBound() > 1 ? "[" + std::to_string(i) + "]" : "");
+			name = (name == "" ? sym->getBasicTypeName() : name);
 			auto var = createPrimitive(name, sym);
 			
 			v->_addVariable(var);
@@ -278,12 +279,12 @@ void initState::addVariables(variable* v, const varSymNode* sym) {
 	}
 }
 
-process* initState::createProcess(const fsm* stateMachine, const ptypeSymNode* procType, byte pid, unsigned int index) {
+process* initState::createProcess(const fsm* stateMachine, const ptypeSymNode* procType, unsigned int index) {
 
 	auto name = procType->getName() + (procType->getActiveExpr()->getCstValue() > 1 ? "[" + std::to_string(index) + "]" : "");
 	auto start = stateMachine->getFsmWithName(procType->getName());
 
-	process* proc = new process(name, start, pid);
+	process* proc = new process(name, start);
 
 	for (auto procSym : procType->getSymTable()->getSymbols<const varSymNode*>())
 		addVariables(proc, procSym);
@@ -322,7 +323,7 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 		assert(procSym->getActiveExpr());
 
 		for(int i = 0; i < procSym->getActiveExpr()->getCstValue(); ++i){
-			auto proc = createProcess(stateMachine, procSym, 0, i);
+			auto proc = createProcess(stateMachine, procSym, i);
 			s->addProcess(proc);
 		}
 	}

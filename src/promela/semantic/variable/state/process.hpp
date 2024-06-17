@@ -19,7 +19,7 @@ class process : public thread {
 public:
   friend class state;
 
-  process(const std::string& name, const fsmNode * start, ubyte pid);
+  process(const std::string& name, const fsmNode * start);
 
   process(const process & other);
 

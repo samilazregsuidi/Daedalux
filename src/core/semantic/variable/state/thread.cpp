@@ -45,6 +45,10 @@ void thread::init(void) {
 	setFsmNodePointer(start);
 }
 
+void thread::setPid(ubyte pid) {
+  this->pid = pid;
+}
+
 ubyte thread::getPid(void) const {
 	return pid;
 }

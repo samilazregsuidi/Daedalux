@@ -36,7 +36,7 @@ public:
 
 	static void addVariables(variable* v, const varSymNode* sym);
 
-	static process* createProcess(const fsm* stateMachine, const ptypeSymNode* procType, byte pid, unsigned int index);
+	static process* createProcess(const fsm* stateMachine, const ptypeSymNode* procType, unsigned int index);
 
 	static never* createNever(const fsm* stateMachine, const neverSymNode* procType);
 	

@@ -120,6 +120,15 @@ public:
 			return res->getValue();
 	}
 
+	template<typename T> auto getValue(size_t index) const {
+		auto res = get<T>(index);
+		assert(res != nullptr);
+		if constexpr(std::is_same<T, scalarInt*>::value) 
+			return res->getIntValue();
+		else
+			return res->getValue();
+	}
+
 	/****************************************************/
 
 	virtual void setGlobal(bool global);

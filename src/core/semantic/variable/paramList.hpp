@@ -15,7 +15,7 @@ struct param {
 
   virtual void in(variable* var) const = 0;
   virtual bool out(const variable* var) = 0;
-  virtual int getValue() const { return 0; }
+  virtual int getIntValue() const = 0;
 
   Type type;
 };
@@ -37,7 +37,7 @@ struct paramValue : public param {
     return (v->getIntValue() == value);
   }
 
-  int getValue() const override {
+  int getIntValue() const override {
     return value;
   }
   
@@ -62,7 +62,7 @@ struct paramRef : public param {
     return true;
   }
 
-  int getValue() const override {
+  int getIntValue() const override {
     return ref->getIntValue();
   }
   

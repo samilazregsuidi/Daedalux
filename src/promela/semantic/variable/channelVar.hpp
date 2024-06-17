@@ -27,7 +27,7 @@ public:
 
 	bool isReceivable(const paramList& rargs) const;
 
-	void receive(const paramList& rargs);
+	void receive(paramList& rargs);
 
 	bool isRendezVous(void) const;
 
