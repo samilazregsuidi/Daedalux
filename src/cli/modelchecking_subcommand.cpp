@@ -13,8 +13,8 @@ void setup_subcommand_modelchecking(CLI::App &app)
 	// Options for model checking
 	sub->add_flag("-e, --exhaustive", opt->exhaustive, "Determines also which products have *no* problems. The normal check will stop at the first problem,  and does not determine whether there are products that have no problems  (e.g. those that satisfy a property).");
 	
-	sub->add_option("-ltl", opt->ltl, "LTL property to verify");
-	sub->add_option("-multiLtl", opt->multiLtl, "MultiLTL property to verify");
+	sub->add_option("--ltl", opt->ltl, "LTL property to verify");
+	sub->add_option("--multiLtl", opt->multiLtl, "MultiLTL property to verify");
 	
 	//sub->add_flag("-d, --fdlc", opt->fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
 
@@ -30,8 +30,8 @@ void setup_subcommand_modelchecking(CLI::App &app)
 	sub->add_flag("--exec", opt->exec, "Executes the model.  When a problem (assert, deadlock or property violation) is found, an error trace (counterexample) is printed and execution stops.");
 
 	sub->add_option("-f, --featuremodel", opt->tvl_file,
-				   "Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is named as the .pml file but with extension .tvl.")
-		->check(CLI::ExistingFile);
+				   "Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is named as the .pml file but with extension .tvl.");
+		
 
 	sub->add_option("--ltlFile", opt->ltlPropFile, "File containing the LTL properties to verify.")
 		->check(CLI::ExistingFile);
@@ -74,7 +74,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 			exit(1);
 		}
 	}
-	else if (opt.tvl_file.empty())
+	/*else if (opt.tvl_file.empty())
 	{
 		// Try to guess name of feature model file name
 		std::string tvlFile = std::string(opt.input_file).replace(opt.input_file.find(".pml"), 4, ".tvl");
@@ -91,7 +91,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 			std::cout << "Simulation checking and non stutter steps require a property file." << std::endl;
 			exit(1);
 		}
-	}
+	}*/
 
 	// Load promela file
 	auto loader = std::make_unique<promela_loader>(opt.input_file, tvl.get());
@@ -170,10 +170,10 @@ bool verify_modelchecking_options(ModelCheckingOptions const &opt)
 		std::cout << "The options -check and -exec cannot be used together." << std::endl;
 		valid = false;
 	}
-	if (opt.tvl_file.find(".tvl") == std::string::npos)
+	/*if (opt.tvl_file.find(".tvl") == std::string::npos)
 	{
 		std::cout << "The feature model file must have the extension .tvl." << std::endl;
 		valid = false;
-	}
+	}*/
 	return valid;
 }
