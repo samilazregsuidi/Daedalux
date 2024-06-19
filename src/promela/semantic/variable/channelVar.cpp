@@ -54,11 +54,6 @@ void channel::receive(paramList& rargs) {
 	assert(fields.size() == rargs.size());
 	
 	rargs.out(front());
-
-	if(rendezVous)
-		reset();
-	else 
-		pop();
 }
 
 float channel::delta(const variable* v2) const {

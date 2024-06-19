@@ -40,6 +40,18 @@ protected:
                             od;\n\
                           }";
 
+  std::string helloChanRDV_ = "chan c = [0] of {byte};\n\
+                          active proctype foo(){\n\
+                            do\n\
+                            :: c!1;\n\
+                            od;\n\
+                          }\n\
+                          active proctype bar(){\n\
+                            do\n\
+                            :: c?_;\n\
+                            od;\n\
+                          }";
+
   std::string helloChanRDV2 = "chan c = [0] of {byte, byte};\n\
                           active proctype foo(){\n\
                             do\n\
@@ -365,6 +377,93 @@ TEST_F(ExecutableTests, simpleExecutablesChanRDV)
   ASSERT_EQ(bar->getLocation(), 9);
 
   ASSERT_EQ(bar->getValue<byteVar*>("x"), 1);
+}
+
+
+TEST_F(ExecutableTests, simpleExecutablesChanRDV_)
+{
+  const TVL * tvl = nullptr;
+  auto original_loader = std::make_unique<promela_loader>(helloChanRDV_, tvl);
+  auto originalFSM = original_loader->getAutomata();
+  // Create the initial state for both automata
+  auto state = initState::createInitState(originalFSM.get(), tvl);
+
+  auto prog = state->getVariables().front();
+  ASSERT_EQ(prog->getLocalName(), "");
+  ASSERT_EQ(prog, state->get(""));
+
+  process* foo = state->get<process*>("foo");
+  ASSERT_EQ(foo, prog->get("foo"));
+  ASSERT_EQ(foo->getLocation(), 3);
+
+  process* bar = state->get<process*>("bar");
+  ASSERT_EQ(bar, prog->get("bar"));
+  ASSERT_EQ(bar->getLocation(), 8);
+
+  //get the executables
+  auto execs = state->executables();
+  // c!1
+  ASSERT_EQ(execs.size(), 1);
+  
+  auto rdv = execs.front();
+  ASSERT_EQ(rdv->src, state);
+
+  auto fooRDVExec = dynamic_cast<threadTransition*>(rdv->getTransition("foo"));
+  ASSERT_EQ(fooRDVExec->src, foo);
+  ASSERT_EQ(fooRDVExec->getType(), astNode::E_STMNT_CHAN_SND);
+  ASSERT_EQ(fooRDVExec->getLineNb(), 4);
+
+  auto barRDVExec = dynamic_cast<threadTransition*>(rdv->getTransition("bar"));
+  ASSERT_EQ(barRDVExec->src, bar);
+  ASSERT_EQ(barRDVExec->getType(), astNode::E_STMNT_CHAN_RCV);
+  ASSERT_EQ(barRDVExec->getLineNb(), 9);
+
+  ASSERT_EQ(prog->getValue<intVar*>("_"), 0);
+
+  auto progRDVExec = dynamic_cast<rendezVousTransition*>(rdv->getTransition(""));
+  ASSERT_EQ(progRDVExec->src, dynamic_cast<process*>(fooRDVExec->src)->getProgState());
+  ASSERT_EQ(progRDVExec, fooRDVExec->parent);
+  ASSERT_EQ(progRDVExec->getQuestion(), fooRDVExec);
+
+  progRDVExec->getResponse()->print();
+
+  ASSERT_EQ(progRDVExec->src, dynamic_cast<process*>(barRDVExec->src)->getProgState());
+  ASSERT_EQ(progRDVExec, barRDVExec->parent);
+  ASSERT_EQ(progRDVExec->getResponse(), barRDVExec);
+
+  //go the the next state
+  state = state->fire(rdv);
+
+  foo = state->get<process*>("foo");
+  ASSERT_EQ(foo->getLocation(), 3);
+
+  bar = state->get<process*>("bar");
+  ASSERT_EQ(bar->getLocation(), 8);
+
+  ASSERT_EQ(state->getValue<intVar*>("_"), 1);
+
+  execs = state->executables();
+  assert(execs.size() == 1);
+  rdv = execs.front(); 
+  fooRDVExec = dynamic_cast<threadTransition*>(rdv->getTransition("foo"));
+  ASSERT_EQ(fooRDVExec->src, foo);
+  ASSERT_EQ(fooRDVExec->getType(), astNode::E_STMNT_CHAN_SND);
+  ASSERT_EQ(fooRDVExec->getLineNb(), 4);
+  
+  barRDVExec = dynamic_cast<threadTransition*>(rdv->getTransition("bar"));
+  ASSERT_EQ(barRDVExec->src, bar);
+  ASSERT_EQ(barRDVExec->getType(), astNode::E_STMNT_CHAN_RCV);
+  ASSERT_EQ(barRDVExec->getLineNb(), 9);
+  
+  state = state->fire(rdv);
+
+  foo = state->get<process*>("foo");
+  ASSERT_EQ(foo->getLocation(), 3);
+
+  bar = state->get<process*>("bar");
+  ASSERT_EQ(bar->getLocation(), 8);
+
+  ASSERT_EQ(state->getValue<intVar*>("_"), 1);
 }
 
 TEST_F(ExecutableTests, simpleExecutablesChanRDV2)
@@ -791,4 +890,134 @@ TEST_F(ExecutableTests, simpleExecutablesComp)
 
   ASSERT_EQ(dynamic_cast<process*>(state22->get("s1.test"))->getLocation(), 3);
   ASSERT_EQ(dynamic_cast<process*>(state22->get("s2.test"))->getLocation(), 3);
+}
+
+TEST_F(ExecutableTests, simpleExecutablesMinepump)
+{
+  const TVL * tvl = nullptr;
+  auto original_loader = std::make_unique<promela_loader>("../tests/models/minepump/original.pml", tvl);
+  auto originalFSM = original_loader->getAutomata();
+  // Create the initial state for both automata
+  auto initState = initState::createInitState(originalFSM.get(), tvl);
+
+  auto prog = initState->getVariables().front();
+  ASSERT_EQ(prog->getLocalName(), "");
+
+  process* ctrl = initState->get<process*>("controller");
+  ASSERT_EQ(ctrl->getLocation(), 15);
+  process* user = initState->get<process*>("user");
+  ASSERT_EQ(user->getLocation(), 95);
+  process* methaneAlarm = initState->get<process*>("methanealarm");
+  ASSERT_EQ(methaneAlarm->getLocation(), 105);
+  process* methaneSensor = initState->get<process*>("methanesensor");
+  ASSERT_EQ(methaneSensor->getLocation(), 112);
+  process* waterSensor = initState->get<process*>("watersensor");
+  ASSERT_EQ(waterSensor->getLocation(), 125);
+
+  std::unordered_map<std::string, std::list<transition*>> map;
+
+  auto execs = initState->executables();
+  ASSERT_EQ(execs.size(), 5);
+  for(auto exec : execs)
+  {
+    for(auto procName : {"controller", "user", "methanealarm", "methanesensor", "watersensor"})
+    {
+      auto procTrans = dynamic_cast<threadTransition*>(exec->getTransition(procName));
+      if(procTrans)
+        map[procName].push_back(exec);
+    }
+  }
+
+  auto userExecs = map["user"];
+
+  ASSERT_EQ(map["controller"].size(), 0);
+  ASSERT_EQ(map["user"].size(), 2);
+  ASSERT_EQ(map["methanealarm"].size(), 2);
+  ASSERT_EQ(map["methanesensor"].size(), 0);
+  ASSERT_EQ(map["watersensor"].size(), 1);
+
+  //lets fire the first user transition @97 :: uwants = start
+  auto exec = userExecs.front();
+  ASSERT_EQ(dynamic_cast<threadTransition*>(exec->getTransition("user"))->getLineNb(), 97);
+  ASSERT_EQ(*initState->get<mtypeVar*>("uwants"), "stop");
+  auto stateStart = initState->fire(exec);
+  ASSERT_EQ(*stateStart->get<mtypeVar*>("uwants"), "start");
+  ASSERT_EQ(stateStart->get<process*>("user")->getLocation(), 100);
+
+  execs = stateStart->executables();
+  ASSERT_EQ(execs.size(), 4);
+  map.clear();
+  for(auto exec : execs)
+  {
+    for(auto procName : {"controller", "user", "methanealarm", "methanesensor", "watersensor"})
+    {
+      auto procTrans = dynamic_cast<threadTransition*>(exec->getTransition(procName));
+      if(procTrans)
+        map[procName].push_back(exec);
+    }
+  }
+
+  ASSERT_EQ(map["controller"].size(), 1);
+  ASSERT_EQ(map["user"].size(), 1);
+  ASSERT_EQ(map["methanealarm"].size(), 2);
+  ASSERT_EQ(map["methanesensor"].size(), 0);
+  ASSERT_EQ(map["watersensor"].size(), 1);
+
+  ASSERT_EQ(map["controller"].front(), map["user"].front());
+  ASSERT_EQ(dynamic_cast<threadTransition*>(map["controller"].front()->getTransition("controller"))->getLineNb(), 17);
+  ASSERT_EQ(dynamic_cast<threadTransition*>(map["user"].front()->getTransition("user"))->getLineNb(), 100);
+
+  //lets fire the rdv transition user/controller transition 
+  // controller@17 :cCmd?pcommand;
+  // user@100 :cCmd!uwants;
+  exec = map["controller"].front();
+  
+  stateStart = stateStart->fire(exec);
+  ASSERT_EQ(stateStart->get<process*>("controller")->getLocation(), 18);
+  ASSERT_EQ(stateStart->get<process*>("user")->getLocation(), 101);
+
+  //-----------------------------------------------------------------------------------------------
+
+  //lets fire the first user transition @98 :: uwants = stop
+  exec = userExecs.back();
+  ASSERT_EQ(dynamic_cast<threadTransition*>(exec->getTransition("user"))->getLineNb(), 98);
+  ASSERT_EQ(*initState->get<mtypeVar*>("uwants"), "stop");
+  auto stateStop = initState->fire(exec);
+  ASSERT_EQ(*stateStop->get<mtypeVar*>("uwants"), "stop");
+  ASSERT_EQ(stateStop->get<process*>("user")->getLocation(), 100);
+
+  execs = stateStop->executables();
+  ASSERT_EQ(execs.size(), 4);
+  map.clear();
+  for(auto exec : execs)
+  {
+    for(auto procName : {"controller", "user", "methanealarm", "methanesensor", "watersensor"})
+    {
+      auto procTrans = dynamic_cast<threadTransition*>(exec->getTransition(procName));
+      if(procTrans)
+        map[procName].push_back(exec);
+    }
+  }
+
+  ASSERT_EQ(map["controller"].size(), 1);
+  ASSERT_EQ(map["user"].size(), 1);
+  ASSERT_EQ(map["methanealarm"].size(), 2);
+  ASSERT_EQ(map["methanesensor"].size(), 0);
+  ASSERT_EQ(map["watersensor"].size(), 1);
+
+  ASSERT_EQ(map["controller"].front(), map["user"].front());
+  ASSERT_EQ(dynamic_cast<threadTransition*>(map["controller"].front()->getTransition("controller"))->getLineNb(), 17);
+  ASSERT_EQ(dynamic_cast<threadTransition*>(map["user"].front()->getTransition("user"))->getLineNb(), 100);
+
+  //lets fire the rdv transition user/controller transition 
+  // controller@17 :cCmd?pcommand;
+  // user@100 :cCmd!uwants;
+  exec = map["controller"].front();
+  
+  ASSERT_EQ(*stateStop->get<mtypeVar*>("controller.pcommand"), "start");
+  stateStop = stateStop->fire(exec);
+  ASSERT_EQ(*stateStop->get<mtypeVar*>("controller.pcommand"), "stop");
+  ASSERT_EQ(stateStop->get<process*>("controller")->getLocation(), 18);
+  ASSERT_EQ(stateStop->get<process*>("user")->getLocation(), 101);
+
 }
