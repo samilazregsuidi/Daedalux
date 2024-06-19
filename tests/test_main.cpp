@@ -32,6 +32,7 @@
 // SEMANTIC - TESTS
 #include "semantic/test_executables.cpp"
 #include "semantic/test_apply.cpp"
+#include "semantic/test_init_state.cpp"
 
 // INTEGRATION TESTS
 // #include "integration_tests/test_mutantgeneration.cpp"

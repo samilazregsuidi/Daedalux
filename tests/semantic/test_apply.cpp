@@ -9,7 +9,7 @@
 #include "../../src/promela/parser/promela_loader.hpp"
 
 // Define a fixture for the tests
-class stateInit : public ::testing::Test {
+class stateApply : public ::testing::Test {
 protected:
   void SetUp() override {}
 
@@ -36,7 +36,7 @@ protected:
 };
 
 
-TEST_F(stateInit, InitStateHelloWorld)
+TEST_F(stateApply, InitStateHelloWorld)
 {
   const TVL * tvl = nullptr;
   auto original_loader = std::make_unique<promela_loader>(helloWorld, tvl);
@@ -72,7 +72,7 @@ TEST_F(stateInit, InitStateHelloWorld)
   ASSERT_EQ(s_local->getValue<boolVar*>("b"), true);
 }
 
-TEST_F(stateInit, InitStateHelloWorldChan)
+TEST_F(stateApply, InitStateHelloWorldChan)
 {
   const TVL * tvl = nullptr;
   auto original_loader = std::make_unique<promela_loader>(helloChan, tvl);
@@ -80,17 +80,17 @@ TEST_F(stateInit, InitStateHelloWorldChan)
   // Create the initial state for both automata
   auto state = initState::createInitState(originalFSM.get(), tvl);
 
-  auto c = state->get<channel*>("c");
+  auto c = state->get("c[0]");
   ASSERT_EQ(c->getValue<byteVar*>(0), 0);
-  ASSERT_EQ(dynamic_cast<channel*>(c)->len(), 1);
+  ASSERT_EQ(state->get<channel*>("c")->len(), 0);
 
-  auto d = state->get<channel*>("d");
-  ASSERT_EQ(d->getValue<boolVar*>("d[0].bool"), false);
-  ASSERT_EQ(dynamic_cast<channel*>(d)->len(), 1);
+  auto d = state->get("d[0]");
+  ASSERT_EQ(d->getValue<boolVar*>(0), false);
+  ASSERT_EQ(state->get<channel*>("d")->len(), 0);
 
-  auto cd = state->get<channel*>("cd");
-  ASSERT_EQ(cd->getValue<byteVar*>("cd[0].byte"), 0);
-  ASSERT_EQ(cd->getValue<boolVar*>("cd[0].bool"), false);
-  ASSERT_EQ(dynamic_cast<channel*>(cd)->len(), 2);
+  auto cd = state->get("cd[0]");
+  ASSERT_EQ(cd->getValue<byteVar*>(0), 0);
+  ASSERT_EQ(cd->getValue<boolVar*>(1), false);
+  ASSERT_EQ(state->get<channel*>("cd")->len(), 0);
 }
 

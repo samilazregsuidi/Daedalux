@@ -24,15 +24,14 @@ protected:
                      S s; s.i = 1;\n\
                     }";
 
-  std::string helloChan = "chan c = [1] of {byte};\n\
-                          chan d = [1] of {bool};\n\
-                          chan cd = [2] of {byte, bool};\n\
+  std::string helloChan = "chan c = [0] of {byte};\n\
+                          chan d = [0] of {bool};\n\
+                          chan cd = [0] of {byte, bool};\n\
                     active proctype test(){\n\
                      int i = 1; bool b;\n\
                      c!1; d!true; cd!1, true;\n\
                     }";
 
-  std::string complexStruct;
 };
 
 
@@ -80,8 +79,8 @@ TEST_F(stateInit, InitStateHelloWorld)
 //   // Create the initial state for both automata
 //   auto state = initState::createInitState(originalFSM.get(), tvl);
 
-//   auto c = state->getVariable("c");
-//   ASSERT_EQ(c->getValue<primitiveVariable*>("c[0]"), 0);
+//   auto c = state->get<channel*>("c");
+//   ASSERT_EQ(c->getValue<byteVar*>("c[0]"), 0);
 //   ASSERT_EQ(dynamic_cast<channel*>(c)->len(), 1);
 
 //   auto d = state->getVariable("d");
