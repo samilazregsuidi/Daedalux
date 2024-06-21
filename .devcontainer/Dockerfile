@@ -17,6 +17,8 @@ ENV PATH="$VENV_PATH/bin:$PATH"
 
 # Install Python packages (openai)
 RUN pip3 install openai
+# Install Scarlet
+RUN pip3 install Scarlet-ltl
 
 # Additional package installation and setup
 RUN apt-get install -y wget byacc flex autoconf automake libtool-bin libtool g++ libgtest-dev mercurial libboost-all-dev
@@ -31,7 +33,6 @@ RUN cp spin /usr/local/bin
 # Clean up to reduce image size
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 
 # Install Texada
 # compile and setup google test:

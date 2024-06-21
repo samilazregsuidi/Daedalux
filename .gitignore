@@ -84,3 +84,13 @@ GPTExperiment/Experiment-2024-*/*/mutants/*
 GPTExperiment/__pycache__/*
 GPTExperiment/Experiment-2024-*/*/*.csv
 GPTExperiment/pan
+test_files/mutants/*/*.txt
+test_files/mutants/*/*.pml.nvr
+_deps/*
+tests/models/*/mutants/*.pml
+GPTExperiment/OldExperimentResults/
+GPTExperiment/Models/*/*.csv
+GPTExperiment/Models/*/mutants/*.pml
+GPTExperiment/Results/*/killed_mutants/*.pml
+GPTExperiment/Results/*/*_temp_*.pml
+tests/test_files/mutants/*/*.csv
