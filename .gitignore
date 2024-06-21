@@ -94,3 +94,5 @@ GPTExperiment/Models/*/mutants/*.pml
 GPTExperiment/Results/*/killed_mutants/*.pml
 GPTExperiment/Results/*/*_temp_*.pml
 tests/test_files/mutants/*/*.csv
+*.nvr
+tests/test_files/mutants/flows/flows_mutants.txt

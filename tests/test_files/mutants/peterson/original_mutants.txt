@@ -1,0 +1,16 @@
+../test_files/mutants/peterson/mutants/mutant_1.pml
+../test_files/mutants/peterson/mutants/mutant_2.pml
+../test_files/mutants/peterson/mutants/mutant_3.pml
+../test_files/mutants/peterson/mutants/mutant_4.pml
+../test_files/mutants/peterson/mutants/mutant_5.pml
+../test_files/mutants/peterson/mutants/mutant_6.pml
+../test_files/mutants/peterson/mutants/mutant_7.pml
+../test_files/mutants/peterson/mutants/mutant_8.pml
+../test_files/mutants/peterson/mutants/mutant_9.pml
+../test_files/mutants/peterson/mutants/mutant_10.pml
+../test_files/mutants/peterson/mutants/mutant_11.pml
+../test_files/mutants/peterson/mutants/mutant_12.pml
+../test_files/mutants/peterson/mutants/mutant_13.pml
+../test_files/mutants/peterson/mutants/mutant_14.pml
+../test_files/mutants/peterson/mutants/mutant_15.pml
+../test_files/mutants/peterson/mutants/mutant_16.pml
