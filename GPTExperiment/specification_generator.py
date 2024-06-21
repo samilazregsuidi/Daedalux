@@ -84,6 +84,9 @@ class SpecificationGenerator:
                 counter_example_file = SpecificationGenerator.find_counter_example(model)
                 with open(counter_example_file, 'r') as file:
                     counter_example = file.read()
+                # Delete the counter-example file
+                os.remove(counter_example_file)    
+                # Query ChatGPT to fix the verification error
                 query = QueryBuilder.fix_verification_query(model, message, counter_example, previously_satisfied_specs, previously_failed_specs)
                 response = chatGPTClient.query_chatgpt(query)
                 # Extract the updated specification from the response
@@ -153,9 +156,29 @@ class SpecificationGenerator:
                 file.write(model_content)
         return file_name
     
+    @staticmethod
+    def simplify_specifications(model : str, model_folder : str, mutants : list, chatGPTClient):
+        """
+        Query ChatGPT to simplify the LTL specifications for the given model based on the surviving mutants.
+        
+        Args:
+        model (str): The file path to the model.
+        model_folder (str): The folder to store the model with the added LTL specification.
+        mutants (list): The list of surviving mutants.
+        chatGPTClient (ChatGPTClient): The ChatGPT client to use for querying.
+        """
+        
+        query = QueryBuilder.simplify_query(model, mutants)
+        response = chatGPTClient.query_chatgpt(query)
+        macros, specifications = ResponseParser.parse_macros_and_specifications(response)
+        
+        print("Simplified specifications:")
+        for spec in specifications:
+            print(f"{spec}: {specifications[spec]}")
+
     
     @staticmethod
-    def create_specification_model(model : str, model_folder : str, trace_files : list, chatGPTClient):
+    def create_specification_model(model : str, model_folder : str, trace_files : list, chatGPTClient) -> str:
         """
         Query ChatGPT to create a new LTL specification for the given model.
         
@@ -178,3 +201,27 @@ class SpecificationGenerator:
         
         return updated_model
     
+    
+    @staticmethod
+    def enhance_specification(model : str, model_folder : str, mutants : list, specifications : list, chatGPTClient):
+        """
+        Query ChatGPT to enhance the LTL specification for the given model based on the surviving mutants.
+        
+        Args:
+        model (str): The file path to the model.
+        model_folder (str): The folder to store the model with the added LTL specification.
+        trace_files (list of str): The list of file paths to the traces.
+        chatGPTClient (ChatGPTClient): The ChatGPT client to use for querying.
+        
+        Returns:
+        str: The file path to the model with the added LTL specification.
+        """
+        
+        query = QueryBuilder.enhance_specification_query(model, mutants, specifications)
+        response = chatGPTClient.query_chatgpt(query)
+        macros, specifications = ResponseParser.parse_macros_and_specifications(response)
+        updated_model = SpecificationGenerator.add_specification_to_model(model_folder, model, specifications, macros)
+
+        SpecificationGenerator.refine_model(updated_model, specifications, chatGPTClient)
+        
+        return updated_model

@@ -2,6 +2,23 @@ import re
 
 class ResponseParser:
     @staticmethod
+    def extract_macros_and_ltl_properties_file(file_path):
+        """
+        Extracts macros and LTL properties from a PROMELA code file and returns them in dictionaries.
+        
+        Args:
+        file_path (str): The path to the PROMELA code file.
+        
+        Returns:
+        tuple: A tuple containing two dictionaries, the first with macros and the second with LTL properties.
+        """
+        with open(file_path, 'r') as m:
+            code = m.read()
+            m.close()
+            
+        return ResponseParser.extract_macros_and_ltl_properties(code)
+    
+    @staticmethod
     def extract_macros_and_ltl_properties(code):
         """
         Extracts macros and LTL properties from a PROMELA code string and returns them in dictionaries.
@@ -24,6 +41,7 @@ class ResponseParser:
         ltl_pattern = r'ltl\s+(\w+)\s+\{\s*(.*?)\s*\}'
         ltl_matches = re.findall(ltl_pattern, cleaned_code, re.DOTALL)
         ltl_properties = {name: definition.strip() for name, definition in ltl_matches}
+
 
         return (macros, ltl_properties)
 

@@ -22,14 +22,14 @@ class QueryBuilder:
                 - The classical trick is to add more assumptions in the LTL properties to account for the interleaving.
             - Avoid properties involving that a channel is sending or receiving.
             - State Changes: Two processes cannot change state simultaneously unless they synchronize on a channel.
-            - Labels can be used to refer to specific states in the model and be used in the LTL properties. For example, 'critical' can be a label for a state where a process is in a critical section.
+            - Labels can be used to refer to specific states in the model and be used in the LTL properties. For example, 'critical:' can be a label for a state where a process is in a critical section.
             - Variable ranges: Ensure that LTL properties account for the valid values of variables in the model.
             - Variable Changes: Write properties that capture how variables are allowed to change over time.
             - Array Indexing: Remember that arrays in Promela are zero-indexed, and the last element/index is the size of the array minus one.
             - Non-determinism: Ensure that the LTL properties are robust to the non-deterministic choices in the model.
                 - Non-deterministic choices can lead to different executions of the model and should be considered in the LTL properties as nothing is guaranteed to happen.
                 - For example, if a process can choose between two actions, the LTL property should not assume a specific choice will ever be made, especially if there is also interleaving in the model.
-                - A common trick is to say if something infinitely often happens, then the consequence of the non-deterministic choice will also happen infinitely often.
+                - One way to address this problem is to only refer to variables controlled by a single process in the LTL properties.
             - Macros: 
                 - Macros are used for complex predicates that cannot expressed directly inside an LTL formula.
                 - Macros can only refer to global variables and other macros. Local variables can be passed as arguments to macros.
@@ -765,19 +765,18 @@ class QueryBuilder:
     
     
     @staticmethod
-    def enhance_specification_query(model, surviving_mutants) -> Prompt:
+    def enhance_specification_query(model : str, surviving_mutants : str, specifications : list) -> Prompt:
         query_parts = []
 
         objective = textwrap.dedent("""
         Objective: Your task is to enhance the existing LTL specifications for a Promela model to improve the verification results and eliminate the remaining mutants.
         You should analyze the existing LTL properties and the surviving mutants to identify areas for improvement and refinement and add new properties to cover the identified gaps.
         Steps to Follow:
-        Step 1: Analyze Existing LTL Properties: Review the existing LTL properties to identify weaknesses or gaps that may allow mutants to pass verification.
-        Step 2: Identify Areas for Improvement: Examine the surviving mutants to understand the differences from the original model and identify areas where the existing properties are insufficient.
-        Step 3: Enhance LTL Properties: Develop new LTL properties that capture the differences between the original model and the mutants.
-        Step 4: Complement Existing Properties: Ensure that the new LTL properties complement the existing ones and do not replace them.
-        Step 5: Ensure Correctness: Verify that the new LTL properties are written in the correct Promela syntax and that they are satisfied by the model.
-        Step 6: Sort LTL Properties: Sort the LTL properties in order of complexity, starting with the simplest properties first (e.g., invariant properties).
+        Step 1: Analyze the LTL Properties: Review the LTL properties to identify why they have not killed the surviving mutants.
+        Step 2: Develop LTL Properties: Develop LTL properties to kill the surviving mutants.
+        Step 3: Complement Existing Properties: Ensure that the new LTL properties complement the existing ones and do not replace or conflict with them.
+        Step 4: Ensure Correctness: Verify that the new LTL properties are written in the correct Promela syntax and that they are satisfied by the model.
+        Step 5: Sort LTL Properties: Sort the LTL properties in order of complexity, starting with the simplest properties first (e.g., invariant properties).
         """)
         query_parts.append(objective)
         query_parts.append(QueryBuilder.promela_specif_query())
@@ -785,6 +784,15 @@ class QueryBuilder:
 
         query_parts.append("The original model and the mutants below both satisfy provided LTL properties.\n")
         query_parts.append(QueryBuilder.append_promela_models(model, surviving_mutants))
+        
+        specification_parts = textwrap.dedent("""
+                                                The existing LTL properties have already been used to kill some mutants (which are not provided here).
+                                                Consequently, these properties should not be modified or removed, as they are effective in distinguishing the original model from some mutants.
+                                                The following LTL properties that you should not modify are:
+                                              """)
+        
+        specification_parts += "\n".join(specifications)
+        query_parts.append(specification_parts)
         
         query = "".join(query_parts)
         prompt = Prompt(query, PromptType.ENHANCE_Specification, model)

@@ -55,7 +55,6 @@ class TrainingDataGenerator:
         """
         A method to create the training data.
         """
-        
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
             
@@ -84,8 +83,6 @@ class TrainingDataGenerator:
             
             code = SpecificationGenerator.remove_macros_and_specs(code)
             
-            print(f"Filtered model: {code}")
-            
             # copy the model to the folder
             model_file = os.path.join(folder_name, os.path.basename(model.model))
             with open(model_file, 'w') as f:
@@ -94,7 +91,7 @@ class TrainingDataGenerator:
             
             mutants = DeaduluxRunner.generate_mutants(model_file, num_mutants)
             print(f"Generated {len(mutants)} mutants for model {updated_model}")
-            
+                      
             for mutant in mutants:
                 # Add macros and specifications to the mutant
                 updated_mutant = SpecificationGenerator.add_specification_to_model(folder_name, mutant, specifications, macros)

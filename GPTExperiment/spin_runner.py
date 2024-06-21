@@ -100,7 +100,6 @@ class SpinRunner:
                 
         return surviving_mutants
         
-
     @staticmethod
     def check_model(file_name, formulas):
         """
