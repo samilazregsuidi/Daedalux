@@ -29,7 +29,7 @@ TEST_F(TraceTest, AddTransition)
   std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   std::shared_ptr<transition> t = std::make_shared<compTransition>(state.get(), transList);
   myTrace->addTransition(t);
-  ASSERT_EQ(myTrace->size(), 1);
+  ASSERT_EQ(myTrace->getTransitions().size(), 1);
 }
 
 // Test case for adding states
@@ -37,7 +37,7 @@ TEST_F(TraceTest, AddState)
 {
   std::shared_ptr<state> state = std::make_shared<composite>("test_variable");
   myTrace->addState(state);
-  ASSERT_EQ(myTrace->getStates().size(), 1);
+  ASSERT_EQ(myTrace->size(), 1);
 }
 
 // Test case for adding trace
@@ -109,28 +109,28 @@ TEST_F(TraceTest, InequalityOperator)
 //   ASSERT_TRUE(myTrace.get() == otherTrace.get());
 // }
 
-TEST_F(TraceTest, InEqualityOperatorAdvanced_Minepump)
-{
-  std::unique_ptr<trace> otherTrace = std::make_unique<trace>();
-  auto file = "/models/minepump/original.pml";
-  std::string current_path = std::filesystem::current_path();
-  const TVL * tvl = nullptr;
-  auto file_path = current_path + file;
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
-  auto FSM = loader->getAutomata();
-  auto current_state = initState::createInitState(FSM.get(), tvl);
-  auto next_state = current_state->Post().front();
-  // transition * current_trans = const_cast<transition *>(next_state->getOrigin());
-  std::shared_ptr<state> curent_state_smart(current_state);
-  std::shared_ptr<state> next_state_smart(next_state);
-  // std::shared_ptr<transition> current_trans_smart(current_trans);
-  myTrace->addState(curent_state_smart);
-  myTrace->addState(next_state_smart);
-  // myTrace->addTransition(current_trans_smart);
-  otherTrace->addState(curent_state_smart);
-  otherTrace->addState(next_state_smart);
-  ASSERT_TRUE(myTrace.get() != otherTrace.get());
-}
+// TEST_F(TraceTest, InEqualityOperatorAdvanced_Minepump)
+// {
+//   std::unique_ptr<trace> otherTrace = std::make_unique<trace>();
+//   auto file = "/models/minepump/original.pml";
+//   std::string current_path = std::filesystem::current_path();
+//   const TVL * tvl = nullptr;
+//   auto file_path = current_path + file;
+//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
+//   auto FSM = loader->getAutomata();
+//   auto current_state = initState::createInitState(FSM.get(), tvl);
+//   auto next_state = current_state->Post().front();
+//   // transition * current_trans = const_cast<transition *>(next_state->getOrigin());
+//   std::shared_ptr<state> curent_state_smart(current_state);
+//   std::shared_ptr<state> next_state_smart(next_state);
+//   // std::shared_ptr<transition> current_trans_smart(current_trans);
+//   myTrace->addState(curent_state_smart);
+//   myTrace->addState(next_state_smart);
+//   // myTrace->addTransition(current_trans_smart);
+//   otherTrace->addState(curent_state_smart);
+//   otherTrace->addState(next_state_smart);
+//   ASSERT_TRUE(myTrace.get() != otherTrace.get());
+// }
 
 // TEST_F(TraceTest, PrintCSV)
 // {

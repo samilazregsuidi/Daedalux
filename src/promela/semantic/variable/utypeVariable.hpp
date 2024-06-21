@@ -35,6 +35,8 @@ public:
 
 	void printDelta(const variable* other, bool considerInternalVariables) const override;
 
+	std::vector<std::shared_ptr<statePredicate>> getPredicates(void) const override;
+
 	std::list<variable *> getDelta(const variable * v2, bool considerInternalVariables) const override;
 
 	operator std::string(void) const override;

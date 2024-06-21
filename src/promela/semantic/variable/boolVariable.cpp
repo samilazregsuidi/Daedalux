@@ -1,5 +1,9 @@
 #include "boolVariable.hpp"
 #include <cstdio>
+#include "../../src/formulas/predicates/statePredicate.hpp"
+#include "../../src/formulas/predicates/binaryPredicate.hpp"
+#include "../../src/formulas/predicates/valuesPredicate.hpp"
+
 
 #include "boolSymNode.hpp"
 
@@ -20,6 +24,20 @@ bool boolVar::operator==(bool value) const { return getValue() == value; }
 bool boolVar::operator!=(bool value) const { return getValue() != value; }
 
 boolVar::operator bool(void) const { return getValue() != 0 ? true : false; }
+
+std::vector<std::shared_ptr<statePredicate>> boolVar::getPredicates() const
+{
+  auto varName = getLocalName();
+  auto predVar = std::make_shared<VariablePredicate<bool>>(varName);
+  bool value = getValue() ? true : false;
+  auto predValue = std::make_shared<ConstantPredicate<bool>>(value);
+  auto predName = varName + "_equals_" + std::to_string(value);
+  auto pred = std::make_shared<EqualityPredicate<bool>>(predName, predVar, predValue);
+  std::vector<std::shared_ptr<statePredicate>> predicates;
+  predicates.push_back(pred);
+  return predicates;
+}
+
 
 float boolVar::delta(const variable * other, bool _) const
 {

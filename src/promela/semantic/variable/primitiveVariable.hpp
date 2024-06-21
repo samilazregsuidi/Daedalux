@@ -53,6 +53,8 @@ public:
 
   void printDelta(const variable * other, bool considerInternalVariables) const override;
 
+  virtual std::vector<std::shared_ptr<statePredicate>> getPredicates(void) const override;
+
   operator std::string(void) const override;
 
   //operator int(void) const;

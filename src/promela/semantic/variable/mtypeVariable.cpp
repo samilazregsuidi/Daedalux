@@ -1,6 +1,10 @@
 #include "mtypeVariable.hpp"
 
 #include "varExpr.hpp"
+#include "../../src/formulas/predicates/statePredicate.hpp"
+#include "../../src/formulas/predicates/unaryPredicate.hpp"
+#include "../../src/formulas/predicates/binaryPredicate.hpp"
+#include "../../src/formulas/predicates/valuesPredicate.hpp"
 
 mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) { assert(varType == V_MTYPE); }
 
@@ -42,6 +46,18 @@ bool mtypeVar::operator==(const std::string & cmtype) const
 }
 
 bool mtypeVar::operator!=(const std::string & cmtype) const { return !(*this == cmtype); }
+
+std::vector<std::shared_ptr<statePredicate>> mtypeVar::getPredicates(void) const
+{
+  auto varName = getLocalName();
+  auto varNamePred = std::make_shared<VariablePredicate<std::string>>(varName);
+  auto valueNamePred = std::make_shared<ConstantPredicate<std::string>>(getValueName());
+  auto predName = varName + "_equals_" + getValueName();
+  auto pred = std::make_shared<EqualityPredicate<std::string>>(predName, varNamePred, valueNamePred);
+  std::vector<std::shared_ptr<statePredicate>> predicates;
+  predicates.push_back(pred);
+  return predicates;
+}
 
 float mtypeVar::delta(const variable * other, bool considerInternalVariables) const
 {

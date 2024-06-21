@@ -4,6 +4,10 @@
 #include "constExpr.hpp"
 #include "payload.hpp"
 #include "symbols.hpp"
+#include "../../src/formulas/predicates/statePredicate.hpp"
+#include "../../src/formulas/predicates/unaryPredicate.hpp"
+#include "../../src/formulas/predicates/binaryPredicate.hpp"
+#include "../../src/formulas/predicates/valuesPredicate.hpp"
 
 primitiveVariable::primitiveVariable(const varSymNode * const varSym, unsigned int index)
     : variable(variable::getVarType(varSym->getType()),
@@ -114,6 +118,19 @@ bool primitiveVariable::operator==(const variable * other) const
 bool primitiveVariable::operator==(int value) const { return getValue() == value; }
 
 bool primitiveVariable::operator!=(const variable * other) const { return !(*this == other); }
+
+std::vector<std::shared_ptr<statePredicate>> primitiveVariable::getPredicates(void) const
+{
+  auto varName = getLocalName();
+  int value = getPayload()->getValue(getOffset(), getType());
+  auto varNamePred = std::make_shared<VariablePredicate<int>>(varName);
+  auto valuePred = std::make_shared<ConstantPredicate<int>>(value);
+  auto predName = varName + "_equals_" + std::to_string(value);
+  auto pred = std::make_shared<EqualityPredicate<int>>(predName, varNamePred, valuePred);
+  std::vector<std::shared_ptr<statePredicate>> predicates;
+  predicates.push_back(pred);
+  return predicates;
+}
 
 bool primitiveVariable::operator!=(int value) const { return !(*this == value); }
 

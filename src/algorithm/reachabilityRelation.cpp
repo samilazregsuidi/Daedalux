@@ -55,7 +55,7 @@ void reachabilityRelation::update(state* s_) {
 	if(foundIt != stateMap.end()) {
 		updateVisitor v = updateVisitor(this, foundIt->second, s_, dfsIn, tvl);
 	} else {
-		stateMap[s_->hash()] = stateToRState(s_, dfsIn);
+		stateMap[s_Hash] = stateToRState(s_, dfsIn);
 	}
 }
 
@@ -173,14 +173,11 @@ void reachabilityRelation::updateVisitor::visit(featured* s) {
 }
 
 void reachabilityRelation::updateVisitor::visit(composite* s) {
-	
 	auto comp = s->compare(current->hash);
 	if(comp == STATES_DIFF) {
 		return;
 	}
-
 	else if (comp == STATES_SAME_S1_VISITED) {
-
 		current->lastFoundIn = dfsIn;
 
 		auto save = current;

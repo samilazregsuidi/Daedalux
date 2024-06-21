@@ -98,6 +98,8 @@ public:
 
   // byte compare(const state& s2) const override;
 
+  std::vector<std::shared_ptr<statePredicate>> getPredicates(void) const override;
+
   float delta(const variable * v2, bool considerInternalVariables) const override;
 
   std::list<variable *> getDelta(const variable * v2, bool considerInternalVariables) const override;

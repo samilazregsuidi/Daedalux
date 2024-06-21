@@ -1,6 +1,7 @@
 #include "variable.hpp"
 
 #include <iterator>
+#include <numeric>
 
 #include "payload.hpp"
 #include "process.hpp"
@@ -208,6 +209,12 @@ std::string variable::getFullName(void) const { return parent ? parent->getFullN
 
 std::string variable::getLocalName(void) const { return name; }
 
+void variable::setName(std::string & name)
+{
+  assert(!name.empty());
+  this->name = name;
+}
+
 std::string variable::getVisibleName(void) const
 {
   if (parent) {
@@ -236,7 +243,7 @@ void variable::_rmVariable(const variable * var)
   varList.erase(std::find(varList.begin(), varList.end(), var));
 }
 
-bool variable::hasVariables(void) const { return getVariables().size() > 0; }
+bool variable::hasVariables(void) const { return !getVariables().empty(); }
 
 std::list<variable *> variable::getVariables(void) const { return varList; }
 
@@ -256,18 +263,19 @@ std::list<variable *> variable::getAllVisibleVariables(bool excludeLocal) const
   std::list<variable *> res;
   for (auto var : varList) {
     auto name = var->getLocalName();
-    auto isProcess = dynamic_cast<process *>(var);
-    auto isUtype = dynamic_cast<utypeVar *>(var);
-    auto isEnumDeclaration = dynamic_cast<cmtypeVar *>(var);
     if (var->isPredef || var->isHidden) {
       // Internal variables and hidden variables are not visible
       continue;
     }
-    if ((isProcess && excludeLocal) || isEnumDeclaration) {
+    auto isProcess = dynamic_cast<process *>(var);
+    auto isEnumDeclaration = dynamic_cast<cmtypeVar *>(var);
+    auto isChannel = dynamic_cast<channel *>(var);
+    if ((isProcess && excludeLocal) || isEnumDeclaration || isChannel) {
       // Process variables are not visible if we are excluding local variables
       // Enum declarations are not visible
       continue;
     }
+    auto isUtype = dynamic_cast<utypeVar *>(var);
     if (isUtype) {
       auto subVars = var->getAllVisibleVariables();
       for (auto subVar : subVars) {
@@ -296,9 +304,22 @@ std::list<variable *> variable::getAllVisibleVariables(bool excludeLocal) const
   return res;
 }
 
+std::vector<std::shared_ptr<statePredicate>> variable::getPredicates() const{
+  std::vector<std::shared_ptr<statePredicate>> result;
+  auto visibleVariables = getAllVisibleVariables();
+  for (auto var : visibleVariables) {
+    auto predicates = var->getPredicates();
+    for (auto pred : predicates) {
+      result.push_back(pred);
+    }
+  }
+  return result;
+}
+
+
 variable::operator std::string(void) const
 {
-  std::string res;
+  std::string res = "";
   for (auto var : varList)
     res += std::string(*var);
   return res;
@@ -306,26 +327,22 @@ variable::operator std::string(void) const
 
 void variable::print(void) const
 {
-  for (auto var : varList)
-    var->print();
+  forEachVar([](variable * var) { var->print(); });
 }
 
 void variable::printTexada(void) const
 {
-  for (auto var : varList)
-    var->printTexada();
+  forEachVar([](variable * var) { var->printTexada(); });
 }
 
 void variable::printCSV(std::ostream & out) const
 {
-  for (auto var : varList)
-    var->printCSV(out);
+  forEachVar([&out](variable * var) { var->printCSV(out); });
 }
 
 void variable::printCSVHeader(std::ostream & out) const
 {
-  for (auto var : varList)
-    var->printCSVHeader(out);
+  forEachVar([&out](variable * var) { var->printCSVHeader(out); });
 }
 
 void variable::printHexadecimal(void) const { payLoad->printHexadecimal(getOffset(), getSizeOf()); }
@@ -347,16 +364,16 @@ float variable::delta(const variable * v2, bool considerInternalVariables) const
 {
   if (v2 == nullptr)
     return 1;
-  float res = 0;
   auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
-  for (auto var : vars) {
-    auto name = var->getLocalName();
-    auto v = v2->getVariable(name);
-    auto delta = var->delta(v, considerInternalVariables);
-    res += delta;
-  }
-  if (vars.size() == 0)
+  float res = 0;
+  if (vars.empty())
     return 0;
+  for (auto var : vars) {
+    auto localName = var->getLocalName();
+    auto v = v2->getVariable(localName);
+    auto delta_val = var->delta(v, considerInternalVariables);
+    res += delta_val;
+  }
   return res / vars.size();
 }
 
@@ -364,8 +381,8 @@ void variable::printDelta(const variable * v2, bool considerInternalVariables) c
 {
   auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
   for (auto var : vars) {
-    auto name = var->getLocalName();
-    auto v = v2->getVariable(name);
+    auto localName = var->getLocalName();
+    auto v = v2->getVariable(localName);
     var->printDelta(v, considerInternalVariables);
   }
 }
@@ -376,9 +393,9 @@ std::list<variable *> variable::getDelta(const variable * v2, bool considerInter
   auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
   for (auto var : vars) {
     auto v = v2->getVariable(var->getLocalName());
-    auto delta = var->getDelta(v, considerInternalVariables);
-    if (delta != std::list<variable *>()) {
-      res.insert(res.end(), delta.begin(), delta.end());
+    auto deltaValues = var->getDelta(v, considerInternalVariables);
+    if (!deltaValues.empty()) {
+      res.insert(res.end(), deltaValues.begin(), deltaValues.end());
     }
   }
   return res;
@@ -445,7 +462,6 @@ variable * variable::getVariableDownScoping(const std::string & name) const
 
 channel * variable::getChannel(const std::string & name) const
 {
-
   auto var = getVariable(name);
 
   if (!var)
@@ -468,12 +484,8 @@ std::map<std::string, variable *> variable::getVariablesMap(void) const { return
 
 size_t variable::getSizeOf(void) const
 {
-  size_t size = rawBytes;
-
-  for (auto var : varList)
-    size += var->getSizeOf();
-
-  return size;
+  return std::accumulate(varList.begin(), varList.end(), rawBytes,
+                         [](size_t accSize, const variable * var) { return accSize + var->getSizeOf(); });
 }
 
 void variable::clearVariables(void)
@@ -484,15 +496,14 @@ void variable::clearVariables(void)
 
 void variable::reset(void)
 {
-  for (auto subVar : varList)
-    subVar->reset();
+  forEachVar([](variable * var) { var->reset(); });
 }
 
 bool variable::isSame(const variable * other, bool considerInternalVariables) const
 {
-  auto delta = this->delta(other, considerInternalVariables);
+  auto deltaVal = this->delta(other, considerInternalVariables);
   auto threshold = 0.0000000001;
-  return delta < threshold;
+  return deltaVal < threshold;
 }
 
 /*************************************************************************************************/

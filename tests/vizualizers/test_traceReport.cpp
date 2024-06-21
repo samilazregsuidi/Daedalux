@@ -70,7 +70,6 @@ TEST_F(TraceReportTest, TraceOfArrayLong)
 {
   const TVL * tvl = nullptr;
   auto length = 10;
-  int original_length = length;
   auto file_path = current_path + array_model;
   auto loader = std::make_unique<promela_loader>(file_path, tvl);
   auto FSM = loader->getAutomata();

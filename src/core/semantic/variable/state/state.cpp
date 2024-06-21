@@ -7,8 +7,6 @@
 #include "process.hpp"
 #include "state.hpp"
 
-#include "state.hpp"
-
 #include "stateVisitor.hpp"
 #include <iostream>
 
@@ -20,9 +18,15 @@
 
 state::state(variable::Type type, const std::string & name) : variable(type, name), prob(1.0), origin(nullptr), errorMask(0) {}
 
-state::state(const state & other) : variable(other), prob(other.prob), origin(nullptr), errorMask(other.errorMask), secret(other.secret) {}
+state::state(const state & other)
+    : variable(other), prob(other.prob), origin(nullptr), errorMask(other.errorMask), secret(other.secret)
+{
+}
 
-state::state(const state * other) : variable(other), prob(other->prob), origin(nullptr), errorMask(other->errorMask), secret(other->secret) {}
+state::state(const state * other)
+    : variable(other), prob(other->prob), origin(nullptr), errorMask(other->errorMask), secret(other->secret)
+{
+}
 
 state::~state()
 {
@@ -39,22 +43,23 @@ bool state::hasDeadlock(void) const { return executables().size() == 0; }
 std::list<state *> state::Post(void) const
 {
   std::list<state *> res;
-  for (auto t : executables()) {
+  auto executableTransitions = executables();
+  for (auto t : executableTransitions) {
     auto successor = fire(t);
     res.push_back(successor);
   }
   if (res.empty()) {
+    // Check if the never claim has more transitions to fire
     auto neverClaim = getNeverClaim();
     std::list<transition *> neverTs;
     if (neverClaim)
       neverTs = neverClaim->executables();
-
     if (neverClaim && neverTs.empty()) {
-      std::cout << "Never Claim Deadlock detected" << std::endl;
+      // Deadlock detected because the never claim has no more transitions to fire
       this->errorMask |= ERR_PROPERTY_VIOLATION;
     }
     else {
-      std::cout << "Deadlock detected" << std::endl;
+      // Deadlock detected because there are no more transitions to fire
       this->errorMask |= ERR_DEADLOCK;
     }
     transition::erase(neverTs);

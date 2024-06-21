@@ -16,8 +16,6 @@ typedef unsigned char ubyte;
 class reachabilityRelation {
 
 public:
-  enum status { S_NEW, S_VISITED, S_FRESH };
-
   enum dfs { DFS_OUTER, DFS_INNER };
 
 private:

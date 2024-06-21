@@ -6,22 +6,43 @@
 #include <map>
 #include <memory>
 #include <numeric>
+#include <optional>
+#include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "predicates/statePredicate.hpp"
 
+/**
+ * @brief Abstract base class for representing formulas.
+ * Provides interfaces for converting to formula string, comparing formulas, etc.
+ */
 class formula {
 public:
+  virtual ~formula() = default;
+
   virtual std::string toFormula() const = 0;
 
-  virtual std::vector<std::string> getDefinitions() const = 0;
+  // Assuming getDefinitions might not be applicable for all formula types
+  virtual std::optional<std::vector<std::string>> getDefinitions() const
+  {
+    return std::nullopt; // Default implementation returns no value
+  }
 
+  /// @brief Returns a string with all the definitions of the formula
+  /// @return a string with all the definitions of the formula
   std::string getDefinitionString() const
   {
-    auto definitions = getDefinitions();
-    return std::accumulate(definitions.begin(), definitions.end(), std::string(),
-                           [](const std::string & a, const std::string & b) -> std::string { return a + b + "\n"; });
+    // Get the definitions or an empty vector if none exist.
+    const auto & definitions = getDefinitions().value_or(std::vector<std::string>{});
+
+    std::ostringstream oss;
+    for (const auto & def : definitions) {
+      oss << def << "\n";
+    }
+    return oss.str();
   }
 
   virtual std::string getDefName() const = 0;
@@ -46,12 +67,18 @@ public:
 protected:
   std::string sanitizeName(const std::string & definition) const
   {
-    auto defName = definition;
-    std::replace(defName.begin(), defName.end(), ' ', '_');
-    std::replace(defName.begin(), defName.end(), '.', '_');
-    std::replace(defName.begin(), defName.end(), '[', '_');
-    std::replace(defName.begin(), defName.end(), ']', '_');
-    return defName;
+    std::string sanitized;
+    sanitized.reserve(definition.size()); // Reserve space to avoid reallocations
+    for (char ch : definition) {
+      // Replace with '_' if character matches any of the specified ones
+      if (ch == ' ' || ch == '.' || ch == '[' || ch == ']') {
+        sanitized += '_';
+      }
+      else {
+        sanitized += ch;
+      }
+    }
+    return sanitized;
   }
 };
 
@@ -69,11 +96,6 @@ template <> struct hash<formula> {
 
 class LeafFormula : public formula {
 public:
-  std::vector<std::string> getDefinitions() const override
-  {
-    throw std::runtime_error("Leaf formulas do not have a definition");
-  }
-
   std::string getDefName() const override { throw std::runtime_error("Leaf formulas do not have a definition name"); }
 
   int getDepth() const override { return 1; }
@@ -155,16 +177,54 @@ private:
   bool value;
 };
 
+class ParenthesisFormula : public formula {
+public:
+  explicit ParenthesisFormula(const std::shared_ptr<formula> & subformula) : subformula(std::move(subformula)) {}
+  ~ParenthesisFormula() = default;
+
+  std::string toFormula() const override { return "(" + subformula->toFormula() + ")"; }
+
+  std::string promelaFormula() const override { return "(" + subformula->promelaFormula() + ")"; }
+
+  int getDepth() const override { return subformula->getDepth() + 1; }
+
+  int getSize() const override { return subformula->getSize() + 1; }
+
+  std::optional<std::vector<std::string>> getDefinitions() const override { return subformula->getDefinitions(); }
+
+  std::string getDefName() const override { return subformula->getDefName(); }
+
+  bool isEquivalent(const formula & other) const override
+  {
+    const ParenthesisFormula * otherParenthesis = dynamic_cast<const ParenthesisFormula *>(&other);
+    if (!otherParenthesis) {
+      return false;
+    }
+    return subformula->isEquivalent(*otherParenthesis->subformula);
+  }
+
+private:
+  std::shared_ptr<formula> subformula;
+};
+
+template <typename T> std::shared_ptr<formula> ensureParenthesis(const std::shared_ptr<T> & subformula)
+{
+  if (std::dynamic_pointer_cast<ParenthesisFormula>(subformula) == nullptr) {
+    return std::make_shared<ParenthesisFormula>(subformula);
+  }
+  return subformula;
+}
+
 class UnaryFormula : public formula {
 public:
-  UnaryFormula(const std::shared_ptr<formula> & subformula) : subformula(subformula) {}
+  explicit UnaryFormula(const std::shared_ptr<formula> & subformula) : subformula(ensureParenthesis(subformula)) {}
   ~UnaryFormula() = default;
 
   std::string toFormula() const override { return getOperator() + " " + subformula->toFormula(); }
 
   std::string promelaFormula() const override { return getOperator() + " " + subformula->promelaFormula(); }
 
-  std::vector<std::string> getDefinitions() const override { return subformula->getDefinitions(); }
+  std::optional<std::vector<std::string>> getDefinitions() const override { return subformula->getDefinitions(); }
 
   int getDepth() const override { return subformula->getDepth() + 1; }
 
@@ -190,35 +250,6 @@ private:
   std::shared_ptr<formula> subformula;
 };
 
-class ParenthesisFormula : public formula {
-public:
-  explicit ParenthesisFormula(const std::shared_ptr<formula> & subformula) : subformula(std::move(subformula)) {}
-  ~ParenthesisFormula() = default;
-
-  std::string toFormula() const override { return "(" + subformula->toFormula() + ")"; }
-
-  std::string promelaFormula() const override { return "(" + subformula->promelaFormula() + ")"; }
-
-  int getDepth() const override { return subformula->getDepth() + 1; }
-
-  int getSize() const override { return subformula->getSize() + 1; }
-  std::vector<std::string> getDefinitions() const override { return subformula->getDefinitions(); }
-
-  std::string getDefName() const override { return subformula->getDefName(); }
-
-  bool isEquivalent(const formula & other) const override
-  {
-    const ParenthesisFormula * otherParenthesis = dynamic_cast<const ParenthesisFormula *>(&other);
-    if (!otherParenthesis) {
-      return false;
-    }
-    return subformula->isEquivalent(*otherParenthesis->subformula);
-  }
-
-private:
-  std::shared_ptr<formula> subformula;
-};
-
 class NotFormula : public UnaryFormula {
 public:
   explicit NotFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(std::move(subformula)) {}
@@ -230,15 +261,8 @@ private:
 
 class NextFormula : public UnaryFormula {
 public:
-  explicit NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
-  {
-    // Cast the subformula to a ParenthesisFormula if it is not already one
-    auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
-    if (!subformulaAsParenthesis) {
-      setSubformula(std::make_shared<ParenthesisFormula>(subformula));
-    }
-    UnaryFormula::setSubformula(std::move(subformula)); // Move subformula here, after you're done using it
-  }
+  explicit NextFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula) {}
+
   ~NextFormula() = default;
 
 private:
@@ -247,15 +271,7 @@ private:
 
 class GloballyFormula : public UnaryFormula {
 public:
-  explicit GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
-  {
-    // Cast the subformula to a ParenthesisFormula if it is not already one
-    auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
-    if (!subformulaAsParenthesis) {
-      setSubformula(std::make_shared<ParenthesisFormula>(subformula));
-    }
-    UnaryFormula::setSubformula(std::move(subformula)); // Move subformula here, after you're done using it
-  }
+  explicit GloballyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula) {}
 
   ~GloballyFormula() = default;
 
@@ -265,15 +281,7 @@ private:
 
 class FinallyFormula : public UnaryFormula {
 public:
-  explicit FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula)
-  {
-    // Cast the subformula to a ParenthesisFormula if it is not already one
-    auto subformulaAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(subformula);
-    if (!subformulaAsParenthesis) {
-      setSubformula(std::make_shared<ParenthesisFormula>(subformula));
-    }
-    UnaryFormula::setSubformula(std::move(subformula)); // Move subformula here, after you're done using it
-  }
+  explicit FinallyFormula(const std::shared_ptr<formula> & subformula) : UnaryFormula(subformula) {}
 
   ~FinallyFormula() = default;
 
@@ -284,19 +292,24 @@ private:
 class BinaryFormula : public formula {
 public:
   BinaryFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : left(left), right(right) {}
-  ~BinaryFormula() = default;
 
   std::string toFormula() const override { return left->toFormula() + " " + getOperator() + " " + right->toFormula(); }
 
-  std::vector<std::string> getDefinitions() const override
+  std::optional<std::vector<std::string>> getDefinitions() const override
   {
-    auto leftDef = left->getDefinitions();
-    auto rightDef = right->getDefinitions();
-    leftDef.insert(leftDef.end(), rightDef.begin(), rightDef.end());
-    // Remove duplicates
-    std::sort(leftDef.begin(), leftDef.end());
-    leftDef.erase(std::unique(leftDef.begin(), leftDef.end()), leftDef.end());
-    return leftDef;
+    std::set<std::string> uniqueDefs;
+    auto leftDefsOpt = left->getDefinitions();
+    if (leftDefsOpt) {
+      uniqueDefs.insert(leftDefsOpt->begin(), leftDefsOpt->end());
+    }
+    auto rightDefsOpt = right->getDefinitions();
+    if (rightDefsOpt) {
+      uniqueDefs.insert(rightDefsOpt->begin(), rightDefsOpt->end());
+    }
+    if (uniqueDefs.empty()) {
+      return std::nullopt;
+    }
+    return std::vector<std::string>(uniqueDefs.begin(), uniqueDefs.end());
   }
 
   std::string getDefName() const override { return left->getDefName() + "\n" + right->getDefName(); }
@@ -313,42 +326,48 @@ public:
 
   int getSize() const override { return left->getSize() + right->getSize() + 1; }
 
-  bool isEquivalent(const formula & other) const override
-  {
-    auto otherBinary = dynamic_cast<const BinaryFormula *>(&other);
-    if (!otherBinary) {
-      return false;
-    }
-    auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameLeft = left->isEquivalent(*otherBinary->getLeft());
-    auto sameRight = right->isEquivalent(*otherBinary->getRight());
-    return sameOperator && sameLeft && sameRight;
-  }
-
   void setLeft(const std::shared_ptr<formula> & newLeft) { left = newLeft; }
   void setRight(const std::shared_ptr<formula> & newRight) { right = newRight; }
 
   virtual std::string getOperator() const = 0;
 
+  bool isEquivalent(const formula & other) const override
+  {
+    const auto * o = dynamic_cast<const BinaryFormula *>(&other);
+    if (!o || getOperator() != o->getOperator()) {
+      // Different types or operators
+      return false;
+    }
+
+    // Handle commutativity if applicable
+    return isCommutative() ? checkCommutativeEquivalence(o) : checkNonCommutativeEquivalence(o);
+  }
+
+protected:
+  virtual bool isCommutative() const { return false; } // Override in derived classes as needed
+
 private:
-  std::shared_ptr<formula> left;
-  std::shared_ptr<formula> right;
+  std::shared_ptr<formula> left, right;
+
+  bool checkCommutativeEquivalence(const BinaryFormula * other) const
+  {
+    return (left->isEquivalent(*other->left) && right->isEquivalent(*other->right)) ||
+           (left->isEquivalent(*other->right) && right->isEquivalent(*other->left));
+  }
+
+  bool checkNonCommutativeEquivalence(const BinaryFormula * other) const
+  {
+    return left->isEquivalent(*other->left) && right->isEquivalent(*other->right);
+  }
 };
 
 class ImpliesFormula : public BinaryFormula {
 public:
-  ImpliesFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right)
+  ImpliesFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right)
+      : BinaryFormula(ensureParenthesis(left), ensureParenthesis(right))
   {
-    // Cast the subformula to a ParenthesisFormula if it is not already one
-    auto leftAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(left);
-    if (!leftAsParenthesis) {
-      setLeft(std::make_shared<ParenthesisFormula>(left));
-    }
-    auto rightAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(right);
-    if (!rightAsParenthesis) {
-      setRight(std::make_shared<ParenthesisFormula>(right));
-    }
   }
+
   ~ImpliesFormula() = default;
 
 private:
@@ -357,34 +376,15 @@ private:
 
 class IffFormula : public BinaryFormula {
 public:
-  IffFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right)
+  IffFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right)
+      : BinaryFormula(ensureParenthesis(left), ensureParenthesis(right))
   {
-    // Cast the subformula to a ParenthesisFormula if it is not already one
-    auto leftAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(left);
-    if (!leftAsParenthesis) {
-      setLeft(std::make_shared<ParenthesisFormula>(left));
-    }
-    auto rightAsParenthesis = std::dynamic_pointer_cast<ParenthesisFormula>(right);
-    if (!rightAsParenthesis) {
-      setRight(std::make_shared<ParenthesisFormula>(right));
-    }
   }
+
   ~IffFormula() = default;
 
-  // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const formula & other) const override
-  {
-    auto otherBinary = dynamic_cast<const IffFormula *>(&other);
-    if (!otherBinary) {
-      return false;
-    }
-    auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameOrderEqual =
-        getLeft()->isEquivalent(*otherBinary->getLeft()) && getRight()->isEquivalent(*otherBinary->getRight());
-    auto otherOrderEqual =
-        getLeft()->isEquivalent(*otherBinary->getRight()) && getRight()->isEquivalent(*otherBinary->getLeft());
-    return sameOperator && (sameOrderEqual || otherOrderEqual);
-  }
+protected:
+  bool isCommutative() const override { return true; }
 
 private:
   std::string getOperator() const override { return "<->"; }
@@ -393,23 +393,11 @@ private:
 class AndFormula : public BinaryFormula {
 public:
   AndFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right) {}
+
   ~AndFormula() = default;
 
-  // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const formula & other) const override
-  {
-    auto otherBinary = dynamic_cast<const AndFormula *>(&other);
-    if (!otherBinary) {
-      return false;
-    }
-    auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameOrderEqual =
-        getLeft()->isEquivalent(*otherBinary->getLeft()) && getRight()->isEquivalent(*otherBinary->getRight());
-    auto otherOrderEqual =
-        getLeft()->isEquivalent(*otherBinary->getRight()) && getRight()->isEquivalent(*otherBinary->getLeft());
-    bool isEquivalent = sameOperator && (sameOrderEqual || otherOrderEqual);
-    return isEquivalent;
-  }
+protected:
+  bool isCommutative() const override { return true; }
 
 private:
   std::string getOperator() const override { return "&&"; }
@@ -418,25 +406,13 @@ private:
 class OrFormula : public BinaryFormula {
 public:
   OrFormula(const std::shared_ptr<formula> & left, const std::shared_ptr<formula> & right) : BinaryFormula(left, right) {}
+
   ~OrFormula() = default;
 
-  // The order of the operands is NOT important for the equivalence of the formulas
-  bool isEquivalent(const formula & other) const override
-  {
-    const OrFormula * otherBinary = dynamic_cast<const OrFormula *>(&other);
-    if (!otherBinary) {
-      return false;
-    }
-    auto sameOperator = getOperator() == otherBinary->getOperator();
-    auto sameOrderEqual =
-        getLeft()->isEquivalent(*otherBinary->getLeft()) && getRight()->isEquivalent(*otherBinary->getRight());
-    auto otherOrderEqual =
-        getLeft()->isEquivalent(*otherBinary->getRight()) && getRight()->isEquivalent(*otherBinary->getLeft());
-    bool isEquivalent = sameOperator && (sameOrderEqual || otherOrderEqual);
-    return isEquivalent;
-  }
-
   std::string getOperator() const override { return "||"; }
+
+protected:
+  bool isCommutative() const override { return true; }
 };
 
 class ComparisonFormula : public BinaryFormula {
@@ -445,14 +421,15 @@ public:
       : BinaryFormula(std::move(left), std::move(right))
   {
   }
+
   ~ComparisonFormula() = default;
 
   std::string promelaFormula() const override { return getDefName(); }
 
-  std::vector<std::string> getDefinitions() const override
+  std::optional<std::vector<std::string>> getDefinitions() const override
   {
     auto entry = "#define " + getDefName() + " (" + toFormula() + ")";
-    return {entry};
+    return std::vector<std::string>{entry};
   }
 
   std::string getDefName() const override

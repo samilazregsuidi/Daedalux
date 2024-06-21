@@ -5,7 +5,7 @@
 
 class TestFilesUtils {
 public:
-  TestFilesUtils(std::string current_path) : current_path(current_path) {}
+  explicit TestFilesUtils(const std::string & current_path) : current_path(current_path) {}
 
   std::string array_model() { return current_path + "/test_files/basic/array.pml"; }
   std::string flows_model() { return current_path + "/test_files/basic/flows.pml"; }
@@ -24,7 +24,10 @@ public:
   std::string structure_model_mutant() { return current_path + "/test_files/mutants/structure/structure_mutant.pml"; }
 
   std::string trafficLight_model_original() { return current_path + "/test_files/mutants/trafficLight/trafficlight.pml"; }
-  std::string two_trafficLight_model_original() { return current_path + "/test_files/mutants/trafficLight/two_trafficlight.pml"; }
+  std::string two_trafficLight_model_original()
+  {
+    return current_path + "/test_files/mutants/trafficLight/two_trafficlight.pml";
+  }
   std::string trafficLight_model_mutant() { return current_path + "/test_files/mutants/trafficLight/trafficlight_mutant.pml"; }
   std::string trafficLight_model_mutant_alt()
   {
@@ -37,6 +40,11 @@ public:
   std::string array_model_never() { return current_path + "/test_files/mutants/array_never.pml"; };
   std::string array_mutant_never() { return current_path + "/test_files/mutants/array_mutant_never.pml"; }
 
+  std::string dijkstra_original() { return current_path + "/test_files/mutants/dijkstra/original.pml"; }
+  std::string mutex_original() { return current_path + "/test_files/mutants/mutex/mutex.pml"; }
+  std::string peterson_original() { return current_path + "/test_files/mutants/peterson/original.pml"; }
+  std::string leader_election_original() { return current_path + "/test_files/mutants/leader_election/original.pml"; }
+
 private:
-  std::string current_path;
+  const std::string current_path;
 };

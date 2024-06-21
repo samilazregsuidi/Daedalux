@@ -45,6 +45,16 @@ float utypeVar::delta(const variable * v2, bool considerInternalVariables) const
   return res / varList.size();
 }
 
+std::vector<std::shared_ptr<statePredicate>> utypeVar::getPredicates(void) const {
+  std::vector<std::shared_ptr<statePredicate>> predicates;
+  for (auto var : varList){
+    auto preds = var->getPredicates();
+    predicates.insert(predicates.end(), preds.begin(), preds.end());
+  }
+  return predicates;
+}
+
+
 void utypeVar::printDelta(const variable * v2, bool considerInternalVariables) const
 {
   for (auto var : varList)

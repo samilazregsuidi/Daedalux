@@ -18,8 +18,10 @@ class ltlModelChecker {
 public:
   bool check(const fsm * automata, const TVL * tvl, bool generateIntermediaryFiles = false);
 
-  byte outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles = false, long unsigned maxDepth = 1000);
-  byte innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles = false,
+  bool check(const std::string & original_file, const TVL * tvl = nullptr, bool logFiles = false);
+
+  bool outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles = false, long unsigned maxDepth = 1000);
+  bool innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles = false,
                 long unsigned maxDepth = 1000);
 
   reachabilityRelation getReachabilityRelation() const { return reachableStates; }
@@ -36,8 +38,13 @@ private:
   unsigned long depth = 0;                   // Current exploration depth (inner and outer)
 
   void checkForDeadlock(std::shared_ptr<state> state, const elementStack & stack, bool printStack);
+  bool propertyViolated(const std::shared_ptr<state> s) const;
+  bool assertionViolated(const std::shared_ptr<state> s) const;
   bool isNeverClaimProblematic(std::shared_ptr<state> init);
+  void printSearchData() const;
   void resetCounters();
+  bool hasError(const std::shared_ptr<state> s, const unsigned int errorMask, const elementStack & stack = elementStack(),
+                bool printStack = false) const;
   void emptyStack(elementStack & stack);
   bool somethingToExplore(const elementStack & stack);
   bool errorFound(const reachabilityRelation & reachableStates, bool exhaustive);

@@ -48,6 +48,19 @@ class stateVisitor;
   2 // if s1 and s2 are identical but s1 has products that were not explored with s2; hence, s1 is fresh
 #define STATES_S1_NEVER_VISITED 3
 
+// enum class StateStatus {
+//     STATES_DIFF, // if s1 and s2 are totally different states, meaning s1 is fresh.
+//     STATES_SAME_S1_VISITED, // if s1 and s2 are identical but s2 is reachable by more products; hence, s1 adds nothing new
+//     STATES_SAME_S1_FRESH, // if s1 and s2 are identical but s1 has products that were not explored with s2; hence, s1 is fresh
+//     STATES_S1_NEVER_VISITED, // if s1 is a new state
+// };
+
+enum class ErrorType {
+  ERR_DEADLOCK = 0x1,
+  ERR_ASSERT_FAIL = 0x2,
+  ERR_PROPERTY_VIOLATION = 0x4,
+};
+
 // State
 class state : public variable {
 public:
@@ -62,6 +75,7 @@ public:
   state(const state * other);
 
   virtual state * deepCopy(void) const = 0;
+
 
   /**
    * Frees the memory used by a given state. It does NOT free any symbol tables, FSM or mtypes list.

@@ -4,6 +4,9 @@
 #include <list>
 #include <map>
 #include <string>
+#include <algorithm>
+#include <functional>
+#include <memory>
 
 typedef char byte;
 typedef unsigned char ubyte;
@@ -22,6 +25,8 @@ class channel;
 
 class primitiveVariable;
 class boolVar;
+class statePredicate;
+
 
 template <typename T> struct return_value {
   using type = T;
@@ -112,6 +117,8 @@ public:
 
   virtual std::string getLocalName(void) const;
 
+  void setName(std::string& name);
+
   virtual variable::Type getType(void) const;
 
   virtual bool isGlobal(void) const;
@@ -123,6 +130,8 @@ public:
   virtual variable * getParent(void) const;
 
   virtual unsigned int getVariableId(void) const;
+  
+  virtual std::vector<std::shared_ptr<statePredicate>> getPredicates() const;
 
   /**********************************************************/
 
@@ -243,6 +252,12 @@ public:
   payload * payLoad;
   bool isHidden;
   bool isPredef;
+
+  private: 
+
+  void forEachVar(const std::function<void(variable*)>& func) const {
+    std::for_each(varList.begin(), varList.end(), func);
+  }
 };
 
 #endif

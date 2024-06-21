@@ -1,5 +1,6 @@
 #include "traceReport.hpp"
 #include <limits>
+#include <numeric>
 
 const std::unordered_set<std::shared_ptr<trace>> & traceReport::getGoodTraces() const { return goodTraces; }
 const std::unordered_set<std::shared_ptr<trace>> & traceReport::getBadTraces() const { return badTraces; }
@@ -85,4 +86,41 @@ int traceReport::getShortestTraceLength(void) const
     shortest = std::min(shortest, (int)t->size());
   }
   return shortest;
+}
+
+std::unordered_set<std::shared_ptr<statePredicate>, statePredicateHash, statePredicateEqual> traceReport::getPredicates() const{
+  std::unordered_set<std::shared_ptr<statePredicate>, statePredicateHash, statePredicateEqual> result;
+  for (auto t : this->goodTraces) {
+    auto predicates = t->getPredicates();
+    result.insert(predicates.begin(), predicates.end());
+  }
+  for (auto t : this->badTraces) {
+    auto predicates = t->getPredicates();
+    result.insert(predicates.begin(), predicates.end());
+  }
+  return result;
+}
+
+
+/// This function prints the evaluation of the predicates on the traces to a given file to be used for further analysis.
+void traceReport::printPredicatesEvaluation(std::ostream & traceFile,
+                                            std::vector<std::shared_ptr<statePredicate>> predicates) const
+{
+  for (const auto & t : this->goodTraces) {
+    traceFile << t->projectTrace(predicates) << std::endl;
+  }
+  traceFile << "---" << std::endl;
+  for (const auto & t : this->badTraces) {
+    traceFile << t->projectTrace(predicates) << std::endl;
+  }
+  traceFile << "---" << std::endl;
+  // Allowed operators
+  traceFile << "F,G,X,!,&,|" << std::endl;
+  traceFile << "---" << std::endl;
+  // Print the predicates names
+  std::string predicatesList = std::accumulate(predicates.begin(), predicates.end(), std::string{},
+                                                [](const std::string & acc, const std::shared_ptr<statePredicate> & p) {
+                                                  return acc + (!acc.empty() ? ", " : "") + p->getName();
+                                                });
+  traceFile << predicatesList << std::endl;
 }

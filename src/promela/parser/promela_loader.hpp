@@ -20,8 +20,6 @@ class promela_loader {
     public:
         promela_loader(std::string file_name, const TVL *tvl = nullptr);
 
-        
-
         ~promela_loader();
 
         std::shared_ptr<fsm> getAutomata(void) const { return automata; }

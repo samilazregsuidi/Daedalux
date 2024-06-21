@@ -67,7 +67,9 @@ int main(int argc, char *argv[])
     setup_subcommand_mutations(app);
 	setup_subcommand_modelchecking(app);	
 
-	app.footer("Daedalux 2023 - University of Luxembourg");
+	std::cout << "Setting up subcommands" << std::endl;
+
+	app.footer("Daedalux 2024 - University of Luxembourg");
 
 	// app.require_subcommand();
 	CLI11_PARSE(app, argc, argv);

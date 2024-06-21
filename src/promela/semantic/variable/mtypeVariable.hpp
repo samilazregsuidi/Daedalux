@@ -27,6 +27,8 @@ public:
 
 	bool operator != (const std::string& cmtype) const;
 
+	virtual std::vector<std::shared_ptr<statePredicate>> getPredicates(void) const override;
+
 	float delta(const variable* other, bool considerInternalVariables) const override;
 
 	void printDelta(const variable* other, bool considerInternalVariables) const override;

@@ -1,23 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(daedalux LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #set(ASAN -fsanitize=address -fno-omit-frame-pointer -static-libasan)
 
 set(Parser "y.tab.cpp")
 set(Lexer "lex.yy.cpp")
-
-find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
-if (CMAKE_CXX_CPPCHECK)
-    list(
-        APPEND CMAKE_CXX_CPPCHECK 
-            "--enable=warning"
-            "--inconclusive"
-            "--force" 
-            "--inline-suppr"
-    )
-endif()
 
 add_custom_command(
     OUTPUT ${CMAKE_SOURCE_DIR}/parser/${Parser}
@@ -181,6 +170,8 @@ add_library(daedalux_lib STATIC
 	algorithm/fsmExplorer.cpp
 
 	mutants/mutantAnalyzer.cpp
+	mutants/spinRunner.cpp
+	mutants/modelAnalyzer.cpp
 
 	visualizer/stateToGraphViz.cpp
 	visualizer/trace.cpp
@@ -188,6 +179,12 @@ add_library(daedalux_lib STATIC
 
 	formulas/formulaCreator.cpp
 	formulas/formulaUtility.cpp
+
+	formulas/predicates/statePredicate.hpp
+	formulas/predicates/unaryPredicate.hpp
+	formulas/predicates/binaryPredicate.hpp
+	formulas/predicates/valuesPredicate.hpp
+
 )
 
 target_include_directories(daedalux_lib
@@ -369,9 +366,17 @@ add_executable(daedalux
 	visualizer/traceReport.cpp
 
 	mutants/mutantAnalyzer.cpp
+	mutants/spinRunner.cpp
+	mutants/modelAnalyzer.cpp
 
 	formulas/formulaCreator.cpp
 	formulas/formulaUtility.cpp
+
+	formulas/predicates/statePredicate.hpp
+	formulas/predicates/unaryPredicate.hpp
+	formulas/predicates/binaryPredicate.hpp
+	formulas/predicates/valuesPredicate.hpp
+
 )
 
 target_include_directories(daedalux

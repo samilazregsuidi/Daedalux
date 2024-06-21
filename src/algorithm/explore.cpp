@@ -116,7 +116,6 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
 
   graphVis = new stateToGraphViz(automata);
   graphVis->printGraphViz(current);
-
   std::vector<std::string> scheduler;
 
   std::ifstream myfile;
@@ -124,13 +123,13 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
   // Should this file be hard-coded?
   myfile.open("mdp.sched");
 
-  std::string myline;
+  std::string line;
 
   if (myfile.is_open()) {
     while (myfile) { // equivalent to myfile.good()
-      std::getline(myfile, myline);
-      scheduler.push_back(myline);
-      std::cout << myline << '\n';
+      std::getline(myfile, line);
+      scheduler.push_back(line);
+      std::cout << line << '\n';
     }
   }
   else {
@@ -140,7 +139,6 @@ int launchExecutionMarkovChain(const fsm * automata, const TVL * tvl)
   transition * trans = nullptr;
 
   do {
-
     auto sVariable = current->getVariable("s");
     int sValue = dynamic_cast<primitiveVariable *>(sVariable)->getValue();
     std::string schedValue = scheduler[sValue];

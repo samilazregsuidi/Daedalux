@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 
+#include "integration_tests/test_model_analyzer.cpp"
+
+
 // Add your test files here
 #include "symbols/test_symTable.cpp"
 #include "symbols/test_intSymNode.cpp"
@@ -12,8 +15,6 @@
 #include "test_fsmNode.cpp"
 
 #include "test_ADDutils.cpp"
-
-
 
 // VISUALIZER - TESTS
 #include "vizualizers/test_trace.cpp"
@@ -41,6 +42,7 @@
 #include "formulas/test_formula_creator.cpp"
 #include "formulas/test_ltl_creator.cpp"
 #include "formulas/test_formula.cpp"
+#include "formulas/test_spinRunner.cpp"
 
 int main(int argc, char **argv) {
     // Initialize Google Test framework

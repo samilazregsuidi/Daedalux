@@ -133,6 +133,8 @@ public:
 
 	float delta(const variable* s2, bool considerInternalVariables) const override;
 
+	std::vector<std::shared_ptr<statePredicate>> getPredicates(void) const override;
+
 	std::list<transition*> transitions(void) const override;
 
 	void accept(stateVisitor* visitor) override;

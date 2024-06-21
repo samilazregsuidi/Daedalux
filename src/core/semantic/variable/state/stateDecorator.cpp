@@ -212,6 +212,10 @@ float stateDecorator::delta(const variable* s2, bool considerInternalVariables) 
 	return wrappee->delta(s2, considerInternalVariables);
 }
 
+std::vector<std::shared_ptr<statePredicate>> stateDecorator::getPredicates(void) const {
+	return wrappee->getPredicates();
+}
+
 std::list<transition*> stateDecorator::transitions(void) const {
 	return wrappee->transitions();
 }

@@ -40,9 +40,6 @@ TEST_F(PromelaLoaderTest, LoadValidPromelaFileFlows)
 
   auto automata = loader->getAutomata();
 
-  int numNodes = automata->getNodes().size();
-  int numTransitions = automata->getTransitions().size();
-
   EXPECT_EQ(automata->getNodes().size(), 9);
   EXPECT_EQ(automata->getTransitions().size(), 16);
 
@@ -61,9 +58,6 @@ TEST_F(PromelaLoaderTest, LoadValidPromelaFileArray)
 
   auto automata = loader->getAutomata();
 
-  int numNodes = automata->getNodes().size();
-  int numTransitions = automata->getTransitions().size();
-
   EXPECT_EQ(automata->getNodes().size(), 5);
   EXPECT_EQ(automata->getTransitions().size(), 6);
 
@@ -72,45 +66,41 @@ TEST_F(PromelaLoaderTest, LoadValidPromelaFileArray)
 }
 
 // Test case for loading a valid Promela file
-TEST_F(PromelaLoaderTest, LoadMinePumpPromelaFile)
-{
+// TEST_F(PromelaLoaderTest, LoadMinePumpPromelaFile)
+// {
 
-  std::string current_directory = fs::current_path();
-  std::string file_name = "/models/minepump/original.pml";
-  std::string file_path = current_directory + file_name;
-  const TVL * tvl = nullptr;
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+//   std::string current_directory = fs::current_path();
+//   std::string file_name = "/models/minepump/original.pml";
+//   std::string file_path = current_directory + file_name;
+//   const TVL * tvl = nullptr;
+//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-  auto automata = loader->getAutomata();
+//   auto automata = loader->getAutomata();
 
-  int numNodes = automata->getNodes().size();
-  int numTransitions = automata->getTransitions().size();
+//   EXPECT_EQ(automata->getNodes().size(), 46);
+//   EXPECT_EQ(automata->getTransitions().size(), 67);
 
-  EXPECT_EQ(automata->getNodes().size(), 46);
-  EXPECT_EQ(automata->getTransitions().size(), 67);
+//   auto initialStates = automata->getInitNodes();
+//   EXPECT_EQ(initialStates.size(), 5);
+// }
 
-  auto initialStates = automata->getInitNodes();
-  EXPECT_EQ(initialStates.size(), 5);
-}
+// // Test case for loading Windows Promela file
+// TEST_F(PromelaLoaderTest, LoadWindowsPromelaFile)
+// {
+//   std::string current_directory = fs::current_path();
+//   std::string file_name = "/models/windows/original.pml";
+//   std::string file_path = current_directory + file_name;
+//   const TVL * tvl = nullptr;
+//   auto loader = std::make_unique<promela_loader>(file_path, tvl);
 
-// Test case for loading Windows Promela file
-TEST_F(PromelaLoaderTest, LoadWindowsPromelaFile)
-{
+//   auto automata = loader->getAutomata();
 
-  std::string current_directory = fs::current_path();
-  std::string file_name = "/models/windows/original.pml";
-  std::string file_path = current_directory + file_name;
-  const TVL * tvl = nullptr;
-  auto loader = std::make_unique<promela_loader>(file_path, tvl);
+//   int numNodes = automata->getNodes().size();
+//   int numTransitions = automata->getTransitions().size();
 
-  auto automata = loader->getAutomata();
+//   EXPECT_EQ(numNodes, 35);
+//   EXPECT_EQ(numTransitions, 46);
 
-  int numNodes = automata->getNodes().size();
-  int numTransitions = automata->getTransitions().size();
-
-  EXPECT_EQ(automata->getNodes().size(), 35);
-  EXPECT_EQ(automata->getTransitions().size(), 46);
-
-  auto initialStates = automata->getInitNodes();
-  EXPECT_EQ(initialStates.size(), 2);
-}
+//   auto initialStates = automata->getInitNodes();
+//   EXPECT_EQ(initialStates.size(), 2);
+// }

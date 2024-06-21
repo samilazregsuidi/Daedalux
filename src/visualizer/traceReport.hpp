@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include <memory>
 #include "trace.hpp"
+#include "../formulas/predicates/statePredicate.hpp"
 
 class traceReport
 {
@@ -20,6 +21,10 @@ public:
     const std::unordered_set<std::shared_ptr<trace>>& getGoodTraces() const;
     const std::unordered_set<std::shared_ptr<trace>>& getBadTraces() const;
 
+    std::unordered_set<std::shared_ptr<statePredicate>, statePredicateHash, statePredicateEqual> getPredicates() const;
+
+    void printPredicatesEvaluation(std::ostream& traceFile, std::vector<std::shared_ptr<statePredicate>> predicates) const;
+    
     void addGoodTrace(std::shared_ptr<trace> t);
 
     void addBadTrace(std::shared_ptr<trace> t);

@@ -21,7 +21,8 @@ thread::thread(variable::Type type, const seqSymNode * sym, const fsmNode * star
     : state(type, sym->getName()), symType(sym), index(index), start(start), _else(false), pid(pid)
 {
 
-  // seq sym node need boud attr. if arrays
+  // seq sym node need boud attr. if arrays 
+  // Why do we need to assert that the index is 0?
   assert(index == 0);
 
   addRawBytes(sizeof(const fsmNode *));
@@ -46,6 +47,11 @@ void thread::init(void)
 
   variable::getTVariable<PIDVar *>("_pid")->setValue(pid);
 }
+
+std::vector<std::shared_ptr<statePredicate>> thread::getPredicates(void) const{
+  return variable::getPredicates();
+}
+
 
 byte thread::getPid(void) const { return payLoad ? variable::getTVariable<PIDVar *>("_pid")->getValue() : pid; }
 
@@ -118,7 +124,7 @@ std::list<variable *> thread::getVariables(const exprArgList * args) const
     if (exp->getType() == astNode::E_EXPR_CONST)
       ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
     else
-      ptr = getVariable(exp)->deepCopy();
+      ptr = getVariable(exp);
     res.push_back(ptr);
     args = args->getArgList();
   }

@@ -1,6 +1,7 @@
 #include "ltlModelChecker.hpp"
 #include "explore.hpp"
 #include "initState.hpp"
+#include "promela_loader.hpp"
 
 bool ltlModelChecker::isNeverClaimProblematic(std::shared_ptr<state> init)
 {
@@ -20,7 +21,25 @@ bool ltlModelChecker::isNeverClaimProblematic(std::shared_ptr<state> init)
   return false;
 }
 
-bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generateIntermediaryFiles)
+void ltlModelChecker::printSearchData() const
+{
+  std::cout << " [explored " << nbStatesExplored << " states, re-explored " << nbStatesReExplored << ", stops " << nbStatesStops
+            << "]." << std::endl;
+  if (nbStatesExploredInner != 0)
+    std::cout << "The inner search explored " << nbStatesExploredInner << " states and re-explored " << nbStatesReExploredInner
+              << "." << std::endl;
+}
+
+
+bool ltlModelChecker::check(const std::string & original_file, const TVL * tvl, bool logFiles){
+  auto loader = new promela_loader(original_file, tvl);
+  auto automata = loader->getAutomata();
+  delete loader;
+  return check(automata.get(), tvl, logFiles);
+}
+
+
+bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool printSearchResults)
 {
   // We need to reset the counters before each run - otherwise the counters can be incremented from previous runs
   resetCounters();
@@ -39,9 +58,7 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
   auto seach_result = outerDFS(stack);
   if (seach_result == 0) {
     printf("Property satisfied");
-    printf(" [explored %lu states, re-explored %lu, stops %lu].\n", nbStatesExplored, nbStatesReExplored, nbStatesStops);
-    if (nbStatesExploredInner != 0)
-      printf("The inner search explored %lu states and re-explored %lu.\n", nbStatesExploredInner, nbStatesReExploredInner);
+    printSearchData();
   }
   else {
     /*auto _failProducts = reachableStates.getFailedProducts();
@@ -49,10 +66,7 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
     auto _allProductsFail = (tvl->getFeatureModelClauses() & ~_failProducts).IsZero();*/
     printf("\n");
     printf("Non Exhaustive search finished ");
-    printf(" [explored %lu states, re-explored %lu].\n", nbStatesExplored, nbStatesReExplored);
-    if (nbStatesExploredInner != 0)
-      printf("The inner search explored %lu states and re-explored %lu.\n", nbStatesExploredInner, nbStatesReExploredInner);
-
+    printSearchData();
     // if(_nbErrors == 1) printf(" -  One problem found");
     // else printf(" - %u problems were found", _nbErrors);
     /*if(_allProductsFail || isTautology(_failProducts))
@@ -72,14 +86,7 @@ bool ltlModelChecker::check(const fsm * automata, const TVL * tvl, bool generate
   return seach_result == 0;
 }
 
-bool ltlModelChecker::somethingToExplore(const elementStack & stack) { return !stack.empty(); }
-
-bool ltlModelChecker::errorFound(const reachabilityRelation & reachableStates, bool exhaustive)
-{
-  return reachableStates.hasErrors() && !exhaustive;
-}
-
-byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermediaryFiles, long unsigned maxDepth)
+bool ltlModelChecker::outerDFS(elementStack & stackOuter, bool printSearchResults, long unsigned maxDepth)
 {
   bool exhaustive = false;
   auto firstState = stackOuter.top()->current_state;
@@ -92,7 +99,19 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
     auto currentStateElement = stackOuter.top();
     firstState = currentStateElement->current_state;
     // Check for deadlock
-    checkForDeadlock(currentStateElement->current_state, stackOuter, generateIntermediaryFiles);
+    if (hasError(firstState, state::ERR_DEADLOCK)) {
+      // Deadlock found
+      if (printSearchResults)
+        printElementStack(graphVis, stackOuter.stackElem);
+    }
+    if (propertyViolated(firstState)) {
+      std::cout << "The LTL property is violated." << std::endl;
+      if (printSearchResults) {
+        std::cout << "The trace is: " << std::endl;
+        printElementStack(graphVis, stackOuter.stackElem);
+      }
+      reachableStates.addTraceViolation(firstState.get());
+    }
 
     if (firstState->safetyPropertyViolation()) {
       // Safety property violated.
@@ -103,7 +122,7 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       //     i.e. this state is the actual violating state.
 
       printf("Safety property violated %lu.\n", firstState->hash());
-      if (generateIntermediaryFiles)
+      if (printSearchResults)
         printElementStack(graphVis, stackOuter.stackElem);
 
       // Why don't we break here?
@@ -115,14 +134,12 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       // Otherwise, the state can be explored (or exploration continue)
       // currentStateElement->setErrorStatus = _nbErrors;
       // ..., or there is a transition to be executed:
-      if (!currentStateElement->Post.empty()) {
+      if (currentStateElement->hasSuccessors()) {
         // There are still successors to explore
-        auto firstSuccessor = *currentStateElement->Post.begin();
-        currentStateElement->Post.pop_front();
-
+        auto firstSuccessor = currentStateElement->nextSuccessor();
         // graphVis->printGraphViz(s_);
 
-        if (firstSuccessor->getErrorMask() & state::ERR_ASSERT_FAIL) {
+        if (assertionViolated(firstSuccessor)) {
           // printf("Assertion at line %d violated", *s_->getOrigin()->lines.begin());
           reachableStates.addTraceViolation(currentStateElement->current_state.get());
           // delete s_;
@@ -132,7 +149,6 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
           // get the status before update!
           auto status = reachableStates.getStatus(firstSuccessor.get());
           // graphVis->printGraphViz(s_, depth);
-
           if (status == STATES_SAME_S1_VISITED) {
             // The stat has been visited before
             // s_->print();
@@ -167,9 +183,9 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
       }
       else {
         auto currentState = currentStateElement->current_state;
-        // printf("    +-> all transitions of state %lu fired, acceptance check and backtracking...\n", s_hash);
         // Back these values up, the inner search will free currentStateElement->state before returning
         if (currentState->isAccepting()) {
+          // Accepting state found - start inner search to find accepting cycle
           depth++;
           nbStatesExploredInner++;
           // printf("    +-> found accepting state %lu, starting inner...\n", s_hash);
@@ -189,34 +205,16 @@ byte ltlModelChecker::outerDFS(elementStack & stackOuter, bool generateIntermedi
         depth--;
         // printf("    +-> State %lu erase from the hast table.\n", s_hash);
       }
-
     } // explore state
   }   // end while
 
   assert(stackOuter.empty() || !exhaustive);
-
   emptyStack(stackOuter);
-
   // TVL::printBool(reachableStates.getFailedProducts());
   return reachableStates.hasErrors();
 }
 
-void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const elementStack & stack, bool printStack)
-{
-  auto errorMask = s->getErrorMask();
-  if (errorMask & state::ERR_DEADLOCK) {
-    if (printStack)
-      printElementStack(graphVis, stack.stackElem);
-    throw std::runtime_error("Deadlock found");
-  }
-  else if (errorMask & state::ERR_PROPERTY_VIOLATION) {
-    std::cout << "Property violated" << std::endl;
-    if (printStack)
-      s->print();
-  }
-}
-
-byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool generateIntermediaryFiles,
+bool ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & stackOuter, bool printSearchResults,
                                long unsigned maxDepth)
 {
   bool exhaustive = false;
@@ -226,32 +224,24 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
   while (somethingToExplore(stackInner) && !errorFound(reachableStates, exhaustive) && depth < maxDepth) {
     auto currentStateElement = stackInner.top();
     // Check for deadlock
-    checkForDeadlock(currentStateElement->current_state, stackOuter, generateIntermediaryFiles);
+    checkForDeadlock(currentStateElement->current_state, stackOuter, printSearchResults);
 
     // If we have explored all transitions of the state (!currentStateElement->E_never; see "struct stackElt"
     // in stack.h), we check whether the state is accepting and start a backlink search if it is;
     // otherwise just backtrack
-    if (currentStateElement->Post.empty()) {
-      // No more successors to explore => backtracking
-      stackInner.pop();
-      depth--;
-    }
-    else {
+    if (currentStateElement->hasSuccessors()) {
       // There are still successors to explore
-      auto firstSuccessor = *currentStateElement->Post.begin();
-      currentStateElement->Post.pop_front();
+      auto firstSuccessor = currentStateElement->nextSuccessor();
 
       bool onStack = stackOuter.isIn(firstSuccessor->hash());
 
-      // graphVis->printGraphViz(s_);
-
-      if (onStack || firstSuccessor->getErrorMask() & state::ERR_ASSERT_FAIL) {
+      if (onStack || assertionViolated(firstSuccessor)) {
         // Error found
         if (onStack) {
           std::cerr << "Error: Property violated" << std::endl;
         }
         stackInner.push(firstSuccessor, depth + 1);
-        if (generateIntermediaryFiles)
+        if (printSearchResults)
           printElementStack(graphVis, stackOuter.stackElem, stackInner.stackElem, firstSuccessor.get());
         stackInner.pop();
 
@@ -265,41 +255,41 @@ byte ltlModelChecker::innerDFS(elementStack & stackInner, const elementStack & s
         reachableStates.update(firstSuccessor.get());
         assert(reachableStates.lastFoundIn(firstSuccessor.get()) == reachabilityRelation::DFS_INNER);
 
-        if (status == STATES_SAME_S1_VISITED) {
+        switch (status) {
+        case STATES_SAME_S1_VISITED:
           // The state is not a new state:
           nbStatesStops++;
-        }
-        else if (status == STATES_SAME_S1_FRESH) {
+          break;
+        case STATES_SAME_S1_FRESH:
           // The state is not a new state:
           if (lastFoundIn == reachabilityRelation::DFS_INNER) {
-            // printf("                 - inner state %lu visited, but features fresh\n", s_hash);
             nbStatesReExploredInner++;
           }
           else {
-            // printf("                 - inner state %lu only visited during outer search\n", s_hash);
             nbStatesExploredInner++;
           }
-          // done by the reachability relation object logic
-          // graphVis->printGraphViz(s_);
           depth++;
           nbStatesReExplored++;
-          // will put to inner if it was outer
           stackInner.push(firstSuccessor, depth);
-        }
-        else {
+          break;
+        default:
           printElementStack(graphVis, stackOuter.stackElem, stackInner.stackElem, firstSuccessor.get());
           throw std::runtime_error("Bug! The above state was found during the inner DFS but not during the outer! Aborting.");
+          break;
         }
         // fresh state
         // no assert violation
       }
-    } // fire post
-  }   // end while
+    }
+    else {
+      // No more successors to explore => backtracking
+      stackInner.pop();
+      depth--;
+    }
 
-  // If error is true and we end up here, then we're in exhaustive mode. A summary has to be printed
-  // if(error /* not needed: && exhaustive */
+  } // end while
+
   emptyStack(stackInner);
-
   return reachableStates.hasErrors();
 }
 
@@ -326,4 +316,49 @@ void ltlModelChecker::resetCounters()
   nbStatesExploredInner = 0;
   nbStatesReExploredInner = 0;
   depth = 0;
+}
+
+bool ltlModelChecker::hasError(const std::shared_ptr<state> s, const unsigned int errorMask, const elementStack & stack,
+                               bool printStack) const
+{
+  auto hasError = (errorMask & s->getErrorMask());
+  if (hasError) {
+    if (printStack)
+      printElementStack(graphVis, stack.stackElem);
+  }
+  return hasError;
+}
+
+void ltlModelChecker::checkForDeadlock(const std::shared_ptr<state> s, const elementStack & stack, bool printStack)
+{
+  auto deadlockOccurred = hasError(s, state::ERR_DEADLOCK, stack, printStack);
+  if (deadlockOccurred) {
+    throw std::runtime_error("Deadlock found");
+  }
+}
+
+bool ltlModelChecker::propertyViolated(const std::shared_ptr<state> s) const
+{
+  auto violated = hasError(s, state::ERR_PROPERTY_VIOLATION);
+  if (violated) {
+    printf("Property violated\n");
+    s->print();
+  }
+  return violated;
+}
+
+bool ltlModelChecker::assertionViolated(const std::shared_ptr<state> s) const
+{
+  auto violated = hasError(s, state::ERR_ASSERT_FAIL);
+  if (violated) {
+    printf("Assertion violated\n");
+  }
+  return violated;
+}
+
+bool ltlModelChecker::somethingToExplore(const elementStack & stack) { return !stack.empty(); }
+
+bool ltlModelChecker::errorFound(const reachabilityRelation & reachableStates, bool exhaustive)
+{
+  return reachableStates.hasErrors() && !exhaustive;
 }

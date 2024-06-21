@@ -67,16 +67,6 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
   // Create the automata from the AST
   automata = std::make_shared<fsm>(*converter->astToFsm(globalSymTab, program, tvl));
 
-  // Note: The following code is commented out because it is not used in the current implementation.
-  //   if (buffer.str() != stmnt::string(program)) {
-  //     std::cerr << "The program is not equal to the original program." << std::endl;
-  //     std::cerr << "The program is: " << std::endl;
-  //     std::cerr << stmnt::string(program) << std::endl;
-  //     std::cerr << "The original program is: " << std::endl;
-  //     std::cerr << buffer.str() << std::endl;
-  //     exit(1);
-  //   }
-
   std::ofstream graph;
   graph.open("fsm_graphvis");
   automata->printGraphVis(graph);

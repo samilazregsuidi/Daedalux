@@ -8,6 +8,7 @@
 
 #include "state.hpp"
 #include "transition.hpp"
+#include "../formulas/predicates/statePredicate.hpp"
 
 class trace {
 private:
@@ -21,7 +22,13 @@ public:
   trace(const trace & other);
   trace(const trace * other);
   trace(std::vector<std::shared_ptr<transition>> transitions, std::vector<std::shared_ptr<state>> states);
-  trace(std::vector<std::shared_ptr<state>> states);
+  explicit trace(std::vector<std::shared_ptr<state>> states);
+  
+  void setDifferentiatingTrace(bool isDifferentiating) { this->isDifferentiating = isDifferentiating; }
+  bool isDifferentiatingTrace() const { return this->isDifferentiating; }
+  std::string projectTrace(const std::vector<std::shared_ptr<statePredicate>> & predicates);
+
+  std::vector<std::shared_ptr<statePredicate>> getPredicates() const;
 
   ~trace();
 
@@ -45,7 +52,7 @@ public:
   void removeTransitionAt(int index) { this->transitions.erase(this->transitions.begin() + index); }
   void removeStateAt(int index) { this->states.erase(this->states.begin() + index); }
 
-  size_t size() const { return this->transitions.size(); }
+  size_t size() const { return this->states.size(); }
 
   void addTransitions(const std::vector<std::shared_ptr<transition>> & Ts)
   {
@@ -169,8 +176,8 @@ template <> struct std::hash<trace> {
   {
     auto transitions = t.getTransitions();
     uint64_t hash = 0;
-    for (auto t : transitions) {
-      hash = hash_all(t->src->hash(), t->dst->hash(), t->action, t->prob, hash);
+    for (auto tr : transitions) {
+      hash = hash_all(tr->src->hash(), tr->dst->hash(), tr->action, tr->prob, hash);
     }
     for (auto s : t.getStates()) {
       hash = hash_all(s, hash);

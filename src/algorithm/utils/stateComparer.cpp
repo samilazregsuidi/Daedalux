@@ -1,44 +1,5 @@
 #include "stateComparer.hpp"
 
-/// @brief Given two vector of states, this function returns true if the two vectors contain the same states. The order of the
-/// states does not matter.
-/// @param s1 - The first vector of states
-/// @param s2 - The second vector of states
-/// @return True if the two vectors contain the same states, false otherwise
-bool StateComparer::sameStates(const std::vector<std::shared_ptr<state>> & states1,
-                               const std::vector<std::shared_ptr<state>> & states2, bool considerInternalVariables)
-{
-  auto result1 = std::all_of(states1.begin(), states1.end(), [&states2, &considerInternalVariables](const auto & state1) {
-    return containState(states2, state1.get(), considerInternalVariables);
-  });
-  auto result2 = std::all_of(states2.begin(), states2.end(), [&states1, &considerInternalVariables](const auto & state2) {
-    return containState(states1, state2.get(), considerInternalVariables);
-  });
-  return result1 && result2;
-}
-
-/// @brief Given a list of formulas and a formula, this function returns true if the list of formulas contains the given
-/// formula.
-/// @param formulas - The list of formulas to compare with
-/// @param formula - The formula to compare with
-/// @return True if the list of formulas contains the given formula, false otherwise
-bool StateComparer::containsFormula(const std::vector<std::shared_ptr<formula>> & formulas,
-                                    const std::shared_ptr<formula> & formula)
-{
-  return std::any_of(formulas.begin(), formulas.end(), [&formula](const auto & f) { return f->isEquivalent(*formula); });
-}
-
-std::vector<std::shared_ptr<formula>> StateComparer::removeDuplicates(const std::vector<std::shared_ptr<formula>> & formulas)
-{
-  std::vector<std::shared_ptr<formula>> unique_formulas;
-  for (auto & formula : formulas) {
-    if (!containsFormula(unique_formulas, formula)) {
-      unique_formulas.push_back(formula);
-    }
-  }
-  return unique_formulas;
-}
-
 /// @brief Given two maps of states, this function returns the states that are in the first map but not in the second map.
 /// @param original_successors - The original map of states
 /// @param mutant_successors - The map of states to compare with
@@ -63,11 +24,10 @@ successorTreeComparison StateComparer::compareKSuccessors(const successorTree & 
     auto mutant_only_states = distinct_states(mutant_states, original_states);
 
     auto common_states = std::vector<state *>();
-    for (auto & s : original_states) {
-      if (containState(mutant_states, s, considerInternalVariables)) {
-        common_states.push_back(s);
-      }
-    }
+    std::copy_if(original_states.begin(), original_states.end(), std::back_inserter(common_states),
+                 [&mutant_states, &considerInternalVariables](const auto & s) {
+                   return containState(mutant_states, s, considerInternalVariables);
+                 });
     original_only[i] = std::move(original_only_states);
     mutant_only[i] = std::move(mutant_only_states);
     common[i] = std::move(common_states);

@@ -1,13 +1,14 @@
 #include "fsmExplorer.hpp"
-#include "../formulas/formulaCreator.hpp"
-#include "utils/stateComparer.hpp"
+#include "ltlModelChecker.hpp"
+
+#include <filesystem>
 
 /// @brief Given a state, this function returns the successor states of the state, but avoids epsilon transitions where only
 /// internal variables are updated
 /// @param start_state - The state to find the successor states of
 /// @param budget - The number of steps to maximally take
 /// @return A list of the successor states of the state
-std::list<state *> fsmExplorer::avoidEpsilonSteps(state * start_state, unsigned int budget)
+std::list<state *> fsmExplorer::avoidEpsilonSteps(const state * start_state, unsigned int budget)
 {
   if (budget == 0) {
     // We have reached the budget - return an empty list
@@ -73,39 +74,18 @@ std::shared_ptr<formula> fsmExplorer::discardMutant(std::shared_ptr<fsm> origina
   while (true) {
     post_states_original = current_state_original->SafePost();
     post_states_mutant = current_state_mutant->SafePost();
-
     // Find the states that are unique to the original automata
     auto unique_states_original = StateComparer::distinct_states(post_states_original, post_states_mutant);
+    auto unique_states_mutant = StateComparer::distinct_states(post_states_mutant, post_states_original);
     // The original automata has a unique state - let us continue the trace using this state
-    if (!unique_states_original.empty()) {
-
-      if (post_states_mutant.empty()) {
-        // We need to make sure that the original automata has a distinct successor state
-        bool found = StateComparer::containState(unique_states_original, current_state_original, false);
-        if (!found) {
-          std::cout << "The current state is no different from its successor states" << std::endl;
-          // We need to find a successor state that is not the same as the current state
-        }
-      }
-      std::vector<std::shared_ptr<state>> post_states_original_vec;
-      std::vector<std::shared_ptr<state>> post_states_mutant_vec;
-      for (auto s : post_states_original) {
-        post_states_original_vec.push_back(std::shared_ptr<state>(s));
-      }
-      for (auto s : post_states_mutant) {
-        post_states_mutant_vec.push_back(std::shared_ptr<state>(s));
-      }
-      auto k = 15;
-      // We can now create a formula that only the original automata can satisfy
-      auto shared_current_state_original = std::shared_ptr<state>(current_state_original);
-      auto shared_current_state_mutant = std::shared_ptr<state>(current_state_mutant);
-
-      analyzeSuccessors(current_state_original, current_state_mutant, k);
-
-      auto distinguishing_formula = formulaCreator::createTransitionFormula(shared_current_state_original,
-                                                                            post_states_original_vec, post_states_mutant_vec);
-
-      std::cout << "The distinguishing formula is " << distinguishing_formula->toFormula() << std::endl;
+    if (!unique_states_mutant.empty()) {
+      std::cout << "There exists a unique transition in the mutant automata" << std::endl;
+      auto distinguishing_formula = findUniqueSuccessorFormula(unique_states_mutant, post_states_mutant, post_states_original, current_state_mutant, 10, true);
+      return distinguishing_formula;
+    }
+    else if (!unique_states_original.empty()) {
+      std::cout << "There exists a unique transition in the original automata" << std::endl;
+      auto distinguishing_formula = findUniqueSuccessorFormula(unique_states_original, post_states_original, post_states_mutant, current_state_original, 10, false);
 
       return distinguishing_formula;
     }
@@ -140,7 +120,7 @@ void fsmExplorer::analyzeSuccessors(state * state_original, state * state_mutant
   std::cout << "The formula for the mutant automata is " << formula_mutant->toFormula() << std::endl;
 
   std::cout << "The comparison is " << std::endl;
-  //auto stateFormula = formulaCreator::groupStatesByFormula({most_different_ptr});
+  // auto stateFormula = formulaCreator::groupStatesByFormula({most_different_ptr});
 }
 
 //**
@@ -180,3 +160,48 @@ successorTree fsmExplorer::kSuccessors(state * start_state, unsigned int k)
   auto successor_tree = successorTree(successors);
   return successor_tree;
 }
+
+bool fsmExplorer::checkFormula(std::shared_ptr<formula> f, const std::string & original_file, const std::string & mutant_file)
+{
+  auto create_temp_file_and_copy = [](const auto & source_file, const std::string & temp_file_suffix) {
+    auto temp_file_path = std::filesystem::temp_directory_path() / (temp_file_suffix + ".pml");
+    std::filesystem::copy_file(source_file, temp_file_path, std::filesystem::copy_options::overwrite_existing);
+    return temp_file_path; // Return the path of the created temporary file
+  };
+
+  ltlModelChecker mc = ltlModelChecker();
+
+  auto check_and_print_result = [&mc](const std::filesystem::path & file_path, const std::string & automata_type) {
+    bool satisfies = mc.check(file_path);
+    if (satisfies) {
+      std::cout << "The " << automata_type << " automata satisfies the formula" << std::endl;
+    }
+    else {
+      std::cout << "The " << automata_type << " automata does not satisfy the formula" << std::endl;
+    }
+    return satisfies;
+  };
+
+  // Create a temporary file for the original automata
+  auto temp_original_file = create_temp_file_and_copy(original_file, "original");
+  // Create a temporary file for the mutant automata
+  auto temp_mutant_file = create_temp_file_and_copy(mutant_file, "mutant");
+
+  // Append the formula to the original automata
+  LTLClaimsProcessor::renewClaimOfFile(temp_original_file, f->getDefinitionString(), f->promelaFormula());
+  // Append the formula to the mutant automata
+  LTLClaimsProcessor::renewClaimOfFile(temp_mutant_file, f->getDefinitionString(), f->promelaFormula());
+
+  // Check if the original automata satisfies the formula
+  auto original_satisfies = check_and_print_result(temp_original_file, "original");
+
+  // Check if the mutant automata satisfies the formula
+  auto mutant_satisfies = check_and_print_result(temp_mutant_file, "mutant");
+
+  // Remove the temporary files
+  std::filesystem::remove(temp_original_file);
+  std::filesystem::remove(temp_mutant_file);
+
+  return original_satisfies && !mutant_satisfies;
+}
+

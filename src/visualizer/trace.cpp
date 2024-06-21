@@ -1,6 +1,7 @@
 #include "trace.hpp"
 #include "primitiveVariable.hpp"
 #include "state.hpp"
+#include <numeric>
 
 trace::trace() = default;
 
@@ -36,6 +37,34 @@ bool trace::containState(const std::shared_ptr<state> s) const
   }
   return false;
 }
+
+std::string trace::projectTrace(const std::vector<std::shared_ptr<statePredicate>> & predicates)
+{
+  // Using accumulate to build the results string with conditions
+  std::string resultString = std::accumulate(this->states.begin(), this->states.end(), std::string{},
+      [&](const std::string& acc, const std::shared_ptr<state>& s) {
+          std::string line = std::accumulate(predicates.begin(), predicates.end(), std::string{},
+              [&](const std::string& lineAcc, const std::shared_ptr<statePredicate>& p) {
+                  return lineAcc + (!lineAcc.empty() ? ", " : "") + (p->isSatisfied(s) ? "1" : "0");
+              });
+          return acc + (!acc.empty() ? "; " : "") + line;
+      });
+  return resultString;
+}
+
+/// @brief A method for extracting all the predicates from the states of the trace
+/// @return A vector of shared pointers to the statePredicate objects
+std::vector<std::shared_ptr<statePredicate>> trace::getPredicates() const{
+  std::vector<std::shared_ptr<statePredicate>> result;
+  for (auto st : this->states) {
+    auto predicates = st->getPredicates();
+    for (auto pred : predicates) {
+      result.push_back(pred);
+    }
+  }
+  return result;
+}
+
 
 // std::map<std::string, std::pair<int, int>> trace::getMinMaxValues() const
 // {
