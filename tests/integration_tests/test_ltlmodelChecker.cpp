@@ -14,14 +14,12 @@ protected:
     // Common teardown code that will be called after each test
   }
 
-  bool isSatisfied(const std::string filePath)
+  bool isSatisfied(const std::string & filePath)
   {
     const TVL * tvl = nullptr;
     std::string currentPath = std::filesystem::current_path();
     auto file_path = currentPath + filePath;
-    auto original_loader = std::make_unique<promela_loader>(file_path, tvl);
-    auto fsm = original_loader->getAutomata();
-    return modelChecker->check(fsm.get(), tvl);
+    return modelChecker->check(file_path);
   }
 
   std::unique_ptr<ltlModelChecker> modelChecker;

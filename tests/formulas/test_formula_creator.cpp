@@ -1,6 +1,7 @@
 #include "../../src/core/semantic/variable/state/state.hpp"
 #include "../../src/formulas/formula.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
+#include "../../src/formulas/formulaUtility.hpp"
 
 #include "../TestFilesUtils.hpp"
 
@@ -143,7 +144,6 @@ TEST_F(FormulaCreatorTest, groupStates_array)
   std::shared_ptr<state> next_next_next_state_ptr(next_next_next_state);
   const std::vector<std::shared_ptr<state>> states = std::vector<std::shared_ptr<state>>{
       current_state_fsm1_ptr, next_state_ptr, next_next_state_ptr, next_next_next_state_ptr};
-  std::vector<std::shared_ptr<state>>{current_state_fsm1_ptr, next_state_ptr};
 
   ASSERT_EQ(states.size(), 4);
   auto result = formulaCreator::groupStatesByFormula(states);
@@ -172,6 +172,9 @@ TEST_F(FormulaCreatorTest, groupStates_array)
   auto formula4_par = std::make_shared<ParenthesisFormula>(formula4);
   std::vector<std::shared_ptr<formula>> formulas = {formula_1_par, formula_2_par, formula_3_par, formula4_par};
   auto expected_result = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
+
+  std::cout << "Result: " << result->toFormula() << std::endl;
+  std::cout << "Expected: " << expected_result->toFormula() << std::endl;
   ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
@@ -257,6 +260,7 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
   ASSERT_EQ(exclude_states.size(), 2);
   bool temporal = true;
   auto result = formulaCreator::distinguishStates(include_states, exclude_states, temporal);
+  auto var_i = std::make_shared<VariableFormula>("i");
   auto array_1 = std::make_shared<VariableFormula>("array[1]");
   auto array_2 = std::make_shared<VariableFormula>("array[2]");
   auto array_3 = std::make_shared<VariableFormula>("array[3]");
@@ -266,10 +270,13 @@ TEST_F(FormulaCreatorTest, distinguishStates_array)
 
   auto array_1_equal_0 = std::make_shared<EqualsFormula>(array_1, std::make_shared<NumberConstant>(0));
   auto array_1_equal_1 = std::make_shared<EqualsFormula>(array_1, std::make_shared<NumberConstant>(1));
+  std::vector<std::shared_ptr<formula>> array_1_formulas = {array_1_equal_0, array_1_equal_1};
   auto array_1_formula =
-      formulaUtility::combineFormulas({array_1_equal_0, array_1_equal_1}, CombinationOperatorType::OR_Symbol);
+      formulaUtility::combineFormulas(array_1_formulas, CombinationOperatorType::OR_Symbol);
   auto formula_3 = std::make_shared<ParenthesisFormula>(array_1_formula);
-  std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3};
+  auto var_i_lessThan_1 = std::make_shared<SmallerEqualsFormula>(var_i, std::make_shared<NumberConstant>(1));
+  std::vector<std::shared_ptr<formula>> formulas = {formula_1, formula_2, formula_3, var_i_lessThan_1};
+
   auto form = formulaUtility::combineFormulas(formulas, CombinationOperatorType::AND_Symbol);
   auto expected_result = std::make_shared<GloballyFormula>(form);
   std::cout << "Result: " << result->toFormula() << std::endl;
@@ -300,13 +307,15 @@ TEST_F(FormulaCreatorTest, distinguishStates_flows)
   ASSERT_FALSE(include_state->isSame(exclude_state.get(), true));
   bool temporal = true;
   auto result = formulaCreator::distinguishStates(include_states, exclude_states, temporal);
-  auto var_a = std::make_shared<VariableFormula>("a");
-  auto form = std::make_shared<EqualsFormula>(var_a, std::make_shared<BooleanConstant>(false));
-  auto expected_result = std::make_shared<GloballyFormula>(form);
+  auto var_a = std::make_shared<VariableFormula>("s.a");
+  auto negated_a = std::make_shared<NotFormula>(var_a);
+  auto expected_result = std::make_shared<GloballyFormula>(negated_a);
+  std::cout << "Result: " << result->toFormula() << std::endl;
+  std::cout << "Expected: " << expected_result->toFormula() << std::endl;
   ASSERT_TRUE(result->isEquivalent(*expected_result));
 }
 
-TEST_F(FormulaCreatorTest, formulaFromTrace)
+TEST_F(FormulaCreatorTest, ArrayFormulaFromTrace)
 {
   const TVL * tvl = nullptr;
   auto file_path = testFilesUtils->array_model_original();

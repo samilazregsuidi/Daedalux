@@ -1,5 +1,5 @@
 #include "../../src/mutants/mutantAnalyzer.hpp"
-#include "../testFilesUtils.hpp"
+#include "../TestFilesUtils.hpp"
 
 #include <filesystem>
 #include <gtest/gtest.h>

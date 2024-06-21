@@ -22,11 +22,11 @@ protected:
   std::string flows_model = "/test_files/appendClaimTest/flows.pml";
   std::string current_path = std::filesystem::current_path();
 
-  bool appendClaimTest(const std::string & filePath, const std::string expected_file, const std::string formula)
+  bool appendClaimTest(const std::string & filePath, const std::string & expected_file, const std::string formula)
   {
     auto tempFilePath = current_path + "/test_files/appendClaimTest/flows_temp.pml";
     std::filesystem::copy_file(filePath, tempFilePath, std::filesystem::copy_options::overwrite_existing);
-    auto result = LTLClaimsProcessor::appendClaimToFile(tempFilePath, formula);
+    LTLClaimsProcessor::appendClaimToFile(tempFilePath, formula);
     // Compare the temporary file with the expected file
     auto compareResult = compareFiles(tempFilePath, expected_file);
     // Remove the temporary file
@@ -40,7 +40,7 @@ protected:
     str.erase(std::remove_if(str.begin(), str.end(), isspace), str.end());
   }
 
-  bool compareLines(std::string & line1, std::string & line2)
+  bool compareLines(std::string & line1, std::string & line2) 
   {
     // This function compares two strings after removing all spaces
     removeWhitespace(line1);

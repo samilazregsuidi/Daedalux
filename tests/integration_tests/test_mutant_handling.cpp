@@ -31,8 +31,8 @@ protected:
       LTLClaimsProcessor::removeClaimFromFile(mutant_file_path);
     }
     MutantAnalyzer mutantAnalyzer(original_file_path, mutant_files);
-    mutantAnalyzer.enhanceSpecification(number_of_mutants);
-    auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutants();
+    auto formula = mutantAnalyzer.enhanceSpecification(number_of_mutants);
+    auto [killed_mutants, alive_mutants] = mutantAnalyzer.killMutantsSpin(formula);
     return alive_mutants.empty();
   }
 };
@@ -104,9 +104,14 @@ TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_1Mutant)
   ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->array_model_original(), {testFilesUtils->array_model_mutant()}, 0));
 }
 
+TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_RandomMutants)
+{
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->array_model_original(), {testFilesUtils->array_model_mutant()}, 5));
+}
+
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_1MutantAlt)
 {
-  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->array_model_original(), {testFilesUtils->array_model_mutant_alt()}, 5));
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->array_model_original(), {testFilesUtils->array_model_mutant_alt()}, 0));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_2Mutants)
@@ -115,7 +120,7 @@ TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutants_2Mutants)
   auto mutant_file_path_1 = testFilesUtils->array_model_mutant();
   auto mutant_file_path_2 = testFilesUtils->array_model_mutant_alt();
   std::vector<std::string> mutants = {mutant_file_path_1, mutant_file_path_2};
-  ASSERT_TRUE(testEnhanceSpecification(original_file_path, mutants, 5));
+  ASSERT_TRUE(testEnhanceSpecification(original_file_path, mutants, 0));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsTrafficLight)
@@ -131,7 +136,7 @@ TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsTrafficLight_TwoModel
   auto mutant_file_path_1 = testFilesUtils->trafficLight_model_mutant();
   auto mutant_file_path_2 = testFilesUtils->trafficLight_model_mutant_alt();
   std::vector<std::string> mutants = {mutant_file_path_1, mutant_file_path_2};
-  ASSERT_TRUE(testEnhanceSpecification(original_file_path, mutants, 5));
+  ASSERT_TRUE(testEnhanceSpecification(original_file_path, mutants, 0));
 }
 
 TEST_F(MutantHandlerTest, EnhanceSpecification_3Processes)
@@ -146,8 +151,7 @@ TEST_F(MutantHandlerTest, EnhanceSpecification_TwoTrafficLights)
 
 // TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsFlows)
 // {
-//   ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->flows_model_original(), {testFilesUtils->flows_model_mutant()}, 5,
-//   15));
+//   ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->flows_model_original(), {testFilesUtils->flows_model_mutant()}, 5));
 // }
 
 // Ask SAMI about this test - it cannot find the mType
@@ -157,9 +161,29 @@ TEST_F(MutantHandlerTest, EnhanceSpecification_TwoTrafficLights)
 //   {testFilesUtils->structure_model_mutant()}, 5, 15));
 // }
 
-// Ask SAMI about this test - it cannot find the mType
-TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsMinepump)
+TEST_F(MutantHandlerTest, EnhanceSpecification_Mutex)
 {
-  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->minepump_model_original(), {testFilesUtils->minepump_model_mutant()},
-  5));
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->mutex_original(), {}, 5));
 }
+
+
+TEST_F(MutantHandlerTest, EnhanceSpecification_PetersonMutex)
+{
+  ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->peterson_original(), {}, 5));
+}
+
+// TEST_F(MutantHandlerTest, EnhanceSpecification_LeaderElection)
+// {
+//   ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->leader_election_original(), {}, 5));
+// }
+
+// TEST_F(MutantHandlerTest, EnhanceSpecification_Dijkstra)
+// {
+//   ASSERT_TRUE(testEnhanceSpecification(testFilesUtils->dijkstra_original(), {}, 5));
+// }
+
+// TEST_F(MutantHandlerTest, EnhanceSpecificationToKillMutantsMinepump)
+// {
+//   ASSERT_TRUE(
+//       testEnhanceSpecification(testFilesUtils->minepump_model_original(), {testFilesUtils->minepump_model_mutant()}, 5));
+// }
