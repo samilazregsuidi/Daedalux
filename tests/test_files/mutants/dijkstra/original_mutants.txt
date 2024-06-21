@@ -1,0 +1,6 @@
+../test_files/mutants/dijkstra/mutants/mutant_1.pml
+../test_files/mutants/dijkstra/mutants/mutant_2.pml
+../test_files/mutants/dijkstra/mutants/mutant_3.pml
+../test_files/mutants/dijkstra/mutants/mutant_4.pml
+../test_files/mutants/dijkstra/mutants/mutant_5.pml
+../test_files/mutants/dijkstra/mutants/mutant_6.pml
