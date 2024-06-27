@@ -6,7 +6,7 @@
 
 template<typename T, typename variable::Type E> class enumVar : public scalar<T, E> {
 public:
-	enumVar(const std::string& name, unsigned char initValue = 0, const enumDef<T>* def = nullptr)
+	enumVar(const std::string& name, T initValue, const enumDef<const T>* def)
   		: scalar<T, E>(name, initValue) 
   		, def(def)
 	{}
@@ -15,7 +15,7 @@ public:
 
 	~enumVar() override {}
 
-	void setEnumDef(const enumDef<T>* def) { this->def = def; }
+	void setEnumDef(const enumDef<const T>* def) { this->def = def; }
 
 	bool operator==(const std::string & enumName) const { return def->getEnumValue(enumName) == scalar<T, E>::getValue(); }
 
@@ -138,7 +138,7 @@ public:
 	}
 
 private:
-	const enumDef<T>* def;
+	const enumDef<const T>* def;
 };
 
 #endif

@@ -258,6 +258,7 @@ byte program::compare(const state& s2) const {
 
 void program::print(void) const {
 	variable::print();
+	std::cout << "Exclusivity : " << (exclusiveProc? exclusiveProc->getName() : "None") << std::endl;
 	printf("prob : %lf\n", prob);
 	if(actions.size()){
 		printf("scheduler : ");
@@ -447,7 +448,7 @@ std::list<transition*> program::executables(void) const {
 
 	std::list<transition*> execs;
 
-	const process* exclusivity = getExclusiveProc();
+	auto exclusivity = getExclusiveProc();
 	auto handShake = getHandShakeRequest();
 
 	for(auto proc : getProcs()) {

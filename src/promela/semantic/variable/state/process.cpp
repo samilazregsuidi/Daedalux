@@ -420,6 +420,7 @@ std::list<transition*> process::executables(void) const {
 					// Rendezvous completed: HANDSHAKE is reset.
 					s->resetHandShake();
 
+					// Put Back the exclusivity if it was there.
 					if(hadExclusivity)
 						s->setExclusivity(this);
 				}
@@ -547,7 +548,6 @@ Apply:
 				assert(!s->hasHandShakeRequest());
 
 			assert(!chan->empty() || chan->isRendezVous());
-			assert(s->getExclusiveProc() == nullptr || s->getExclusiveProc() == this);
 
 			auto rargs = getOutputParamList(recvStmnt->getRArgList());
 			assert(chan->isReceivable(rargs));
@@ -630,8 +630,8 @@ Apply:
 		{
 			auto assertExpr = dynamic_cast<const stmntAssert*>(expression);
 			if(eval(assertExpr->getToAssert(), EVAL_EXPRESSION) == 0) {
-				printf("Assertion failed.\n");
-				assert(false);
+				std::cout << "Assertion failed process : "<< getName() <<"@"<< assertExpr->getLineNb()<< std::endl;
+				exit(1);
 				//if(!_assertViolation) _assertViolation = 1;
 			}
 			//assert(false);
@@ -728,7 +728,7 @@ Apply:
 		
 		setFsmNodePointer(edge->getTargetNode());
 
-		// Set exclusivity of process
+		// Set exclusivity of process that fired the atomic transition.
 		if(isAtomic()) 
 			s->setExclusivity(this);
 		else {

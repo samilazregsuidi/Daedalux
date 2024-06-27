@@ -102,7 +102,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 
 	automata->orderAcceptingTransitions();
 
-	int sum = 0;
+	/*int sum = 0;
 	int index = 0;
 	for (; index < 1; index++)
 	{
@@ -110,36 +110,38 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 	}
 	std::cout << sum << std::endl;
 	double avg = (float)sum / index;
-	std::cout << "proportion to satisfy the bltl property : " << avg << std::endl;
+	std::cout << "proportion to satisfy the bltl property : " << avg << std::endl;*/
 
 	/*for(int i = 0; i < NB_LASSO; ++i)
 		findLasso(automata, K);*/
 
 	// createStateSpaceBFS(automata, tvl);
 
-	ltlModelChecker* mc = new ltlModelChecker();
-	auto result = mc->check(automata.get(), tvl.get());
-	delete mc;
+	createStateSpaceDFS(automata.get(), tvl.get());
+
+	//ltlModelChecker* mc = new ltlModelChecker();
+	//auto result = mc->check(automata.get(), tvl.get());
+	//delete mc;
 
 	// createStateSpaceDFS_RR(automata, tvl);
 
 	// createStateSpaceDFS(automata, tvl);
 
-	std::ofstream symtable;
-	std::string symtable_name = "sym_table_graphviz.dot";
-	symtable.open(symtable_name);
+	// std::ofstream symtable;
+	// std::string symtable_name = "sym_table_graphviz.dot";
+	// symtable.open(symtable_name);
 
-	while (globalSymTab->prevSymTab())
-		globalSymTab = globalSymTab->prevSymTab();
+	// while (globalSymTab->prevSymTab())
+	// 	globalSymTab = globalSymTab->prevSymTab();
 
-	globalSymTab->printGraphViz(symtable);
-	symtable.close();
+	// globalSymTab->printGraphViz(symtable);
+	// symtable.close();
 
 	// Clean up memory
 	// if (tvl)
 	// 	delete tvl;
 
-	TVL::deleteBoolFct();
+	// TVL::deleteBoolFct();
 
 	// Delete program and symbol table
 	delete program;
@@ -149,7 +151,7 @@ void run_modelchecking(ModelCheckingOptions const &opt)
 bool verify_modelchecking_options(ModelCheckingOptions const &opt)
 {
 	bool valid = true;
-	if(!opt.check) {
+	/*if(!opt.check) {
 		if(opt.ltl.empty() && opt.ltlPropFile.empty()){
 			if(opt.multiLtl.empty() && opt.multiLtlPropFile.empty()){
 				std::cout << "No properties to verify have been specified" << std::endl;
@@ -158,7 +160,7 @@ bool verify_modelchecking_options(ModelCheckingOptions const &opt)
 		} 
 	} else {
 		valid = !(opt.ltl.empty() && opt.ltlPropFile.empty() && opt.multiLtl.empty() && opt.multiLtlPropFile.empty());
-	}
+	}*/
 
 	if (opt.sampleSize > 0 && opt.ksteps > 0)
 	{

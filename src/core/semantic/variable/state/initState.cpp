@@ -33,7 +33,7 @@
 
 #include "mtypeVar.hpp"
 
-mtypeDef* initState::mtype = nullptr;
+mtypeDef* initState::mtype_def = nullptr;
 
 state* initState::createInitState(const fsm* automata, const TVL* tvl) {
 
@@ -129,7 +129,7 @@ variable* initState::createPrimitive(const std::string& name, const varSymNode* 
 	}
 	case symbol::T_MTYPE:
 	{
-		assert(mtype != nullptr);
+		assert(mtype_def != nullptr && mtype_def->getEnumMap().size() > 0);
 		auto initExpr = sym->getInitExpr();
 		if(initExpr) {
 			assert(initExpr->getType() == astNode::E_EXPR_VAR);
@@ -139,7 +139,7 @@ variable* initState::createPrimitive(const std::string& name, const varSymNode* 
 
 			initValue = dynamic_cast<const cmtypeSymNode*>(sym)->getIntValue();
 		}
-		return new mtypeVar(name, initValue, mtype);
+		return new mtypeVar(name, initValue, mtype_def);
 	}
 	case symbol::T_CMTYPE:
 		assert(false);
@@ -181,15 +181,16 @@ variable* initState::createPrimitive(const std::string& name, const varSymNode* 
 }
 
 mtypeDef* initState::createMtypeEnum(variable* v, const mtypedefSymNode* sym) {
-	std::unordered_map<std::string, unsigned char> mtypeMap;
+	mtype_def = new mtypeDef("mtype");
+	std::unordered_map<std::string, const unsigned char> mtypeMap;
 	for(auto mtype : sym->getMTypeList()) {
-		mtypeMap[mtype.first] = mtype.second->getIntValue();
+		mtypeMap.insert({mtype.first, mtype.second->getIntValue()});
 
-		auto cmtype_var = new cmtypeVar(mtype.second->getName(), mtype.second->getIntValue());
+		auto cmtype_var = new cmtypeVar(mtype.second->getName(), mtype.second->getIntValue(), mtype_def);
 		v->_addVariable(cmtype_var);
 	}
-	mtype = new mtypeDef("mtype", mtypeMap);
-	return mtype;
+	mtype_def->setEnumMap(mtypeMap);
+	return mtype_def;
 }
 
 void initState::addVariables(variable* v, const varSymNode* sym) {

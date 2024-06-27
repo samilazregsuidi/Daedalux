@@ -46,7 +46,7 @@ public:
 
 	static mtypeDef* createMtypeEnum(variable* v, const mtypedefSymNode* seq);
 
-	static mtypeDef* mtype;
+	static mtypeDef* mtype_def;
 };
 
 #endif

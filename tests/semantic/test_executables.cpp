@@ -165,8 +165,31 @@ protected:
                                   :: cmd!na\n\
                                   :: c++;\n\
                                   od;\n\
-                                }\n\
-                                ";
+                                }";
+
+        std::string minepump_toy_3 = "mtype = {stop, start, medium}\n\
+                                chan cCmd = [0] of {mtype};\n\
+                                chan cLevel = [0] of {mtype};\n\
+                                active proctype controller(){\n\
+                                do\n\
+                                ::	cCmd?_;\n\
+                                    cCmd!stop;\n\
+                                ::	cLevel?_;\n\
+                                od;\n\
+                              }\n\
+                              active proctype user(){\n\
+                                do\n\
+                                ::	cCmd!start;\n\
+                                  cCmd?_;\n\
+                                od;\n\
+                              }\n\
+                              active proctype watersensor(){\n\
+                                do\n\
+                                ::	atomic {\n\
+                                    skip;\n\
+                                    cLevel!medium;\n\
+                                  };\n\
+                                od;}";
 };
 /*
 TEST_F(ExecutableTests, simpleExecutables)
@@ -697,6 +720,39 @@ TEST_F(ExecutableTests, simpleExecutablesChanRDVatomic)
   ctrl = state->get<process*>("ctrl");
   ASSERT_EQ(ctrl->getLocation(), 8);
   ASSERT_TRUE(*state->get<mtypeVar*>("msg") == "water");
+}
+
+TEST_F(ExecutableTests, simpleExecutablesAtomicMinepumpChan)
+{
+  const TVL * tvl = nullptr;
+  auto original_loader = std::make_unique<promela_loader>(minepump_toy_3, tvl);
+
+  auto originalFSM = original_loader->getAutomata();
+  // Create the initial state for both automata
+  auto state = initState::createInitState(originalFSM.get(), tvl);
+
+  auto prog = state->getVariables().front();
+  ASSERT_EQ(prog->getLocalName(), "");
+  ASSERT_EQ(prog, state->get(""));
+
+  process* controller = state->get<process*>("controller");
+  ASSERT_EQ(controller, prog->get("controller"));
+  ASSERT_EQ(controller->getLocation(), 5);
+
+  process* user = state->get<process*>("user");
+  ASSERT_EQ(user, prog->get("user"));
+  ASSERT_EQ(user->getLocation(), 12);
+
+  process* watersensor = state->get<process*>("watersensor");
+  ASSERT_EQ(watersensor, prog->get("watersensor"));
+  ASSERT_EQ(watersensor->getLocation(), 18);
+
+  //get the executables
+  auto execs = state->executables();
+  // atomic{lvl?x; msg = water;}
+  ASSERT_EQ(execs.size(), 2);
+
+  
 }
 
 // TEST_F(ExecutableTests, simpleExecutablesChanRDVisRecv)

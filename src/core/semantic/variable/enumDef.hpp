@@ -4,11 +4,12 @@
 #include <string>
 #include <cassert>
 #include <unordered_map>
+#include <algorithm>
 
 template <typename T> class enumDef {
 public:
 
-	enumDef(const std::string& name, const std::unordered_map<std::string, T>& values)
+	enumDef(const std::string& name, const std::unordered_map<std::string, T>& values = {})
 		: name(name)
 		, values(values)
 	{}
@@ -22,13 +23,17 @@ public:
 	}
 
 	std::string getEnumName(T value) const {
-		for(auto& pair : values) {
-			if(pair.second == value) {
-				return pair.first;
-			}
-		}
-		assert(false);
-		return "";
+		auto it = std::find_if(values.begin(), values.end(), [value](const std::pair<std::string, T>& p) { return p.second == value; });
+		assert(it != values.end());
+		return it->first;
+	}
+
+	std::unordered_map<std::string, T> getEnumMap(void) const {
+		return values;
+	}
+
+	void setEnumMap(const std::unordered_map<std::string, T>& values) {
+		this->values = values;
 	}
 
 
