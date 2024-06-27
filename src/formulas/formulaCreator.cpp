@@ -3,7 +3,7 @@
 #include "ltl.hpp"
 #include "primitiveVariable.hpp"
 #include "state.hpp"
-#include "uTypeVariable.hpp"
+#include "utypeVariable.hpp"
 #include <algorithm>
 #include <iostream>
 #include <iterator> // for std::begin, std::end
