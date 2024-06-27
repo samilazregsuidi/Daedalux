@@ -40,16 +40,16 @@ add_link_options(
 set(MARKER_FILE "${CMAKE_BINARY_DIR}/cudd_build.marker")
 
 # Define a custom command that depends on your marker file
-add_custom_command(
-    OUTPUT ${MARKER_FILE}
-    COMMAND sh install.sh
-    COMMAND ${CMAKE_COMMAND} -E touch ${MARKER_FILE}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
-    COMMENT "Building CUDD"
-)
+# add_custom_command(
+#    OUTPUT ${MARKER_FILE}
+#    COMMAND sh install.sh
+#    COMMAND ${CMAKE_COMMAND} -E touch ${MARKER_FILE}
+#    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
+#    COMMENT "Building CUDD"
+#)
 
 # Add a custom target that depends on the marker file
-add_custom_target(CUDD_project DEPENDS ${MARKER_FILE})
+# add_custom_target(CUDD_project DEPENDS ${MARKER_FILE})
 
 # Build LTL2BA
 set(MARKER_FILE_LTL2BA "${CMAKE_BINARY_DIR}/ltl2ba_build.marker")
@@ -258,7 +258,7 @@ target_link_directories(daedalux_lib
 	)
 
 target_link_libraries(daedalux_lib libobj.a libcudd.a)
-add_dependencies(daedalux_lib CUDD_project)
+#add_dependencies(daedalux_lib CUDD_project)
 add_dependencies(daedalux_lib LTL2BA_project)
 
 add_executable(daedalux
@@ -451,7 +451,7 @@ target_link_directories(daedalux
 
 target_link_libraries(daedalux libobj.a libcudd.a)
 
-add_dependencies(daedalux CUDD_project)
+#add_dependencies(daedalux CUDD_project)
 add_dependencies(daedalux LTL2BA_project)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libs/bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
