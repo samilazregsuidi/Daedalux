@@ -39,8 +39,8 @@ exprVarRefName::exprVarRefName(const std::string& symName, symbol *sym, int line
 }
 
 std::string exprVarRefName::getName(void) const {
-	assert(!sym || (symName == sym->getName()));
-	return symName;
+	//assert(!sym || (symName == sym->getName()));
+	return sym ? sym->getName() : symName;
 }
 
 void exprVarRefName::setIndex(expr* index) {
@@ -49,12 +49,12 @@ void exprVarRefName::setIndex(expr* index) {
 
 bool exprVarRefName::operator==(const astNode* other) const {
 	auto cast = dynamic_cast<const exprVarRefName*>(other);
-	assert(symName != "");
-	return cast != nullptr && symName == cast->symName;
+	assert(getName() != "");
+	return cast != nullptr && getName() == cast->getName();
 }
 
 exprVarRefName::operator std::string() const {
-	return symName + (getIndex() ? "[" + std::string(*getIndex()) + "]" : "");
+	return getName() + (getIndex() ? "[" + std::string(*getIndex()) + "]" : "");
 }
 
 std::string exprVarRefName::getTypeDescr(void) const {

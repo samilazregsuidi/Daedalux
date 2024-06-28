@@ -156,8 +156,8 @@ Each state of the trace is separated by -- characters. Only state variables that
 What things you need to install the software and how to install them.
 
 - C++20 compiler
-- Flex & Bison
-- [CUDD library](https://github.com/ivmai/cudd)
+- Flex & Bison - only required if you want to rebuild the Promela parser.
+- [CUDD library](https://github.com/ivmai/cudd) - installed as a part of the build script.
 - CMake 3.16
 
 ## Future work
@@ -168,11 +168,6 @@ The following is a list of features that are planned to be implemented in the fu
   - [ ] Extension of input language
   - [ ] Extend the parser to support Timed Automata
   - [ ] Model-checking of Timed Automata
-- [ ] Set up a CI pipeline (Github Actions)
+- [x] Set up a CI pipeline (Github Actions)
 - [x] Build a docker image
-- [ ] Clean up the repository (remove unused files, etc.)
-  - [ ] Sami I think you should do this.
-    - [ ] Are all the mdp copy files needed?
-    - [ ] What about the traces folder?
-    - [ ] What about the tmp files?
-    - [ ] Alternatively, we could just add them to the .gitignore file.
+- [x] Clean up the repository (remove unused files, etc.)

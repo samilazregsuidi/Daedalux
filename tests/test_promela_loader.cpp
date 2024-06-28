@@ -1,8 +1,12 @@
 #include "../src/promela/parser/promela_loader.hpp"
 #include <gtest/gtest.h>
 #include <memory>
+<<<<<<< HEAD
 
 namespace fs = std::filesystem;
+=======
+#include "../src/promela/parser/promela_loader.cpp"
+>>>>>>> main
 
 // Define a fixture for the tests
 class PromelaLoaderTest : public ::testing::Test {
