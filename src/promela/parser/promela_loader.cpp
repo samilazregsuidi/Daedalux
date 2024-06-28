@@ -100,12 +100,15 @@ promela_loader::promela_loader(std::string file_name, const TVL * tvl)
 //     std::cerr << buffer.str() << std::endl;
 //     exit(1);
 //   }
+<<<<<<< HEAD
 >>>>>>> main
 
   if (system("cpp __workingfile.tmp __workingfile.tmp.cpp") != 0) {
     std::cerr << "Could not run the c preprocessor (cpp)." << std::endl;
     exit(1);
   }
+=======
+>>>>>>> main
 
   // Read the original file
   auto fileStream = std::make_shared<std::ifstream>(sourcePath);

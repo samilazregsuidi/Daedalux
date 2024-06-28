@@ -2,8 +2,12 @@
 #include <gtest/gtest.h>
 #include <memory>
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 namespace fs = std::filesystem;
+=======
+#include "../src/promela/parser/promela_loader.cpp"
+>>>>>>> main
 =======
 #include "../src/promela/parser/promela_loader.cpp"
 >>>>>>> main

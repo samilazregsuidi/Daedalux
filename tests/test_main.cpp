@@ -17,6 +17,7 @@
 //#include "test_ADDutils.cpp"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // VISUALIZER - TESTS
 #include "vizualizers/test_trace.cpp"
 #include "vizualizers/test_traceReport.cpp"
@@ -31,8 +32,22 @@
 //#include "vizualizers/test_trace.cpp"
 //#include "vizualizers/test_traceReport.cpp"
 //#include "vizualizers/test_stateToGraphViz.cpp"
+=======
+//#include "vizualizers/test_trace.cpp"
+//#include "vizualizers/test_traceReport.cpp"
+//#include "vizualizers/test_stateToGraphViz.cpp"
 
 
+#include "test_symbol_table.cpp"
+
+// #include "test_transition.cpp"
+//#include "test_state.cpp"
+
+//#include "test_elementStack.cpp"
+>>>>>>> main
+
+
+<<<<<<< HEAD
 #include "test_symbol_table.cpp"
 
 // #include "test_transition.cpp"
@@ -58,6 +73,11 @@
 #include "formulas/test_ltl_creator.cpp"
 #include "formulas/test_formula.cpp"
 #include "formulas/test_spinRunner.cpp"
+=======
+//#include "integration_tests/test_mutantgeneration.cpp"
+
+//#include "integration_tests/test_dfs.cpp"
+>>>>>>> main
 =======
 //#include "integration_tests/test_mutantgeneration.cpp"
 

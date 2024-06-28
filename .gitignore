@@ -20,6 +20,7 @@ fsm
 fsm_graphvis
 models/minepump/minepump (copy).pml
 <<<<<<< HEAD
+<<<<<<< HEAD
 tests/CTestTestfile.cmake
 tests/CTestTestfile.cmake
 tests/test_suite\[1\]_tests.cmake
@@ -97,6 +98,11 @@ GPTExperiment/Results/*/*_temp_*.pml
 tests/test_files/mutants/*/*.csv
 *.nvr
 tests/test_files/mutants/flows/flows_mutants.txt
+=======
+src/libdaedalux_lib.a
+**.Po
+**.Plo
+>>>>>>> main
 =======
 src/libdaedalux_lib.a
 **.Po
