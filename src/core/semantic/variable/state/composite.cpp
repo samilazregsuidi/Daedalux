@@ -21,26 +21,18 @@
  */
 composite::composite(const std::string & name) : state(variable::V_COMP_S, name), n(nullptr) {}
 
-composite::composite(const composite * other) : state(other), n(nullptr)
+composite::composite(const composite& other)
+	: state(other)
+	, n(nullptr)
 {
-  if (other->n) {
-    n = getTVariable<state *>(other->n->getLocalName());
-    assert(n);
-  }
+	if(other.n) {
+		n = get<state*>(other.n->getLocalName());
+		assert(n);
+	}
 }
 
-composite * composite::deepCopy(void) const { return new composite(this); }
-
-composite::~composite()
-{
-  /*if(origin)
-          delete origin;*/
-}
-
-void composite::addState(state * s)
-{
-  assert(s);
-  _addVariable(s);
+composite* composite::deepCopy(void) const {
+	return new composite(*this);
 }
 
 void composite::addNeverState(state * s)
@@ -55,10 +47,10 @@ void composite::assign(const variable * sc)
 
   variable::assign(sc);
 
-  if (n) {
-    n = sc->getTVariable<state *>(n->getLocalName());
-    assert(n);
-  }
+	if(n) {
+		n = sc->get<state*>(n->getLocalName());
+		assert(n);
+	}
 }
 
 /*
@@ -261,9 +253,9 @@ state * composite::getNeverClaim(void) const
   return n ? n : (parent ? dynamic_cast<state *>(parent)->getNeverClaim() : nullptr);
 }
 
-state * composite::getSubState(const std::string & name) const { return getTVariable<state *>(name); }
+state * composite::getSubState(const std::string & name) const { return get<state *>(name); }
 
-std::list<state *> composite::getSubStates(void) const { return getTVariables<state *>(); }
+std::list<state *> composite::getSubStates(void) const { return getAll<state *>(); }
 
 void composite::printHexadecimal(void) const { assert(false); }
 

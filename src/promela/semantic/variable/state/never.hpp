@@ -14,11 +14,9 @@ class never : public thread {
 public:
 	friend class state;
 
-	never(const seqSymNode* sym, const fsmNode* start);
+	never(const std::string& name, const fsmNode* start, ubyte pid);
 
 	never(const never& other);
-
-	never(const never* other);
 
 	never* deepCopy(void) const override;
 

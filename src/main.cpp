@@ -384,6 +384,14 @@ int main(int argc, char *argv[]) {
 	//output << stmnt::string(program);
 	//output.close();
 
+	/*auto loader = new promela_loader(pmlFile, tvlFile);
+	auto program_graph = loader->getAutomata();
+
+	auto mc = new ltlModelChecker(program_graph);
+	auto result = mc->check(property);
+
+	result->print();*/
+
 	
 	//state* init = new state(globalSymTab, automata);
 

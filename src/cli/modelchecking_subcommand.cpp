@@ -17,6 +17,13 @@ void setup_subcommand_modelchecking(CLI::App & app)
   sub->add_option("--multiLtl", opt->multiLtl, "MultiLTL property to verify");
 
   // sub->add_flag("-d, --fdlc", opt->fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
+	// Options for model checking
+	sub->add_flag("-e, --exhaustive", opt->exhaustive, "Determines also which products have *no* problems. The normal check will stop at the first problem,  and does not determine whether there are products that have no problems  (e.g. those that satisfy a property).");
+	
+	sub->add_option("--ltl", opt->ltl, "LTL property to verify");
+	sub->add_option("--multiLtl", opt->multiLtl, "MultiLTL property to verify");
+	
+	//sub->add_flag("-d, --fdlc", opt->fullDeadlockCheck, "Search for trivially invalid end states (more costly)");
 
   sub->add_flag("-v, --verify", opt->check,
                 "Verifies the model.  When a problem (assert, deadlock or property violation) is found, an error trace "
@@ -39,6 +46,9 @@ void setup_subcommand_modelchecking(CLI::App & app)
                   "Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is "
                   "named as the .pml file but with extension .tvl.")
       ->check(CLI::ExistingFile);
+	sub->add_option("-f, --featuremodel", opt->tvl_file,
+				   "Load the specified TVL file (only used in verification). This parameter can be omitted if the TVL file is named as the .pml file but with extension .tvl.");
+		
 
   sub->add_option("--ltlFile", opt->ltlPropFile, "File containing the LTL properties to verify.")->check(CLI::ExistingFile);
 
@@ -83,6 +93,19 @@ void run_modelchecking(ModelCheckingOptions const & opt)
     // Try to guess name of feature model file name
     std::string tvlFile = std::string(opt.input_file).replace(opt.input_file.find(".pml"), 4, ".tvl");
     printf("tvl file = %s\n", tvlFile.c_str());
+	// Some basic validity checks
+	if (!opt.tvl_file.empty())
+	{
+		if (!tvl->loadFeatureModel(opt.tvl_file, "")){
+			std::cout << "Could not load the specified feature model file." << std::endl;
+			exit(1);
+		}
+	}
+	/*else if (opt.tvl_file.empty())
+	{
+		// Try to guess name of feature model file name
+		std::string tvlFile = std::string(opt.input_file).replace(opt.input_file.find(".pml"), 4, ".tvl");
+		printf("tvl file = %s\n", tvlFile.c_str());
 
     if (!tvl->loadFeatureModel(tvlFile, "")) {
       std::cout << "The -filter option can only be used when a feature model is charged." << std::endl;
@@ -94,6 +117,12 @@ void run_modelchecking(ModelCheckingOptions const & opt)
       exit(1);
     }
   }
+		if (opt.ltlPropFile.empty() && (opt.sim))
+		{
+			std::cout << "Simulation checking and non stutter steps require a property file." << std::endl;
+			exit(1);
+		}
+	}*/
 
   // Load promela file
   auto loader = std::make_unique<promela_loader>(opt.input_file, tvl.get());
@@ -112,6 +141,15 @@ void run_modelchecking(ModelCheckingOptions const & opt)
   std::cout << sum << std::endl;
   double avg = (float)sum / index;
   std::cout << "proportion to satisfy the bltl property : " << avg << std::endl;
+	/*int sum = 0;
+	int index = 0;
+	for (; index < 1; index++)
+	{
+		sum += launchExecutionMarkovChain(automata.get(), tvl.get());
+	}
+	std::cout << sum << std::endl;
+	double avg = (float)sum / index;
+	std::cout << "proportion to satisfy the bltl property : " << avg << std::endl;*/
 
   /*for(int i = 0; i < NB_LASSO; ++i)
           findLasso(automata, K);*/
@@ -125,6 +163,11 @@ void run_modelchecking(ModelCheckingOptions const & opt)
   else
     std::cout << "The model does not satisfy the property" << std::endl;
   delete mc;
+	createStateSpaceDFS(automata.get(), tvl.get());
+
+	//ltlModelChecker* mc = new ltlModelChecker();
+	//auto result = mc->check(automata.get(), tvl.get());
+	//delete mc;
 
   // createStateSpaceDFS_RR(automata, tvl);
 
@@ -133,18 +176,26 @@ void run_modelchecking(ModelCheckingOptions const & opt)
   std::ofstream symtable;
   std::string symtable_name = "sym_table_graphviz.dot";
   symtable.open(symtable_name);
+	// std::ofstream symtable;
+	// std::string symtable_name = "sym_table_graphviz.dot";
+	// symtable.open(symtable_name);
 
   while (globalSymTab->prevSymTab())
     globalSymTab = globalSymTab->prevSymTab();
+	// while (globalSymTab->prevSymTab())
+	// 	globalSymTab = globalSymTab->prevSymTab();
 
   globalSymTab->printGraphViz(symtable);
   symtable.close();
+	// globalSymTab->printGraphViz(symtable);
+	// symtable.close();
 
   // Clean up memory
   // if (tvl)
   // 	delete tvl;
 
   TVL::deleteBoolFct();
+	// TVL::deleteBoolFct();
 
   // Delete program and symbol table
   delete program;
@@ -165,6 +216,17 @@ bool verify_modelchecking_options(ModelCheckingOptions const & opt)
   else {
     valid = !(opt.ltl.empty() && opt.ltlPropFile.empty() && opt.multiLtl.empty() && opt.multiLtlPropFile.empty());
   }
+	bool valid = true;
+	/*if(!opt.check) {
+		if(opt.ltl.empty() && opt.ltlPropFile.empty()){
+			if(opt.multiLtl.empty() && opt.multiLtlPropFile.empty()){
+				std::cout << "No properties to verify have been specified" << std::endl;
+				valid = false;
+			}
+		} 
+	} else {
+		valid = !(opt.ltl.empty() && opt.ltlPropFile.empty() && opt.multiLtl.empty() && opt.multiLtlPropFile.empty());
+	}*/
 
   if (opt.sampleSize > 0 && opt.ksteps > 0) {
     std::cout << "The options -sampling and -ksteps cannot be used together." << std::endl;
@@ -179,4 +241,20 @@ bool verify_modelchecking_options(ModelCheckingOptions const & opt)
     valid = false;
   }
   return valid;
+	if (opt.sampleSize > 0 && opt.ksteps > 0)
+	{
+		std::cout << "The options -sampling and -ksteps cannot be used together." << std::endl;
+		valid = false;
+	}
+	if (opt.check && opt.exec)
+	{
+		std::cout << "The options -check and -exec cannot be used together." << std::endl;
+		valid = false;
+	}
+	/*if (opt.tvl_file.find(".tvl") == std::string::npos)
+	{
+		std::cout << "The feature model file must have the extension .tvl." << std::endl;
+		valid = false;
+	}*/
+	return valid;
 }

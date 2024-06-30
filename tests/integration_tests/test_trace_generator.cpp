@@ -10,6 +10,7 @@
 #include "../../src/formulas/predicates/valuesPredicate.hpp"
 
 #include "../TestFilesUtils.hpp"
+#include "../../src/promela/parser/promela_loader.hpp"
 
 // Define a fixture for the tests
 class TraceGeneratorTest : public ::testing::Test {

@@ -4,6 +4,7 @@
 #include "ltl.hpp"
 #include "primitiveVariable.hpp"
 #include "state.hpp"
+#include "scalarVar.hpp"
 #include "utypeVariable.hpp"
 #include <algorithm>
 #include <iostream>
@@ -130,41 +131,9 @@ overlapResult formulaUtility::values_overlap(const ValueStateMap & values1, cons
 
 ValueType formulaUtility::getValueOfVariable(const state *  state, const std::string & name)
 {
-  auto variable = state->getVariable(name);
-  primitiveVariable * casted_variable = nullptr;
-  mtypeVar * casted_variable_mType = nullptr;
-  switch (variable->getType()) {
-  case variable::V_BOOL:
-    casted_variable = dynamic_cast<primitiveVariable *>(variable);
-    assert(casted_variable);
-    return casted_variable->getValue() == 1;
-  case variable::V_BIT:
-  case variable::V_BYTE:
-  case variable::V_PID:
-  case variable::V_CID:
-  case variable::V_SHORT:
-  case variable::V_INT:
-    casted_variable = dynamic_cast<primitiveVariable *>(variable);
-    assert(casted_variable);
-    return casted_variable->getValue();
-    break;
-  case variable::V_MTYPE:
-    casted_variable_mType = dynamic_cast<mtypeVar *>(variable);
-    assert(casted_variable_mType);
-    return casted_variable_mType->getValueName();
-    break;
-  case variable::V_CMTYPE:
-    return name;
-    break;
-  case variable::V_UTYPE:
-    std::cout << "The variable " << name << " is a user type. I am returning a string." << std::endl;
-    // Need to implement
-    // value = casted_variable->getValue();
-    break;
-  default:
-    break;
-  }
-  return 0;
+  auto scalar = state->get<scalarInt*>(name);
+  assert(scalar);
+  return scalar->getIntValue();
 }
 
 bool formulaUtility::isBooleanConstantWithValue(const std::shared_ptr<formula> & formula, bool value)

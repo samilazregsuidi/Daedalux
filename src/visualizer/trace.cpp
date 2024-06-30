@@ -1,5 +1,5 @@
 #include "trace.hpp"
-#include "primitiveVariable.hpp"
+#include "scalarVarInt.hpp"
 #include "state.hpp"
 #include <numeric>
 

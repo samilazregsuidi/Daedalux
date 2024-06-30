@@ -8,36 +8,36 @@
 #include <iterator>
 #include <iostream>
 
-programTransition::programTransition(state* s, transition* progTrans) 
+programTransition::programTransition(state* s, transition* procTrans) 
 	: transition(s)
-	, progTrans(progTrans)
+	, procTrans(procTrans)
 {
 	assert(s);
-	assert(progTrans);
+	assert(procTrans);
 
-	add(progTrans);
+	add(procTrans);
 
-	prob = progTrans->getProbability();
+	prob = procTrans->getProbability();
 
-	lines.merge(progTrans->lines);
+	lines.merge(procTrans->lines);
 
-	action = progTrans->action;
+	action = procTrans->action;
 
 }
 
 programTransition::programTransition(const programTransition* other)
 	: transition(other)
-	, progTrans(nullptr)
+	, procTrans(nullptr)
 {
 	auto it = subTs.begin();
-	progTrans = *it;
+	procTrans = *it;
 }
 
 programTransition::~programTransition() {
 }
 
-transition* programTransition::getProgTrans(void) const {
-	return progTrans;
+transition* programTransition::getProcTrans(void) const {
+	return procTrans;
 }
 
 transition* programTransition::deepCopy(void) const {
@@ -50,5 +50,5 @@ void programTransition::accept(transitionVisitor* visitor) {
 
 void programTransition::print(void) const {
 	std::cout << "Program transition: ";
-	progTrans->print();
+	procTrans->print();
 }

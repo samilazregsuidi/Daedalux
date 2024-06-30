@@ -8,13 +8,9 @@
 
 #include "state.hpp"
 #include "transition.hpp"
-
-typedef char byte;
+#include "paramList.hpp"
 
 #include "symbols.hpp"
-
-#include "channel.hpp"
-#include "variable.hpp"
 
 #include "astNode.hpp"
 #include "expr.hpp"
@@ -30,17 +26,15 @@ class thread : public state {
 public:
   friend class state;
 
-  thread(variable::Type type, const seqSymNode* sym, const fsmNode* start, byte pid = -1, unsigned int index = 0);
+  thread(variable::Type type, const std::string& name, const fsmNode* start, ubyte pid);
 
   thread(const thread & other);
 
-  thread(const thread * other);
-
   void init(void) override;
 
-  byte getPid(void) const;
+  ubyte getPid(void) const;
 
-  void setPid(byte pid);
+  void setPid(ubyte pid);
 
   // virtual std::list<transition*> transitions(void) const = 0;
 
@@ -74,21 +68,25 @@ public:
 
   std::string getVarName(const expr * varExpr) const;
 
-  variable * getVariable(const expr * varExpr) const;
+  //variable * getVariableFromExpr(const expr * varExpr) const;
 
-  std::list<variable *> getVariables(const exprArgList * args) const;
+  //argList getArgs(const exprArgList * args) const;
 
-  std::list<const variable *> getConstVariables(const exprArgList * args) const;
+  //std::list<const arg> getConstArgs(const exprArgList * args) const;
 
-  std::list<variable *> getVariables(const exprRArgList * rargs) const;
+  paramList getOutputParamList(const exprRArgList * rargs) const;
 
-  std::list<const variable *> getConstVariables(const exprRArgList * rargs) const;
+  paramList getInputParamList(const exprArgList * rargs) const;
 
-  channel * getChannel(const expr * varExpr) const;
+  //std::list<const arg> getConstRArgs(const exprRArgList * rargs) const;
+
+  //channel * getChannelFromExpr(const expr * varExpr) const;
 
   bool operator==(const variable * other) const override;
 
   bool operator!=(const variable * other) const override;
+
+  variable * operator=(const variable * other) override;
 
   /*template <typename T> T* getTVar(const expr* varExpr, const thread* proc) const {
           return dynamic_cast<T*>(getVariable(varExpr));
@@ -107,14 +105,9 @@ public:
   void printDelta(const variable * v2, bool considerInternalVariables) const override;
 
 public:
-  const seqSymNode * symType;
-  unsigned int index;
-
   const fsmNode * const start;
-  
   mutable bool _else;
-  
-  byte pid;
+  ubyte pid;
 };
 
 #endif

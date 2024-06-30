@@ -1,4 +1,9 @@
 #include "../../src/algorithm/ltlModelChecker.hpp"
+#include "../../src/core/automata/fsmEdge.hpp"
+#include "../../src/core/automata/fsmNode.hpp"
+#include "../../src/promela/parser/promela_loader.hpp"
+
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <memory>
 

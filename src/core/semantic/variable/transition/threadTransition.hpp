@@ -7,6 +7,8 @@
 
 #include "transition.hpp"
 
+#include "astNode.hpp"
+
 class fsmEdge;
 class thread;
 
@@ -24,6 +26,8 @@ public:
 	const fsmEdge* getEdge(void) const;
 
 	int getLineNb(void) const;
+
+	astNode::Type getType(void) const;
 
 	transition* deepCopy(void) const override;
 

@@ -43,7 +43,17 @@ public:
 
 	variable::Type getType(void) const override;
 
+	void setGlobal(bool global) override;
+
 	bool isGlobal(void) const override;
+
+	void setPredef(bool predef) override;
+
+	bool isPredef(void) const override;
+
+	void setHidden(bool hidden) override;
+
+	bool isHidden(void) const override;
 
 	void assign(const variable* sc) override;
 
@@ -93,8 +103,6 @@ public:
 
 	std::list<variable*> getVariables(void) const override;
 
-	channel* getChannel(const std::string& name) const override;
-
 	void clearVariables(void) override;
 
 	//std::list<variable*> addVariables(const varSymNode* sym) override;
@@ -102,8 +110,6 @@ public:
 	//std::list<variable*> createVariables(const varSymNode* sym) override;
 
 	//variable* addVariable(const varSymNode* varSym) override;
-
-	variable* getVariable(const std::string& name) const override;
 
 	std::map<std::string, variable*> getVariablesMap(void) const override;
 

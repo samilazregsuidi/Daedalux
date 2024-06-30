@@ -52,6 +52,16 @@ int threadTransition::getLineNb(void) const {
 	return getEdge()->getLineNb();
 }
 
+astNode::Type threadTransition::getType(void) const {
+	auto type = edge->getExpression()->getType();
+	if(type == astNode::E_STMNT_EXPR){
+		auto expr = dynamic_cast<const stmntExpr*>(edge->getExpression())->getChild();
+		return expr->getType();
+	} else {
+		return type;
+	}
+}
+
 transition* threadTransition::deepCopy(void) const {
 	return new threadTransition(this);
 }

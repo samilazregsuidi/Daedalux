@@ -2,14 +2,9 @@
 
 #include <iterator>
 #include <numeric>
+#include <algorithm>
 
 #include "payload.hpp"
-#include "process.hpp"
-
-#include "boolVariable.hpp"
-#include "channel.hpp"
-#include "mtypeVariable.hpp"
-#include "utypeVariable.hpp"
 
 #include "argExpr.hpp"
 #include "constExpr.hpp"
@@ -66,7 +61,7 @@ variable::Type variable::getVarType(symbol::Type type)
   case symbol::T_INT:
     return V_INT;
   case symbol::T_UTYPE:
-    return V_UTYPE;
+    return V_STRUCT;
   case symbol::T_CMTYPE:
     return V_CMTYPE;
   default:
@@ -81,26 +76,22 @@ unsigned int variable::vidCounter = 0;
 
 variable::variable(Type varType, const std::string & name)
     : name(name), parent(nullptr), vid(++vidCounter), varType(varType), rawBytes(0), offset(0), payLoad(nullptr),
-      isHidden(false), isPredef(false)
+      hidden(false), predef(false), global(false)
 {
 }
 
 variable::variable(const variable & other)
     : name(other.name), parent(other.parent), vid(other.vid), varType(other.varType), rawBytes(other.rawBytes),
-      varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), isHidden(other.isHidden),
-      isPredef(other.isPredef)
+      varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), hidden(other.hidden),
+      predef(other.predef), global(other.global)
 {
-}
-
-variable::variable(const variable * other) : variable(*other)
-{
-  auto nbVariables = other->getVariables().size();
+  auto nbVariables = other.getVariables().size();
   // auto otherSizeOf = other->getSizeOf();
 
   payLoad = nullptr;
   clearVariables();
 
-  for (auto subVar : other->getVariables()) {
+  for (auto subVar : other.getVariables()) {
     _addVariable(subVar->deepCopy());
   }
 
@@ -108,7 +99,7 @@ variable::variable(const variable * other) : variable(*other)
     subVar->assign(subVar);
 
   if (!parent) {
-    setPayload(other->getPayload()->copy());
+    setPayload(other.getPayload()->copy());
   }
 
   assert(getVariables().size() == nbVariables);
@@ -136,31 +127,23 @@ variable::~variable()
 
 variable::Type variable::getType(void) const { return varType; }
 
-bool variable::isGlobal(void) const
-{
-  assert(false);
-  return false;
-}
+void variable::setGlobal(bool isGlobal) { global = isGlobal; }
+
+bool variable::isGlobal(void) const { return global; }
+
+void variable::setPredef(bool predef) { this->predef = predef; }
+
+bool variable::isPredef(void) const { return predef; }
+
+void variable::setHidden(bool hidden) { this->hidden = hidden; }
+
+bool variable::isHidden(void) const { return hidden; }
 
 void variable::assign(const variable * sc)
 {
   if (parent) {
     assert(parent == sc->getParent());
   }
-  else {
-    //?
-    assert(false);
-  }
-
-  /*if(hasVariables()){
-          std::list<variable*> newFields;
-          for(auto varSubField : getVariables()) {
-                  auto field = sc->getVariable(varSubField->getLocalName());
-                  assert(field);
-                  newFields.push_back(field);
-          }
-          varList = newFields;
-  }*/
 }
 
 void variable::init(void)
@@ -189,6 +172,32 @@ bool variable::operator==(const variable * other) const
 }
 
 bool variable::operator!=(const variable * other) const { return !(*this == other); }
+
+variable* variable::operator=(const variable* other) {
+  if(this == other)
+    return this;
+  assert(getType() == other->getType());
+  assert(getVariables().size() == other->getVariables().size());
+
+  for(auto var : other->getVariables()) {
+    auto v = get(var->getLocalName());
+    if(v) {
+      (*v) = var;
+    } else {
+      //not the same type!
+      assert(false);
+    }
+  }
+  return this;
+}
+
+/*variable* variable::operator=(const argList& args) {
+  assert(args.args.size() == getVariables().size());
+  for(size_t i = 0; i < args.args.size(); i++) {
+    *(varList[i]) = *args.args[i];
+  }
+  return this;
+}*/
 
 void variable::setParent(variable * parent)
 {
@@ -240,12 +249,13 @@ void variable::_addVariable(variable * var)
 void variable::_rmVariable(const variable * var)
 {
   varMap.erase(var->getLocalName());
-  varList.erase(std::find(varList.begin(), varList.end(), var));
+  auto it = std::find(varList.cbegin(), varList.cend(), var);
+  varList.erase(it);
 }
 
 bool variable::hasVariables(void) const { return !getVariables().empty(); }
 
-std::list<variable *> variable::getVariables(void) const { return varList; }
+std::list<variable *> variable::getVariables(void) const { return std::list(varList.begin(), varList.end()); }
 
 std::list<variable *> variable::getAllVariables(void) const
 {
@@ -263,23 +273,23 @@ std::list<variable *> variable::getAllVisibleVariables(bool excludeLocal) const
   std::list<variable *> res;
   for (auto var : varList) {
     auto name = var->getLocalName();
-    if (var->isPredef || var->isHidden) {
+    if (var->predef || var->hidden) {
       // Internal variables and hidden variables are not visible
       continue;
     }
-    auto isProcess = dynamic_cast<process *>(var);
-    auto isEnumDeclaration = dynamic_cast<cmtypeVar *>(var);
-    auto isChannel = dynamic_cast<channel *>(var);
+    auto isProcess = var->getType() == V_PROC;
+    auto isEnumDeclaration = var->getType() == V_CMTYPE;
+    auto isChannel = var->getType() == V_CHAN;
     if ((isProcess && excludeLocal) || isEnumDeclaration || isChannel) {
       // Process variables are not visible if we are excluding local variables
       // Enum declarations are not visible
       continue;
     }
-    auto isUtype = dynamic_cast<utypeVar *>(var);
+    auto isUtype = var->getType() == V_STRUCT;
     if (isUtype) {
       auto subVars = var->getAllVisibleVariables();
       for (auto subVar : subVars) {
-        auto isSubUType = dynamic_cast<utypeVar *>(subVar);
+        auto isSubUType = subVar->getType() == V_STRUCT;
         if (isSubUType) {
           // If the sub-variable is a utype, we need to get all its sub-variables
           auto subVisibleVariables = subVar->getAllVisibleVariables();
@@ -364,13 +374,13 @@ float variable::delta(const variable * v2, bool considerInternalVariables) const
 {
   if (v2 == nullptr)
     return 1;
-  auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
+  auto vars = considerInternalVariables ? getVariablesList() : getAllVisibleVariables();
   float res = 0;
   if (vars.empty())
     return 0;
   for (auto var : vars) {
     auto localName = var->getLocalName();
-    auto v = v2->getVariable(localName);
+    auto v = v2->get(localName);
     auto delta_val = var->delta(v, considerInternalVariables);
     res += delta_val;
   }
@@ -379,10 +389,10 @@ float variable::delta(const variable * v2, bool considerInternalVariables) const
 
 void variable::printDelta(const variable * v2, bool considerInternalVariables) const
 {
-  auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
+  auto vars = considerInternalVariables ? getVariablesList() : getAllVisibleVariables();
   for (auto var : vars) {
     auto localName = var->getLocalName();
-    auto v = v2->getVariable(localName);
+    auto v = v2->get(localName);
     var->printDelta(v, considerInternalVariables);
   }
 }
@@ -390,9 +400,9 @@ void variable::printDelta(const variable * v2, bool considerInternalVariables) c
 std::list<variable *> variable::getDelta(const variable * v2, bool considerInternalVariables) const
 {
   std::list<variable *> res;
-  auto vars = considerInternalVariables ? varList : getAllVisibleVariables();
+  auto vars = considerInternalVariables ? getVariablesList() : getAllVisibleVariables();
   for (auto var : vars) {
-    auto v = v2->getVariable(var->getLocalName());
+    auto v = v2->get(var->getLocalName());
     auto deltaValues = var->getDelta(v, considerInternalVariables);
     if (!deltaValues.empty()) {
       res.insert(res.end(), deltaValues.begin(), deltaValues.end());
@@ -407,17 +417,18 @@ size_t variable::getEndOffset(void) const { return offset + getSizeOf(); }
 
 void variable::addRawBytes(size_t size) { rawBytes += size; }
 
-variable * variable::getVariable(const std::string & name) const
+variable * variable::getVariableImpl(const std::string & name) const
 {
   size_t pos = name.find(".");
   if (pos != std::string::npos) {
     auto subScope = name.substr(0, pos);
-    variable * var = getVariable(subScope);
-    if (var == nullptr) {
-      throw std::runtime_error("Variable " + subScope + " not found.");
+    variable * var = getVariableImpl(subScope);
+    if(var == nullptr) {
+      std::cout << subScope << " not found. " << std::endl;
+      assert(false);
     }
     auto next = std::string(name).erase(0, pos + std::string(".").length());
-    return var->getVariable(next);
+    return var->getVariableImpl(next);
   }
 
   std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
@@ -426,7 +437,7 @@ variable * variable::getVariable(const std::string & name) const
 
   variable * var = nullptr;
   if (parent)
-    var = parent->getVariable(name);
+    var = parent->getVariableImpl(name);
   else {
     bool found = false;
     for (auto scope : varList) {
@@ -460,27 +471,12 @@ variable * variable::getVariableDownScoping(const std::string & name) const
   return var;
 }
 
-channel * variable::getChannel(const std::string & name) const
-{
-  auto var = getVariable(name);
-
-  if (!var)
-    return nullptr;
-
-  channel * chan = nullptr;
-  if (var->getType() == variable::V_CID) {
-    chan = dynamic_cast<CIDVar *>(var)->getRefChannel();
-    assert(chan);
-  }
-  else {
-    assert(var->getType() == variable::V_CHAN);
-    chan = dynamic_cast<channel *>(var);
-  }
-  assert(chan);
-  return chan;
-}
 
 std::map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
+
+std::list<variable *> variable::getVariablesList(void) const { return std::list<variable*>(varList.begin(), varList.end()); }
+
+std::vector<variable *> variable::getVariablesVector(void) const { return varList; }
 
 size_t variable::getSizeOf(void) const
 {

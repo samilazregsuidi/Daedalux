@@ -2,6 +2,8 @@
 #define VARIABLE_H
 
 #include <list>
+#include <string>
+#include <vector>
 #include <map>
 #include <string>
 #include <algorithm>
@@ -21,65 +23,57 @@ class expr;
 class exprArgList;
 class exprRArgList;
 
-class channel;
-
-class primitiveVariable;
-class boolVar;
+class scalarInt;
 class statePredicate;
 
-
-template <typename T> struct return_value {
-  using type = T;
-};
-
-template <> struct return_value<primitiveVariable *> {
-  using type = int;
-};
-
-template <> struct return_value<boolVar *> {
-  using type = bool;
-};
 
 class variable {
 public:
   enum Type {
-    V_NA,
-    V_BIT,
-    V_BOOL,
-    V_BYTE,
-    V_PID,
-    V_SHORT,
-    V_INT,
-    V_UNSGN, // not supported yet
-    V_MTYPE,
-    V_CLOCK, // dense time clock - supports RT?
-    V_MTYPE_DEF,
-    V_CMTYPE,
+		V_NA,
+		V_BIT,
+		V_BOOL,
+		V_BYTE,
+		V_PID,
+		V_SHORT,
+		V_USHORT,
+		V_INT,
+		V_UINT,
+		V_LONG,
+		V_ULONG,
+		V_FLOAT,
+		V_DOUBLE,
+		V_UNSGN, 	// not supported yet
+		V_MTYPE,
+		V_CLOCK ,	// dense time clock - supports RT?
+		V_STACK,
+		V_QUEUE,
+		V_MTYPE_DEF,
+		V_CMTYPE,
 
-    // V_FEAT,
-    // V_UFEAT,
+		//V_FEAT,
+		//V_UFEAT,
 
-    // "Special" types:
-    V_CHAN, // Channel: capacity used; children denote message fields
-    V_CID,  // Channel reference; capacity and children are not used.
-    V_TDEF, // Type definition: children denote fields of type
-    V_INIT,
-    V_PROC, // ProcType: fsm field used; bound denotes the number of initially active processes
-    V_INLINE,
-    V_UTYPE, // Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type
-             // record
-    V_NEVER, // Never claim
-    V_PROG,
-    V_COMP_S,
+		// "Special" types:
+		V_CHAN,		// Channel: capacity used; children denote message fields
+		V_CID,		// Channel reference; capacity and children are not used.
+		V_TDEF,		// Type definition: children denote fields of type
+		V_INIT,
+		V_PROC,		// ProcType: fsm field used; bound denotes the number of initially active processes
+		V_INLINE,
+		V_STRUCT,	// Type of variable is a user type (basically, a T_TDEF record is being used as the type): utype points to the type record
+		V_NEVER,	// Never claim
+		V_PROG,
+		V_COMP_S,
 
-    V_VARIANT
-  };
+		V_VARIANT
+	};
 
   variable(Type type, const std::string & name = std::string());
 
   variable(const variable & other);
 
-  variable(const variable * other);
+	variable(const variable& other);
 
   virtual variable * deepCopy(void) const = 0;
 
@@ -89,27 +83,73 @@ public:
 
   virtual void init(void);
 
-  /*virtual void setValue(int value) = 0;
+	virtual bool operator == (const variable* other) const;
 
-  virtual int getValue(void) const = 0;
+  virtual bool operator !=(const variable * other) const;
 
-  virtual int operator = (const variable& rvalue) = 0;
+	virtual variable* operator=(const variable* other);
 
-  virtual int operator ++ (void) = 0;
+	//virtual variable* operator=(const argList& other);
 
-  virtual int operator -- (void) = 0;
+	/****************************************************/
 
-  virtual int operator ++ (int) = 0;
+	template<typename T = variable*> T get(const std::string& name) const {
+		auto res = dynamic_cast<T>(getVariableImpl(name));
+		if(res == nullptr)
+			throw std::runtime_error("Invalid cast");
+		return res;
+	}
 
-  virtual int operator -- (int) = 0;
+	template<typename T = variable*> T get(size_t index) const {
+		auto res = dynamic_cast<T>(varList[index]);
+		if(res == nullptr)
+			throw std::runtime_error("Invalid cast");
+		return res;
+	}
 
-  */
+	template<typename T> std::list<T> getAll(void) const {
+		auto res = std::list<T>();
+		for(auto var : getVariables()){
+			auto cast = dynamic_cast<T>(var);
+			if(cast != nullptr)
+				res.push_back(cast);
+		}
+		return res;
+	}
 
-  virtual bool operator==(const variable * other) const;
+	template<typename T> auto getValue(const std::string& name) const {
+		auto res = get<T>(name);
+		assert(res != nullptr);
+		if constexpr(std::is_same<T, scalarInt*>::value) 
+			return res->getIntValue();
+		else
+			return res->getValue();
+	}
 
-  virtual bool operator!=(const variable * other) const;
+	template<typename T> auto getValue(size_t index) const {
+		auto res = get<T>(index);
+		assert(res != nullptr);
+		if constexpr(std::is_same<T, scalarInt*>::value) 
+			return res->getIntValue();
+		else
+			return res->getValue();
+	}
 
-  /****************************************************/
+	/****************************************************/
+
+	virtual void setGlobal(bool global);
+
+	virtual void setPredef(bool predef);
+
+	virtual void setHidden(bool hidden);
+
+	virtual bool isGlobal(void) const;
+
+	virtual bool isPredef(void) const;
+
+	virtual bool isHidden(void) const;
+
+	virtual std::string getFullName(void) const;
 
   virtual std::string getFullName(void) const;
 
@@ -118,6 +158,8 @@ public:
   virtual std::string getLocalName(void) const;
 
   void setName(std::string& name);
+  
+	virtual void assign(const variable* sc);
 
   virtual variable::Type getType(void) const;
 
@@ -168,6 +210,14 @@ public:
   virtual void _addVariable(variable * subVar);
 
   virtual void _rmVariable(const variable * var);
+  
+	virtual std::map<std::string, variable*> getVariablesMap(void) const;
+
+	virtual std::list<variable *> getVariablesList(void) const;
+
+	virtual std::vector<variable*> getVariablesVector(void) const;
+
+	//virtual channel* getChannel(const std::string& name) const;
 
   virtual bool hasVariables(void) const;
 
@@ -176,8 +226,6 @@ public:
   virtual std::list<variable *> getAllVariables(void) const;
 
   virtual std::list<variable *> getAllVisibleVariables(bool excludeLocal = true) const;
-
-  virtual channel * getChannel(const std::string & name) const;
 
   virtual void clearVariables(void);
 
@@ -189,41 +237,15 @@ public:
 
   // variable* addVariable(const varSymNode* varSym);
 
-  virtual variable * getVariable(const std::string & name) const;
-
-  virtual variable * getVariableDownScoping(const std::string & name) const;
-
-  template <typename T> T getTVariable(const std::string & name) const
-  {
-    std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
-    if (resIt != varMap.cend())
-      return dynamic_cast<T>(resIt->second);
-
-    return parent ? parent->getTVariable<T>(name) : nullptr;
-  }
-
-  template <typename T> std::list<T> getTVariables(void) const
-  {
-    std::list<T> res;
-    for (auto var : varList) {
-      auto varT = dynamic_cast<T>(var);
-      if (varT != nullptr)
-        res.push_back(varT);
-    }
-    return res;
-  }
-
-  template <class T> typename return_value<T>::type getValue(const std::string & name) const
-  {
-    auto var = getVariable(name);
-    if (var != nullptr)
-      return (dynamic_cast<T>(var))->getValue();
-    assert(false);
-  }
-
-  virtual std::map<std::string, variable *> getVariablesMap(void) const;
-
   virtual unsigned long hash(void) const;
+
+protected:
+	virtual variable* getVariableImpl(const std::string& name) const;
+
+	virtual variable* getVariableDownScoping(const std::string& name) const;
+
+public:
+	static Type getVarType(symbol::Type type);
 
   virtual float delta(const variable * v2, bool considerInternalVariables) const;
 
@@ -241,17 +263,18 @@ public:
 
 public:
   std::string name;
-  variable * parent;
-  unsigned int vid;
-  Type varType;
-  size_t rawBytes;
-  std::map<std::string, variable *> varMap;
-  std::list<variable *> varList;
-  // size_t sizeOf;
-  size_t offset;
-  payload * payLoad;
-  bool isHidden;
-  bool isPredef;
+	variable* parent;
+	unsigned int vid;
+	Type varType;
+	size_t rawBytes;
+	std::map<std::string, variable*> varMap;
+	std::vector<variable*> varList;
+	//size_t sizeOf;
+	size_t offset;
+	payload* payLoad;
+	bool hidden;
+	bool predef;
+	bool global;
 
   private: 
 

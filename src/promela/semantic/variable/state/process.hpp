@@ -8,8 +8,6 @@
 
 #include "thread.hpp"
 
-typedef char byte;
-
 #include "astNode.hpp"
 #include "automata.hpp"
 #include "program.hpp"
@@ -21,11 +19,9 @@ class process : public thread {
 public:
   friend class state;
 
-  process(const seqSymNode * sym, const fsmNode * start, byte pid, unsigned int index = 0);
+  process(const std::string& name, const fsmNode * start);
 
   process(const process & other);
-
-  process(const process * other);
 
   ~process() override;
 
@@ -44,6 +40,8 @@ public:
   void setProgState(program * newS);
 
   program * getProgState(void) const;
+
+  channel* getChannel(const std::string& name) const;
 
   std::list<transition *> executables(void) const override;
 

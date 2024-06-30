@@ -62,10 +62,10 @@ void stateToGraphViz::visit(process* s) {
 
 	file << " \"node" << s->getVariableId() << "\"[ " << std::endl \
 	<< _tab() << "label = \"";
-	auto primVars = s->getTVariables<primitiveVariable*>();
+	auto primVars = s->getAll<scalarInt*>();
 	for(auto primVar : primVars) {
 		auto str = std::string(*primVar);
-		if(str.size() && str.size() < 64 && !(primVar->isHidden || primVar->isPredef))
+		if(str.size() && str.size() < 64 && !(primVar->isHidden() || primVar->isPredef()))
 			file << str << " | ";
 	}
 	file << "\"" << std::endl << _tab() << "shape = \"record\" "<< std::endl << "];" << std::endl;
@@ -113,7 +113,7 @@ void stateToGraphViz::visit(program* s) {
 
 	file << " \"node" << s->getVariableId() << "\"[ " << std::endl \
 	<< _tab() << "label = \"";
-	auto primVars = s->getTVariables<primitiveVariable*>();
+	auto primVars = s->getAll<scalarInt*>();
 	for(auto primVar : primVars) {
 		auto str = std::string(*primVar);
 		if(str.size() && str.size() < 64 /*&& !(primVar->isHidden || primVar->isPredef)*/)

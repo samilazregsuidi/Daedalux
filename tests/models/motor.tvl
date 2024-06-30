@@ -1,0 +1,5 @@
+root Motor {
+	group allOf  {
+		opt Alarm
+	}
+}

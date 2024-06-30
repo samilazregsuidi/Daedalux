@@ -18,20 +18,6 @@ public:
 
 	/****************************************************/
 
-	/*virtual void setValue(int value) = 0;
-	
-	virtual int getValue(void) const = 0;
-
-	virtual int operator = (const variable& rvalue) = 0;
-
-	virtual int operator ++ (void) = 0;
-
-	virtual int operator -- (void) = 0;
-
-	virtual int operator ++ (int) = 0;
-
-	virtual int operator -- (int) = 0;*/
-
 	bool operator == (const variable* other) const override = 0;
 
 	bool operator != (const variable* other) const override = 0;
@@ -94,9 +80,11 @@ public:
 
 	std::list<variable*> getVariables(void) const override;
 
-	channel* getChannel(const std::string& name) const override;
+	//channel* getChannel(const std::string& name) const override;
 
 	void clearVariables(void) override;
+
+	variable* getVariableImpl(const std::string& name) const override;
 
 	//std::list<variable*> addVariables(const varSymNode* sym) override;
 
@@ -104,9 +92,9 @@ public:
 
 	//variable* addVariable(const varSymNode* varSym) override;
 
-	variable* getVariable(const std::string& name) const override;
-
 	std::map<std::string, variable*> getVariablesMap(void) const override;
+
+	std::list<variable*> getVariablesList(void) const override;
 
 
 	unsigned long hash(void) const override;

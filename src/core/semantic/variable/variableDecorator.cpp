@@ -3,12 +3,6 @@
 #include <iterator>
 
 #include "payload.hpp"
-#include "process.hpp"
-
-#include "channel.hpp"
-#include "utypeVariable.hpp"
-#include "boolVariable.hpp"
-#include "mtypeVariable.hpp"
 
 #include "argExpr.hpp"
 #include "constExpr.hpp"
@@ -344,16 +338,17 @@ std::list<variable*> variableDecorator::createVariables(const varSymNode* sym) {
 	return res;
 }
 */
-variable* variableDecorator::getVariable(const std::string& name) const {
-	return wrappee->getVariable(name);
-}
 
-channel* variableDecorator::getChannel(const std::string& name) const {
-	return wrappee->getChannel(name);
+variable* variableDecorator::getVariableImpl(const std::string& name) const {
+	return wrappee->getVariableImpl(name);
 }
 
 std::map<std::string, variable*> variableDecorator::getVariablesMap(void) const {
 	return wrappee->getVariablesMap();
+}
+
+std::list<variable*> variableDecorator::getVariablesList(void) const {
+	return wrappee->getVariablesList();
 }
 
 size_t variableDecorator::getSizeOf(void) const {

@@ -34,8 +34,6 @@ public:
 
 	program(const fsm* stateMachine, const std::string& name = ""); // Creates the initial state by setting all variables' value in the payload. Does not set the payloadHash.
 
-	program(const program* other);
-
 	program(const program& other);
 
 	//state(const state& s) = default;
@@ -61,6 +59,12 @@ public:
 	virtual ~program();
 
 	void init(void) override;
+
+	bool operator == (const variable* other) const override;
+
+	bool operator != (const variable* other) const override;
+
+	state* operator=(const variable* other) override;
 
 	/*
 	* Creates a new process and returns its pid.
@@ -104,7 +108,7 @@ public:
 
 	void apply(transition* trans) override;
 	
-	process* getProc(int pid) const; // Returns the stateMask with pid 'pid'.
+	process* getProc(ubyte pid) const; // Returns the stateMask with pid 'pid'.
 
 	std::list<process*> getProcs(void) const;
 
@@ -112,7 +116,7 @@ public:
 
 	const process* getExclusiveProc(void) const;
 
-	byte getExclusiveProcId(void) const;
+	ubyte getExclusiveProcId(void) const;
 
 	bool hasExclusivity(void) const;
 
@@ -120,7 +124,7 @@ public:
 
 	void setExclusivity(const process* proc) const;
 
-	void setExclusivity(byte pid) const;
+	void setExclusivity(ubyte pid) const;
 
 	//void initSym(unsigned int preOffset, const varSymNode* sym);
 
@@ -180,10 +184,9 @@ public:
 	const symTable* const globalSymTab;
 	const fsm* const stateMachine;
 
-	unsigned int pidCounter;
-	int nbProcesses; 			// Number of running processes.
-	int nbNeverClaim;			// Number of neverClaim
+	unsigned int pidCounter; 	// Counter of the number of processes in the state.
 	int lastStepPid; 			// pid of the process that fired transition that got us into this state. (NOT part of the actual state of the system, just a helper)
+	unsigned int nbProcesses; 	// Number of processes in the state.
 
 	mutable const channel* handShakeChan;
 	mutable const process* handShakeProc;

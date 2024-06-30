@@ -72,10 +72,7 @@ public:
 
   state(const state & s);
 
-  state(const state * other);
-
-  virtual state * deepCopy(void) const = 0;
-
+	virtual state* deepCopy(void) const = 0 ;
 
   /**
    * Frees the memory used by a given state. It does NOT free any symbol tables, FSM or mtypes list.

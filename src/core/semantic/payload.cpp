@@ -104,7 +104,7 @@ payload* payload::copy(void) const {
 	return values;
 }*/
 
-int payload::getValue(size_t offset, variable::Type type) const {
+/*int payload::getValue(size_t offset, variable::Type type) const {
 	switch(type){
 		case variable::V_BIT:
 		case variable::V_BYTE:
@@ -124,9 +124,9 @@ int payload::getValue(size_t offset, variable::Type type) const {
 			assert(false);
 			return -1;
 	}
-}
+}*/
 
-void payload::setValue(size_t offset, int value, variable::Type type) {
+/*void payload::setValue(size_t offset, int value, variable::Type type) {
 	switch(type){
 		case variable::V_BIT:
 		case variable::V_BYTE:
@@ -149,7 +149,7 @@ void payload::setValue(size_t offset, int value, variable::Type type) {
 			assert(false);
 	}
 	assert(false);
-}
+}*/
 
 /**
  * Helper for addProctype

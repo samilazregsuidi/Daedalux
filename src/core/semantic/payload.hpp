@@ -73,7 +73,7 @@ public:
 
 	//int& getValue(unsigned int offset, symbol::Type type);
 
-	int getValue(size_t offset, variable::Type type) const;
+	//int getValue(size_t offset, variable::Type type) const;
 	
 	// Set the value stored in 'chunk' at offset 'offset' to 'value'. The number of read bytes depends on 'type'.
 	
@@ -89,7 +89,7 @@ public:
 		*tPtr = value;
 	}
 
-	void setValue(size_t offset, int value, variable::Type type);
+	//void setValue(size_t offset, int value, variable::Type type);
 
 	//void initValues(unsigned int offset, int bytesNbr, byte value);
 

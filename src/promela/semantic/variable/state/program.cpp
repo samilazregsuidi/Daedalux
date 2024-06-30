@@ -11,7 +11,8 @@
 #include "ast.hpp"
 #include "automata.hpp"
 
-#include "channel.hpp"
+#include "variable.hpp"
+#include "channelVar.hpp"
 #include "payload.hpp"
 #include "variable.hpp"
 
@@ -27,55 +28,57 @@
  * Does not set the payloadHash.
  */
 
-program::program(const fsm * stateMachine, const std::string & name)
-    : state(variable::V_PROG, name), globalSymTab(stateMachine->getGlobalSymTab()), stateMachine(stateMachine), pidCounter(0),
-      nbProcesses(0), lastStepPid(0), handShakeChan(nullptr), handShakeProc(nullptr), exclusiveProc(nullptr), timeout(false)
+program::program(const fsm* stateMachine, const std::string& name) 
+	: state(variable::V_PROG, name)
+	, globalSymTab(stateMachine->getGlobalSymTab())
+	, stateMachine (stateMachine)
+	, pidCounter(0)
+	, lastStepPid(0)
+	, nbProcesses(0)
+	, handShakeChan(nullptr)
+	, handShakeProc(nullptr)
+	, exclusiveProc(nullptr)
+	, timeout(false)
 {
 }
 
-program::program(const program * other)
-    : state(other), globalSymTab(other->globalSymTab), stateMachine(other->stateMachine), pidCounter(other->pidCounter),
-      nbProcesses(other->nbProcesses), lastStepPid(other->lastStepPid), handShakeChan(nullptr), handShakeProc(nullptr),
-      exclusiveProc(nullptr), timeout(other->timeout)
+program::program(const program& other)
+	: state(other)
+	, globalSymTab(other.globalSymTab)
+	, stateMachine(other.stateMachine)
+	, pidCounter(other.pidCounter)
+	, lastStepPid(other.lastStepPid)
+	, nbProcesses(other.nbProcesses)
+	, handShakeChan(nullptr)
+	, handShakeProc(nullptr)
+	, exclusiveProc(nullptr)
+	, timeout(other.timeout)
 {
-  if (other->handShakeChan) {
-    handShakeChan = getChannel(other->handShakeChan->getLocalName());
-    assert(handShakeChan);
-  }
+	if(other.handShakeChan) {
+		handShakeChan = get<channel*>(other.handShakeChan->getLocalName());
+		assert(handShakeChan);
+	}
 
-  if (other->handShakeProc) {
-    handShakeProc = other->getTVariable<process *>(other->handShakeProc->getName());
-    assert(handShakeProc);
-  }
+	if(other.handShakeProc) {
+		handShakeProc = get<process*>(other.handShakeProc->getName());
+		assert(handShakeProc);
+	}
 
-  if (other->exclusiveProc) {
-    exclusiveProc = other->getTVariable<process *>(other->exclusiveProc->getName());
-    assert(exclusiveProc);
-  }
-
-  assert(other->getVariables().size() == getVariables().size());
-  assert(getVariables().size());
-}
-
-program::program(const program & other)
-    : state(other), globalSymTab(other.globalSymTab), stateMachine(other.stateMachine), pidCounter(other.pidCounter),
-      nbProcesses(other.nbProcesses), lastStepPid(other.lastStepPid), handShakeChan(other.handShakeChan),
-      handShakeProc(other.handShakeProc), exclusiveProc(other.exclusiveProc), timeout(other.timeout)
-{
-  assert(handShakeChan == nullptr);
-  assert(handShakeProc == nullptr);
+	if(other.exclusiveProc) {
+		exclusiveProc = get<process*>(other.exclusiveProc->getName());
+		assert(exclusiveProc);
+	}
 
   assert(other.getVariables().size() == getVariables().size());
   assert(getVariables().size());
 }
 
-program * program::deepCopy(void) const
-{
-  program * copy = new program(this);
-  // auto newScope = deepCopy();
-  // newScope->setPayload(getPayload()->copy());
-  // copy->assign(newScope);
-  return copy;
+program* program::deepCopy(void) const {
+	program* copy = new program(*this);
+	//auto newScope = deepCopy();
+	//newScope->setPayload(getPayload()->copy());
+	//copy->assign(newScope);
+	return copy;
 }
 
 void program::init(void)
@@ -91,30 +94,102 @@ void program::init(void)
 void program::assign(const variable * sc)
 {
 
-  assert(sc->getVariables().size());
-  variable::assign(sc);
-  assert(sc->getVariables().size());
-
-  /*if(handShakeChan) {
-          handShakeChan = getChannel(handShakeChan->getLocalName());
-          assert(handShakeChan);
-  }
-  if(handShakeProc) {
-          handShakeProc = sc->getTVariable<process*>(handShakeProc->getName());
-          assert(handShakeProc);
-  }*/
-  if (exclusiveProc) {
-    exclusiveProc = sc->getTVariable<process *>(exclusiveProc->getName());
-    assert(exclusiveProc);
-  }
+	if(handShakeChan) {
+		handShakeChan = sc->get<channel*>(handShakeChan->getLocalName());
+		assert(handShakeChan);
+	}
+	if(handShakeProc) {
+		handShakeProc = sc->get<process*>(handShakeProc->getName());
+		assert(handShakeProc);
+	}
+	if(exclusiveProc) {
+		exclusiveProc = sc->get<process*>(exclusiveProc->getName());
+		assert(exclusiveProc);
+	}
 }
 
-std::list<transition *> program::transitions(void) const
-{
-  std::list<transition *> res;
-  for (auto p : getProcs())
-    res.merge(p->transitions());
-  return res;
+bool program::operator==(const variable* other) const {
+	auto var = dynamic_cast<const program*>(other);
+	if(var) {
+		if(lastStepPid != var->lastStepPid)
+			return false;
+		if(timeout != var->timeout)
+			return false;
+
+		if(reinterpret_cast<long>(handShakeChan) ^ reinterpret_cast<long>(var->handShakeChan))
+			return false;
+		else if (handShakeChan && var->handShakeChan && handShakeChan->getLocalName() != var->handShakeChan->getLocalName())
+			return false;
+		
+
+		if(reinterpret_cast<long>(handShakeProc) ^ reinterpret_cast<long>(var->handShakeProc))
+			return false;
+		 else if (handShakeProc && var->handShakeProc && handShakeProc->getName() != var->handShakeProc->getName()) 
+			return false;
+
+		if(reinterpret_cast<long>(exclusiveProc) ^ reinterpret_cast<long>(var->exclusiveProc))
+			return false;
+		else if (exclusiveProc && var->exclusiveProc && exclusiveProc->getName() != var->exclusiveProc->getName()) 
+			return false;
+		
+
+	} else
+		return false;
+
+	return variable::operator==(other);
+}
+
+bool program::operator!=(const variable* other) const {
+	return !(*this == other);
+}
+
+state* program::operator=(const variable* other) {
+	variable::operator=(other);
+	auto var = dynamic_cast<const program*>(other);
+	if(var) {
+		assert(globalSymTab == var->globalSymTab);
+		assert(stateMachine == var->stateMachine);
+		
+		pidCounter = var->pidCounter;
+		
+		lastStepPid = var->lastStepPid;
+		nbProcesses = var->nbProcesses;
+		
+		if(var->handShakeChan) {
+			handShakeChan = var->get<channel*>(handShakeChan->getLocalName());
+			assert(handShakeChan);
+		} else 
+			handShakeChan = nullptr;
+
+		if(var->handShakeProc) {
+			handShakeProc = var->get<process*>(handShakeProc->getName());
+			assert(handShakeProc);
+		} else 
+			handShakeProc = nullptr;
+
+		if(var->exclusiveProc) {
+			exclusiveProc = var->get<process*>(exclusiveProc->getName());
+			assert(exclusiveProc);
+		} else 
+			exclusiveProc = nullptr;
+
+		timeout = var->timeout;
+
+	} else {
+		assert(false);
+	}
+	return this;
+}
+
+/**
+ * Returns the list of all the transitions of the state.
+ */
+
+std::list<transition*> program::transitions(void) const {
+	std::list<transition*> res;
+	for(auto p : getProcs())
+		res.merge(p->transitions());
+	return res;
 }
 
 /**
@@ -182,15 +257,15 @@ they end up here.
         return STATES_SAME_S1_FRESH;
 }*/
 
-void program::print(void) const
-{
-  variable::print();
-  printf("prob : %lf\n", prob);
-  if (actions.size()) {
-    printf("scheduler : ");
-    for (auto a : actions)
-      printf(" %s, ", a.c_str());
-  }
+void program::print(void) const {
+	variable::print();
+	std::cout << "Exclusivity : " << (exclusiveProc? exclusiveProc->getName() : "None") << std::endl;
+	printf("prob : %lf\n", prob);
+	if(actions.size()){
+		printf("scheduler : ");
+		for(auto a : actions)
+			printf(" %s, ", a.c_str());
+	}
 }
 
 void program::printCSV(std::ostream & out) const
@@ -233,17 +308,18 @@ void program::printGraphViz(unsigned long i) const {
         stateFile.close();
 }*/
 
-std::list<process *> program::getProcs(void) const { return getTVariables<process *>(); }
+std::list<process*> program::getProcs(void) const {
+	return getAll<process*>();
+}
 /**
  * Returns the stateMask of a given pid.
  */
-process * program::getProc(int pid) const
-{
-  auto procs = getProcs();
-  for (auto proc : procs)
-    if (proc->getPid() == pid)
-      return proc;
-  return nullptr;
+process* program::getProc(ubyte pid) const {
+	auto procs = getProcs();
+	for(auto proc : procs)
+		if(proc->getPid() == pid)
+			return proc;
+	return nullptr;
 }
 
 state * program::getNeverClaim(void) const { return parent ? dynamic_cast<state *>(parent)->getNeverClaim() : nullptr; }
@@ -288,37 +364,43 @@ process* program::addNever(const neverSymNode* neverSym) {
 
 /*******************************************************************************************************/
 
-const process * program::getExclusiveProc(void) const { return exclusiveProc; }
-
-byte program::getExclusiveProcId(void) const { return getExclusiveProc() ? getExclusiveProc()->getPid() : NO_PROCESS; }
-
-bool program::hasExclusivity(void) const { return getExclusiveProc() != nullptr; }
-
-void program::resetExclusivity(void) const { setExclusivity(NO_PROCESS); }
-
-void program::setExclusivity(const process * proc) const
-{
-  exclusiveProc = proc;
-  // getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
+const process* program::getExclusiveProc(void) const {
+	return exclusiveProc;
 }
 
-void program::setExclusivity(byte pid) const { setExclusivity(getProc(pid)); }
-
-bool program::requestHandShake(const std::pair<const channel *, const process *> & handShake) const
-{
-  if (!hasHandShakeRequest()) {
-    setHandShake(handShake);
-    return true;
-  }
-  return false;
+ubyte program::getExclusiveProcId(void) const {
+	return getExclusiveProc()? getExclusiveProc()->getPid() : NO_PROCESS;
 }
 
-void program::setHandShake(const std::pair<const channel *, const process *> & handShake) const
-{
-  assert((handShake.first && handShake.first) || (!handShake.first && !handShake.first));
-  handShakeChan = handShake.first;
-  handShakeProc = handShake.second;
-  // getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
+bool program::hasExclusivity(void) const {
+	return getExclusiveProc() != nullptr;
+}
+
+void program::resetExclusivity(void) const {
+	setExclusivity(NO_PROCESS);
+}
+
+void program::setExclusivity(const process* proc) const {
+	exclusiveProc = proc;
+	//getPayload()->setValue<byte>(OFFSET_EXCLUSIVITY_VAR, (proc? proc->getPid() : NO_PROCESS));
+}
+
+void program::setExclusivity(ubyte pid) const {
+	setExclusivity(getProc(pid));
+}
+
+bool program::requestHandShake(const std::pair<const channel*, const process*>& handShake) const {
+	if(!hasHandShakeRequest()) {
+		setHandShake(handShake);
+		return true;
+	} return false; 
+}
+
+void program::setHandShake(const std::pair<const channel*, const process*>& handShake) const {
+	assert((handShake.first && handShake.first) || (!handShake.first && !handShake.first));
+	handShakeChan = handShake.first;
+	handShakeProc = handShake.second;
+	//getPayload()->setValue<int>(OFFSET_HANDSHAKE_VAR, (handShakeChan? handShakeChan->getVariableId() : NO_HANDSHAKE));
 }
 
 /*void program::setHandShake(unsigned int cid) const {
@@ -358,8 +440,8 @@ std::list<transition *> program::executables(void) const
 
   std::list<transition *> execs;
 
-  const process * exclusivity = getExclusiveProc();
-  auto handShake = getHandShakeRequest();
+	auto exclusivity = getExclusiveProc();
+	auto handShake = getHandShakeRequest();
 
   for (auto proc : getProcs()) {
     auto Ts = proc->executables();
@@ -406,54 +488,50 @@ std::list<transition *> program::executables(void) const
  * assertViolation is a return value set to true in case the statement on the transition was an assert
  * that evaluated to false.
  */
-void program::apply(transition * trans)
-{
+void program::apply(transition* trans) {
 
-  auto rdvTrans = dynamic_cast<const rendezVousTransition *>(trans);
-  if (rdvTrans) {
-    assert(rdvTrans->getQuestion() != nullptr);
-    auto questionTrans = dynamic_cast<threadTransition *>(rdvTrans->getQuestion());
-    assert(questionTrans);
-    // warning if "different" procs have the same pid i.e., dynamic proc creation
-    // not sure about that
+	auto rdvTrans = dynamic_cast<const rendezVousTransition*>(trans);
+	if(rdvTrans) {
+		assert(rdvTrans->getQuestion() != nullptr);
+		auto questionTrans = dynamic_cast<threadTransition*>(rdvTrans->getQuestion());
+		assert(questionTrans);
+		//warning if "different" procs have the same pid i.e., dynamic proc creation
+		//not sure about that
 
-    auto proc = getProc(questionTrans->getThread()->getPid());
-    assert(proc);
+		auto proc = getProc(questionTrans->getThread()->getPid());
+		assert(proc);
 
-    proc->apply(rdvTrans->getQuestion());
+		proc->apply(rdvTrans->getQuestion());
 
-    auto responseTrans = dynamic_cast<threadTransition *>(rdvTrans->getQuestion());
-    if (responseTrans) {
-      auto responseProc = getProc(responseTrans->getThread()->getPid());
-      responseProc->apply(rdvTrans->getQuestion());
-    }
-    prob *= trans->prob;
-  }
-  else {
+		auto responseTrans = dynamic_cast<threadTransition*>(rdvTrans->getResponse());
+		if(responseTrans) {
+			auto responseProc = getProc(responseTrans->getThread()->getPid());
+			responseProc->apply(rdvTrans->getResponse());
+		}
+		prob *= trans->prob;
 
-    auto progTrans = dynamic_cast<programTransition *>(trans);
-    auto procTrans = dynamic_cast<threadTransition *>(progTrans->getProgTrans());
-    assert(procTrans);
+	} else {
 
-    // warning if "different" procs have the same pid i.e., dynamic proc creation
-    // not sure about that
+		auto progTrans = dynamic_cast<programTransition*>(trans);
+		auto procTrans = dynamic_cast<threadTransition*>(progTrans->getProcTrans()); 
+		assert(procTrans);
 
-    auto proc = getProc(procTrans->getThread()->getPid());
-    assert(proc);
+		//warning if "different" procs have the same pid i.e., dynamic proc creation
+		//not sure about that
 
-    // The transition is not guaranteed to be executable, so we must be able to handle erroneous transitions.
-    proc->apply(procTrans);
+		auto proc = getProc(procTrans->getThread()->getPid());
+		assert(proc);
 
-    // that is ugly, should return a progtrans in the first place
-    trans = new programTransition(this, procTrans);
-    prob *= trans->prob;
-  }
+		proc->apply(procTrans);
 
-  // assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);
+		prob *= trans->prob;
+	}
 
-  origin = trans;
-  assert(trans->dst == nullptr);
-  trans->dst = this;
+	assert(!getProc(lastStepPid)->isAtomic() || getExclusiveProcId() == lastStepPid);
+
+	origin = trans;
+	assert(trans->dst == nullptr);
+	trans->dst = this;
 }
 
 bool program::nullstate(void) const

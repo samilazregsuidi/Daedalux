@@ -3,49 +3,50 @@
 #include <string.h>
 #include <time.h>
 
-#include "program.hpp"
-#include "rendezVousTransition.hpp"
 #include "thread.hpp"
+
+#include "rendezVousTransition.hpp"
+#include "paramList.hpp"
 #include "transition.hpp"
 
-#include "channel.hpp"
 #include "payload.hpp"
 #include "variable.hpp"
+
+#include "scalarVar.hpp"
+#include "pidVar.hpp"
 
 #include "ast.hpp"
 #include "automata.hpp"
 
 #include "initState.hpp"
 
-thread::thread(variable::Type type, const seqSymNode * sym, const fsmNode * start, byte pid, unsigned int index)
-    : state(type, sym->getName()), symType(sym), index(index), start(start), _else(false), pid(pid)
+#include "pidVar.hpp"
+
+thread::thread(variable::Type type, const std::string& name, const fsmNode* start, ubyte pid)
+	: state(type, name)
+	, start(start)
+	, _else(false)
+  , pid(pid)
 {
-
-  // seq sym node need boud attr. if arrays 
-  // Why do we need to assert that the index is 0?
-  assert(index == 0);
-
   addRawBytes(sizeof(const fsmNode *));
 }
 
-thread::thread(const thread & other)
-    : state(other), symType(other.symType), index(other.index), start(other.start), _else(other._else), pid(other.pid)
-{
+thread::thread(const thread& other)
+	: state(other)
+	, start(other.start)
+	, _else(other._else)
+  , pid(other.pid)
+{}
+
+void thread::init(void) {
+	//assert(getProgState());
+
+	variable::init();
+	setFsmNodePointer(start);
 }
 
-thread::thread(const thread * other)
-    : state(other), symType(other->symType), index(other->index), start(other->start), _else(other->_else), pid(other->pid)
-{
-}
-
-void thread::init(void)
-{
-  // assert(getProgState());
-
-  variable::init();
-  setFsmNodePointer(start);
-
-  variable::getTVariable<PIDVar *>("_pid")->setValue(pid);
+void thread::setPid(ubyte pid) {
+  this->pid = pid;
 }
 
 std::vector<std::shared_ptr<statePredicate>> thread::getPredicates(void) const{
@@ -53,13 +54,8 @@ std::vector<std::shared_ptr<statePredicate>> thread::getPredicates(void) const{
 }
 
 
-byte thread::getPid(void) const { return payLoad ? variable::getTVariable<PIDVar *>("_pid")->getValue() : pid; }
-
-void thread::setPid(byte pid)
-{
-  this->pid = pid;
-  if (payLoad)
-    variable::getTVariable<PIDVar *>("_pid")->setValue(pid);
+ubyte thread::getPid(void) const {
+	return pid;
 }
 
 const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }
@@ -109,93 +105,91 @@ std::string thread::getVarName(const expr * varExpr) const
   return varName; // only to please compiler
 }
 
-variable * thread::getVariable(const expr * varExpr) const
+paramList thread::getOutputParamList(const exprRArgList * rargs) const
+{
+  paramList res;
+  while (rargs) {
+    auto exp = rargs->getExprRArg();
+    if(exp->getType() == astNode::E_RARG_VAR)
+      res.push_back(new paramRef(get<scalarInt*>(getVarName(exp))));
+    else
+      res.push_back(new paramValue(eval(exp, EVAL_EXPRESSION)));
+    rargs = rargs->getRArgList();
+  }
+  return res;
+}
+
+paramList thread::getInputParamList(const exprArgList * args) const
+{
+  paramList res;
+  while (args) {
+    auto exp = args->getExprArg()->getExpr();
+    res.push_back(new paramValue(eval(exp, EVAL_EXPRESSION)));
+    args = args->getArgList();
+  }
+  return res;
+}
+
+/*variable * thread::getVariableFromExpr(const expr * varExpr) const
 {
   auto varName = getVarName(varExpr);
-  return variable::getVariable(varName);
-}
+  return get(varName);
+}*/
 
-std::list<variable *> thread::getVariables(const exprArgList * args) const
+/**
+ * @brief Get the arguments of a channel send.
+ * get the variables or the values of the arguments of a channel send.
+ * @param args
+ * @return std::list<arg> 
+*/
+/*
+argList thread::getArgs(const exprArgList * args) const
 {
-  std::list<variable *> res;
+  std::list<arg> res;
   while (args) {
     auto exp = args->getExprArg()->getExpr();
-    variable * ptr;
     if (exp->getType() == astNode::E_EXPR_CONST)
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
+      res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
     else
-      ptr = getVariable(exp);
-    res.push_back(ptr);
+      res.push_back(arg(dynamic_cast<variable*> (getVariableFromExpr(exp))));
     args = args->getArgList();
   }
   return res;
-}
+}*/
 
-std::list<const variable *> thread::getConstVariables(const exprArgList * args) const
-{
-  std::list<const variable *> res;
-  while (args) {
-    auto exp = args->getExprArg()->getExpr();
-    const variable * ptr;
-    if (exp->getType() == astNode::E_EXPR_CONST)
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
-    else
-      ptr = getVariable(exp);
-    res.push_back(ptr);
-    args = args->getArgList();
-  }
-  return res;
-}
+/**
+ * @brief Get the arguments of a channel receive.
+ * get the variables or the values of the arguments of a channel receive.
+ * variables are used to store the values of the received arguments.
+ * values are used to compare the received arguments with the expected ones.
+ * values should be equal to the received arguments to be executed
+ * @param rargs
+ * @return std::list<arg> 
+*/
 
-std::list<variable *> thread::getVariables(const exprRArgList * rargs) const
+/*argList thread::getRArgs(const exprRArgList * rargs) const
 {
-  std::list<variable *> res;
+  std::list< arg> res;
   while (rargs) {
     auto exp = rargs->getExprRArg();
-    variable * ptr;
     switch (exp->getType()) {
     case astNode::E_RARG_CONST:
     case astNode::E_RARG_EVAL:
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
+      res.push_back(arg(eval(exp, EVAL_EXPRESSION)));
       break;
     case astNode::E_RARG_VAR:
-      ptr = getVariable(exp);
+      res.push_back(arg(dynamic_cast<variable*>(getVariableFromExpr(exp))));
       break;
     default:
       assert(false);
       break;
     }
-    res.push_back(ptr);
     rargs = rargs->getRArgList();
   }
   return res;
-}
+}*/
 
-std::list<const variable *> thread::getConstVariables(const exprRArgList * rargs) const
-{
-  std::list<const variable *> res;
-  while (rargs) {
-    auto exp = rargs->getExprRArg();
-    const variable * ptr;
-    switch (exp->getType()) {
-    case astNode::E_RARG_CONST:
-    case astNode::E_RARG_EVAL:
-      ptr = new constVar(eval(exp, EVAL_EXPRESSION), variable::getVarType(exp->getExprType()), exp->getLineNb());
-      break;
-    case astNode::E_RARG_VAR:
-      ptr = getVariable(exp)->deepCopy();
-      break;
-    default:
-      assert(false);
-      break;
-    }
-    res.push_back(ptr);
-    rargs = rargs->getRArgList();
-  }
-  return res;
-}
-
-channel * thread::getChannel(const expr * varExpr) const { return variable::getChannel(getVarName(varExpr)); }
+//channel * thread::getChannelFromExpr(const expr * varExpr) const { return variable::getChannel(getVarName(varExpr)); }
 
 bool thread::isAccepting(void) const { return endstate() ? false : getFsmNodePointer()->getFlags() & fsmNode::N_ACCEPT; }
 
@@ -218,11 +212,24 @@ bool thread::operator==(const variable * other) const
 
 bool thread::operator!=(const variable * other) const { return !(*this == other); }
 
+variable * thread::operator=(const variable * other)
+{
+  variable::operator=(other);
+  auto cast = dynamic_cast<const thread *>(other);
+  if(cast)
+    setFsmNodePointer(cast->getFsmNodePointer());
+  else 
+    assert(false);
+  return this;
+}
+
 void thread::printGraphViz(unsigned long i) const {}
 
 float thread::delta(const variable * s2, bool considerInternalVariables) const
 {
   auto cast = dynamic_cast<const thread *>(s2);
+  if(!cast)
+    return 1;
   auto delta =  variable::delta(s2, considerInternalVariables) * 0.5;
 
   auto node = getFsmNodePointer();

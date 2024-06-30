@@ -5,6 +5,7 @@
 #include "../../src/core/automata/fsmEdge.hpp"
 #include "../../src/core/automata/fsmNode.hpp"
 #include "../../src/algorithm/utils/bisimulationChecker.hpp"
+#include "../../src/promela/parser/promela_loader.hpp"
 
 
 // Define a fixture for the tests

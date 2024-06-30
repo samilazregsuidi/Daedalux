@@ -23,9 +23,16 @@ state::state(const state & other)
 {
 }
 
-state::state(const state * other)
-    : variable(other), prob(other->prob), origin(nullptr), errorMask(other->errorMask), secret(other->secret)
-{
+state::state(const state& other)
+	: variable(other)
+	, prob(other.prob)
+	, origin(nullptr)
+	, errorMask(other.errorMask)
+{}
+
+state::~state() {
+	if(origin)
+		delete origin;
 }
 
 state::~state()
