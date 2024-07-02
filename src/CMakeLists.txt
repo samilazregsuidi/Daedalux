@@ -39,7 +39,7 @@ add_link_options(
 
 # Build CUDD library
 #add_custom_target(CUDD_project
-#	COMMAND sh install.sh
+#	COMMAND sudo -A sh install.sh
 #	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/libs/cudd
 #	COMMENT "building CUDD"
 #)
@@ -225,11 +225,12 @@ PUBLIC
 target_link_directories(daedalux_lib
 	PUBLIC
 
-	libs/cudd/lib
+	libs/cudd/cudd/.libs
 	libs/cudd/cplusplus/.libs/
 	)
 
 target_link_libraries(daedalux_lib libobj.a libcudd.a)
+
 #add_dependencies(daedalux_lib CUDD_project)
 add_dependencies(daedalux_lib LTL2BA_project)
 
@@ -406,7 +407,7 @@ target_include_directories(daedalux
 target_link_directories(daedalux
 	PUBLIC
 
-	libs/cudd/lib
+	libs/cudd/cudd/.libs
 	libs/cudd/cplusplus/.libs/
 	)
 
