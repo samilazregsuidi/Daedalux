@@ -93,7 +93,9 @@ void run_modelchecking(ModelCheckingOptions const & opt)
     // Try to guess name of feature model file name
     std::string tvlFile = std::string(opt.input_file).replace(opt.input_file.find(".pml"), 4, ".tvl");
     printf("tvl file = %s\n", tvlFile.c_str());
-	// Some basic validity checks
+  }
+  // Some basic validity checks
+  
 	if (!opt.tvl_file.empty())
 	{
 		if (!tvl->loadFeatureModel(opt.tvl_file, "")){
@@ -202,20 +204,11 @@ void run_modelchecking(ModelCheckingOptions const & opt)
   delete globalSymTab;
 }
 
+
+
+
 bool verify_modelchecking_options(ModelCheckingOptions const & opt)
 {
-  bool valid = true;
-  if (!opt.check) {
-    if (opt.ltl.empty() && opt.ltlPropFile.empty()) {
-      if (opt.multiLtl.empty() && opt.multiLtlPropFile.empty()) {
-        std::cout << "No properties to verify have been specified" << std::endl;
-        valid = false;
-      }
-    }
-  }
-  else {
-    valid = !(opt.ltl.empty() && opt.ltlPropFile.empty() && opt.multiLtl.empty() && opt.multiLtlPropFile.empty());
-  }
 	bool valid = true;
 	/*if(!opt.check) {
 		if(opt.ltl.empty() && opt.ltlPropFile.empty()){

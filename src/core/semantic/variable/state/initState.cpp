@@ -20,7 +20,6 @@
 
 #include "channelVar.hpp"
 #include "structVar.hpp"
-#include "boolVar.hpp"
 #include "mtypeVar.hpp"
 
 #include "argExpr.hpp"

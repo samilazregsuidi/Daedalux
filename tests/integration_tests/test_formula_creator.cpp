@@ -1,4 +1,5 @@
 #include "../../src/core/semantic/variable/state/state.hpp"
+#include "../../src/core/semantic/variable/state/initState.hpp"
 #include "../../src/formulas/formulaCreator.hpp"
 #include "../../src/promela/parser/promela_loader.hpp"
 

@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+#include "../../src/promela/parser/promela_loader.hpp"
 #include "../../src/algorithm/fsmExplorer.hpp"
 #include "../../src/algorithm/utils/stateComparer.hpp"
 

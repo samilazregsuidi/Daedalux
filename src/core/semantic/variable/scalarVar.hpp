@@ -153,26 +153,26 @@ public:
     return getValue();
   }
 
-  float delta(const variable * other) const override {
+  float delta(const variable * other, bool considerInternalVariables) const override {
     auto cast = dynamic_cast<const scalar<T, E> *>(other);
     if (!cast)
       return 1;
 
-    float value = getValue();
-    float otherValue = cast->getValue();
+    T value = getValue();
+    T otherValue = cast->getValue();
 
-    float diff = std::abs(value - otherValue);
+    float diff = std::abs(float(value - otherValue));
     auto delta = 1.0 - (1.0 / (diff + 1.0));
     return delta;
   }
 
-  std::list<variable *> getDelta(const variable * other) const override {
+  std::list<variable *> getDelta(const variable * other, bool considerInternalVariables) const override {
     auto cast = dynamic_cast<const scalar<T, E> *>(other);
     if (!cast)
       return std::list<variable *>();
 
     std::list<variable *> res;
-    auto delta = this->delta(cast);
+    auto delta = this->delta(cast, considerInternalVariables);
 
     if (delta > 0.00000001) {
       res.push_back(this->deepCopy());
@@ -180,18 +180,17 @@ public:
     return res;
   }
 
-  void printDelta(const variable * other) const override {
+  void printDelta(const variable * other, bool considerInternalVariables) const override {
     auto cast = dynamic_cast<const scalar<T, E> *>(other);
     if (!cast)
       return;
 
-    auto delta = this->delta(cast);
-
-    if (delta > 0.00000001) {
+    if (!this->isSame(other, considerInternalVariables)) {
       auto name = getFullName();
-      auto value = getValue();
-      auto otherValue = cast->getValue();
+      T value = this->getValue();
+      T otherValue = cast->getValue();
       auto OtherName = cast->getFullName();
+      auto delta = this->delta(cast, considerInternalVariables);
       printf("%s = %d, %s = %d, delta = %f\n", name.c_str(), value, OtherName.c_str(), otherValue, delta);
     }
   }

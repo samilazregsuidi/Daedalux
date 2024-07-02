@@ -85,14 +85,6 @@ transition::~transition()
   // assert(subTs.empty());
 }
 
-void transition::add(transition * t)
-{
-  if (t == nullptr)
-    return;
-  t->parent = this;
-  subTs.push_back(t);
-}
-
 void transition::add(const std::list<transition *> & Ts)
 {
   for (auto t : Ts)
@@ -132,22 +124,6 @@ transition* transition::getTransition(const std::string& stateName) const {
 		}
 	}
 	return nullptr;
-}
-
-double transition::getProbability(void) const { return prob; }
-
-void transition::detach(transition * t)
-{
-  auto it = std::find(subTs.begin(), subTs.end(), t);
-  assert(it != subTs.end());
-  (*it)->parent = nullptr;
-  subTs.erase(it);
-}
-
-void transition::detach(const std::list<transition *> & Ts)
-{
-  for (auto t : Ts)
-    detach(t);
 }
 
 double transition::getProbability(void) const { return prob; }

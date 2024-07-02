@@ -1,3 +1,5 @@
+#include "../../src/promela/parser/promela_loader.hpp"
+#include "../../src/core/semantic/variable/state/initState.hpp"
 #include "../../src/core/semantic/variable/state/state.hpp"
 #include "../../src/formulas/formula.hpp"
 #include "../../src/formulas/formulaCreator.hpp"

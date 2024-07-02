@@ -6,7 +6,6 @@
 #include <algorithm> // Include the necessary header file
 #include <iostream>
 #include <iterator> // for std::begin, std::end
-#include <mtypeVariable.hpp>
 #include <numeric> // for std::accumulate
 #include <sstream>
 #include <utils/stateComparer.hpp>

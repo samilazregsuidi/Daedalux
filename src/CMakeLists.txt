@@ -84,9 +84,8 @@ add_library(daedalux_lib STATIC
 
 	core/semantic/payload.cpp
 	core/semantic/variable/variable.cpp
-	core/semantic/variable/variableDecorator.cpp
-	core/semantic/variable/boolVar.cpp
 	core/semantic/variable/queueVar.cpp
+	core/semantic/variable/structVar.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
 	core/semantic/variable/state/composite.cpp
@@ -280,9 +279,8 @@ add_executable(daedalux
 	
 	core/semantic/payload.cpp
 	core/semantic/variable/variable.cpp
-	core/semantic/variable/variableDecorator.cpp
-	core/semantic/variable/boolVar.cpp
 	core/semantic/variable/queueVar.cpp
+	core/semantic/variable/structVar.cpp
 	core/semantic/variable/state/state.cpp
 	core/semantic/variable/state/stateDecorator.cpp
 	core/semantic/variable/state/composite.cpp

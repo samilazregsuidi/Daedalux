@@ -18,13 +18,13 @@ protected:
   }
 };
 
-TEST_F(VariableBuilderTest, BasicVariables)
-{
-  PrimitiveVariable* var = new PrimitiveVariable("i", symbol::T_INT);
-  var->setInitValue(1);
-  PrimitiveVariable* var = new PrimitiveVariable("j", symbol::T_INT);
+// TEST_F(VariableBuilderTest, BasicVariables)
+// {
+//   PrimitiveVariable* var = new PrimitiveVariable("i", symbol::T_INT);
+//   var->setInitValue(1);
+//   PrimitiveVariable* var = new PrimitiveVariable("j", symbol::T_INT);
 
-}
+// }
 
 // TEST_F(stateInit, InitStateHelloWorldChan)
 // {

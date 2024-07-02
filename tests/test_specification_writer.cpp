@@ -26,6 +26,8 @@ protected:
 
 extern void init_lex();
 
+namespace fs = std::filesystem;
+
 bool compare_original_and_written_programs(std::string file_name)
 {
   symTable * globalSymTab;

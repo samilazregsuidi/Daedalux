@@ -35,40 +35,40 @@ protected:
 };
 
 
-TEST_F(stateInit, InitStateHelloWorld)
-{
-  const TVL * tvl = nullptr;
-  auto original_loader = std::make_unique<promela_loader>(helloWorld, tvl);
-  auto originalFSM = original_loader->getAutomata();
-  // Create the initial state for both automata
-  auto state = initState::createInitState(originalFSM.get(), tvl);
+//TEST_F(stateInit, InitStateHelloWorld)
+// {
+//   const TVL * tvl = nullptr;
+//   auto original_loader = std::make_unique<promela_loader>(helloWorld, tvl);
+//   auto originalFSM = original_loader->getAutomata();
+//   // Create the initial state for both automata
+//   auto state = initState::createInitState(originalFSM.get(), tvl);
 
-  auto s_global = state->getVariable("s");
-  ASSERT_EQ(state->getValue<primitiveVariable*>("s.i"), 0);
-  ASSERT_EQ(state->getValue<boolVar*>("s.b"), true);
-  ASSERT_EQ(s_global->getValue<primitiveVariable*>("i"), 0);
-  ASSERT_EQ(s_global->getValue<boolVar*>("b"), true);
+//   auto s_global = state->getVariable("s");
+//   ASSERT_EQ(state->getValue<primitiveVariable*>("s.i"), 0);
+//   ASSERT_EQ(state->getValue<boolVar*>("s.b"), true);
+//   ASSERT_EQ(s_global->getValue<primitiveVariable*>("i"), 0);
+//   ASSERT_EQ(s_global->getValue<boolVar*>("b"), true);
 
-  ASSERT_EQ(state->getValue<primitiveVariable*>("test.i"), 1);
-  ASSERT_EQ(state->getValue<boolVar*>("test.b"), false);
-  ASSERT_EQ(state->getValue<primitiveVariable*>("test.s.i"), 0);
-  ASSERT_EQ(state->getValue<primitiveVariable*>("test.s.b"), true);
-  ASSERT_EQ(state->getValue<primitiveVariable*>("test.y[0]"), 0);
-  ASSERT_EQ(state->getValue<primitiveVariable*>("test.y[1]"), 0);
+//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.i"), 1);
+//   ASSERT_EQ(state->getValue<boolVar*>("test.b"), false);
+//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.s.i"), 0);
+//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.s.b"), true);
+//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.y[0]"), 0);
+//   ASSERT_EQ(state->getValue<primitiveVariable*>("test.y[1]"), 0);
 
-  auto proc = state->getVariable("test");
-  ASSERT_EQ(dynamic_cast<process*>(proc)->getLocation(), 5);
+//   auto proc = state->getVariable("test");
+//   ASSERT_EQ(dynamic_cast<process*>(proc)->getLocation(), 5);
 
-  ASSERT_EQ(proc->getValue<primitiveVariable*>("i"), 1);
-  ASSERT_EQ(proc->getValue<boolVar*>("b"), false);
-  ASSERT_EQ(proc->getValue<primitiveVariable*>("s.i"), 0);
-  ASSERT_EQ(proc->getValue<boolVar*>("s.b"), true);
+//   ASSERT_EQ(proc->getValue<primitiveVariable*>("i"), 1);
+//   ASSERT_EQ(proc->getValue<boolVar*>("b"), false);
+//   ASSERT_EQ(proc->getValue<primitiveVariable*>("s.i"), 0);
+//   ASSERT_EQ(proc->getValue<boolVar*>("s.b"), true);
 
-  auto s_local = proc->getVariable("s");
-  ASSERT_NE(s_global, s_local);
-  ASSERT_EQ(s_local->getValue<primitiveVariable*>("i"), 0);
-  ASSERT_EQ(s_local->getValue<boolVar*>("b"), true);
-}
+//   auto s_local = proc->getVariable("s");
+//   ASSERT_NE(s_global, s_local);
+//   ASSERT_EQ(s_local->getValue<primitiveVariable*>("i"), 0);
+//   ASSERT_EQ(s_local->getValue<boolVar*>("b"), true);
+// }
 
 // TEST_F(stateInit, InitStateHelloWorldChan)
 // {

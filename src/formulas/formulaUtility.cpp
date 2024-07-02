@@ -2,14 +2,11 @@
 #include "formula.hpp"
 #include "formulaCreator.hpp"
 #include "ltl.hpp"
-#include "primitiveVariable.hpp"
 #include "state.hpp"
 #include "scalarVar.hpp"
-#include "utypeVariable.hpp"
 #include <algorithm>
 #include <iostream>
 #include <iterator> // for std::begin, std::end
-#include <mtypeVariable.hpp>
 #include <numeric> // for std::accumulate
 #include <sstream>
 #include <unordered_set>

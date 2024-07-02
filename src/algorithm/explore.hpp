@@ -29,6 +29,6 @@ void createStateSpaceDFS(const fsm * automata, const TVL * tvl = nullptr);
 void createStateSpaceBFS(const fsm * automata, const TVL * tvl = nullptr);
 void createStateSpaceDFS_RR(const fsm * automata, const TVL * tvl = nullptr);
 
-std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl);
+std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm>& automata, const size_t trace_length, const TVL * tvl);
 
 #endif

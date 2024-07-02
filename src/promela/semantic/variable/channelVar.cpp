@@ -56,23 +56,6 @@ void channel::receive(paramList& rargs) {
 	rargs.out(front());
 }
 
-float channel::delta(const variable* v2) const {
-	auto casted = dynamic_cast<const channel*>(v2);
-	if(!casted)
-		return 1;
-
-	float res = 0;
-	for(auto var : varList)
-		res += var->delta(v2->get(var->getLocalName()));
-
-	return res / varList.size();
-}
-
-void channel::printDelta(const variable* v2) const {
-	for(auto var : varList)
-		var->printDelta(v2->get(var->getLocalName()));
-}
-
 bool channel::isRendezVous(void) const {
 	return rendezVous;
 }

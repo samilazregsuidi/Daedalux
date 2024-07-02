@@ -69,23 +69,21 @@ public:
 		V_VARIANT
 	};
 
-  variable(Type type, const std::string & name = std::string());
+	variable(Type type, const std::string & name = std::string());
 
-  variable(const variable & other);
+	variable(const variable & other);
 
-	variable(const variable& other);
+	virtual variable * deepCopy(void) const = 0;
 
-  virtual variable * deepCopy(void) const = 0;
+	virtual ~variable();
 
-  virtual ~variable();
+  	/****************************************************/
 
-  /****************************************************/
-
-  virtual void init(void);
+	virtual void init(void);
 
 	virtual bool operator == (const variable* other) const;
 
-  virtual bool operator !=(const variable * other) const;
+ 	virtual bool operator !=(const variable * other) const;
 
 	virtual variable* operator=(const variable* other);
 
@@ -151,65 +149,59 @@ public:
 
 	virtual std::string getFullName(void) const;
 
-  virtual std::string getFullName(void) const;
+	virtual std::string getVisibleName(void) const;
 
-  virtual std::string getVisibleName(void) const;
+	virtual std::string getLocalName(void) const;
 
-  virtual std::string getLocalName(void) const;
-
-  void setName(std::string& name);
-  
+	void setName(std::string& name);
+	
 	virtual void assign(const variable* sc);
 
-  virtual variable::Type getType(void) const;
+	virtual Type getType(void) const;
 
-  virtual bool isGlobal(void) const;
+	virtual void setParent(variable * parent);
 
-  virtual void assign(const variable * sc);
+	virtual variable * getParent(void) const;
 
-  virtual void setParent(variable * parent);
+	virtual unsigned int getVariableId(void) const;
+	
+	virtual std::vector<std::shared_ptr<statePredicate>> getPredicates() const;
 
-  virtual variable * getParent(void) const;
+	/**********************************************************/
 
-  virtual unsigned int getVariableId(void) const;
-  
-  virtual std::vector<std::shared_ptr<statePredicate>> getPredicates() const;
+	virtual operator std::string(void) const;
 
-  /**********************************************************/
+	virtual void print(void) const;
 
-  virtual operator std::string(void) const;
+	virtual void printTexada(void) const;
 
-  virtual void print(void) const;
+	virtual void printCSV(std::ostream & out) const;
 
-  virtual void printTexada(void) const;
+	virtual void printCSVHeader(std::ostream & out) const;
 
-  virtual void printCSV(std::ostream & out) const;
+	virtual void printHexadecimal(void) const;
 
-  virtual void printCSVHeader(std::ostream & out) const;
+	/************************************************************/
 
-  virtual void printHexadecimal(void) const;
+	virtual size_t getSizeOf(void) const;
 
-  /************************************************************/
+	virtual size_t getOffset(void) const;
 
-  virtual size_t getSizeOf(void) const;
+	virtual size_t getEndOffset(void) const;
 
-  virtual size_t getOffset(void) const;
+	virtual void setPayload(payload * payLoad);
 
-  virtual size_t getEndOffset(void) const;
+	virtual payload * getPayload(void) const;
 
-  virtual void setPayload(payload * payLoad);
+	/************************************************************/
 
-  virtual payload * getPayload(void) const;
+	virtual void addRawBytes(size_t size);
 
-  /************************************************************/
+	// virtual void addField(const std::string& name, variable* var);
 
-  virtual void addRawBytes(size_t size);
+	virtual void _addVariable(variable * subVar);
 
-  // virtual void addField(const std::string& name, variable* var);
-
-  virtual void _addVariable(variable * subVar);
-
-  virtual void _rmVariable(const variable * var);
+	virtual void _rmVariable(const variable * var);
   
 	virtual std::map<std::string, variable*> getVariablesMap(void) const;
 
@@ -219,17 +211,17 @@ public:
 
 	//virtual channel* getChannel(const std::string& name) const;
 
-  virtual bool hasVariables(void) const;
+	virtual bool hasVariables(void) const;
 
-  virtual std::list<variable *> getVariables(void) const;
+	virtual std::list<variable *> getVariables(void) const;
 
-  virtual std::list<variable *> getAllVariables(void) const;
+	virtual std::list<variable *> getAllVariables(void) const;
 
-  virtual std::list<variable *> getAllVisibleVariables(bool excludeLocal = true) const;
+	virtual std::list<variable *> getAllVisibleVariables(bool excludeLocal = true) const;
 
-  virtual void clearVariables(void);
+	virtual void clearVariables(void);
 
-  virtual void reset(void);
+	virtual void reset(void);
 
   // std::list<variable*> addVariables(const varSymNode* sym);
 
@@ -237,7 +229,7 @@ public:
 
   // variable* addVariable(const varSymNode* varSym);
 
-  virtual unsigned long hash(void) const;
+  	virtual unsigned long hash(void) const;
 
 protected:
 	virtual variable* getVariableImpl(const std::string& name) const;
@@ -247,22 +239,20 @@ protected:
 public:
 	static Type getVarType(symbol::Type type);
 
-  virtual float delta(const variable * v2, bool considerInternalVariables) const;
+	virtual float delta(const variable * v2, bool considerInternalVariables) const;
 
-  virtual void printDelta(const variable * v2, bool considerInternalVariables) const;
+	virtual void printDelta(const variable * v2, bool considerInternalVariables) const;
 
-  virtual std::list<variable *> getDelta(const variable * v2, bool considerInternalVariables) const;
+	virtual std::list<variable *> getDelta(const variable * v2, bool considerInternalVariables) const;
 
-  bool isSame(const variable * other, bool considerInternalVariables) const;
+	virtual bool isSame(const variable * other, bool considerInternalVariables) const;
 
-  /*********************************************************/
+  	/*********************************************************/
 
-  static Type getVarType(symbol::Type type);
-
-  static unsigned int vidCounter;
+  	static unsigned int vidCounter;
 
 public:
-  std::string name;
+	std::string name;
 	variable* parent;
 	unsigned int vid;
 	Type varType;
@@ -276,11 +266,11 @@ public:
 	bool predef;
 	bool global;
 
-  private: 
+private: 
 
-  void forEachVar(const std::function<void(variable*)>& func) const {
-    std::for_each(varList.begin(), varList.end(), func);
-  }
+	void forEachVar(const std::function<void(variable*)>& func) const {
+		std::for_each(varList.begin(), varList.end(), func);
+	}
 };
 
 #endif

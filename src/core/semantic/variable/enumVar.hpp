@@ -21,38 +21,33 @@ public:
 
 	bool operator!=(const std::string & cmtype) const { return !(*this == cmtype); }
 
-	float delta(const variable* other) const override 
+	float delta(const variable * other, bool considerInternalVariables) const override
 	{
-		return 1;
-		/*
-		auto otherVar = dynamic_cast<const enumVar *>(other);
+		auto otherVar = dynamic_cast<const enumVar<T, E>*>(other);
 		if (!otherVar) {
-			// Not the same E
+			// Not the same type
 			return 1;
 		}
-		auto value = getValue();
-		auto otherValue = otherVar->getValue();
-		auto hasSameValue = (value == otherValue);
+		T value = this->getValue();
+		T otherValue = otherVar->getValue();
+		bool hasSameValue = (value == otherValue);
+		if (hasSameValue) {
+			return 0;
+		}
+
 		auto valueName = getValueName();
 		auto otherValueName = otherVar->getValueName();
 		auto hasSameValueName = (valueName.compare(otherValueName) == 0);
-		if (hasSameValueName && !hasSameValue) {
-			auto def = dynamic_cast<const mtypeSymNode *>(varSym)->getMTypeDef();
-			auto def_other = dynamic_cast<const mtypeSymNode *>(otherVar->varSym)->getMTypeDef();
-			auto offset = def->getIntValueOffset();
-			auto offset_other = def_other->getIntValueOffset();
-			auto value_minus_offset = value - offset;
-			auto value_minus_offset_other = otherValue - offset_other;
-			hasSameValue = (value_minus_offset == value_minus_offset_other);
-		}
-		return (hasSameValue && hasSameValueName) ? 0 : 1;*/
+		assert(!hasSameValueName);
+
+		return 0;
 	}
 
-	std::string getValueName(void) const { return def->getEnumName(scalar<T, E>::getValue()); }
+	std::string getValueName(void) const { assert(def); return def->getEnumName(this->getValue()); }
 
-	void printDelta(const variable * other) const override
+	void printDelta(const variable * other, bool considerInternalVariables) const override
 	{
-		if (variable::isSame(other))
+		if (this->isSame(other, considerInternalVariables))
 			return;
 
 		auto otherVar = dynamic_cast<const enumVar *>(other);
@@ -65,16 +60,13 @@ public:
 		printf("%s: %s -> %s\n", name.c_str(), valueName.c_str(), otherValueName.c_str());
 	}
 
-	std::list<variable *> getDelta(const variable * other) const override
+	std::list<variable *> getDelta(const variable * other, bool considerInternalVariables) const override
 	{
-		std::list<variable *> res;
-		if (scalar<T, E>::isSame(other))
-			return res;
-
 		auto otherVar = dynamic_cast<const enumVar *>(other);
-		if (!otherVar)
-			return res;
+		if (!otherVar || this->isSame(other, considerInternalVariables))
+			return std::list<variable *>();
 
+		std::list<variable *> res;
 		res.push_back(deepCopy());
 		return res;
 	}

@@ -19,10 +19,6 @@ public:
 
 	bool operator != (const variable* other) const override;
 
-	float delta(const variable* v2) const override;
-
-	void printDelta(const variable* v2) const override;
-
 	void send(const paramList& args);
 
 	bool isReceivable(const paramList& rargs) const;

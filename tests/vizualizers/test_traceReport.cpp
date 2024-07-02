@@ -3,9 +3,11 @@
 #include <sstream>
 
 #include "../../src/core/semantic/variable/state/composite.hpp"
+#include "../../src/core/semantic/variable/state/initState.hpp"
 #include "../../src/core/semantic/variable/transition/compositeTransition.hpp"
 #include "../../src/visualizer/trace.hpp"
 #include "../../src/visualizer/traceReport.hpp"
+#include "../../src/promela/parser/promela_loader.hpp"
 
 class TraceReportTest : public ::testing::Test {
 protected:

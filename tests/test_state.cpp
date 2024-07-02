@@ -1,5 +1,6 @@
 #include "../src/core/semantic/variable/state/composite.hpp"
 #include "../src/promela/parser/promela_loader.hpp"
+#include "../src/core/semantic/variable/state/initState.hpp"
 #include <gtest/gtest.h>
 
 class StateTest : public ::testing::Test {

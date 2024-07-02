@@ -2,6 +2,7 @@
 #include <list>
 #include <cstdlib>
 #include <memory>
+#include "../src/feature/ADDutils.cpp"
 #include "../src/core/semantic/variable/state/composite.hpp"
 #include "../src/core/semantic/variable/transition/compositeTransition.hpp"
 
@@ -24,7 +25,7 @@ TEST_F(TransitionTest, SampleNonUniformEmptyList) {
 
 TEST_F(TransitionTest, SampleNonUniformSingleElement) {
     std::list<transition*> transList;
-    auto s = std::make_unique<compState>("testState");
+    auto s = std::make_unique<composite>("testState");
     auto t = std::make_unique<compTransition>(s.get(), transList);
     t->prob = 0.5;
     transList.push_back(t.get());
@@ -36,17 +37,17 @@ TEST_F(TransitionTest, SampleNonUniformSingleElement) {
 
 TEST_F(TransitionTest, SampleNonUniformMultipleElements) {
     std::list<transition*> transList;
-    auto s1 = std::make_unique<compState>("testState");
+    auto s1 = std::make_unique<composite>("testState");
     auto t1 = std::make_unique<compTransition>(s1.get(), transList);
     t1->prob = 0.3;
     EXPECT_EQ(0.3, t1->getProbability());
     transList.push_back(t1.get());
-    auto s2 = std::make_unique<compState>("testState");
+    auto s2 = std::make_unique<composite>("testState");
     auto t2 = std::make_unique<compTransition>(s2.get(), transList);
     t2->prob = 0.6;
     EXPECT_EQ(0.6, t2->getProbability());
     transList.push_back(t2.get());
-    auto s3 = std::make_unique<compState>("testState");
+    auto s3 = std::make_unique<composite>("testState");
     auto t3 = std::make_unique<compTransition>(s3.get(), transList);
     t3->prob = 0.1;
     transList.push_back(t3.get());

@@ -1,5 +1,6 @@
 #include "../../src/mutants/spinRunner.cpp"
 #include <string>
+#include <gtest/gtest.h>
 
 // Define a fixture for the tests
 class SpinRunnerTest : public ::testing::Test {

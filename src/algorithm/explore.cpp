@@ -44,7 +44,7 @@ void launchExecution(const fsm * automata, const TVL * tvl)
   printf("--\n");
 }
 
-std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm> automata, const size_t trace_length, const TVL * tvl)
+std::unique_ptr<trace> interactiveDebugging(const std::shared_ptr<fsm>& automata, const size_t trace_length, const TVL * tvl)
 {
   // Create the initial state for both automata
   auto current_state = initState::createInitState(automata.get(), tvl);

@@ -11,7 +11,6 @@
 #include "threadTransition.hpp"
 #include "variable.hpp"
 #include "structVar.hpp"
-#include "boolVar.hpp"
 #include "mtypeVar.hpp"
 #include "channelVar.hpp"
 #include "featured.hpp"
