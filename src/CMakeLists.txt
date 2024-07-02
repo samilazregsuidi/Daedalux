@@ -256,7 +256,7 @@ PUBLIC
 target_link_directories(daedalux_lib
 	PUBLIC
 
-	libs/cudd/lib
+	libs/cudd/cudd/.libs
 	libs/cudd/cplusplus/.libs/
 	)
 
@@ -447,7 +447,7 @@ target_include_directories(daedalux
 target_link_directories(daedalux
 	PUBLIC
 
-	libs/cudd/lib
+	libs/cudd/cudd/.libs
 	libs/cudd/cplusplus/.libs/
 	)
 

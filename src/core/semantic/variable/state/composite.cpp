@@ -35,6 +35,11 @@ composite* composite::deepCopy(void) const {
 	return new composite(*this);
 }
 
+void composite::addState(state* s) {
+	assert(s);
+	_addVariable(s);
+}
+
 void composite::addNeverState(state * s)
 {
   assert(s);
@@ -190,32 +195,29 @@ std::list<transition *> composite::executables(void) const
  * Applies the transition to the state.
  */
 
-void composite::apply(transition * trans)
-{
-  // This is temporally commented out to make some tests pass
-  assert(trans->src != nullptr);
-  assert(trans->src != this);
-  assert(trans->dst == nullptr); // Apply most not have been called on this transition before
-  assert(origin == nullptr);
-  auto compTrans = dynamic_cast<const compTransition *>(trans);
-  // Ensure that the cast was successful
-  assert(compTrans);
+void composite::apply(transition* trans) {
+	// This is temporally commented out to make some tests pass
+	assert(trans->src != nullptr);
+	assert(trans->src != this);
+	assert(trans->dst == nullptr); // Apply most not have been called on this transition before
+	assert(origin == nullptr);
+	auto compTrans = dynamic_cast<const compTransition*>(trans);
+	// Ensure that the cast was successful
+	assert(compTrans);
 
-  for (auto t : compTrans->getSubTs()) {
-    // std::cout << trans->src->getLocalName() << std::endl;
-    auto localName = t->src->getLocalName();
-    auto s = getSubState(localName);
-    if (s == nullptr) {
-      throw std::runtime_error("Error: " + localName + " not found in " + getLocalName());
-    }
-    s->apply(t);
-  }
-  
-  // Todo here - src and dst should not be the same
-  prob *= trans->prob;
-  origin = trans;
-  trans->dst = this;
-  assert(trans->src != trans->dst);
+	for(auto t : compTrans->getSubTs()) {
+		//std::cout << trans->src->getLocalName() << std::endl;
+		auto localName = t->src->getLocalName();
+		auto s = getSubState(localName);
+		assert(s);
+		s->apply(t);
+	}
+	//Todo here - src and dst should not be the same
+
+	prob *= trans->prob;
+	origin = trans;
+	trans->dst = this;
+	assert(trans->src != trans->dst);
 }
 
 /**

@@ -56,15 +56,8 @@ public:
 	 * This parameter is only true when destroying a stack element where the payload and boolean function
 	 * are still used in the visited states hashtable.
 	 */
-	~composite() override;
 
 	std::list<transition*> executables(void) const override;
-
-	std::list<transition*> executables(state* state) const;
-
-	std::list<transition*> executables(byte state_id) const;
-
-	std::map<state*, std::list<transition*>> executablesMap(void) const;
 
 	void assign(const variable* sc) override;
 
