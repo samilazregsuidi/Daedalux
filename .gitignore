@@ -34,19 +34,8 @@ tests/test_suite
 *.Plo
 *.Po
 **/.dirstamp
-src/libs/cudd/dddmp/exp/test1.sh
-src/libs/cudd/dddmp/exp/test2.sh
-src/libs/cudd/dddmp/exp/test3.sh
-src/libs/cudd/dddmp/exp/test4.sh
-src/libs/cudd/dddmp/exp/test5.sh
-src/libs/cudd/dddmp/exp/test6.sh
-src/libs/cudd/dddmp/exp/test7.sh
-src/libs/cudd/stamp-h1
-src/libs/cudd/libtool
-src/libs/cudd/config.h
-src/libs/cudd/config.log
-src/libs/cudd/config.status
-src/libs/cudd/include/*
+
+src/libs/*
 
 # Ignore the SPIN generated files
 **/pan.*

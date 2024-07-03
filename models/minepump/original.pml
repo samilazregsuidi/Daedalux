@@ -9,10 +9,6 @@ bool pumpOn = false;
 bool methane = false;
 mtype waterLevel = medium;
 mtype uwants = stop;
-
-mtype = {controllerTurn, userTurn, alarmTurn, levelTurn}
-turn = controllerTurn
-
 active proctype controller(){
 	mtype pcommand = start;
 	mtype level = medium;

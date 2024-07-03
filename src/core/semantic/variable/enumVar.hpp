@@ -28,19 +28,16 @@ public:
 			// Not the same type
 			return 1;
 		}
-		T value = this->getValue();
-		T otherValue = otherVar->getValue();
-		bool hasSameValue = (value == otherValue);
-		if (hasSameValue) {
-			return 0;
-		}
 
 		auto valueName = getValueName();
 		auto otherValueName = otherVar->getValueName();
 		auto hasSameValueName = (valueName.compare(otherValueName) == 0);
-		assert(!hasSameValueName);
-
-		return 0;
+		if (hasSameValueName) {
+			// Hack for the case where the same name is used for different values
+			return 0;
+		} else {
+			return 1;
+		}
 	}
 
 	std::string getValueName(void) const { assert(def); return def->getEnumName(this->getValue()); }

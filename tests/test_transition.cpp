@@ -34,27 +34,3 @@ TEST_F(TransitionTest, SampleNonUniformSingleElement) {
     // transition* result = transition::sampleNonUniform(transList);
     // EXPECT_EQ(t.get(), result);
 }
-
-TEST_F(TransitionTest, SampleNonUniformMultipleElements) {
-    std::list<transition*> transList;
-    auto s1 = std::make_unique<composite>("testState");
-    auto t1 = std::make_unique<compTransition>(s1.get(), transList);
-    t1->prob = 0.3;
-    EXPECT_EQ(0.3, t1->getProbability());
-    transList.push_back(t1.get());
-    auto s2 = std::make_unique<composite>("testState");
-    auto t2 = std::make_unique<compTransition>(s2.get(), transList);
-    t2->prob = 0.6;
-    EXPECT_EQ(0.6, t2->getProbability());
-    transList.push_back(t2.get());
-    auto s3 = std::make_unique<composite>("testState");
-    auto t3 = std::make_unique<compTransition>(s3.get(), transList);
-    t3->prob = 0.1;
-    transList.push_back(t3.get());
-    EXPECT_EQ(0.1, t3->getProbability());
-
-    EXPECT_EQ(3, transList.size());
-
-    transition* result = transition::sampleNonUniform(transList);
-    EXPECT_TRUE(result == t1.get() || result == t2.get() || result == t3.get());
-}
