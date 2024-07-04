@@ -20,6 +20,7 @@ jobs:
       - name: Build Project
         run: |
           cd src/libs/cudd
+          sudo autoreconf
           sudo ./install.sh
 
       - name: Run Tests
