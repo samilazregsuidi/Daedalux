@@ -19,6 +19,7 @@ jobs:
 
       - name: Build Project
         run: | 
+          cd src/libs/cudd
           ./src/libs/cudd/install.sh
           cmake --build build
 
