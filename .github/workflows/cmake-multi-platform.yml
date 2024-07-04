@@ -20,7 +20,7 @@ jobs:
       - name: Build Project
         run: | 
           cd src/libs/cudd
-          ./src/libs/cudd/install.sh
+          ./install.sh
           cmake --build build
 
       - name: Run Tests
