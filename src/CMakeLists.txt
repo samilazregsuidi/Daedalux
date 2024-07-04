@@ -456,4 +456,4 @@ target_link_libraries(daedalux libobj.a libcudd.a)
 #add_dependencies(daedalux CUDD_project)
 add_dependencies(daedalux LTL2BA_project)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libs/bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libs/bin DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
