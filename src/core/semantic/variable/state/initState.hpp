@@ -30,7 +30,7 @@ typedef unsigned char ubyte;
 // State
 class initState {
 public:
-	static state* createInitState(const fsm* automata, const TVL* tvl);
+	static state* createInitState(const fsm* automata, const TVL* tvl = nullptr);
 
 	static variable* createPrimitive(const std::string& name, const varSymNode* sym);
 

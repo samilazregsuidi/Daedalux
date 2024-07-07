@@ -13,7 +13,13 @@
 template <typename T, variable::Type E> class scalar : public scalarInt {
 public:
 
-  scalar(const std::string& name, T initValue)
+  scalar(T initValue)
+    : scalarInt("", E)
+    , initValue(initValue)
+    , value(initValue)
+  {}
+
+  scalar(const std::string& name, T initValue = 0)
     : scalarInt(name, E) 
     , initValue(initValue)
     , value(initValue)

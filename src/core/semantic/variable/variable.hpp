@@ -245,7 +245,7 @@ public:
 
 	virtual std::list<variable *> getDelta(const variable * v2, bool considerInternalVariables) const;
 
-	virtual bool isSame(const variable * other, bool considerInternalVariables) const;
+	virtual bool isSame(const variable * other, bool considerInternalVariables = true) const;
 
   	/*********************************************************/
 
