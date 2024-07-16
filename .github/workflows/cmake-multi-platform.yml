@@ -18,9 +18,13 @@ jobs:
           source-dir: .
 
       - name: Build Project
-        run: | 
-          ./src/libs/cudd/install.sh
+        run: |
+          cd src/libs/cudd
+          sudo autoreconf
+          sudo ./install.sh
+          cd ../../..
           cmake --build build
+          
 
       - name: Run Tests
         run: ctest --test-dir build --output-on-failure
