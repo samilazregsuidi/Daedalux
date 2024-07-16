@@ -25,6 +25,8 @@ public:
 
 	const fsmEdge* getEdge(void) const;
 
+	unsigned int getLine(void) const;
+
 	int getLineNb(void) const;
 
 	astNode::Type getType(void) const;

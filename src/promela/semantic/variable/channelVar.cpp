@@ -80,17 +80,20 @@ bool channel::operator != (const variable* other) const {
 	return variable::operator!=(other);
 }
 
+float channel::delta(const variable* other, bool considerOtherVariable) const {
+	if(isRendezVous())
+		return 0;
+	assert(false);
+	return variable::delta(other, considerOtherVariable);
+}
+
 channel::operator std::string(void) const {
 	return "";
 }
 
-void channel::print(void) const {
+void channel::print(void) const {}
 
-}
-
-void channel::printTexada(void) const {
-
-}
+void channel::printTexada(void) const {}
 
 void channel::printCSV(std::ostream &out) const {}
 

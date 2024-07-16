@@ -23,6 +23,9 @@ public:
 	}
 
 	std::string getEnumName(T value) const {
+		if(value == 0) {
+			return "";
+		}
 		auto it = std::find_if(values.begin(), values.end(), [value](const std::pair<std::string, T>& p) { return p.second == value; });
 		assert(it != values.end());
 		return it->first;

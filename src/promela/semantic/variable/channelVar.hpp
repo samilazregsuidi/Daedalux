@@ -31,6 +31,8 @@ public:
 
 	byte getCapacity(void) const;
 
+	float delta(const variable* other, bool considerOtherVariable = true) const override;
+
 	operator std::string(void) const override;
 
 	void print(void) const override;

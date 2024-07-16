@@ -48,6 +48,10 @@ const fsmEdge* threadTransition::getEdge(void) const {
 	return edge;
 }
 
+unsigned int threadTransition::getLine(void) const {
+	return edge->getLineNb();
+}
+
 int threadTransition::getLineNb(void) const {
 	return getEdge()->getLineNb();
 }

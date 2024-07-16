@@ -110,6 +110,8 @@ public:
 
   virtual void applyRepeated(const std::list<transition *> & transList);
 
+  //virtual void apply(const std::list<std::pair<std::string, std::string>> & trans);
+
   // static state* apply(const state* s, transition* t);
 
   // static state* applyRepeated(const state* s, const std::list<transition*> transList);
@@ -123,6 +125,10 @@ public:
   // virtual state* Post(transition* trans) const;
 
   virtual state * fire(transition * trans) const;
+
+  virtual state * fire(const std::list<std::pair<std::string, unsigned int>> & trans) const;
+
+  virtual state * fire(const std::pair<std::string, const std::list<unsigned int>> & trans) const;
 
   // static std::shared_ptr<state> Post(transition* trans, const state* s);
 

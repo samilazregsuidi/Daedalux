@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "process.hpp"
 #include "state.hpp"
+#include "threadTransition.hpp"
 
 #include "stateVisitor.hpp"
 #include <iostream>
@@ -92,6 +92,53 @@ state * state::fire(transition * trans) const
   assert(copy->origin == trans);
   assert(trans->dst == copy);
 
+  return copy;
+}
+
+state* state::fire(const std::list<std::pair<std::string, unsigned int>>& transitions) const {
+  auto copy = deepCopy();
+  assert(copy);
+  assert(this != copy);
+
+  auto execs = this->executables();
+
+  for (auto executable : execs) {
+    bool found = true;
+    
+    for (const auto& [varName, edgeNum] : transitions) {
+      auto transition = dynamic_cast<threadTransition*>(executable->getTransition(varName));
+      if(!transition) {
+        std::cout << "The state " << std::string(*this) << " does not have a transition with the name " << varName << std::endl;
+        assert(transition);
+      }
+
+      if (transition->getLine() != edgeNum) {
+        found = false;
+        break;
+      }
+    }
+
+    if (found) {
+      copy->apply(executable);
+      return copy;
+    }
+  }
+
+  delete copy;
+
+  assert(false);
+  // If no transition was found, return nullptr
+  return nullptr;
+}
+
+state* state::fire(const std::pair<std::string, const std::list<unsigned int>>& trans) const {
+  auto copy = deepCopy();
+  assert(copy);
+  assert(this != copy);
+
+  const auto& [varName, edgeNums] = trans;
+  for(auto edgeNum : edgeNums)
+    copy = copy->fire({{varName, edgeNum}});
   return copy;
 }
 

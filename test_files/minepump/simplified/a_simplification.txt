@@ -1,0 +1,13 @@
+0	0	0	1	1
+0	0	1	0	1
+0	0	1	1	1
+0	1	0	0	1
+0	1	0	1	1
+0	1	1	0	1
+0	1	1	1	1
+1	1	0	0	1
+1	1	0	1	1
+1	1	1	0	1
+sensor level  alarm    user    ctrl
+
+ctrl && sensor -> level
