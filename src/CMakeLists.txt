@@ -82,7 +82,6 @@ add_library(daedalux_lib STATIC
 	core/automata/fsmNode.cpp
 	core/automata/fsmEdge.cpp
 
-	core/semantic/payload.cpp
 	core/semantic/variable/variable.cpp
 	core/semantic/variable/queueVar.cpp
 	core/semantic/variable/structVar.cpp
@@ -277,7 +276,6 @@ add_executable(daedalux
 	core/automata/fsmNode.cpp
 	core/automata/fsmEdge.cpp
 	
-	core/semantic/payload.cpp
 	core/semantic/variable/variable.cpp
 	core/semantic/variable/queueVar.cpp
 	core/semantic/variable/structVar.cpp

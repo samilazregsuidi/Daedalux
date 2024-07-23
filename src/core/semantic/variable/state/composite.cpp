@@ -259,8 +259,6 @@ state * composite::getSubState(const std::string & name) const { return get<stat
 
 std::list<state *> composite::getSubStates(void) const { return getAll<state *>(); }
 
-void composite::printHexadecimal(void) const { assert(false); }
-
 std::list<transition *> composite::transitions(void) const
 {
   std::list<transition *> res;

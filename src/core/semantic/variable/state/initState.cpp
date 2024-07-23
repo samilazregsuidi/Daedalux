@@ -310,9 +310,13 @@ state* initState::createProgState(const fsm* stateMachine, const std::string& na
 
 	program* s = new program(stateMachine, name);
 
-	mtypedefSymNode* mtypeDefSym = *stateMachine->getGlobalSymTab()->getSymbols<mtypedefSymNode*>().begin();
-	if(mtypeDefSym)
-		createMtypeEnum(s, mtypeDefSym);
+	if(stateMachine->getGlobalSymTab()->getSymbols<mtypedefSymNode*>().size() > 0) {
+		mtypedefSymNode* mtypeDefSym = *stateMachine->getGlobalSymTab()->getSymbols<mtypedefSymNode*>().begin();
+		if(mtypeDefSym)
+			createMtypeEnum(s, mtypeDefSym);
+	}
+
+	auto syms = stateMachine->getGlobalSymTab()->getSymbols<varSymNode*>();
 
 	for (auto sym : stateMachine->getGlobalSymTab()->getSymbols<const varSymNode*>()) {
 		addVariables(s, sym);

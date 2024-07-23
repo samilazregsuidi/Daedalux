@@ -749,8 +749,8 @@ Apply:
 
 void process::print(void) const {
 	auto node = getFsmNodePointer();
-	if(node) 	printf("0x%-4lx:   %s pid  %-13u @ NL%02u\n", getOffset(), getFullName().c_str(), getPid(), node->getLineNb());
-	else 		printf("0x%-4lx:   %s pid  %-13u @ end\n", getOffset(), getFullName().c_str(), getPid());
+	if(node) 	printf("%s pid  %-13u @ NL%02u\n", getFullName().c_str(), getPid(), node->getLineNb());
+	else 		printf("%s pid  %-13u @ end\n", getFullName().c_str(), getPid());
 
 	variable::print();
 }

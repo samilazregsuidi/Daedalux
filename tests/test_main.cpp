@@ -29,7 +29,10 @@
 
 // // SEMANTIC - TESTS
 //#include "semantic/test_executables.cpp"
-#include "semantic/test_similar.cpp"
+//#include "semantic/test_similar.cpp"
+//#include "semantic/test_similar_mutant.cpp"
+//#include "semantic/test_copy.cpp"
+#include "semantic/test_hash.cpp"
 
 //#include "unit_tests/test_state_comparer.cpp"
 

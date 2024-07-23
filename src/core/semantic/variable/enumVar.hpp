@@ -74,10 +74,10 @@ public:
 		auto value = scalar<T, E>::getValue();
 		if (value) {
 			auto valueName = this->getValueName();
-			sprintf(buffer, "0x%-4lx:   %-23s = %s\n", variable::getOffset(), variable::getFullName().c_str(), valueName.c_str());
+			sprintf(buffer, "%-23s = %s\n", variable::getFullName().c_str(), valueName.c_str());
 		}
 		else {
-			sprintf(buffer, "0x%-4lx:   %-23s = nil\n", variable::getOffset(), variable::getFullName().c_str());
+			sprintf(buffer, "%-23s = nil\n", variable::getFullName().c_str());
 		}
 		return buffer;
 	}

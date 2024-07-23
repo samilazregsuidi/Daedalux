@@ -17,7 +17,7 @@ channel::channel(const channel& other)
 	: queueVar(other)
 	, rendezVous(other.rendezVous)
 {
-	assert(getSizeOf() == other.getSizeOf());
+	assert(size() == other.size());
 }
 
 channel* channel::deepCopy(void) const{

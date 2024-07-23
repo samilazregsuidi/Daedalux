@@ -75,23 +75,7 @@ public:
 
 	void printCSVHeader(std::ostream& out) const override;
 
-	void printHexadecimal(void) const override;
-
 	/************************************************************/
-
-	size_t getSizeOf(void) const override;
-
-	size_t getOffset(void) const override;
-
-	size_t getEndOffset(void) const override;
-
-	void setPayload(payload* payLoad) override;
-	
-	payload* getPayload(void) const override;
-
-	/************************************************************/
-
-	void addRawBytes(size_t size) override;
 
 	//void addField(const std::string& name, variable* var) override;
 
@@ -111,7 +95,7 @@ public:
 
 	//variable* addVariable(const varSymNode* varSym) override;
 
-	std::map<std::string, variable*> getVariablesMap(void) const override;
+	std::unordered_map<std::string, variable*> getVariablesMap(void) const override;
 
 	unsigned long hash(void) const override;
 

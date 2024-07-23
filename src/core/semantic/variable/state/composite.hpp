@@ -114,8 +114,6 @@ public:
 
 	void printCSVHeader(std::ostream &out) const override;
 
-	void printHexadecimal(void) const override;
-
 	bool safetyPropertyViolation(void) const override;
 
 	bool nullstate(void) const override;

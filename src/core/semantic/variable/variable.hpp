@@ -4,7 +4,7 @@
 #include <list>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <algorithm>
 #include <functional>
@@ -179,23 +179,7 @@ public:
 
 	virtual void printCSVHeader(std::ostream & out) const;
 
-	virtual void printHexadecimal(void) const;
-
 	/************************************************************/
-
-	virtual size_t getSizeOf(void) const;
-
-	virtual size_t getOffset(void) const;
-
-	virtual size_t getEndOffset(void) const;
-
-	virtual void setPayload(payload * payLoad);
-
-	virtual payload * getPayload(void) const;
-
-	/************************************************************/
-
-	virtual void addRawBytes(size_t size);
 
 	// virtual void addField(const std::string& name, variable* var);
 
@@ -203,7 +187,7 @@ public:
 
 	virtual void _rmVariable(const variable * var);
   
-	virtual std::map<std::string, variable*> getVariablesMap(void) const;
+	virtual std::unordered_map<std::string, variable*> getVariablesMap(void) const;
 
 	virtual std::list<variable *> getVariablesList(void) const;
 
@@ -223,18 +207,22 @@ public:
 
 	virtual void reset(void);
 
+	virtual unsigned long hash(void) const;
+
+	virtual size_t size(void) const;
+
   // std::list<variable*> addVariables(const varSymNode* sym);
 
   // std::list<variable*> createVariables(const varSymNode* sym);
 
   // variable* addVariable(const varSymNode* varSym);
 
-  	virtual unsigned long hash(void) const;
-
 protected:
 	virtual variable* getVariableImpl(const std::string& name) const;
 
 	virtual variable* getVariableDownScoping(const std::string& name) const;
+
+	virtual void hash(byte* payload) const;
 
 public:
 	static Type getVarType(symbol::Type type);
@@ -257,11 +245,8 @@ public:
 	unsigned int vid;
 	Type varType;
 	size_t rawBytes;
-	std::map<std::string, variable*> varMap;
+	std::unordered_map<std::string, variable*> varMap;
 	std::vector<variable*> varList;
-	//size_t sizeOf;
-	size_t offset;
-	payload* payLoad;
 	bool hidden;
 	bool predef;
 	bool global;

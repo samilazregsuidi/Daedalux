@@ -6,9 +6,9 @@
 
 #include <cassert>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <list>
-#include <set>
+#include <unordered_set>
 #include <fstream>
 
 #include "symbol.hpp"
@@ -50,12 +50,12 @@ public:
 
 	symbol* lookupGlobal(const std::string& name) const;
 
-	std::set<symbol*> getSymbols(const symbol* left) const;
+	std::unordered_set<symbol*> getSymbols(const symbol* left) const;
 
-	std::set<symbol*> getSymbols(void) const;
+	std::unordered_set<symbol*> getSymbols(void) const;
 
-	template <typename T> std::set<T> getSymbols(void) const {
-		std::set<T> res;
+	template <typename T> std::unordered_set<T> getSymbols(void) const {
+		std::unordered_set<T> res;
 		for(auto sym : syms) {
 			if(dynamic_cast<T>(sym.second) != nullptr)
 				res.insert(dynamic_cast<T>(sym.second));
@@ -63,8 +63,8 @@ public:
 		return res;
 	}
 
-	template <typename T> std::set<T> getGlobalSymbols(void) const {
-		std::set<T> res = prev? prev->getGlobalSymbols<T>() : std::set<T>();
+	template <typename T> std::unordered_set<T> getGlobalSymbols(void) const {
+		std::unordered_set<T> res = prev? prev->getGlobalSymbols<T>() : std::unordered_set<T>();
 
 		for(auto sym : syms) {
 			if(dynamic_cast<T>(sym.second) != nullptr)
@@ -100,8 +100,6 @@ public:
 
 	bool isMultiSystems(void) const;
 
-	unsigned int getMemorySize(void) const;
-
 	operator std::string(void) const;
 
 	static void addPredefinedSym(symTable* tab);
@@ -119,7 +117,7 @@ protected:
 	stmnt* block;
 	symTable* prev;
 	std::list<symTable*> nexts;
-	std::unordered_map<std::string, symbol*> syms;
+	std::map<std::string, symbol*> syms;
 };
 
 #endif

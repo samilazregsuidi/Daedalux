@@ -104,8 +104,17 @@ public:
 
   void printDelta(const variable * v2, bool considerInternalVariables) const override;
 
+  size_t size(void) const override;
+
+  unsigned long hash(void) const override;
+
+protected:
+
+  void hash(byte* payload) const override;
+
 public:
   const fsmNode * const start;
+  const fsmNode * loc;
   mutable bool _else;
   ubyte pid;
 };

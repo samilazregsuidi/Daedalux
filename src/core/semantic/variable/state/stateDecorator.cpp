@@ -136,40 +136,8 @@ void stateDecorator::printCSVHeader(std::ostream& out) const {
 	wrappee->printCSVHeader(out);
 }
 
-void stateDecorator::printHexadecimal(void) const {
-	wrappee->printHexadecimal();
-}
-
-void stateDecorator::setPayload(payload* newPayLoad) {
-	wrappee->setPayload(newPayLoad);
-}
-
-payload* stateDecorator::getPayload(void) const {
-	return wrappee->getPayload();
-}
-
-unsigned long stateDecorator::hash(void) const {
-	return wrappee->hash();
-}
-
-size_t stateDecorator::getOffset(void) const {
-	return wrappee->getOffset();
-}
-
-size_t stateDecorator::getEndOffset(void) const {
-	return wrappee->getEndOffset();
-}
-
-void stateDecorator::addRawBytes(size_t size) {
-	wrappee->addRawBytes(size);
-}
-
-std::map<std::string, variable*> stateDecorator::getVariablesMap(void) const {
+std::unordered_map<std::string, variable*> stateDecorator::getVariablesMap(void) const {
 	return wrappee->getVariablesMap();
-}
-
-size_t stateDecorator::getSizeOf(void) const {
-	return wrappee->getSizeOf();
 }
 
 void stateDecorator::clearVariables(void) {
@@ -234,4 +202,8 @@ std::list<transition*> stateDecorator::transitions(void) const {
 
 void stateDecorator::accept(stateVisitor* visitor) {
 	wrappee->accept(visitor);
+}
+
+unsigned long stateDecorator::hash(void) const {
+	return wrappee->hash();
 }

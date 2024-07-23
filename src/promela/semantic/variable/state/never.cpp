@@ -341,8 +341,8 @@ Apply:
 
 void never::print(void) const {
 	auto node = getFsmNodePointer();
-	if(node)	printf("0x%-4lx:   never                               @ NL%02u %s\n", getOffset(), node->getLineNb(), node->getFlags() & fsmNode::N_ACCEPT ? " (accepting)" : "");
-	else 		printf("0x%-4lx:   never                               @ end\n", getOffset());
+	if(node)	printf("never                               @ NL%02u %s\n", node->getLineNb(), node->getFlags() & fsmNode::N_ACCEPT ? " (accepting)" : "");
+	else 		printf("never                               @ end\n");
 	
 	variable::print();
 }

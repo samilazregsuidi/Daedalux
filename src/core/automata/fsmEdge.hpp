@@ -46,11 +46,11 @@ public:
 
 public:
 	fsm* parent;
+	fsmNode *source;
+	fsmNode *target;
+	const astNode * expression;
 	int lineNb;
 	ADD features;
-	fsmNode *source;
-	const astNode * expression;
-	fsmNode *target;
 	double prob;
 	bool owner;
 };

@@ -25,15 +25,16 @@
 thread::thread(variable::Type type, const std::string& name, const fsmNode* start, ubyte pid)
 	: state(type, name)
 	, start(start)
+  , loc(start)
 	, _else(false)
   , pid(pid)
 {
-  addRawBytes(sizeof(const fsmNode *));
 }
 
 thread::thread(const thread& other)
 	: state(other)
 	, start(other.start)
+  , loc(other.loc)
 	, _else(other._else)
   , pid(other.pid)
 {}
@@ -58,9 +59,9 @@ ubyte thread::getPid(void) const {
 	return pid;
 }
 
-const fsmNode * thread::getFsmNodePointer(void) const { return getPayload()->getValue<const fsmNode *>(getOffset()); }
+const fsmNode * thread::getFsmNodePointer(void) const { return loc; }
 
-void thread::setFsmNodePointer(const fsmNode * pointer) { getPayload()->setValue<const fsmNode *>(getOffset(), pointer); }
+void thread::setFsmNodePointer(const fsmNode * pointer) { this->loc = pointer; }
 
 int thread::getLocation(void) const
 {
@@ -207,7 +208,7 @@ bool thread::operator==(const variable * other) const
   if (!res)
     return false;
   auto cast = dynamic_cast<const thread *>(other);
-  return *getFsmNodePointer() == *cast->getFsmNodePointer();
+  return getFsmNodePointer()->getLineNb() == cast->getFsmNodePointer()->getLineNb();
 }
 
 bool thread::operator!=(const variable * other) const { return !(*this == other); }
@@ -263,6 +264,15 @@ void thread::printDelta(const variable * v2, bool considerInternalVariables) con
   // }
 }
 
+size_t thread::size(void) const { return variable::size() + sizeof(loc); }
+
+void thread::hash(byte * payload) const
+{
+  auto locLine = loc->getLineNb( );
+  memcpy(payload, &locLine, sizeof(locLine));
+  variable::hash(payload + sizeof(locLine));
+}
+
 std::list<variable *> thread::getDelta(const variable * v2, bool considerInternalVariables) const
 {
   std::list<variable *> res;
@@ -272,4 +282,9 @@ std::list<variable *> thread::getDelta(const variable * v2, bool considerInterna
 
   res = variable::getDelta(v2, considerInternalVariables);
   return res;
+}
+
+unsigned long thread::hash(void) const
+{
+  return variable::hash();
 }

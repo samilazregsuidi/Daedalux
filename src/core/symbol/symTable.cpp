@@ -108,17 +108,17 @@ symbol* symTable::lookup(const std::string& name) const {
 	return res;
 }*/
 
-std::set<symbol*> symTable::getSymbols(void) const {
-	std::set<symbol*> res;
+std::unordered_set<symbol*> symTable::getSymbols(void) const {
+	std::unordered_set<symbol*> res;
 	for(auto& s : syms)
 		res.insert(s.second);
 
 	return res;
 }
 
-std::set<symbol*> symTable::getSymbols(const symbol* left) const {
+std::unordered_set<symbol*> symTable::getSymbols(const symbol* left) const {
 	
-	auto res = prev? prev->getSymbols(left): std::set<symbol*>();
+	auto res = prev? prev->getSymbols(left): std::unordered_set<symbol*>();
 
 	for(auto& s : syms)
 		if(left->castTo(s.second) && left->getMask() == s.second->getMask())

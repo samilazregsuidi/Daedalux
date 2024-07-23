@@ -83,7 +83,7 @@ state * state::fire(transition * trans) const
   assert(copy);
   assert(this != copy);
 
-  assert(hash() == copy->hash());       // The copy should have the same hash as the original
+  assert(this->isSame(copy));       // The copy should have the same hash as the original
   assert(copy->getOrigin() == nullptr); // the origin has been reset to nullptr
 
   copy->apply(trans);
@@ -152,7 +152,7 @@ const transition * state::getOrigin(void) const { return origin; }
 
 double state::getProbability(void) const { return prob; }
 
-byte state::compare(const state & s2) const { return hash() == s2.hash(); }
+byte state::compare(const state & s2) const { return this->isSame(&s2); }
 
 byte state::compare(unsigned long s2Hash) const { return hash() == s2Hash; }
 

@@ -10,35 +10,6 @@
 #include "constExpr.hpp"
 #include "varExpr.hpp"
 
-unsigned int padding(const varSymNode * varSym)
-{
-  switch (varSym->getType()) {
-  case symbol::T_BIT:
-  case symbol::T_BOOL:
-  case symbol::T_BYTE:
-  case symbol::T_CHAN:
-  case symbol::T_MTYPE:
-  case symbol::T_PID:
-    return 1;
-
-  case symbol::T_SHORT:
-    return 2;
-
-  case symbol::T_CID:
-  case symbol::T_INT:
-    return 4;
-
-  case symbol::T_UTYPE:
-    return padding(*dynamic_cast<const utypeSymNode *>(varSym)->getUType()->getFields().cbegin());
-
-  default:
-    assert(false);
-    return -1;
-  }
-  assert(false);
-  return -1;
-}
-
 variable::Type variable::getVarType(symbol::Type type)
 {
   switch (type) {
@@ -75,20 +46,18 @@ variable::Type variable::getVarType(symbol::Type type)
 unsigned int variable::vidCounter = 0;
 
 variable::variable(Type varType, const std::string & name)
-    : name(name), parent(nullptr), vid(++vidCounter), varType(varType), rawBytes(0), offset(0), payLoad(nullptr),
+    : name(name), parent(nullptr), vid(++vidCounter), varType(varType), rawBytes(0),
       hidden(false), predef(false), global(false)
 {
 }
 
 variable::variable(const variable & other)
     : name(other.name), parent(other.parent), vid(other.vid), varType(other.varType), rawBytes(other.rawBytes),
-      varMap(other.varMap), varList(other.varList), offset(0), payLoad(other.payLoad), hidden(other.hidden),
+      varMap(other.varMap), varList(other.varList), hidden(other.hidden),
       predef(other.predef), global(other.global)
 {
   auto nbVariables = other.getVariables().size();
   // auto otherSizeOf = other->getSizeOf();
-
-  payLoad = nullptr;
   clearVariables();
 
   for (auto subVar : other.getVariables()) {
@@ -97,10 +66,6 @@ variable::variable(const variable & other)
 
   for (auto subVar : getVariables())
     subVar->assign(subVar);
-
-  if (!parent) {
-    setPayload(other.getPayload()->copy());
-  }
 
   assert(getVariables().size() == nbVariables);
   /*auto thisSizeOf = getSizeOf();
@@ -119,10 +84,6 @@ variable::~variable()
 
   if (parent)
     parent->_rmVariable(this);
-  else {
-    if (payLoad)
-      delete payLoad;
-  }
 }
 
 variable::Type variable::getType(void) const { return varType; }
@@ -148,15 +109,7 @@ void variable::assign(const variable * sc)
 
 void variable::init(void)
 {
-  if (!payLoad) {
-    if (parent) {
-      parent->init();
-      return;
-    }
-    setPayload(new payload(getSizeOf()));
-  }
-  for (auto var : varList)
-    var->init();
+  forEachVar([](variable * var) { var->reset(); });
 }
 
 bool variable::operator==(const variable * other) const
@@ -202,14 +155,6 @@ variable* variable::operator=(const variable* other) {
 void variable::setParent(variable * parent)
 {
   this->parent = parent;
-  if (parent) {
-    offset = parent->getEndOffset();
-    payLoad = parent->getPayload();
-  }
-  else {
-    offset = 0;
-    payLoad = nullptr;
-  }
 }
 
 variable * variable::getParent(void) const { return parent; }
@@ -355,21 +300,6 @@ void variable::printCSVHeader(std::ostream & out) const
   forEachVar([&out](variable * var) { var->printCSVHeader(out); });
 }
 
-void variable::printHexadecimal(void) const { payLoad->printHexadecimal(getOffset(), getSizeOf()); }
-
-void variable::setPayload(payload * newPayLoad)
-{
-  assert(!payLoad);
-  payLoad = newPayLoad;
-
-  for (auto var : varList)
-    var->setPayload(newPayLoad);
-}
-
-payload * variable::getPayload(void) const { return payLoad; }
-
-unsigned long variable::hash(void) const { return payLoad ? payLoad->hash(getOffset(), getSizeOf()) : 0; }
-
 float variable::delta(const variable * v2, bool considerInternalVariables) const
 {
   if (v2 == nullptr)
@@ -411,12 +341,6 @@ std::list<variable *> variable::getDelta(const variable * v2, bool considerInter
   return res;
 }
 
-size_t variable::getOffset(void) const { return parent ? offset + parent->getOffset() : offset; }
-
-size_t variable::getEndOffset(void) const { return offset + getSizeOf(); }
-
-void variable::addRawBytes(size_t size) { rawBytes += size; }
-
 variable * variable::getVariableImpl(const std::string & name) const
 {
   size_t pos = name.find(".");
@@ -431,7 +355,7 @@ variable * variable::getVariableImpl(const std::string & name) const
     return var->getVariableImpl(next);
   }
 
-  std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
+  std::unordered_map<std::string, variable *>::const_iterator resIt = varMap.find(name);
   if (resIt != varMap.cend())
     return resIt->second;
 
@@ -456,7 +380,7 @@ variable * variable::getVariableImpl(const std::string & name) const
 
 variable * variable::getVariableDownScoping(const std::string & name) const
 {
-  std::map<std::string, variable *>::const_iterator resIt = varMap.find(name);
+  std::unordered_map<std::string, variable *>::const_iterator resIt = varMap.find(name);
   if (resIt != varMap.cend())
     return resIt->second;
 
@@ -472,17 +396,11 @@ variable * variable::getVariableDownScoping(const std::string & name) const
 }
 
 
-std::map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
+std::unordered_map<std::string, variable *> variable::getVariablesMap(void) const { return varMap; }
 
 std::list<variable *> variable::getVariablesList(void) const { return std::list<variable*>(varList.begin(), varList.end()); }
 
 std::vector<variable *> variable::getVariablesVector(void) const { return varList; }
-
-size_t variable::getSizeOf(void) const
-{
-  return std::accumulate(varList.begin(), varList.end(), rawBytes,
-                         [](size_t accSize, const variable * var) { return accSize + var->getSizeOf(); });
-}
 
 void variable::clearVariables(void)
 {
@@ -501,5 +419,34 @@ bool variable::isSame(const variable * other, bool considerInternalVariables) co
   auto threshold = 0.0000000001;
   return deltaVal < threshold;
 }
+
+unsigned long variable::hash(void) const
+{
+  auto _size = this->size();
+  byte * data = new byte[_size];
+  hash(data);
+  auto res = std::hash<std::string_view>{}(std::string_view(data, _size));
+  delete data;
+  return res;
+}
+
+void variable::hash(byte * payload) const
+{
+  unsigned long offset = 0;
+  for (auto var : varList) {
+    var->hash(payload + offset);
+    offset += var->size();
+  }
+}
+
+size_t variable::size(void) const
+{
+  size_t res = 0;
+  for (auto var : varList)
+    res += var->size();
+  return res;
+}
+
+
 
 /*************************************************************************************************/

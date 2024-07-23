@@ -5,6 +5,7 @@
 #include "payload.hpp"
 
 #include <limits>
+#include <cstring>
 
 /**
  * @brief A templated class to represent a scalar variable with a T value and a variable::Type type
@@ -35,9 +36,17 @@ public:
     return new scalar<T, E>(*this);
   }
 
-  size_t getSizeOf(void) const override {
+  size_t size(void) const override {
     assert(varList.size() == 0);
     return sizeof(T);
+  }
+
+  size_t hash(void) const override {
+    return value;
+  }
+
+  void hash(byte* payload) const override {
+    memcpy(payload, &value, size());
   }
 
   /****************************************************/
@@ -55,22 +64,9 @@ public:
     assert(newValue >= std::numeric_limits<T>::min());
     assert(newValue <= std::numeric_limits<T>::max());
     value = newValue;
-    
-    if(getPayload()) {
-      getPayload()->setValue<T>(getOffset(), newValue);
-    
-      assert(getValue() == newValue);
-    }
   }
 
   T getValue(void) const {
-    //assert(getPayload());
-    if constexpr(!std::is_const<T>::value) {
-      if(getPayload()) {
-        auto res = getPayload()->getValue<T>(getOffset());
-        assert(res == value);
-      }
-    }
     return value;
   }
 
@@ -204,7 +200,7 @@ public:
   operator std::string(void) const override {
     auto value = getValue();
     char buffer[128];
-    snprintf(buffer, sizeof(buffer), "0x%-4ld:   %-23s = %d\n", getOffset(), getFullName().c_str(), value);
+    snprintf(buffer, sizeof(buffer), "%-23s = %d\n", getFullName().c_str(), value);
 
     // res += variable::operator std::string();
     return buffer;
