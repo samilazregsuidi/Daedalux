@@ -208,7 +208,9 @@ target_link_libraries(daedalux_cli PRIVATE
     CUDD::obj
     CUDD::cudd
 )
-
+# --------------------------------------------------------------------
+# 6) Testing
+# --------------------------------------------------------------------
 if(BUILD_TESTING)
   include(FetchContent)
   FetchContent_Declare(
@@ -219,16 +221,54 @@ if(BUILD_TESTING)
   FetchContent_MakeAvailable(googletest)
 
   enable_testing()
-  file(GLOB_RECURSE TEST_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
-  )
+  file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp")
   foreach(test_src IN LISTS TEST_SOURCES)
     get_filename_component(test_name ${test_src} NAME_WE)
     add_executable(${test_name} ${test_src})
-    target_link_libraries(${test_name}
-      PRIVATE daedalux_lib GTest::gtest_main
-    )
+    target_link_libraries(${test_name} PRIVATE daedalux_lib GTest::gtest_main)
     include(GoogleTest)
     gtest_discover_tests(${test_name})
   endforeach()
 endif()
+
+# --------------------------------------------------------------------
+# 7) Install & Packaging
+# --------------------------------------------------------------------
+install(TARGETS daedalux_lib daedalux_cli
+    EXPORT daedaluxTargets
+    RUNTIME DESTINATION bin
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+)
+install(DIRECTORY include/ DESTINATION include)
+
+include(CPack)
+set(CPACK_PACKAGE_NAME    "daedalux")
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_GENERATOR        "TGZ;ZIP")
+set(CPACK_PACKAGE_CONTACT  "sami.lazreg.suidi@gmail.com")
+
+install(EXPORT daedaluxTargets
+    FILE daedaluxTargets.cmake
+    NAMESPACE daedalux::
+    DESTINATION lib/cmake/daedalux
+)
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/daedaluxConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/daedaluxConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/daedalux
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/daedaluxConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+install(
+    FILES
+      "${CMAKE_CURRENT_BINARY_DIR}/daedaluxConfig.cmake"
+      "${CMAKE_CURRENT_BINARY_DIR}/daedaluxConfigVersion.cmake"
+    DESTINATION lib/cmake/daedalux
+)
+
