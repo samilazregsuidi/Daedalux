@@ -1,14 +1,15 @@
-#include "explore.hpp"
+#include <daedalux/algorithm/explore.hpp>
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+#include <daedalux/promela/semantic/variable/state/process.hpp>
+#include <daedalux/promela/semantic.hpp>
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
+
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
 #include <string>
-
-#include "initState.hpp"
-#include "process.hpp"
-#include "semantic.hpp"
-#include "transition.hpp"
 
 #define PRINT_STATE print
 

@@ -1,4 +1,5 @@
-#include "spinRunner.hpp"
+#include <daedalux/mutants/spinRunner.hpp>
+
 #include <array>
 #include <cstdio>
 #include <filesystem>

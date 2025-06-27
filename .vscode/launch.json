@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug daedalux",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build-debug/daedalux", 
+        "args": ["--help"],         // or your usual run arguments 
+        "cwd": "${workspaceFolder}",
+        "environment": [],
+        "console": "integratedTerminal",
+        "MIMode": "gdb",            // or "lldb" on macOS
+        "miDebuggerPath": "/usr/bin/gdb",
+        "preLaunchTask": "CMake: build"
+      }
+    ]
+  }
+  

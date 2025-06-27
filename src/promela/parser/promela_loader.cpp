@@ -1,4 +1,10 @@
-#include "promela_loader.hpp"
+#include <daedalux/promela/parser/promela_loader.hpp>
+
+#include <daedalux/core/automata/astToFsm.hpp>
+
+#include "y.tab.hpp"
+#include "lexer.h"
+
 #include <assert.h>
 #include <filesystem>
 #include <fstream>

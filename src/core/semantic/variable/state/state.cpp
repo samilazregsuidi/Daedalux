@@ -4,10 +4,11 @@
 #include <string.h>
 #include <time.h>
 
-#include "process.hpp"
-#include "state.hpp"
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
+#include <daedalux/core/semantic/variable/state/visitor/stateVisitor.hpp>
 
-#include "stateVisitor.hpp"
+
 #include <iostream>
 
 /**

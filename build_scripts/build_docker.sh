@@ -1,1 +1,0 @@
-docker build -t daedalux:latest --file Dockerfile --platform linux/amd64 --label daedalux .

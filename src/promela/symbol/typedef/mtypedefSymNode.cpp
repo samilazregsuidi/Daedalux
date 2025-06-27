@@ -1,11 +1,11 @@
-#include "mtypedefSymNode.hpp"
-#include "mtypeSymNode.hpp"
+#include <daedalux/promela/symbol/typedef/mtypedefSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/mtypeSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
+
 
 #include <cassert>
 #include <cstdio>
 #include <climits>
-
-#include "symTabVisitor.hpp"
 #include <stdexcept>
 
 /***********************************************************************************************/

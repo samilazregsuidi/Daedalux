@@ -5,13 +5,10 @@
 #include <assert.h>
 #include <iostream>
 
-#include "fsmNode.hpp"
-#include "fsmEdge.hpp"
-#include "automata.hpp"
-
-#include "symbols.hpp"
-#include "ast.hpp"
-
+#include <daedalux/core/automata/fsmNode.hpp>
+#include <daedalux/core/automata/fsmEdge.hpp>
+#include <daedalux/core/automata/fsm.hpp>
+#include <daedalux/core/ast/astNode.hpp>
 /**
  * Creates a transition and adds it to the node list of the fsm.
  */

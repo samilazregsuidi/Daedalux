@@ -1,11 +1,7 @@
-#include "boolVariable.hpp"
+#include <daedalux/promela/semantic/variable/boolVariable.hpp>
+#include <daedalux/promela/symbol/vardef/boolSymNode.hpp>
+#include <daedalux/formulas/predicates.hpp>
 #include <cstdio>
-#include "../../src/formulas/predicates/statePredicate.hpp"
-#include "../../src/formulas/predicates/binaryPredicate.hpp"
-#include "../../src/formulas/predicates/valuesPredicate.hpp"
-
-
-#include "boolSymNode.hpp"
 
 boolVar::boolVar(const boolSymNode * sym, unsigned int index) : primitiveVariable(sym, index) {}
 

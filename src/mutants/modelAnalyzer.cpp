@@ -1,7 +1,8 @@
-#include "modelAnalyzer.hpp"
-#include "../algorithm/utils/stateComparer.hpp"
-#include "../core/semantic/variable/state/initState.hpp"
-#include "promela_loader.hpp"
+#include <daedalux/mutants/modelAnalyzer.hpp>
+#include <daedalux/algorithm/utils/stateComparer.hpp>
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+#include <daedalux/promela/parser/promela_loader.hpp>
+
 #include <memory>
 #include <vector>
 

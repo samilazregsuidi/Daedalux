@@ -1,5 +1,5 @@
-#include "unsgnSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/promela/symbol/vardef/unsgnSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
 unsgnSymNode::unsgnSymNode(int lineNb, const std::string& name, int bound, expr* init)
 	: varSymNode(symbol::T_UNSGN, lineNb, name, bound, init)

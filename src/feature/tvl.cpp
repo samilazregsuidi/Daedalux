@@ -3,13 +3,19 @@
 #include <assert.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 
-#include "tvl.hpp"
-#include "expToADD.hpp"
-#include "utypeSymNode.hpp"
-#include "constExpr.hpp"
-#include "expr.hpp"
+#include <daedalux/feature/tvl.hpp>
+#include <daedalux/feature/expToADD.hpp>
+
+#include <daedalux/promela/symbol/vardef/utypeSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/tdefSymNode.hpp>
+
+#include <daedalux/promela/ast/expr/constExpr.hpp>
+#include <daedalux/promela/ast/expr.hpp>
+
+#include <cuddInt.h>
 
 
 Cudd* TVL::mgr = nullptr;

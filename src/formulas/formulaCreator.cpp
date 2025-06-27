@@ -1,17 +1,19 @@
-#include "formulaCreator.hpp"
-#include "formula.hpp"
-#include "ltl.hpp"
-#include "primitiveVariable.hpp"
-#include "state.hpp"
-#include "uTypeVariable.hpp"
+#include <daedalux/formulas/formulaCreator.hpp>
+#include <daedalux/formulas.hpp>
+#include <daedalux/core/logic/ltl.hpp>
+#include <daedalux/promela/semantic/variable/primitiveVariable.hpp>
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+
+#include <daedalux/promela/semantic/variable/mtypeVariable.hpp>
+
+#include <daedalux/algorithm/utils/stateComparer.hpp>
+#include <daedalux/core/semantic/variable.hpp>
+
 #include <algorithm>
 #include <iostream>
 #include <iterator> // for std::begin, std::end
-#include <mtypeVariable.hpp>
 #include <numeric> // for std::accumulate
 #include <sstream>
-#include <utils/stateComparer.hpp>
-#include <variable.hpp>
 
 enum VariableValueType { BOOL, INT, STRING };
 

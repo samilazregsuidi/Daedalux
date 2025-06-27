@@ -1,98 +1,46 @@
-build/
-Build/
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-.vscode/
-**/_spin_nvr.tmp
-**/pan.b
-**/pan.c
-**/pan.h
-**/pan.m
-**/pan.p
-**/pan.t
-**/.DS_Store
-daedalux
-__workingfile.tmp
-__workingfile.tmp.cpp
-fsm
-fsm_graphvis
-models/minepump/minepump (copy).pml
-tests/CTestTestfile.cmake
-tests/CTestTestfile.cmake
-tests/test_suite\[1\]_tests.cmake
-tests/test_suite\[1\]_include.cmake
-tests/test_suite
+# === Build folders & CMake artifacts ===
+/build/
+/build-debug/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/CTestTestfile.cmake
+/DartConfiguration.tcl
+*.cmake_install.cmake
 
+# === Binaries & object files ===
+/bin/
+*.o
+*.a
+*.so
 *.la
 *.lai
-*.a
-*.lo
-*.o
-*.so
 *.Plo
 *.Po
-**/.dirstamp
-src/libs/cudd/dddmp/exp/test1.sh
-src/libs/cudd/dddmp/exp/test2.sh
-src/libs/cudd/dddmp/exp/test3.sh
-src/libs/cudd/dddmp/exp/test4.sh
-src/libs/cudd/dddmp/exp/test5.sh
-src/libs/cudd/dddmp/exp/test6.sh
-src/libs/cudd/dddmp/exp/test7.sh
-src/libs/cudd/stamp-h1
-src/libs/cudd/libtool
-src/libs/cudd/config.h
-src/libs/cudd/config.log
-src/libs/cudd/config.status
-src/libs/cudd/include/*
+*.lo
+*.tst
+*.log
+*.test
+*.dirstamp
+*.trs
 
-# Ignore the SPIN generated files
+# === SPIN & Promela generated ===
+**/_spin_nvr.tmp
 **/pan.*
 **/*.pml.trail
 
-src/CTestTestfile.cmake
-src/libs/cudd/autom4te.cache/output.0
-src/libs/cudd/autom4te.cache/output.1
-src/libs/cudd/autom4te.cache/output.2
-src/libs/cudd/autom4te.cache/output.3
-src/libs/cudd/autom4te.cache/requests
-src/libs/cudd/autom4te.cache/traces.0
-src/libs/cudd/autom4te.cache/traces.1
-src/libs/cudd/autom4te.cache/traces.2
-src/libs/cudd/autom4te.cache/traces.3
-src/libs/cudd/aclocal.m4
-src/libs/cudd/config.h.in
-src/libs/cudd/config.h.in~
-src/libs/cudd/configure
-src/libs/cudd/configure~
-src/libs/cudd/Makefile.in
-src/libs/bin/ltl2ba
-b/
-openai-env/*
+# === Vendor/build cruft under src/libs/cudd ===
+src/libs/cudd/autom4te.cache/
+src/libs/cudd/config.h
+src/libs/cudd/config.log
+src/libs/cudd/config.status
+src/libs/cudd/libtool
+src/libs/cudd/stamp-h1
+src/libs/cudd/**/test*.sh
 
-test_files/mutants/*/mutants/mutant_*.pml
-test_files/mutants/*/mutants/mutant_*.pml.trail
-test_files/mutants/*/mutants/mutant_*.pml.trail.tmp
-test_files/mutants/*/mutants/mutant_*.pml._spin_nvr
-test_files/mutants/*/*.csv
-GPTExperiment/Training_data-2024-*/surviving_mutants/*
-GPTExperiment/Training_data-2024-*/killed_mutants/*
-GPTExperiment/Training_data-2024-*/mutants/*
-GPTExperiment/Experiment-2024-*/*/mutants/*
-GPTExperiment/__pycache__/*
-GPTExperiment/Experiment-2024-*/*/*.csv
-GPTExperiment/pan
-test_files/mutants/*/*.txt
-test_files/mutants/*/*.pml.nvr
-_deps/*
-tests/models/*/mutants/*.pml
-GPTExperiment/OldExperimentResults/
-GPTExperiment/Models/*/*.csv
-GPTExperiment/Models/*/mutants/*.pml
-GPTExperiment/Results/*/killed_mutants/*.pml
-GPTExperiment/Results/*/*_temp_*.pml
-tests/test_files/mutants/*/*.csv
-*.nvr
-tests/test_files/mutants/flows/flows_mutants.txt
+# === IDE & editor settings (optional keep) ===
+.vscode/        # or, if you want partial, use !.vscode/settings.json etc.
+
+# === OS files ===
+.DS_Store
+

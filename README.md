@@ -1,67 +1,151 @@
-# Daedalux
+# daedalux
 
-A model-checker for checking product lines written in C++.
+A high-performance C++ model checker for feature-based product lines, written in C++20.
 
-## Getting Started
+---
 
-The model-checker consumes a product line written in Promela and outputs a
+## Table of Contents
 
-## How to build
+1. [Install](#install)  
+2. [Build & Test](#build--test)  
+3. [Usage](#usage)  
+4. [Example](#example)  
+5. [Dependencies](#dependencies)  
+6. [Contributing](#contributing)  
+7. [Future Work](#future-work)
 
-```console
-foo@bar:~$ cd daedalux
-foo@bar:~$ mkdir build
-foo@bar:~$ cd build
-foo@bar:~$ cmake ../
-foo@bar:~$ cmake --build .
+---
+
+## Install
+
+### From Source (Linux & macOS)
+
+```bash
+git clone https://github.com/yourorg/daedalux.git
+cd daedalux
+./scripts/ci/bootstrap.sh
 ```
 
-Alternatively, you can build it using docker from the root directory of the project using the following command:
+That single command will:  
+1. Install prerequisites (`cmake`, `ninja`) via `apt` or Homebrew.  
+2. Configure, build, test, and install `daedalux` into `$HOME/.local/bin`.
 
-```console
-foo@bar:~$ docker build -t daedalux.
+After completion, verify with:
+
+```bash
+daedalux --help
 ```
 
-After building the image you can run the model-checker using the following command:
+### Prebuilt Archives
 
-```console
-foo@bar:~$ docker run -it deadalux <path-to-promela-file> 
+Download the latest `.tar.gz` or `.zip` from:
+
+https://github.com/yourorg/daedalux/releases
+
+```bash
+# Unpack and run directly without installation
+tar xzf daedalux-<version>-Linux.tar.gz   # or .zip
+cd daedalux-<version>/build
+./daedalux --help
 ```
 
-## How to run it
+### Docker
 
-After building the project, you can run the model-checker using the following command:
+Build and run via Docker (no local dependencies required):
 
-```console
-foo@bar:~$ ./daedalux <parameters> <path-to-promela-file> 
+```bash
+./scripts/docker/build_image.sh
 ```
 
-The parameters can be divided into the following categories:
-* Options for model-checking:
-  * -check: Model-check the product line until a property violation is found.
-  * -exhaustive: Exhaustively model-check the product line until all possible traces have been explored to determine which products are valid.
-  * -sample <number>: Search for a valid product by randomly exploring *n* traces of the product line.
-  * -ksteps <number>: Bounded model-check the product line by exploring traces of length *n*.
-  * -ltl <string>: LTL property to verify.
-  * -ltlFile <path> File containing LTL properties to verify.
-  * -multiLtl <string>: multiLTL property to verify.
-  * -multiLtlFile <path>: File containing multiLTL properties to verify.
-* Options for features and feature model:
-  * -fm <path>: Specify the path to the feature model TVL. This option can be omitted if the feature model has the same name as the promela file.
-* Options for output:
-  * -nt: Do not print the trace to the terminal.
-  * -st: Only prints states when there are no changed variables.
-* Options for debugging:
-  * -exec: Execute the model (does not print states, only model output).
-  * -l <number>:  Stop when the given number of states were explored.
-  * -s: Print static information (symbol table, FSMs, MTypes, ..) to the terminal.
-  * -t: Do not delete generated temporary files.
+Run Tests in Container
+```bash
+./scripts/docker/run_tests_in_container.sh
+```
 
-A selection of Promela files can be found in the "test" folder in the root directory of the project.
+Run model checker inside container
+```bash
+docker run --rm -it \
+  -v "$(pwd)/examples":/data \
+  -w /data \
+  daedalux:latest \
+  check -ltl '[](danger-><>stopped)' example.pml
+```
 
-###  A simple example
+---
 
-The following example is a simple product line written in Promela. The product line has one feature, Alarm that stop the motor of something dangerous occurs. The product line is written in Promela and is saved in a file called "example.pml".
+## Build & Test
+
+If you ever need manual control over build steps:
+
+1. **Configure** (out-of-source):
+
+   ```bash
+   mkdir -p build && cd build
+   cmake .. -G Ninja      -DCMAKE_BUILD_TYPE=Release      -DCMAKE_INSTALL_PREFIX="$HOME/.local"      -DBUILD_TESTING=ON
+   ```
+
+2. **Build & Test**:
+
+   ```bash
+   cmake --build --preset release   # uses CMakePresets.json
+   ctest --output-on-failure
+   ```
+
+3. **Install**:
+
+   ```bash
+   cmake --install . --prefix "$HOME/.local"
+   ```
+
+Use the provided [CMakePresets.json](/CMakePresets.json) for one-command builds:
+
+```bash
+cmake --preset release
+cmake --build --preset release
+cmake --install --preset release
+```
+
+---
+
+## Usage
+
+```bash
+# Basic invocation
+daedalux <mode> [options] <path-to-promela-file>
+```
+
+### Modes & Options
+
+#### Model Checking Modes
+- `check`        : Stop at first property violation.
+- `exhaustive`   : Explore all traces to classify valid products.
+- `sample <n>`   : Randomly explore _n_ traces to find a valid product.
+- `ksteps <n>`   : Bounded search exploring traces of length _n_.
+
+#### LTL Properties
+- `-ltl <expr>`         : Inline LTL formula to verify.
+- `-ltlFile <path>`     : File containing one or more LTL properties.
+- `-multiLtl <expr>`    : Multi-property LTL query.
+- `-multiLtlFile <path>`: File with multiple multiLTL properties.
+
+#### Feature Model
+- `-fm <path>` : Path to the feature model (TVL). Omit if name matches Promela file.
+
+#### Output Control
+- `-nt` : Do not print the execution trace to the terminal.
+- `-st` : Only show states when no variables have changed.
+
+#### Debugging
+- `-exec` : Execute the model without printing intermediate states.
+- `-l <n>` : Stop after exploring _n_ states.
+- `-s`     : Print static information (symbols, FSMs, MTypes).
+- `-t`     : Retain generated temporary files.
+
+---
+
+## Example
+
+Given the following product line in `example.pml`:
 
 ```promela
 typedef features {
@@ -72,107 +156,74 @@ bool safe = true;
 bool danger, stopped = false;
 
 active proctype Motor() {
-    do
-    :: safe ->
-        if :: skip;
-           :: safe = false; danger = true fi;
-    :: danger ->
-        gd :: Alarm -> danger = false; 
-                       stopped = true;
-           :: else -> skip; dg;
-    :: stopped
-        if :: skip;
-           :: stopped = false; safe = true; 
-        fi; od}
+  do
+  :: safe ->
+      if :: skip;
+         :: safe = false; danger = true
+      fi;
+  :: danger ->
+      gd :: Alarm -> danger = false; stopped = true;
+         :: else -> skip; dg;
+  :: stopped ->
+      if :: skip;
+         :: stopped = false; safe = true;
+      fi;
+  od
+}
 ```
 
-The model-checker can be run by executing the following command in the terminal:
+Run the checker:
 
-For example, the following command runs the model-checker on the file "example.pml" and prints the output to the terminal:
-
-```console
-foo@bar:~$ ./daedalux check -ltl '[](danger-><>stopped)' example.pml
+```bash
+./daedalux check -ltl '[](danger-><>stopped)' example.pml
 ```
 
-The output of the model-checker is a file called "example.pml.out". The file contains the following output:
+By default, the tool writes its trace and results to `example.pml.out` in the current directory.
 
-```console
-Checking LTL property [](danger-><>stopped)..
-[startNestedDFS]
- - Stack trace:
-   features                            = All
-   never                               @ NL27 
-   globals.safe                        = 1
-   globals.danger                      = 0
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL11
-    --
-   pid 00, Motor                       @ NL13
-    --
-   globals.safe                        = 0
-   pid 00, Motor                       @ NL14
-    --
-   globals.danger                      = 1
-   pid 00, Motor                       @ NL11
-    --
-    -- Loop beings here --
-    --
-   never                               @ NL32  (accepting)
-   pid 00, Motor                       @ NL16
-    --
-    -- Loop begin repeated in full:
-   features                            = All
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL16
-    --
-   features                            = (!Alarm)
-   pid 00, Motor                       @ NL18
-    --
-   pid 00, Motor                       @ NL11
-    --
-   pid 00, Motor                       @ NL16
-    --
-    -- Final state repeated in full:
-   features                            = (!Alarm)
-   never                               @ NL32  (accepting)
-   globals.safe                        = 0
-   globals.danger                      = 1
-   globals.stopped                     = 0
-   pid 00, Motor                       @ NL16
-    --
+---
 
-Exhaustive search finished  [explored 13 states, re-explored 0].
- -  One problem found covering the following products (others are ok):
-(!Alarm)
+## Dependencies
+
+Before building, install:
+
+- A C++20-compatible compiler (GCC ≥10 or Clang ≥11)  
+- CMake ≥3.16  
+- Ninja build system  
+- Flex & Bison (for Promela parsing)  
+- [CUDD](https://github.com/ivmai/cudd) (Binary Decision Diagrams library)
+
+On Ubuntu:
+
+```bash
+sudo apt-get update && sudo apt-get install   build-essential cmake ninja-build flex bison libgmp-dev   libboost-all-dev
+# CUDD (if packaged) or build from source
 ```
-This output shows that Daedalux found one trace that violates the LTL property. This trace counterexample belongs to the product without the Alarm feature. The other product (the one with the Alarm) satisfies the property.
-Each state of the trace is separated by -- characters. Only state variables that have changed are printed by default. *features* is a boolean function variable, where *pid 00, Motor* and *never* are thread location variables. Others are global booleans.
 
-### Dependencies
+On macOS (Homebrew):
 
-What things you need to install the software and how to install them.
+```bash
+brew update && brew install cmake ninja flex bison boost gmp
+# Install CUDD via Homebrew or from source
+```
 
-- C++20 compiler
-- Flex & Bison
-- [CUDD library](https://github.com/ivmai/cudd)
-- CMake 3.16
+---
 
-## Future work
+## Contributing
 
-The following is a list of features that are planned to be implemented in the future.
+Please see [CONTRIBUTING.md](/CONTRIBUTING.md) for guidelines on code style, testing, and running CI.
 
-- [ ] Support for Timed Automata
-  - [ ] Extension of input language
-  - [ ] Extend the parser to support Timed Automata
-  - [ ] Model-checking of Timed Automata
-- [ ] Set up a CI pipeline (Github Actions)
-- [x] Build a docker image
-- [ ] Clean up the repository (remove unused files, etc.)
-  - [ ] Sami I think you should do this.
-    - [ ] Are all the mdp copy files needed?
-    - [ ] What about the traces folder?
-    - [ ] What about the tmp files?
-    - [ ] Alternatively, we could just add them to the .gitignore file.
+### Code of Conduct
+
+This project follows a [Code of Conduct](/CODE_OF_CONDUCT.md); please ensure you respect it when contributing.
+
+---
+
+## Future Work
+
+- [ ] Support Timed Automata  
+  - [ ] Extend input language and parser  
+  - [ ] Integrate TA model-checking algorithms  
+- [ ] CI pipeline (GitHub Actions)  
+- [ ] Clean up repository (ignore or remove temp files)  
+  - [ ] Consolidate `tests/` and `test_scripts/`  
+  - [ ] Add traces and tmp files to `.gitignore`  

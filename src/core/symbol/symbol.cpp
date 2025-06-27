@@ -6,23 +6,8 @@
 #include <limits>
 
 
-#include "symbol.hpp"
-
-#include "naSymNode.hpp"
-#include "bitSymNode.hpp"
-#include "boolSymNode.hpp"
-#include "byteSymNode.hpp"
-#include "shortSymNode.hpp"
-#include "intSymNode.hpp"
-#include "unsgnSymNode.hpp"
-#include "mtypedefSymNode.hpp"
-#include "utypeSymNode.hpp"
-#include "pidSymNode.hpp"
-#include "cidSymNode.hpp"
-#include "tdefSymNode.hpp"
-#include "chanSymNode.hpp"
-
-#include "symTable.hpp"
+#include "daedalux/promela/symbol.hpp"
+#include "daedalux/core/symbol/symTable.hpp"
 
 /*
  * SYMBOL TABLE

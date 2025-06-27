@@ -1,11 +1,11 @@
-#include "channel.hpp"
+#include <daedalux/core/semantic/payload.hpp>
 
-#include "payload.hpp"
+#include <daedalux/promela/semantic/variable/channel.hpp>
 
-#include "chanSymNode.hpp"
-#include "cidSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/chanSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/cidSymNode.hpp>
 
-#include "initState.hpp"
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
 
 channel::channel(const chanSymNode * chanSym, unsigned int index) : primitiveVariable(chanSym, index)
 {
@@ -140,15 +140,15 @@ bool channel::operator==(const variable * other) const { return variable::operat
 
 bool channel::operator!=(const variable * other) const { return variable::operator!=(other); }
 
-channel::operator std::string(void) const {}
+channel::operator std::string(void) const { assert(false); return ""; }
 
-void channel::print(void) const {}
+void channel::print(void) const { assert(false);}
 
-void channel::printTexada(void) const {}
+void channel::printTexada(void) const { assert(false); }
 
-void channel::printCSV(std::ostream & out) const {}
+void channel::printCSV(std::ostream & out) const { assert(false); }
 
-void channel::printCSVHeader(std::ostream & out) const {}
+void channel::printCSVHeader(std::ostream & out) const { assert(false); }
 
 /**************************************************************************************************/
 

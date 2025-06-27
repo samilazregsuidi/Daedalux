@@ -1,10 +1,10 @@
-#include "traceGenerator.hpp"
-#include "../formulas/formulaCreator.hpp"
-#include "fsm.hpp"
-#include "initState.hpp"
-#include "state.hpp"
-#include "transition.hpp"
-#include "utils/stateComparer.hpp"
+#include <daedalux/algorithm/traceGenerator.hpp>
+#include <daedalux/formulas/formulaCreator.hpp>
+#include <daedalux/core/automata/fsm.hpp>
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
+#include <daedalux/algorithm/utils/stateComparer.hpp>
 
 /***
  * The function returns the traces as a traceReport containing both good and bad traces.

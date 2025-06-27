@@ -1,4 +1,5 @@
-#include "clockStmnt.hpp"
+#include <daedalux/promela/ast/stmnt/clockStmnt.hpp>
+
 
 stmntWait::stmntWait(expr *timer, int lineNb)
 		: stmnt(astNode::E_STMNT_WAIT, lineNb)

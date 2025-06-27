@@ -1,19 +1,20 @@
 #include <assert.h>
 #include <string>
 
-#include "logicDecl.hpp"
-#include "temporalSymNode.hpp"
-#include "constExpr.hpp"
+#include <daedalux/promela/ast/stmnt/logicDecl.hpp>
+#include <daedalux/promela/symbol/logic/temporalSymNode.hpp>
+#include <daedalux/promela/ast/expr/constExpr.hpp>
 
-#include "symbol.hpp"
-#include "varSymNode.hpp"
+#include <daedalux/promela/symbol.hpp>
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
 
-#include "utypeSymNode.hpp"
-#include "tdefSymNode.hpp"
-#include "ptypeSymNode.hpp"
-#include "inlineSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/utypeSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/tdefSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/ptypeSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/inlineSymNode.hpp>
+
 
 ltlDecl::ltlDecl(ltlSymNode* sym, int lineNb)
 	: stmnt(astNode::E_LTL_DECL, lineNb)

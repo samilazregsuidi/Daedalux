@@ -1,6 +1,8 @@
-#include "constExpr.hpp"
+#include <daedalux/promela/ast/expr/constExpr.hpp>
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+
 
 /****************************************************************
  * **************************************************************

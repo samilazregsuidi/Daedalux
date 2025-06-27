@@ -3,14 +3,16 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "varExpr.hpp"
+#include <daedalux/promela/ast/expr/varExpr.hpp>
 
-#include "varSymNode.hpp"
-#include "variantSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/variantSymNode.hpp>
 
-#include "constExpr.hpp"
+#include <daedalux/promela/ast/expr/constExpr.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+#include "daedalux/core/symbol/symTable.hpp"
+
 
 exprVarRefName::exprVarRefName(const std::string& symName, int lineNb)
 	: expr(astNode::E_VARREF_NAME, lineNb)

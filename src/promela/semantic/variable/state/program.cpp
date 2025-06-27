@@ -4,22 +4,22 @@
 #include <string.h>
 #include <time.h>
 
-#include "program.hpp"
+#include <daedalux/promela/semantic/variable/state/program.hpp>
 
-#include "process.hpp"
+#include <daedalux/promela/semantic/variable/state/process.hpp>
 
-#include "ast.hpp"
-#include "automata.hpp"
+#include <daedalux/core/ast.hpp>
+#include <daedalux/core/automata.hpp>
 
-#include "channel.hpp"
-#include "payload.hpp"
-#include "variable.hpp"
+#include <daedalux/promela/semantic/variable/channel.hpp>
+#include <daedalux/core/semantic/payload.hpp>
+#include <daedalux/core/semantic/variable.hpp>
 
-#include "progTransition.hpp"
-#include "rendezVousTransition.hpp"
-#include "threadTransition.hpp"
+#include <daedalux/promela/semantic/variable/transition/progTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/rendezVousTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/threadTransition.hpp>
 
-#include "stateVisitor.hpp"
+#include <daedalux/core/semantic/variable/state/visitor/stateVisitor.hpp>
 
 /**
  * Adds the global variables in the memory chunk.

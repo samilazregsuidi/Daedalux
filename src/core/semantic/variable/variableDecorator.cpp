@@ -1,18 +1,19 @@
-#include "variableDecorator.hpp"
+#include "daedalux/core/semantic/variable/variableDecorator.hpp"
+
 
 #include <iterator>
 
-#include "payload.hpp"
-#include "process.hpp"
+#include "daedalux/core/semantic/payload.hpp"
+#include "daedalux/promela/semantic/variable/state/process.hpp"
 
-#include "channel.hpp"
-#include "utypeVariable.hpp"
-#include "boolVariable.hpp"
-#include "mtypeVariable.hpp"
+#include "daedalux/promela/semantic/variable/channel.hpp"
+#include "daedalux/promela/semantic/variable/utypeVariable.hpp"
+#include "daedalux/promela/semantic/variable/boolVariable.hpp"
+#include "daedalux/promela/semantic/variable/mtypeVariable.hpp"
 
-#include "argExpr.hpp"
-#include "constExpr.hpp"
-#include "varExpr.hpp"
+#include "daedalux/promela/ast/expr/argExpr.hpp"
+#include "daedalux/promela/ast/expr/constExpr.hpp"
+#include "daedalux/promela/ast/expr/varExpr.hpp"
 
 variableDecorator::variableDecorator(variable* wrapee)
 	: variable(wrapee->getType())

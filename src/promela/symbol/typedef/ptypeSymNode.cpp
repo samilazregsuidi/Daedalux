@@ -1,7 +1,7 @@
-#include "ptypeSymNode.hpp"
-#include "symTabVisitor.hpp"
-#include "constExpr.hpp"
-#include "stmnt.hpp"
+#include <daedalux/promela/symbol/typedef/ptypeSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
+#include <daedalux/promela/ast/expr/constExpr.hpp>
+#include <daedalux/promela/ast/stmnt.hpp>
 
 seqSymNode::seqSymNode(Type type, const std::string& name, int lineNb, stmnt* block)
 	: symbol(type, name, lineNb)

@@ -1,5 +1,6 @@
-#include "fsmExplorer.hpp"
-#include "ltlModelChecker.hpp"
+#include <daedalux/algorithm/fsmExplorer.hpp>
+#include <daedalux/algorithm/ltlModelChecker.hpp>
+
 
 #include <filesystem>
 

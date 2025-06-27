@@ -1,17 +1,21 @@
-#include "reachabilityRelation.hpp"
+#include <daedalux/algorithm/reachabilityRelation.hpp>
+
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+#include <daedalux/core/semantic/variable/state/composite.hpp>
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
+
+#include <daedalux/promela/semantic/variable/state/process.hpp>
+
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+
+#include <daedalux/feature/semantic/variable/state/featured.hpp>
+
+// bad coupling?
+#include <daedalux/promela/semantic.hpp>
+
 
 #include <stdio.h>
 #include <algorithm>
-
-#include "state.hpp"
-#include "transition.hpp"
-#include "process.hpp"
-
-#include "initState.hpp"
-
-//bad coupling?
-
-#include "semantic.hpp"
 
 reachabilityRelation::reachabilityRelation()
 	: dfsIn(DFS_OUTER)

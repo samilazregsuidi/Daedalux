@@ -1,0 +1,5 @@
+#include "state/stateVar.hpp"
+#include "state/composite.hpp"
+#include "state/stateDecorator.hpp"
+#include "state/visitor.hpp"
+#include "state/thread.hpp"

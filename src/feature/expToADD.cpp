@@ -1,6 +1,12 @@
-#include "expToADD.hpp"
+#include <daedalux/feature/expToADD.hpp>
 
-#include "ast.hpp"
+#include <daedalux/core/ast/expr.hpp>
+#include <daedalux/promela/ast/expr.hpp>
+
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/utypeSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/tdefSymNode.hpp>
+
 
 #include <assert.h>
 

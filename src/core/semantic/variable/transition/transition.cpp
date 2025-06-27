@@ -1,8 +1,6 @@
-#include "transition.hpp"
-
-#include "deleteTransVisitor.hpp"
-
-#include "state.hpp"
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+#include <daedalux/core/semantic/variable/transition/visitor/transitionVisitor.hpp>
 
 #include <algorithm>
 #include <assert.h>

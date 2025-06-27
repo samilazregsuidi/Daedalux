@@ -16,8 +16,11 @@
 #include <iostream>
 #include <list>
 
-#include "symbols.hpp"
-#include "ast.hpp"
+#include <daedalux/core/symbol.hpp>
+#include <daedalux/core/ast.hpp>
+
+#include <daedalux/promela/symbol.hpp>
+#include <daedalux/promela/ast.hpp>
 
 #include "y.tab.hpp"
 

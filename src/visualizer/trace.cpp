@@ -1,6 +1,8 @@
-#include "trace.hpp"
-#include "primitiveVariable.hpp"
-#include "state.hpp"
+#include <daedalux/visualizer/trace.hpp>
+#include <daedalux/promela/semantic/variable/primitiveVariable.hpp>
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+
+
 #include <numeric>
 
 trace::trace() = default;

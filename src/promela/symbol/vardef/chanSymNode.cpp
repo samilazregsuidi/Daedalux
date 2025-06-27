@@ -1,5 +1,5 @@
-#include "chanSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/promela/symbol/vardef/chanSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
 chanSymNode::chanSymNode(int lineNb, const std::string& name, int bound, int capacity, const std::list<varSymNode*>& types)
 	: varSymNode(symbol::T_CHAN, lineNb, name, bound)

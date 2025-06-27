@@ -7,18 +7,17 @@
 #include <time.h>
 #include <vector>
 
-#include "composite.hpp"
-#include "compositeTransition.hpp"
-
-#include "deleteTransVisitor.hpp"
-
-#include "stateVisitor.hpp"
+#include <daedalux/core/semantic/variable/state/composite.hpp>
+#include <daedalux/core/semantic/variable/transition/compositeTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/visitor/deleteTransVisitor.hpp>
+#include <daedalux/core/semantic/variable/state/visitor/stateVisitor.hpp>
 
 /**
  * Adds the global variables in the memory chunk.
  *
  * Does not set the payloadHash.
  */
+
 composite::composite(const std::string & name) : state(variable::V_COMP_S, name), n(nullptr) {}
 
 composite::composite(const composite * other) : state(other), n(nullptr)

@@ -1,12 +1,13 @@
 #include <assert.h>
 #include <string>
 
-#include "stmnt.hpp"
-#include "varSymNode.hpp"
-#include "utypeSymNode.hpp"
-#include "tdefSymNode.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+#include <daedalux/core/ast/stmnt/stmntNode.hpp>
+#include <daedalux/core/symbol/symTable.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/promela/ast/expr/argExpr.hpp>
+#include <daedalux/promela/ast/expr/varExpr.hpp>
+#include <daedalux/promela/symbol/typedef/ptypeSymNode.hpp>
 
 stmnt::stmnt(Type type, int lineNb)
 	: astNode(type, lineNb)

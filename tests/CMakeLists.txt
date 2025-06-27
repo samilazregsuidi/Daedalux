@@ -1,42 +1,12 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.19)
+project(daedalux_tests LANGUAGES CXX)
 
-include(FetchContent)
+enable_testing()
 
-# Fetch and include GoogleTest
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.11.0
-)
+# Pull in GoogleTest from the main project:
+find_package(GTest REQUIRED)
+find_package(daedalux REQUIRED)   # so we get daedalux::daedalux_lib
 
-FetchContent_MakeAvailable(googletest)
+add_subdirectory(unit)
+add_subdirectory(integration)
 
-# Include the CTest module to enable testing
-include(CTest)
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../test_files DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-# List your test source files
-set(TEST_SOURCES
-    test_main.cpp
-    # Add more test files as needed
-)
-
-# Create an executable for the tests
-add_executable(test_suite ${TEST_SOURCES})
-
-# Link your test executable with the libraries it depends on
-target_link_libraries(test_suite
-    PRIVATE
-    daedalux_lib
-    gtest
-    gtest_main
-)
-
-# Use gtest_discover_tests for test discovery
-include(GoogleTest)
-gtest_discover_tests(test_suite)
-
-# Add a test
-add_test(NAME DeadaluxTests COMMAND test_suite)

@@ -1,6 +1,7 @@
-#include "elementStack.hpp"
+#include <daedalux/algorithm/elementStack.hpp>
 
-#include "state.hpp"
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+
 #include <iostream>
 
 elementStack::element::element(void) : current_state(nullptr), init(false), depth(0) {}

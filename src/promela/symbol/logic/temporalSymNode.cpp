@@ -1,7 +1,7 @@
-#include "temporalSymNode.hpp"
+#include <daedalux/promela/symbol/logic/temporalSymNode.hpp>
 
-#include "temporalExpr.hpp"
-#include "expr.hpp"
+#include <daedalux/promela/ast/expr/temporalExpr.hpp>
+#include <daedalux/core/ast/expr/exprNode.hpp>
 
 ltlSymNode::ltlSymNode(const std::string& name, expr* formula, int lineNb)
 	: symbol(symbol::T_LTL, name, lineNb)

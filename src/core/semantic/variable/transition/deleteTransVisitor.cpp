@@ -1,10 +1,8 @@
-#include "deleteTransVisitor.hpp"
+#include <daedalux/core/semantic/variable/transition/visitor/deleteTransVisitor.hpp>
 
-#include "transition.hpp"
-#include "compositeTransition.hpp"
-#include "rendezVousTransition.hpp"
-#include "featuredTransition.hpp"
-#include "threadTransition.hpp"
+#include <daedalux/core/semantic/variable/transition.hpp>
+#include <daedalux/promela/semantic/variable/transition.hpp>
+#include <daedalux/feature/semantic/variable/transition.hpp>
 
 #include <assert.h>
 

@@ -1,10 +1,7 @@
-#include "featuredTransition.hpp"
+#include "daedalux/feature/semantic/variable/transition/featuredTransition.hpp"
 
-#include "state.hpp"
-#include "fsmEdge.hpp"
-#include "process.hpp"
-
-#include "transitionVisitor.hpp"
+#include "daedalux/core/semantic/variable/state.hpp"
+#include "daedalux/core/semantic/variable/transition/visitor/transitionVisitor.hpp"
 
 #include <assert.h>
 #include <iterator>

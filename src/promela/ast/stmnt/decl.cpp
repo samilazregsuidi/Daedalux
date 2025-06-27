@@ -1,18 +1,15 @@
 #include <assert.h>
 #include <string>
 
-#include "decl.hpp"
-#include "constExpr.hpp"
+#include <daedalux/promela/ast/stmnt/decl.hpp>
+#include <daedalux/promela/ast/expr/constExpr.hpp>
 
-#include "symbol.hpp"
-#include "varSymNode.hpp"
+#include <daedalux/promela/symbol.hpp>
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
 
-#include "utypeSymNode.hpp"
-#include "tdefSymNode.hpp"
-#include "ptypeSymNode.hpp"
-#include "inlineSymNode.hpp"
+#include <daedalux/promela/symbol.hpp>
 
 varDecl::varDecl(std::list<varSymNode *> declSymTab, int lineNb)
 	: stmnt(astNode::E_VAR_DECL, lineNb)

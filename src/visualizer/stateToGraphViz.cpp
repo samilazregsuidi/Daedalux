@@ -1,6 +1,10 @@
-#include "stateToGraphViz.hpp"
+#include <daedalux/visualizer/stateToGraphViz.hpp>
+#include <daedalux/feature.hpp>
+#include <daedalux/core/automata.hpp>
+#include <daedalux/core/ast.hpp>
 
-#include "tvl.hpp"
+#include <string>
+
 
 #define PRINT_LIMIT 512
 #define PRINT_SIZE_LIMIT 128

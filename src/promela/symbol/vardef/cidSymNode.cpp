@@ -1,5 +1,5 @@
-#include "cidSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/promela/symbol/vardef/cidSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
 #include <limits>
 

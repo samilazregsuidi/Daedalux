@@ -1,7 +1,8 @@
-#include "ltlModelChecker.hpp"
-#include "explore.hpp"
-#include "initState.hpp"
-#include "promela_loader.hpp"
+#include <daedalux/algorithm/ltlModelChecker.hpp>
+#include <daedalux/algorithm/explore.hpp>
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+#include <daedalux/promela/parser/promela_loader.hpp>
+
 
 bool ltlModelChecker::isNeverClaimProblematic(std::shared_ptr<state> init)
 {

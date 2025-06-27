@@ -1,6 +1,5 @@
-#include "compositeTransition.hpp"
-#include "transition.hpp"
-#include "transitionVisitor.hpp"
+#include <daedalux/core/semantic/variable/transition/compositeTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/visitor/transitionVisitor.hpp>
 
 #include <cassert>
 #include <iostream>

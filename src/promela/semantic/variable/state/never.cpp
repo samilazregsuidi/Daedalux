@@ -3,19 +3,19 @@
 #include <time.h>
 #include <string.h>
 
-#include "never.hpp"
-#include "threadTransition.hpp"
+#include <daedalux/promela/semantic/variable/state/never.hpp>
 
-#include "stateVisitor.hpp"
+#include <daedalux/core/semantic/variable/transition/threadTransition.hpp>
+#include <daedalux/core/semantic/variable/state/visitor/stateVisitor.hpp>
+#include <daedalux/core/semantic/payload.hpp>
+#include <daedalux/core/semantic/variable.hpp>
 
-#include "payload.hpp"
-#include "variable.hpp"
-#include "channel.hpp"
+#include <daedalux/core/automata.hpp>
+#include <daedalux/core/ast.hpp>
 
-#include "automata.hpp"
-#include "ast.hpp"
-
-#include "initState.hpp"
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+#include <daedalux/promela/semantic/variable/channel.hpp>
+#include <daedalux/promela/ast.hpp>
 
 never::never(const seqSymNode* sym, const fsmNode* start)
 	: thread(variable::V_NEVER, sym, start)

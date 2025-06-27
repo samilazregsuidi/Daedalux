@@ -1,0 +1,5 @@
+#include "core/ast.hpp"
+#include "core/automata.hpp"
+#include "core/logic.hpp"
+#include "core/semantic.hpp"
+#include "core/symbol.hpp"

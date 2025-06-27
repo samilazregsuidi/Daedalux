@@ -1,6 +1,9 @@
-#include "bisimulationChecker.hpp"
-#include "initState.hpp"
-#include "state.hpp"
+#include <daedalux/algorithm/utils/bisimulationChecker.hpp>
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+#include <daedalux/core/semantic/variable/state/stateVar.hpp>
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
+
+
 #include <iostream>
 #include <queue>
 #include <unordered_map>

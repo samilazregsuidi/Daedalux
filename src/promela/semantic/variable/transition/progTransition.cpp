@@ -1,8 +1,8 @@
-#include "progTransition.hpp"
-#include "transitionVisitor.hpp"
+#include <daedalux/promela/semantic/variable/transition/progTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/visitor/transitionVisitor.hpp>
 
-#include "fsmEdge.hpp"
-#include "process.hpp"
+#include <daedalux/core/automata/fsmEdge.hpp>
+#include <daedalux/promela/semantic/variable/state/process.hpp>
 
 #include <assert.h>
 #include <iterator>

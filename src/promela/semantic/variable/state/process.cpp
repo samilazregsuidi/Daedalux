@@ -3,21 +3,25 @@
 #include <string.h>
 #include <time.h>
 
-#include "stateVisitor.hpp"
+#include <daedalux/core/semantic/variable/state/visitor/stateVisitor.hpp>
 
-#include "process.hpp"
-#include "program.hpp"
-#include "threadTransition.hpp"
-#include "transition.hpp"
+#include <daedalux/promela/semantic/variable/state/process.hpp>
+#include <daedalux/promela/semantic/variable/state/program.hpp>
+#include <daedalux/core/semantic/variable/transition/threadTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/trans.hpp>
 
-#include "channel.hpp"
-#include "payload.hpp"
-#include "variable.hpp"
+#include <daedalux/promela/semantic/variable/channel.hpp>
+#include <daedalux/core/semantic/payload.hpp>
+#include <daedalux/core/semantic/variable.hpp>
 
-#include "ast.hpp"
-#include "automata.hpp"
+#include <daedalux/core/ast.hpp>
+#include <daedalux/core/automata.hpp>
 
-#include "initState.hpp"
+#include <daedalux/promela/ast.hpp>
+#include <daedalux/promela/symbol.hpp>
+
+#include <daedalux/promela/semantic/variable/state/initState.hpp>
+
 
 process::process(const seqSymNode * sym, const fsmNode * start, byte pid, unsigned int index)
     : thread(variable::V_PROC, sym, start, pid, index)

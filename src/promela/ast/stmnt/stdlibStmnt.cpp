@@ -1,6 +1,8 @@
-#include "stdlibStmnt.hpp"
+#include <daedalux/promela/ast/stmnt/stdlibStmnt.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+
+#include <daedalux/promela/ast/expr/varExpr.hpp>
 
 stmntPrint::stmntPrint(const std::string &toPrint, exprArgList *argList, int lineNb)
 		: stmnt(astNode::E_STMNT_PRINT, lineNb)

@@ -4,13 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "astNode.hpp"
-#include "symbol.hpp"
-#include "symTable.hpp"
-#include "varSymNode.hpp"
-#include "utypeSymNode.hpp"
-#include "tdefSymNode.hpp"
-#include "mtypedefSymNode.hpp"
+#include <daedalux/core/ast/astNode.hpp>
 
 #include <iostream>
 

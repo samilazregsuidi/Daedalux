@@ -1,9 +1,10 @@
-#include "ltl.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream> // Include the <iostream> header
 #include <stdexcept>
 #include <string>
+
+#include <daedalux/core/logic/ltl.hpp>
 
 std::string LTLClaimsProcessor::transformLTLStringToNeverClaim(const std::string & ltl)
 {

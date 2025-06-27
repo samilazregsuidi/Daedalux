@@ -1,21 +1,27 @@
-#include "varSymNode.hpp"
-#include "symTabVisitor.hpp"
-#include "expr.hpp"
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
+#include <daedalux/promela/ast/expr.hpp>
 
-#include "naSymNode.hpp"
-#include "bitSymNode.hpp"
-#include "boolSymNode.hpp"
-#include "byteSymNode.hpp"
-#include "shortSymNode.hpp"
-#include "intSymNode.hpp"
-#include "cidSymNode.hpp"
-#include "pidSymNode.hpp"
-#include "utypeSymNode.hpp"
-#include "unsgnSymNode.hpp"
-#include "mtypedefSymNode.hpp"
-#include "sysSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/naSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/bitSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/boolSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/byteSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/shortSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/intSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/cidSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/pidSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/utypeSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/mtypeSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/chanSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/unsgnSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/mtypedefSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/sysSymNode.hpp>
 
 #include <limits>
+#include <string>
+#include <fstream>
+
+
 
 varSymNode::varSymNode(Type type, int lineNb, const std::string& name, unsigned int bound, expr* init)
 	: symbol(type, lineNb, name)

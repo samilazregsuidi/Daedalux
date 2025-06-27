@@ -3,19 +3,18 @@
 #include <string.h>
 #include <time.h>
 
-#include "program.hpp"
-#include "rendezVousTransition.hpp"
-#include "thread.hpp"
-#include "transition.hpp"
+#include <daedalux/core/semantic/variable/state/thread.hpp>
+#include <daedalux/core/semantic/variable/transition/rendezVousTransition.hpp>
+#include <daedalux/core/automata.hpp>
+#include <daedalux/core/ast.hpp>
+#include <daedalux/core/symbol.hpp>
 
-#include "channel.hpp"
-#include "payload.hpp"
-#include "variable.hpp"
+#include <daedalux/core/semantic/payload.hpp>
+#include <daedalux/core/semantic/variable.hpp>
 
-#include "ast.hpp"
-#include "automata.hpp"
-
-#include "initState.hpp"
+#include <daedalux/promela/semantic/variable.hpp>
+#include <daedalux/promela/ast.hpp>
+#include <daedalux/promela/symbol.hpp>
 
 thread::thread(variable::Type type, const seqSymNode * sym, const fsmNode * start, byte pid, unsigned int index)
     : state(type, sym->getName()), symType(sym), index(index), start(start), _else(false), pid(pid)

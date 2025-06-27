@@ -1,12 +1,12 @@
-#include "featured.hpp"
-#include "featuredTransition.hpp"
+#include "daedalux/feature/semantic/variable/state/featured.hpp"
+#include "daedalux/feature/semantic/variable/transition/featuredTransition.hpp"
 
-//bad coupling!
-#include "tvl.hpp"
+// bad coupling!
+#include "daedalux/feature/tvl.hpp"
 
-#include "stateVisitor.hpp"
+#include "daedalux/core/semantic/variable/state/visitor/stateVisitor.hpp"
 
-#include "ADDutils.hpp"
+#include "daedalux/feature/ADDutils.hpp"
 
 /**
  * Adds the global variables in the memory chunk.

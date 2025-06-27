@@ -1,4 +1,4 @@
-#include "stateComparer.hpp"
+#include <daedalux/algorithm/utils/stateComparer.hpp>
 
 /// @brief Given two maps of states, this function returns the states that are in the first map but not in the second map.
 /// @param original_successors - The original map of states

@@ -1,8 +1,7 @@
-#include "rendezVousTransition.hpp"
-#include "transitionVisitor.hpp"
+#include <daedalux/core/semantic/variable/transition/rendezVousTransition.hpp>
+#include <daedalux/core/semantic/variable/transition/visitor/transitionVisitor.hpp>
 
-#include "fsmEdge.hpp"
-#include "process.hpp"
+#include <daedalux/core/automata/fsmEdge.hpp>
 
 #include <assert.h>
 #include <iterator>
@@ -22,13 +21,6 @@ rendezVousTransition::rendezVousTransition(state* s, transition* question, trans
 	add(question);
 	if(response)
 		add(response);
-
-	/*lines.push_back(dynamic_cast<processTransition*>(question)->getLineNb());
-	if(response){
-		auto casted = dynamic_cast<processTransition*>(response);
-		if (casted)
-			lines.push_back(casted->getLineNb());
-	}*/
 
 	action = question->action;
 

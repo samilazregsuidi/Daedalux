@@ -1,5 +1,5 @@
-#include "byteSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/promela/symbol/vardef/byteSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
 #include <limits>
 

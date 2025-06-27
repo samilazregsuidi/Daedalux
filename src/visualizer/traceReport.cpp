@@ -1,4 +1,5 @@
-#include "traceReport.hpp"
+#include <daedalux/visualizer/traceReport.hpp>
+
 #include <limits>
 #include <numeric>
 

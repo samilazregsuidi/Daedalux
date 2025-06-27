@@ -1,6 +1,7 @@
-#include "utypeSymNode.hpp"
-#include "symTabVisitor.hpp"
-#include "tdefSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/utypeSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
+#include <daedalux/promela/symbol/typedef/tdefSymNode.hpp>
+
 
 utypeSymNode::utypeSymNode(tdefSymNode* utype, int lineNb)
 	: varSymNode(symbol::T_UTYPE, lineNb, std::string())

@@ -6,14 +6,10 @@
 #include <stdlib.h>
 #include <string>
 
-#include "fsm.hpp"
-#include "fsmEdge.hpp"
-#include "fsmNode.hpp"
+#include <daedalux/core/automata.hpp>
 
-#include "ast.hpp"
-#include "symbols.hpp"
-
-#include "tvl.hpp"
+#include <daedalux/core/ast.hpp>
+#include <daedalux/core/symbol.hpp>
 
 /*
  * FINITE STATE MACHINES (FSMs)

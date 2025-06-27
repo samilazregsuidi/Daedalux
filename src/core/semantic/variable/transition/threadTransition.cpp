@@ -1,10 +1,9 @@
-#include "threadTransition.hpp"
-#include "transitionVisitor.hpp"
+#include <daedalux/core/semantic/variable/transition/threadTransition.hpp>
+#include <daedalux/core/semantic/variable/state/thread.hpp>
+#include <daedalux/core/semantic/variable/transition/visitor/transitionVisitor.hpp>
+#include <daedalux/core/automata/fsmEdge.hpp>
 
-#include "fsmEdge.hpp"
-#include "thread.hpp"
-
-#include "flowStmnt.hpp"
+#include <daedalux/promela/ast/stmnt/flowStmnt.hpp>
 
 #include <assert.h>
 #include <iterator>

@@ -1,6 +1,7 @@
-#include "binaryExpr.hpp"
+#include <daedalux/promela/ast/expr/binaryExpr.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+
 
 /****************************************************************
  * **************************************************************

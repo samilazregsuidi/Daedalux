@@ -1,19 +1,13 @@
-#include "variable.hpp"
+#include <daedalux/core/semantic/variable/varNode.hpp>
+#include <daedalux/core/semantic/payload.hpp>
+
+#include <daedalux/promela/semantic/variable/state/process.hpp>
+#include <daedalux/promela/semantic/variable.hpp>
+#include <daedalux/promela/ast.hpp>
+#include <daedalux/promela/symbol.hpp>
 
 #include <iterator>
 #include <numeric>
-
-#include "payload.hpp"
-#include "process.hpp"
-
-#include "boolVariable.hpp"
-#include "channel.hpp"
-#include "mtypeVariable.hpp"
-#include "utypeVariable.hpp"
-
-#include "argExpr.hpp"
-#include "constExpr.hpp"
-#include "varExpr.hpp"
 
 unsigned int padding(const varSymNode * varSym)
 {

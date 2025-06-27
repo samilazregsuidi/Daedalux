@@ -1,0 +1,7 @@
+#include "variable/boolVariable.hpp"
+#include "variable/channel.hpp"
+#include "variable/mtypeVariable.hpp"
+#include "variable/primitiveVariable.hpp"
+#include "variable/utypeVariable.hpp"
+#include "variable/state.hpp"
+#include "variable/transition.hpp"

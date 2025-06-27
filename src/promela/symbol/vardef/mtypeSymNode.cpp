@@ -1,9 +1,9 @@
-#include "mtypeSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/mtypeSymNode.hpp>
 
-#include "mtypedefSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/promela/symbol/typedef/mtypedefSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
-#include "symTable.hpp"
+#include <daedalux/core/symbol/symTable.hpp>
 
 mtypeSymNode::mtypeSymNode(int lineNb, const std::string& name, int bound, expr* init)
 	: varSymNode(symbol::T_MTYPE, lineNb, name, bound, init)

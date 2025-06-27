@@ -1,0 +1,5 @@
+root FD {
+	group allOf {
+		opt Alarm
+	}
+}

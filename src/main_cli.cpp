@@ -3,9 +3,11 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "CLI11.hpp"
-#include "modelchecking_subcommand.hpp"
-#include "mutant_subcommand.hpp"
+#include <daedalux/CLI11.hpp>
+
+#include <daedalux/algorithm/cli/modelchecking_subcommand.hpp>
+#include <daedalux/mutants/cli/mutant_subcommand.hpp>
+
 
 /**
  * Make some basic checks on the architecture.

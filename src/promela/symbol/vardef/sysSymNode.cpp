@@ -1,6 +1,7 @@
-#include "sysSymNode.hpp"
+#include <daedalux/promela/symbol/vardef/sysSymNode.hpp>
 
-#include "symTable.hpp"
+#include <daedalux/core/symbol/symTable.hpp>
+
 
 sysSymNode::sysSymNode(int lineNb, const std::string& name, unsigned int bound, expr* init)
 	: varSymNode(symbol::T_SYS, lineNb, name, bound, init)

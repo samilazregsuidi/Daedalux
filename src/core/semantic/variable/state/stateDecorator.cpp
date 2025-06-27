@@ -1,4 +1,4 @@
-#include "stateDecorator.hpp"
+#include <daedalux/core/semantic/variable/state/stateDecorator.hpp>
 // State
 
 stateDecorator::stateDecorator(state* wrappee) 

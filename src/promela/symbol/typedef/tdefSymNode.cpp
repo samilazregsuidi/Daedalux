@@ -1,7 +1,7 @@
-#include "symTable.hpp"
-#include "tdefSymNode.hpp"
-#include "varSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/core/symbol/symTable.hpp>
+#include <daedalux/promela/symbol/typedef/tdefSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
 tdefSymNode::tdefSymNode(const std::string& name, symTable* st, const std::list<varSymNode*>& fields, int lineNb)
 	: symbol(symbol::T_TDEF, name, lineNb)

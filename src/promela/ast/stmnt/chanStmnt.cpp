@@ -1,6 +1,8 @@
-#include "chanStmnt.hpp"
+#include <daedalux/promela/ast/stmnt/chanStmnt.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+
+#include <daedalux/promela/ast/expr/varExpr.hpp>
 
 stmntChan::stmntChan(Type type, exprVarRef *chan, int lineNb)
     : stmnt(type, lineNb)

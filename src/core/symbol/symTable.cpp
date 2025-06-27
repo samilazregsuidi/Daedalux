@@ -6,15 +6,9 @@
 #include <algorithm>
 #include <vector>
 
-#include "symTable.hpp"
-#include "symbol.hpp"
-#include "symTabVisitor.hpp"
-#include "intSymNode.hpp"
-#include "pidSymNode.hpp"
-#include "boolSymNode.hpp"
-#include "sysSymNode.hpp"
-
-#include "tdefSymNode.hpp"
+#include "daedalux/core/symbol/symTable.hpp"
+#include "daedalux/core/symbol/visitor/symTabVisitor.hpp"
+#include "daedalux/promela/symbol.hpp"
 
 symTable::symTable(const std::string& name, symTable* prev)
 	: name(name)

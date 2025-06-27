@@ -1,12 +1,13 @@
 
-#include "mutantAnalyzer.hpp"
-#include "../formulas/formulaCreator.hpp"
-#include "explore.hpp"
-#include "fsmExplorer.hpp"
-#include "ltlModelChecker.hpp"
-#include "promela_loader.hpp"
-#include "spinRunner.hpp"
-#include "traceGenerator.hpp"
+#include <daedalux/mutants/mutantAnalyzer.hpp>
+#include <daedalux/formulas/formulaCreator.hpp>
+#include <daedalux/algorithm/explore.hpp>
+#include <daedalux/algorithm/fsmExplorer.hpp>
+#include <daedalux/algorithm/ltlModelChecker.hpp>
+#include <daedalux/promela/parser/promela_loader.hpp>
+#include <daedalux/mutants/spinRunner.hpp>
+#include <daedalux/algorithm/traceGenerator.hpp>
+
 #include <iostream>
 #include <memory>
 #include <string>

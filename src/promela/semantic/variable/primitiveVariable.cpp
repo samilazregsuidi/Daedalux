@@ -1,13 +1,13 @@
-#include "primitiveVariable.hpp"
-#include <cstdio>
+#include <daedalux/core/semantic/payload.hpp>
 
-#include "constExpr.hpp"
-#include "payload.hpp"
-#include "symbols.hpp"
-#include "../../src/formulas/predicates/statePredicate.hpp"
-#include "../../src/formulas/predicates/unaryPredicate.hpp"
-#include "../../src/formulas/predicates/binaryPredicate.hpp"
-#include "../../src/formulas/predicates/valuesPredicate.hpp"
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+
+#include <daedalux/promela/semantic/variable/primitiveVariable.hpp>
+#include <daedalux/promela/ast/expr/constExpr.hpp>
+
+#include <daedalux/formulas/predicates.hpp>
+
+#include <cstdio>
 
 primitiveVariable::primitiveVariable(const varSymNode * const varSym, unsigned int index)
     : variable(variable::getVarType(varSym->getType()),
@@ -289,7 +289,8 @@ variable * constVar::deepCopy(void) const
 
 /******************************************************************************************************/
 
-#include "process.hpp"
+#include <daedalux/promela/semantic/variable/state/process.hpp>
+#include <daedalux/promela/symbol/vardef/pidSymNode.hpp>
 
 PIDVar::PIDVar(const pidSymNode * sym, unsigned int bound) : primitiveVariable(sym, bound), ref(nullptr) {}
 

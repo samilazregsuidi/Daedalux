@@ -1,10 +1,12 @@
-#include "mtypeVariable.hpp"
+#include <daedalux/promela/semantic/variable/mtypeVariable.hpp>
+#include <daedalux/promela/symbol/vardef/varSymNode.hpp>
+#include <daedalux/promela/symbol/vardef/mtypeSymNode.hpp>
+#include <daedalux/promela/symbol/typedef/mtypedefSymNode.hpp>
 
-#include "varExpr.hpp"
-#include "../../src/formulas/predicates/statePredicate.hpp"
-#include "../../src/formulas/predicates/unaryPredicate.hpp"
-#include "../../src/formulas/predicates/binaryPredicate.hpp"
-#include "../../src/formulas/predicates/valuesPredicate.hpp"
+#include <daedalux/promela/ast/expr/varExpr.hpp>
+
+#include <daedalux/formulas/predicates.hpp>
+
 
 mtypeVar::mtypeVar(const mtypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) { assert(varType == V_MTYPE); }
 

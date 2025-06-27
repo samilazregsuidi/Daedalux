@@ -1,5 +1,5 @@
-#include "pidSymNode.hpp"
-#include "symTabVisitor.hpp"
+#include <daedalux/promela/symbol/vardef/pidSymNode.hpp>
+#include <daedalux/core/symbol/visitor/symTabVisitor.hpp>
 
 pidSymNode::pidSymNode(int lineNb, const std::string& name, int bound, expr* init)
 	: varSymNode(symbol::T_PID, lineNb, name, bound, init)

@@ -1,5 +1,6 @@
-#include "variantSymNode.hpp"
-#include "expr.hpp"
+#include <daedalux/promela/symbol/vardef/variantSymNode.hpp>
+#include <daedalux/promela/ast/expr.hpp>
+
 
 variantSymNode::variantSymNode(int lineNb, const std::string& name, expr* init)
 	: varSymNode(symbol::T_VARIANT, lineNb, name, 1, init)

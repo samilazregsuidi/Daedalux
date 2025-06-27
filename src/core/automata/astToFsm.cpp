@@ -1,11 +1,13 @@
-#include "astToFsm.hpp"
+#include  <daedalux/core/automata/astToFsm.hpp>
 
-#include "ast.hpp"
-#include "automata.hpp"
-#include "symbols.hpp"
+#include <daedalux/core/ast.hpp>
+#include <daedalux/core/automata.hpp>
+#include <daedalux/core/symbol.hpp>
 
-#include "expToADD.hpp"
-#include "tvl.hpp"
+#include <daedalux/feature.hpp>
+
+#include <daedalux/promela/ast.hpp>
+#include <daedalux/promela/symbol.hpp>
 
 ASTtoFSM::ASTtoFSM()
     : flags(0), res(nullptr), init(nullptr), current(nullptr), newNode(nullptr), prev(nullptr), fm(nullptr),

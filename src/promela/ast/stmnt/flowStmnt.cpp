@@ -1,6 +1,7 @@
-#include "flowStmnt.hpp"
+#include <daedalux/promela/ast/stmnt/flowStmnt.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+
 
 stmntOpt::stmntOpt(stmnt* block, stmntOpt *nextOpt, int lineNb)
 		: stmnt(astNode::E_STMNT_OPT, lineNb)

@@ -1,11 +1,12 @@
 #include <assert.h>
 #include <string>
 
-#include "argExpr.hpp"
-#include "varExpr.hpp"
-#include "constExpr.hpp"
+#include <daedalux/promela/ast/expr/argExpr.hpp>
+#include <daedalux/promela/ast/expr/varExpr.hpp>
+#include <daedalux/promela/ast/expr/constExpr.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+
 
 /****************************************************************
  * **************************************************************

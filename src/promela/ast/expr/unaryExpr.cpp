@@ -1,6 +1,7 @@
-#include "unaryExpr.hpp"
+#include <daedalux/promela/ast/expr/unaryExpr.hpp>
 
-#include "astVisitor.hpp"
+#include <daedalux/core/ast/visitor/astVisitor.hpp>
+
 
 /****************************************************************
  * **************************************************************

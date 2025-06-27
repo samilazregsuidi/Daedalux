@@ -5,12 +5,11 @@
 #include <stdlib.h>
 #include <string>
 
-#include "ast.hpp"
-#include "fsm.hpp"
-#include "fsmEdge.hpp"
-#include "fsmNode.hpp"
-#include "symbols.hpp"
-#include "tvl.hpp"
+#include <daedalux/core/automata/fsmEdge.hpp>
+#include <daedalux/core/automata/fsmNode.hpp>
+#include <daedalux/core/automata/fsm.hpp>
+#include <daedalux/core/ast/stmnt/stmntNode.hpp>
+
 
 fsmEdge::fsmEdge(fsmNode * source, const astNode * expression, int lineNb, bool owner)
     : parent(source->getParent()), source(source), target(nullptr), expression(expression), lineNb(lineNb), prob(1.0),

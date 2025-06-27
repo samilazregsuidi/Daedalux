@@ -1,8 +1,7 @@
-#include "utypeVariable.hpp"
+#include <daedalux/promela/symbol/vardef/utypeSymNode.hpp>
+#include <daedalux/promela/semantic/variable/utypeVariable.hpp>
 
-#include "cassert"
-
-#include "symbols.hpp"
+#include <cassert>
 
 utypeVar::utypeVar(const utypeSymNode * sym, unsigned int index) : primitiveVariable(sym, index) {}
 
