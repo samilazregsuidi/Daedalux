@@ -49,7 +49,21 @@ add_custom_target(promela_parser
 
 include(ExternalProject)
 set(CUDD_SRC     "${CMAKE_SOURCE_DIR}/src/libs/cudd")
+set(CUDD_CFG     "${CUDD_SRC}/config.h")
 
+add_custom_target(bootstrap_cudd
+    COMMENT "Bootstrapping CUDD (./configure -> config.h, .libs/...)"
+    WORKING_DIRECTORY ${CUDD_SRC}
+    COMMAND ./configure
+      --enable-silent-rules
+      --enable-obj
+      --enable-dddmp
+      --disable-shared
+    # only re-run if configure.in/configure changes
+    DEPENDS ${CUDD_SRC}/configure ${CUDD_SRC}/configure.ac
+    # this makes sure config.h is created before anyone uses it:
+    BYPRODUCTS ${CUDD_CFG}
+)
 
 # Allow CUDD headers (C++ wrapper and internal) to be found
 include_directories(
@@ -67,8 +81,7 @@ ExternalProject_Add(
   PREFIX          "${CMAKE_BINARY_DIR}/ext/cudd"
   SOURCE_DIR      "${CUDD_SRC}"
   BUILD_IN_SOURCE 1
-  CONFIGURE_COMMAND
-    "${CUDD_SRC}/configure"
+  CONFIGURE_COMMAND ""
   BUILD_COMMAND make "${CUDD_SRC}" -j4 check
   INSTALL_COMMAND ""
   BUILD_BYPRODUCTS
