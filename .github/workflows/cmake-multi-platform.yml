@@ -3,17 +3,17 @@ name: Daedalux CI
 on:
   workflow_dispatch:
   push:
-    branches: [ main, 'v1', alpha ]
+    branches: [ alpha ]
   pull_request:
-    branches: [ main, 'v1', alpha ]
+    branches: [ alpha ]
 
 jobs:
   build-project:
     name: Build on ${{ matrix.os }} [${{ matrix.build_type }}]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        build_type: [Debug, Release]
+        os: [ubuntu-latest]
+        build_type: [Debug]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -21,9 +21,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install CMake
-        uses: lukka/get-cmake@v4
+        uses: kitware/setup-cmake@v1
         with:
-          version: '3.25.0'
+          cmake-version: '3.25.0'
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
